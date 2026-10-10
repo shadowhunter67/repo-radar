@@ -18,6 +18,9 @@ inputs:
   output:
     description: Path of the JSON report to write.
     default: repo-radar-report.json
+  artifact-name:
+    description: Name of the uploaded artifact (must be unique within a workflow run).
+    default: repo-radar-report
   upload-artifact:
     description: Upload the JSON report as a workflow artifact ("true" / "false").
     default: 'true'
@@ -109,7 +112,7 @@ runs:
     - if: inputs.upload-artifact == 'true' && always()
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
-        name: repo-radar-report
+        name: ${{ inputs.artifact-name }}
         path: ${{ inputs.output }}
         if-no-files-found: ignore
     - name: Apply policy result

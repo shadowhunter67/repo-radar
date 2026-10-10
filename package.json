@@ -24,6 +24,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "bundle": "esbuild src/cli.ts --bundle --platform=node --format=esm --target=node20 --outfile=dist/action/repo-radar.mjs \"--banner:js=import{createRequire}from'module';const require=createRequire(import.meta.url);\"",
+    "package:action": "npm run bundle && node scripts/package-action.mjs",
     "schemas": "npm run build && node scripts/gen-schemas.mjs",
     "test": "vitest run",
     "lint": "eslint .",

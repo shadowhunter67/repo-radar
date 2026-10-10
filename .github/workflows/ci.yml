@@ -31,8 +31,51 @@ jobs:
           npm run schemas
           git diff --exit-code -- schemas
 
-  action-selftest:
-    # Builds the single-file bundle and runs the composite action against this repository.
+  action-matrix:
+    # Builds the single-file bundle and runs the composite action (as a consumer would) against real repositories.
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        repository:
+          - ${{ github.repository }}
+          - pallets/flask
+          - sindresorhus/execa
+          - nvm-sh/nvm
+          - octocat/Hello-World
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run package:action
+      - id: radar
+        uses: ./
+        with:
+          repository: ${{ matrix.repository }}
+          profile: default
+          artifact-name: repo-radar-${{ strategy.job-index }}
+      - name: Verify the report the Action produced
+        env:
+          REPORT: ${{ steps.radar.outputs.report-path }}
+          CODE: ${{ steps.radar.outputs.exit-code }}
+        run: |
+          test "$CODE" = "0"
+          node -e "
+            const r = JSON.parse(require('fs').readFileSync(process.env.REPORT, 'utf8'));
+            const ok = r.schema_version === '0.2' && r.code_analysis.scan.performed && r.integrity.report_sha256.length === 64
+              && r.dimensions.length === 7 && r.findings.every((f) => f.intent === 'undetermined');
+            console.log(r.subject.owner + '/' + r.subject.repo, 'overall', r.overall.score, 'findings', r.findings.length, 'ok', ok);
+            process.exit(ok ? 0 : 1);
+          "
+
+  action-policy-gate:
+    # The Action must FAIL (exit code 2) when a score floor cannot be met, and still upload its report.
     needs: check
     runs-on: ubuntu-latest
     permissions:
@@ -44,8 +87,18 @@ jobs:
           node-version: '20'
           cache: npm
       - run: npm ci
-      - run: npm run bundle
-      - uses: ./
+      - run: npm run package:action
+      - id: radar
+        continue-on-error: true
+        uses: ./
         with:
-          profile: default
-          minimum-documentation-score: '40'
+          repository: octocat/Hello-World
+          minimum-security-score: '100'
+          artifact-name: repo-radar-policy-gate
+      - name: The gate failed with exit code 2
+        env:
+          OUTCOME: ${{ steps.radar.outcome }}
+          CODE: ${{ steps.radar.outputs.exit-code }}
+        run: |
+          test "$OUTCOME" = "failure"
+          test "$CODE" = "2"

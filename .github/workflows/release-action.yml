@@ -1,0 +1,58 @@
+name: release-action
+
+# Packages the Action. `main` does not contain the bundle (dist/ is git-ignored on purpose); a release is a commit
+# that adds dist/action/ on top of main and is tagged `action-v<version>`, so consumers use
+# `uses: <owner>/repo-radar@action-v<version>`. Manual only; dry run by default.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Only build and verify the bundle (no tag, no push)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run bundle
+      - id: manifest
+        run: |
+          node scripts/package-action.mjs
+          echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Smoke-test the bundle exactly as the Action runs it
+        run: |
+          node dist/action/repo-radar.mjs --version
+          set +e
+          node dist/action/repo-radar.mjs analyze 'not a repo'
+          code=$?
+          set -e
+          test "$code" = "64"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: action-bundle
+          path: dist/action/
+      - name: Commit the bundle to a release tag
+        if: ${{ !inputs.dry_run }}
+        env:
+          VERSION: ${{ steps.manifest.outputs.version }}
+        run: |
+          git config user.name "repo-radar release"
+          git config user.email "release@repo-radar.invalid"
+          git checkout --detach
+          git add -f dist/action/repo-radar.mjs dist/action/MANIFEST.json
+          git commit -m "release: action bundle ${VERSION}"
+          git tag "action-v${VERSION}"
+          git push origin "refs/tags/action-v${VERSION}"
