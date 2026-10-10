@@ -263,7 +263,10 @@ try {
       .filter(Boolean)
       .flatMap((l) => l.split('|')),
   );
-  const allowed = new Set(['repo-radar dev <dev@repo-radar.invalid>']);
+  const allowed = new Set([
+    'repo-radar dev <dev@repo-radar.invalid>',
+    'GitHub <noreply@github.com>', // committer of squash merges made in the GitHub UI
+  ]);
   const other = [...ids].filter((i) => !allowed.has(i) && !/\[bot\]/.test(i));
   gate(
     13,

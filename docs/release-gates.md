@@ -19,7 +19,7 @@ issue; the script prints it as `MANUAL`, never as passed.
 | 10  | Schema compatibility tests are green                       | `schemas/` is in sync with the zod schemas (`docs-sync` / schema tests exist)                  |
 | 11  | SECURITY.md and the threat model are current              | files exist and mention the analyzer's current supported version; manual review confirms scope |
 | 12  | Third-party Actions are pinned to full SHAs                | every `uses:` in `.github/workflows` and `action.yml` is a 40-hex SHA or a local path          |
-| 13  | Commit identity is the project identity                    | no commit author/committer outside `repo-radar dev <dev@repo-radar.invalid>`                   |
+| 13  | Commit identity is the project identity                    | no commit identity other than `repo-radar dev <dev@repo-radar.invalid>`, GitHub's web-merge committer and `[bot]` accounts                   |
 | 14  | Label review is upgraded from single AI to human           | `manual`: calibration labels reviewed by at least one human before claims are made publicly    |
 
 Notes
