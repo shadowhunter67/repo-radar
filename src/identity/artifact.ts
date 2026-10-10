@@ -30,6 +30,14 @@ export function classifyArtifact(
   const nested = s.manifests.filter((m) => m.file.includes('/') && !NOISE_DIR.test(m.file));
 
   // Strong workspace evidence wins; a few nested manifests only win when the taxonomy gives no artifact hint.
+  // A publishable root package that itself ships a command-line tool is that tool, with a workspace layout
+  // (e.g. a Cargo workspace of internal crates); a private or absent root is just a container for packages.
+  const root = s.manifests.find((m) => !m.file.includes('/'));
+  const rootShipsCli = !!root && !root.isPrivate && root.entrypoints.length > 0 && has('cli');
+  if (rootShipsCli && nested.length >= 3) {
+    add('monorepo');
+    return { type: 'cli', confidence: 0.6, alternatives };
+  }
   if (nested.length >= 6 || (nested.length >= 3 && !entry?.artifact)) {
     add('library');
     return { type: 'monorepo', confidence: nested.length >= 6 ? 0.65 : 0.5, alternatives };

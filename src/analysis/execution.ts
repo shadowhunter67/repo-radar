@@ -314,7 +314,8 @@ export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
           ecosystem: 'npm',
           name: spec.name,
           trigger: spec.trigger,
-          runs_for_dependents: spec.dependents,
+          // A private package is never published, so nobody installs it as a dependency.
+          runs_for_dependents: spec.dependents && !m.isPrivate,
           context: 'install',
           script: sanitizeForTerminal(scripts[spec.name] as string, 200),
           unanalyzed_commands: 0,
@@ -368,16 +369,22 @@ export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
     const base = f.path.slice(f.path.lastIndexOf('/') + 1);
     const depth = f.path.split('/').length - 1;
     if (depth > 1) continue;
-    if (base === 'setup.py')
+    if (base === 'setup.py') {
+      // pip only runs setup.py when the PEP 517 backend is setuptools (or none is declared).
+      const dir = f.path.includes('/') ? f.path.slice(0, f.path.lastIndexOf('/') + 1) : '';
+      const backend = input.manifests.find((x) => x.file === `${dir}pyproject.toml`)?.buildBackend;
+      const runs = backend === undefined || /^setuptools(?:\.|:|$)/.test(backend);
       roots.push({
         path: f.path,
         ecosystem: 'pypi',
         name: 'setup.py',
-        trigger: 'pip install of a source distribution or `pip install .` (runs setup.py)',
-        dependents: true,
-        ctx: 'install',
+        trigger: runs
+          ? 'pip install of a source distribution or `pip install .` (runs setup.py)'
+          : `legacy setup.py; the declared build backend (${sanitizeForTerminal(backend, 60)}) does not run it`,
+        dependents: runs,
+        ctx: runs ? 'install' : 'build',
       });
-    else if (base === 'build.rs')
+    } else if (base === 'build.rs')
       roots.push({
         path: f.path,
         ecosystem: 'cargo',

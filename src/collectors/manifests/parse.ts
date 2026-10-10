@@ -21,6 +21,8 @@ export interface ParsedManifest {
   /** Executable entry points (bin names, console scripts, `[[bin]]`). */
   entrypoints: string[];
   isPrivate?: boolean;
+  /** PEP 517 `[build-system] build-backend` (pyproject.toml), when declared. */
+  buildBackend?: string;
   /** npm `scripts` (name -> command), bounded in count and length; never executed. */
   scripts?: Record<string, string>;
   /** Files the manifest names as entry points (npm main/bin/exports string). */
@@ -186,6 +188,8 @@ function parsePyproject(file: string, text: string): ParsedManifest | undefined 
     if (isObj(poetry['scripts'])) m.entrypoints.push(...Object.keys(poetry['scripts']));
   }
   if (!project && !poetry) return undefined;
+  const backend = isObj(t['build-system']) ? str(t['build-system']['build-backend']) : undefined;
+  if (backend) m.buildBackend = backend;
   return m;
 }
 

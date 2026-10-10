@@ -71,6 +71,25 @@ describe('artifact classification', () => {
     expect(many.artifact_type).toBe('monorepo');
   });
 
+  it('a publishable root that ships a CLI stays a CLI with a workspace layout; a private root is a monorepo', () => {
+    const nested = ['a', 'b', 'c', 'd', 'e', 'f'].map((n) => pkg(`crates/${n}/package.json`));
+    const shipping = classifier.classify(
+      snap({
+        description: 'Search tool',
+        manifests: [pkg('package.json', { bin: { rg: 'rg.js' } }), ...nested],
+      }),
+    );
+    expect(shipping.artifact_type).toBe('cli');
+    expect(shipping.artifact_alternatives).toContain('monorepo');
+    const priv = classifier.classify(
+      snap({
+        description: 'Search tool',
+        manifests: [pkg('package.json', { bin: { rg: 'rg.js' }, private: true }), ...nested],
+      }),
+    );
+    expect(priv.artifact_type).toBe('monorepo');
+  });
+
   it('exposes runner-up domains with shares instead of a single forced label', () => {
     const id = classifier.classify(
       snap({

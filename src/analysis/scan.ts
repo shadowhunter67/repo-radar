@@ -31,6 +31,9 @@ export const CHAIN_WINDOW_LINES = 40;
 const MAX_DOWNLOAD_ANCHORS = 6;
 
 /** Line-oriented scan of one file. Pure and bounded: input size and per-line length are capped. */
+// A line that starts with a `$ ` prompt is a documented example (help text, README snippet), not code that runs.
+const SHELL_PROMPT_EXAMPLE = /^\s*\$\s+\S/;
+
 export function scanFile(file: ScannedFile): FileScan {
   const kind = fileKind(file.path);
   const rawLines = file.content.split('\n', LIMITS.maxLinesPerFile + 1);
@@ -43,7 +46,7 @@ export function scanFile(file: ScannedFile): FileScan {
 
   for (let i = 0; i < lines.length; i++) {
     const line = (lines[i] as string).replace(/\r$/, '').slice(0, LIMITS.maxLineChars);
-    if (!line.trim() || isCommentLine(kind, line)) continue;
+    if (!line.trim() || isCommentLine(kind, line) || SHELL_PROMPT_EXAMPLE.test(line)) continue;
     if (PIPE_TO_SHELL.test(line)) pipeLines.push(i + 1);
     for (const d of DETECTORS) {
       if (d.kinds !== '*' && !d.kinds.includes(kind)) continue;

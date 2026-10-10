@@ -1,62 +1,67 @@
-# Calibration dataset (scaffold only)
+# Calibration corpus v0
 
-**Status: no labelled data exists yet.** This directory defines the format and rules for building the golden repository
-dataset the scoring model needs. Weights, thresholds and the confidence model in methodology 0.2 are hand-authored
-judgement and are **not calibrated**. Until labels exist, treat every number as uncalibrated.
+A small, pinned, labelled set of real repositories used to **measure** where repo-radar is right and wrong. It is a
+measurement tool, not a source of truth: read [Limitations](#limitations) before quoting any number.
 
-## Goal
+## Contents
 
-Measure, against human labels, where repo-radar is right and wrong, **without tuning it merely to reproduce subjective
-preference**: precision/recall of identity and capability detection, false positives and negatives, confidence calibration
-(does 80% confidence mean right 80% of the time?), score stability over time and profile bias.
+| Path                         | What                                                                                                     |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `dataset.yaml`               | The 48 repositories, why each is included (categories), `tuned_on` flags and review defaults.            |
+| `pins.json`                  | The commit SHA each repository is analysed at (`calibration/tools/fetch-corpus.mjs` writes it).          |
+| `labels/<owner>__<repo>.yaml`| Judgements only: artifact type, domain, capabilities (yes/no/unknown/disputed), hooks, persistence, secrets. |
+| `tools/dossier.mjs`          | Builds an evidence dossier from crude patterns (grep-style, **not** the analyzer) for the labeller.      |
+| `results/`                   | Committed evaluation outputs (`tuning-*.md/json`). `runs/` is a git-ignored per-repository report cache. |
 
-## Target composition (200-500 repositories)
+The loader (`src/calibration/load.ts`) merges dataset + pins + labels and refuses inconsistent corpora (missing label,
+missing pin, commit mismatch). `tests/unit/calibration-corpus.test.ts` enforces size (30-50), SHA pins, split
+population, category coverage and label sanity.
 
-mature OSS, new projects, solo-maintainer projects, large organizations, libraries, CLI tools, web applications, services,
-frameworks, security software, AI projects, archived repositories, known vulnerable projects, known supply-chain incident
-repositories, intentionally vulnerable projects, minimal repositories, educational repositories, high-quality references.
-Include ecosystems beyond npm/Python (Go, Rust, Java, C/C++, shell) to expose ecosystem bias.
+## Splits and discipline
 
-## Rules for labels
+`dev`, `validation`, `holdout` are assigned by hash of the repository name (about 40/30/30 %); repositories flagged
+`tuned_on` (looked at while building the analyzer) are forced into `dev`.
 
-1. **Labels live apart from the analyzer** (this directory), never in `src/` or `standards/`, and the analyzer must not read them.
-2. Pin each repository to a **commit SHA** and record the labelling date; analysis is compared at that SHA.
-3. At least **two independent reviewers** per repository where feasible. Store each reviewer's labels separately and record
-   disagreement; do not collapse disagreement into a single "truth".
-4. Labels describe observable facts a reviewer verified (artifact type, domain, which capabilities exist, whether install hooks
-   exist) plus clearly marked ordinal judgements (security maturity, engineering hygiene, ...), each with a one-line justification.
-5. Do not label intent. "Contains persistence code" is a label; "is malware" is not.
-6. Publish the dataset and the evaluation script together; record the repo-radar version, methodology digest and config digest of each run.
+- Fix the analyzer using **dev** failures; use **validation** to check a fix generalises.
+- **Holdout** is evaluated only with `--final`, once per methodology version, at the end of a tuning cycle. The runner
+  refuses it otherwise (exit 64). Never tune on holdout results.
+- Validation stops being independent after it has been used to choose fixes; the result files say which run is which.
+- Only generalisable defects are fixed (a rule that is wrong for a class of repositories). A repository-specific tweak is
+  overfitting and is not accepted.
+- Every fix found by calibration gets a small, synthetic regression test (not the real repository).
 
-## Format
+## Running
 
-One YAML file per repository in `labels/<owner>__<repo>.yaml`, validated by `label.schema.json` once the evaluator exists:
-
-```yaml
-repository: owner/repo
-commit: 0123456789abcdef0123456789abcdef01234567
-labelled_on: 2026-10-10
-reviewers:
-  - id: reviewer-a
-    artifact_type: library # library | application | cli | service | framework | plugin | extension | sdk | ...
-    domain: developer-tooling
-    capabilities: [PROCESS_EXEC, ENVIRONMENT_READ] # verified by reading the code
-    install_hooks: [] # npm hooks / setup.py / build.rs a reviewer found
-    persistence: []
-    hard_coded_secrets: false
-    ordinal: # 1 (weak) .. 5 (strong), each justified
-      security_maturity: { value: 4, why: 'branch protection, SECURITY.md, pinned CI' }
-      engineering_hygiene: { value: 5, why: 'tests, lint, types, CI' }
-      maintenance_maturity: { value: 4, why: 'monthly releases' }
-      documentation_quality: { value: 4, why: 'README with usage and examples' }
-      supply_chain_maturity: { value: 3, why: 'lockfile, no signed releases' }
-    risk_class: low # low | medium | high (consequence if misused), not intent
-    notes: ''
+```
+npm run build
+GITHUB_TOKEN=... node scripts/calibrate.mjs                    # dev + validation
+GITHUB_TOKEN=... node scripts/calibrate.mjs --splits dev --only owner/repo --refresh
+GITHUB_TOKEN=... node scripts/calibrate.mjs --final            # holdout too; once per methodology version
 ```
 
-## Planned evaluation (not implemented)
+The analyzer is run with `--ref <pinned sha>`: files, tree and commits are the pinned revision, while API-derived
+metadata (issues, releases, contributors, branch protection) is current and is **not** used by the metrics. Scorecard and
+OSV are disabled for calibration (non-deterministic, network).
 
-`scripts/calibrate`: run the analyzer at the pinned SHA for each repository, then report per-field agreement with each reviewer and
-inter-reviewer agreement, confusion matrices for artifact type and domain, per-capability precision/recall, reliability diagrams for
-confidence, and rank correlation between dimension scores and ordinal labels split by repository cohort (size, age, solo vs team,
-ecosystem) to expose bias. See [docs/roadmap.md](../docs/roadmap.md).
+## Metrics
+
+Artifact type and domain: accuracy over the labels that are decided (`unknown`/`disputed` are excluded), split into
+answered vs abstained (the analyzer answering `unknown` is neither right nor wrong, and is reported on its own),
+"correct including alternatives", a confusion matrix and ECE. Binary detectors (each capability, automatic install hooks,
+persistence, hard-coded secrets): TP/FP/FN/TN, precision, recall, with `unknown` labels excluded; capability recall is
+also split by how much of the source was actually scanned. Confidence calibration: bins, expected calibration error,
+Brier score. Disagreements are listed so each can be inspected.
+
+## Limitations
+
+- Labels come from **one AI-assisted reviewer** (`review.kind: ai-assisted-single`), not independent human review, and
+  were produced from crude-pattern dossiers rather than a full code read. Treat metrics as indicative, with the label
+  noise as an unmeasured error term. The corpus is meant to be re-labelled by humans.
+- 48 repositories, mostly npm / Python / Go / Rust; Java, C/C++ and shell are thin. Per-capability cells have small n;
+  one repository can move a percentage by 10 points or more.
+- Capability labels are about observable code behaviour, not intent. Static analysis only sees what fits the scan
+  budget (40 files); recall is therefore reported against scan coverage.
+- Ordinal judgements (security maturity etc.) are **not** labelled yet, so scores are not calibrated here.
+- Dev contains repositories the analyzer was built against, so dev numbers are optimistic by construction.
+
+See also [docs/limitations.md](../docs/limitations.md) and [docs/roadmap.md](../docs/roadmap.md).

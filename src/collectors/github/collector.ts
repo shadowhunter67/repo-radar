@@ -22,7 +22,7 @@ const API = 'https://api.github.com';
 const RAW = 'https://raw.githubusercontent.com';
 
 const MAX_WORKFLOWS = 20;
-const MAX_MANIFESTS = 6;
+const MAX_MANIFESTS = 10;
 const MAX_LOCKS = 4;
 const RAW_MAX_BYTES = 512 * 1024;
 const STALE_DAYS = 180;
@@ -792,9 +792,16 @@ function summarizeItems(
   }
 }
 
-function pickManifests(paths: string[]): string[] {
-  // Shallow manifests first (root manifest is the most representative).
-  return [...paths].sort((a, c) => a.split('/').length - c.split('/').length || (a < c ? -1 : 1));
+// Manifests under these directories are almost always private tooling, not what dependents install.
+const AUXILIARY_DIR =
+  /(?:^|\/)(?:examples?|docs?|website|test|tests|tools|scripts|benchmarks?|e2e|fixtures?)\//i;
+
+export function pickManifests(paths: string[]): string[] {
+  // Root manifest first (most representative), then published-looking workspace packages before auxiliary ones.
+  const rank = (p: string): number => (p.includes('/') ? (AUXILIARY_DIR.test(p) ? 2 : 1) : 0);
+  return [...paths].sort(
+    (a, c) => rank(a) - rank(c) || a.split('/').length - c.split('/').length || (a < c ? -1 : 1),
+  );
 }
 
 function sum<T>(xs: T[], f: (x: T) => number): number {

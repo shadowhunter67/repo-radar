@@ -247,7 +247,10 @@ export function analyzeCode(input: CodeAnalysisInput): CodeAnalysis {
       (d.capability === 'PERSISTENCE' || d.capability === 'BACKGROUND_PROCESS'),
   );
   const persistence = {
-    observed: persistDs.some((d) => d.capability === 'PERSISTENCE'),
+    // A container restart policy keeps a container running; it does not persist anything on the user's host.
+    observed: persistDs.some(
+      (d) => d.capability === 'PERSISTENCE' && d.persistence_kind !== 'container_restart_policy',
+    ),
     kinds: [
       ...new Set(persistDs.map((d) => d.persistence_kind as (typeof PERSISTENCE_KINDS)[number])),
     ].sort(),

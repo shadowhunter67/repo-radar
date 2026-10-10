@@ -360,3 +360,25 @@ describe('hostile-input performance (ReDoS regression)', () => {
     expect(Date.now() - t0).toBeLessThan(1500);
   });
 });
+
+describe('manifest selection (found by calibration: puppeteer)', () => {
+  it('keeps the root first and ranks published-looking workspace packages before examples/tools', async () => {
+    const { pickManifests } = await import('../../src/collectors/github/collector.js');
+    const paths = [
+      'tools/docgen/package.json',
+      'packages/zeta/package.json',
+      'examples/demo/package.json',
+      'package.json',
+      'packages/alpha/package.json',
+      'website/package.json',
+    ];
+    expect(pickManifests(paths)).toEqual([
+      'package.json',
+      'packages/alpha/package.json',
+      'packages/zeta/package.json',
+      'website/package.json',
+      'examples/demo/package.json',
+      'tools/docgen/package.json',
+    ]);
+  });
+});

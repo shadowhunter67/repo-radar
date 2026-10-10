@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { analyzeCode, type CodeAnalysis } from '../../src/analysis/index.js';
 import { extractLocalRefs, resolveRef } from '../../src/analysis/refs.js';
 import { scanFile } from '../../src/analysis/scan.js';
-import { redact, scanSecretsInFile } from '../../src/analysis/secrets.js';
+import { redact, scanSecretsInFile, secretFilenameCandidates } from '../../src/analysis/secrets.js';
 import type { FileRole, ScannedFile, SecretCandidate } from '../../src/analysis/types.js';
 import { parseManifest } from '../../src/collectors/manifests/parse.js';
 
@@ -320,6 +320,35 @@ describe('npm install-time execution graph', () => {
     expect(by['install.sh']).toMatchObject({ ecosystem: 'shell', risk: 'high' });
   });
 
+  it('a private npm package never runs its lifecycle hooks for dependents (it is not published)', () => {
+    const priv = run([], [pkg({ postinstall: 'manypkg check' }, { private: true })]);
+    expect(priv.execution.hooks).toHaveLength(1);
+    expect(priv.execution.hooks[0]).toMatchObject({
+      name: 'postinstall',
+      runs_for_dependents: false,
+    });
+    const pub = run([], [pkg({ postinstall: 'manypkg check' })]);
+    expect(pub.execution.hooks[0]).toMatchObject({ runs_for_dependents: true });
+  });
+
+  it('setup.py is an install-time hook only when the PEP 517 backend is setuptools or undeclared', () => {
+    const setupPy = file('setup.py', "print('hi')\n", 'build');
+    const py = (backend: string | undefined) =>
+      parseManifest(
+        'pyproject.toml',
+        `[project]\nname = "x"\nversion = "1"\n${backend ? `[build-system]\nrequires = ["b"]\nbuild-backend = "${backend}"\n` : ''}`,
+      )!;
+    const hook = (backend: string | undefined) =>
+      run([setupPy], [py(backend)]).execution.hooks.find((h) => h.name === 'setup.py')!;
+    expect(hook(undefined)).toMatchObject({ runs_for_dependents: true, context: 'install' });
+    expect(hook('setuptools.build_meta')).toMatchObject({ runs_for_dependents: true });
+    expect(hook('poetry.core.masonry.api')).toMatchObject({
+      runs_for_dependents: false,
+      context: 'build',
+    });
+    expect(hook('hatchling.build')).toMatchObject({ runs_for_dependents: false });
+  });
+
   it('caps the graph size and reports it', () => {
     const scripts: Record<string, string> = {
       postinstall: Array.from({ length: 20 }, (_, i) => `npm run s${i}`).join(' && '),
@@ -330,6 +359,54 @@ describe('npm install-time execution graph', () => {
     expect(a.execution.graph.nodes.length).toBeLessThanOrEqual(300);
     expect(a.execution.graph.truncated).toBe(true);
     expect(a.scan.limits_hit.join(' ')).toMatch(/execution graph capped/);
+  });
+});
+
+describe('false-positive regressions found by calibration', () => {
+  it('a container restart policy is not host persistence', () => {
+    const a = run([
+      file('compose.yaml', 'services:\n  app:\n    image: x\n    restart: always\n', 'build'),
+    ]);
+    expect(a.persistence.observed).toBe(false);
+    expect(a.persistence.kinds).toEqual(['container_restart_policy']);
+  });
+
+  it('a `$ ` prompt line in help text is documentation, not a shell-profile modification', () => {
+    const doc = 'const usage = `\n  $ echo "autoload -U compinit; compinit" >> ~/.zshrc\n`;\n';
+    expect(run([file('cmd/help.go', doc)]).persistence.observed).toBe(false);
+    const real = 'echo "export PATH=$PATH:/x" >> ~/.zshrc\n';
+    expect(run([file('install.sh', real, 'script')]).persistence.observed).toBe(true);
+  });
+});
+
+describe('secret scanner false-positive regressions found by calibration', () => {
+  const fromNames = (paths: string[]) => {
+    const out: SecretCandidate[] = [];
+    secretFilenameCandidates(paths, out, { n: 0 });
+    return out;
+  };
+  it('a .pem named like a certificate is only POSSIBLE; a private-key name stays DIRECT', () => {
+    const [cert, key] = fromNames(['deploy/server-cert.pem', 'deploy/server-key.pem']);
+    expect(cert).toMatchObject({ type: 'key-material-file', mode: 'POSSIBLE' });
+    expect(key).toMatchObject({ type: 'key-material-file', mode: 'DIRECT' });
+    expect(fromNames(['keys/id_ed25519'])[0]).toMatchObject({ mode: 'DIRECT' });
+  });
+
+  it('test-server and e2e directories count as test/example locations', () => {
+    expect(fromNames(['packages/testserver/key.pem'])[0]?.in_test_or_example).toBe(true);
+    expect(fromNames(['e2e/key.pem'])[0]?.in_test_or_example).toBe(true);
+    expect(fromNames(['src/key.pem'])[0]?.in_test_or_example).toBe(false);
+  });
+
+  it('a line carrying a scanner allow marker is kept but not scored', () => {
+    const key = 'AKIA' + 'QWERTYUIOP234567'; // built at runtime so this file holds no key-shaped literal
+    const scan = (line: string) => {
+      const out: SecretCandidate[] = [];
+      scanSecretsInFile(file('src/a.ts', `${line}\n`), out, { n: 0 });
+      return out;
+    };
+    expect(scan(`const k = "${key}";`)[0]).toMatchObject({ mode: 'DIRECT' });
+    expect(scan(`const k = "${key}"; // gitleaks:allow`)[0]).toMatchObject({ mode: 'POSSIBLE' });
   });
 });
 
@@ -428,7 +505,9 @@ describe('secret scanning', () => {
       ['certs/server.pem', 'key-material-file'],
       ['tests/fixtures/.env', 'committed-env-file'],
     ]);
-    expect(b.secrets.scored_count).toBe(3);
+    expect(b.secrets.scored_count).toBe(2);
+    // certs/server.pem is kept as a candidate but is only POSSIBLE: a .pem name alone does not show a private key.
+    expect(b.secrets.candidates.find((c) => c.file === 'certs/server.pem')?.mode).toBe('POSSIBLE');
   });
   it('redact never reveals more than four characters', () => {
     expect(redact('ghp_secretsecretsecret', true)).toBe('ghp_********');

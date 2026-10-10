@@ -96,9 +96,13 @@ const SECRET_FILENAMES: { type: string; re: RegExp }[] = [
 ];
 
 const TEST_OR_EXAMPLE =
-  /(?:^|\/)(?:tests?|__tests__|spec|fixtures?|testdata|examples?|samples?|docs?|mocks?|node_modules)\/|\.(?:test|spec)\.[cm]?[jt]sx?$|(?:^|\/)test_[^/]*\.py$|_test\.go$/i;
+  /(?:^|\/)(?:tests?|testing|testdata|testserver|test-server|__tests__|e2e|spec|fixtures?|examples?|samples?|docs?|mocks?|node_modules)\/|\.(?:test|spec)\.[cm]?[jt]sx?$|(?:^|\/)test_[^/]*\.py$|_test\.go$/i;
 
 export const isTestOrExample = (path: string): boolean => TEST_OR_EXAMPLE.test(path);
+
+// Markers with which a project declares that a flagged line is an intentional, allowed value (secret scanners'
+// own inline suppressions). We cannot verify the claim, so such a line is kept but never scored.
+const DECLARED_ALLOWED = /gitleaks:allow|pragma:\s*allowlist\s*secret|nosecret|trufflehog:ignore/i;
 
 export function redact(match: string, prefix: boolean): string {
   if (!prefix) return '[redacted]';
@@ -122,7 +126,7 @@ export function scanSecretsInFile(
       out.push({
         id: `SEC-${String(++counter.n).padStart(4, '0')}`,
         type: p.type,
-        mode: p.mode,
+        mode: p.mode === 'DIRECT' && DECLARED_ALLOWED.test(line) ? 'POSSIBLE' : p.mode,
         confidence: testish ? Math.min(p.confidence, 0.4) : p.confidence,
         file: file.path,
         line: i + 1,
@@ -133,6 +137,9 @@ export function scanSecretsInFile(
     }
   }
 }
+
+const PRIVATE_KEY_NAME =
+  /(?:^|\/)(?:id_rsa|id_dsa|id_ecdsa|id_ed25519)$|(?:priv|secret|key)[^/]*$|\.(?:p12|pfx|jks|keystore)$/i;
 
 /** Filename-only candidates from the git tree (content is never fetched for these). */
 export function secretFilenameCandidates(
@@ -148,7 +155,9 @@ export function secretFilenameCandidates(
       out.push({
         id: `SEC-${String(++counter.n).padStart(4, '0')}`,
         type: f.type,
-        mode: 'DIRECT',
+        // A .pem/.crt-style name alone does not say whether it holds a private key (often a public certificate).
+        mode:
+          f.type === 'key-material-file' && !PRIVATE_KEY_NAME.test(path) ? 'POSSIBLE' : 'DIRECT',
         confidence: testish ? 0.3 : 0.6,
         file: path,
         line: 0,

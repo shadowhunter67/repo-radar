@@ -16,6 +16,18 @@ Report schema 0.2, methodology 0.2, taxonomy 0.2, detector pack 0.1, facts 0.1. 
 - CLI `--no-scan`; Action input `code-scan`; report `methodology` records taxonomy/detector/facts versions and a configuration digest; `integrity.report_sha256` tamper evidence.
 - Tests: static-analysis unit tests, hostile-input/ReDoS cases, end-to-end installer-like and benign repository fixtures (416 tests in 18 files).
 
+- **Calibration corpus v0** ([calibration/README.md](calibration/README.md)): 48 pinned repositories, label schema (tri-state yes/no/unknown/disputed), dev/validation/holdout splits, `scripts/calibrate.mjs` (holdout only with `--final`), metrics (precision/recall, abstention-aware accuracy, ECE/Brier). Labels are one AI-assisted review, not human review.
+- CLI/library `--ref <sha|branch|tag>` pins files, tree and commits to a revision (validated; never an option injection).
+- Release packaging for the Action (`npm run package:action`, `release-action.yml` dry-run by default; CI runs the Action on real repositories and checks the policy-gate exit code).
+- Public release gates ([docs/release-gates.md](docs/release-gates.md)), machine-checked by `npm run release:gates`.
+
+### Fixed (found by calibration, each with a regression test)
+
+- A **private** npm package's lifecycle hooks no longer count as running for dependents; `setup.py` counts as an install hook only when the PEP 517 backend is setuptools or undeclared.
+- A container `restart:` policy is no longer reported as host persistence; `$ `-prompt lines in help text are not code.
+- A `.pem` named like a certificate is only a POSSIBLE secret file; scanner allow markers (`gitleaks:allow`...) demote a hit to POSSIBLE; test-server/e2e directories count as test locations.
+- Workspace manifests: published-looking packages are fetched before examples/tools (cap raised 6 to 10); a publishable root that ships a CLI stays a CLI instead of "monorepo".
+
 ### Changed
 
 - Dimension label **Code Quality -> Engineering Hygiene** (id `code-quality` unchanged): it measures process indicators, not code quality.
