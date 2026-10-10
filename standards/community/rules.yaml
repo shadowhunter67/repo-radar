@@ -1,0 +1,71 @@
+# Community standards, methodology 0.1.
+# Issue/PR responsiveness is scored once, under maintenance, to avoid counting the same evidence twice.
+# More contributors is not always better: breadth rules carry small weights and solo projects are documented as a known bias.
+methodology: '0.1'
+rules:
+  - id: community.contributor-count
+    dimension: community
+    title: 'Number of human contributors (top 100 listed)'
+    rationale: 'A broader contributor base spreads knowledge and review capacity.'
+    evidence: [github.contributors.count]
+    weight: 2
+    group: breadth
+    scoring:
+      type: thresholds
+      steps: [{ gte: 20, score: 10 }, { gte: 5, score: 8 }, { gte: 2, score: 6 }]
+      otherwise: 3
+    limitations: 'Capped at 100 by the API; solo and corporate-owned projects are structurally disadvantaged.'
+  - id: community.distinct-authors
+    dimension: community
+    title: 'Distinct authors among the latest 100 commits'
+    rationale: 'Recent breadth of participation (overlaps with contributor count).'
+    evidence: [github.commits.distinct_authors_sampled]
+    weight: 2
+    group: breadth
+    scoring:
+      type: thresholds
+      steps: [{ gte: 10, score: 10 }, { gte: 4, score: 8 }, { gte: 2, score: 6 }]
+      otherwise: 3
+  - id: community.top-contributor-share
+    dimension: community
+    title: 'Share of commits by the top contributor'
+    rationale: 'Context only; feeds the maintenance bus-factor rule, so it is not scored again here.'
+    evidence: [github.contributors.top_share]
+    weight: 0
+    informational: true
+    scoring: { type: linear, min: 0.3, max: 1, invert: true }
+  - id: community.contributing-guide
+    dimension: community
+    title: 'Contribution guidelines'
+    rationale: 'CONTRIBUTING documents how outsiders can help and what maintainers expect.'
+    evidence: [github.file.contributing]
+    weight: 3
+    scoring: { type: map, values: { 'true': 10, 'false': 2 } }
+  - id: community.code-of-conduct
+    dimension: community
+    title: 'Code of conduct'
+    rationale: 'A code of conduct sets behavioural expectations and an enforcement path.'
+    evidence: [github.file.code_of_conduct]
+    weight: 2
+    scoring: { type: map, values: { 'true': 10, 'false': 3 } }
+  - id: community.issue-templates
+    dimension: community
+    title: 'Issue templates'
+    rationale: 'Templates improve the quality of reports.'
+    evidence: [github.file.issue_templates]
+    weight: 1
+    scoring: { type: map, values: { 'true': 10, 'false': 4 } }
+  - id: community.pr-template
+    dimension: community
+    title: 'Pull request template'
+    rationale: 'Templates make reviews more consistent.'
+    evidence: [github.file.pr_template]
+    weight: 1
+    scoring: { type: map, values: { 'true': 10, 'false': 4 } }
+  - id: community.codeowners
+    dimension: community
+    title: 'CODEOWNERS file'
+    rationale: 'Declares who is responsible for which parts of the code, a lightweight governance signal.'
+    evidence: [github.file.codeowners]
+    weight: 1
+    scoring: { type: map, values: { 'true': 10, 'false': 5 } }

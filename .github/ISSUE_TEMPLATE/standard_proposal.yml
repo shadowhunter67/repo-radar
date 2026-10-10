@@ -1,0 +1,24 @@
+name: Standards proposal
+description: Propose a new or changed rule, threshold, profile, or identity taxonomy entry
+labels: [standards]
+body:
+  - type: input
+    id: area
+    attributes:
+      label: Dimension / area (e.g. supply-chain, identity taxonomy)
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: What evidence does it read, how is it scored, and with what weight?
+    validations:
+      required: true
+  - type: textarea
+    id: justification
+    attributes:
+      label: Justification and sources
+      description: Link public standards, research or practitioner evidence. Say which kinds of repositories it could unfairly penalize.
+    validations:
+      required: true

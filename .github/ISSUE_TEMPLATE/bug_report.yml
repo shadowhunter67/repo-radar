@@ -1,0 +1,32 @@
+name: Bug report
+description: Something is wrong, crashes, or a score/identity looks misleading
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste tokens or secrets. For vulnerabilities in repo-radar itself, see SECURITY.md instead.
+  - type: input
+    id: version
+    attributes:
+      label: repo-radar version (`repo-radar --version`)
+    validations:
+      required: true
+  - type: input
+    id: repo
+    attributes:
+      label: Repository analyzed (owner/repo), if public
+  - type: textarea
+    id: command
+    attributes:
+      label: Command run
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected vs what happened
+      description: For a misleading score, name the rule id (`repo-radar analyze ... --verbose`) and the evidence ids involved.
+    validations:
+      required: true

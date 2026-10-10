@@ -1,0 +1,170 @@
+# Security standards, methodology 0.1.
+# Rules observe *indicators*. A high score is "no risk indicators observed by these checks", never "secure".
+# Rules sharing `group` split one weight budget (same underlying fact measured twice).
+methodology: '0.1'
+rules:
+  - id: security.branch-protected
+    dimension: security
+    title: 'Default branch has protection rules'
+    rationale: 'Protected default branches make unreviewed or force-pushed changes harder. The public API only says whether any protection exists, not how strong it is.'
+    evidence: [github.branch.default_protected]
+    weight: 4
+    group: branch-protection
+    scoring: { type: map, values: { 'true': 10, 'false': 2 } }
+    limitations: 'Rulesets that do not surface as classic branch protection may be reported as unprotected.'
+  - id: security.scorecard-branch-protection
+    dimension: security
+    title: 'OpenSSF Scorecard Branch-Protection check'
+    rationale: 'Scorecard inspects protection details (reviews, status checks, admin enforcement) that the public API does not expose. Needs an authenticated scan by Scorecard.'
+    evidence: [scorecard.check.branch_protection]
+    weight: 4
+    group: branch-protection
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: security.dangerous-workflow
+    dimension: security
+    title: 'No dangerous pull_request_target checkout pattern'
+    rationale: 'Checking out untrusted PR code in a privileged pull_request_target workflow is a known path to token theft.'
+    evidence: [github.workflows.dangerous_checkout]
+    weight: 6
+    group: dangerous-workflow
+    scoring: { type: map, values: { 'true': 0, 'false': 10 } }
+    warn:
+      {
+        below: 5,
+        message: 'A workflow uses pull_request_target together with a checkout of the pull request head (heuristic match; review manually).',
+      }
+    limitations: 'Static pattern match on workflow YAML; cannot prove exploitability either way.'
+  - id: security.scorecard-dangerous-workflow
+    dimension: security
+    title: 'OpenSSF Scorecard Dangerous-Workflow check'
+    rationale: "Scorecard's own analysis of risky workflow patterns; measures the same risk as the local check."
+    evidence: [scorecard.check.dangerous_workflow]
+    weight: 6
+    group: dangerous-workflow
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: security.expression-injection
+    dimension: security
+    title: 'No untrusted event data interpolated into run scripts'
+    rationale: 'Interpolating issue/PR titles, bodies or branch names directly into shell scripts allows command injection in CI.'
+    evidence: [github.workflows.expression_injection_risk]
+    weight: 3
+    scoring: { type: map, values: { 'true': 2, 'false': 10 } }
+    warn:
+      {
+        below: 5,
+        message: 'A workflow interpolates untrusted GitHub event fields inside a run script (heuristic match; review manually).',
+      }
+    limitations: 'Regex heuristic over a fixed list of risky fields.'
+  - id: security.token-permissions
+    dimension: security
+    title: 'Workflows declare explicit token permissions'
+    rationale: 'Declaring permissions limits what a compromised workflow can do with GITHUB_TOKEN.'
+    evidence: [github.workflows.permissions_declared_ratio]
+    weight: 4
+    group: token-permissions
+    applies_when: { evidence: github.workflows.analyzed_count, gt: 0 }
+    scoring: { type: linear, min: 0, max: 1 }
+  - id: security.scorecard-token-permissions
+    dimension: security
+    title: 'OpenSSF Scorecard Token-Permissions check'
+    rationale: "Scorecard's evaluation of least-privilege workflow tokens."
+    evidence: [scorecard.check.token_permissions]
+    weight: 4
+    group: token-permissions
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: security.security-policy
+    dimension: security
+    title: 'Security policy file present'
+    rationale: 'A SECURITY file tells reporters how to disclose vulnerabilities privately.'
+    evidence: [github.file.security_policy]
+    weight: 4
+    group: security-policy
+    scoring: { type: map, values: { 'true': 10, 'false': 0 } }
+    warn: { below: 1, message: 'No security policy (SECURITY.md) detected.' }
+  - id: security.scorecard-security-policy
+    dimension: security
+    title: 'OpenSSF Scorecard Security-Policy check'
+    rationale: 'Same fact as the local file check, measured by Scorecard.'
+    evidence: [scorecard.check.security_policy]
+    weight: 4
+    group: security-policy
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: security.known-vulnerabilities
+    dimension: security
+    title: 'Pinned dependencies with known vulnerabilities (OSV)'
+    rationale: 'Share of exactly-versioned dependencies that OSV lists with at least one advisory. Presence of an advisory does not mean it is exploitable in this project.'
+    evidence: [osv.vulnerable_ratio]
+    weight: 8
+    group: vulnerabilities
+    scoring:
+      type: thresholds
+      steps:
+        [
+          { gte: 0.1, score: 0 },
+          { gte: 0.05, score: 3 },
+          { gte: 0.02, score: 5 },
+          { gte: 0.0001, score: 7 },
+        ]
+      otherwise: 10
+    warn:
+      {
+        below: 7,
+        message: '{osv.vulnerable_packages} of {osv.checked_packages} pinned dependencies have known OSV advisories.',
+      }
+    limitations: 'OSV batch results carry no severity. Version ranges are never guessed, so unpinned dependencies are not checked.'
+  - id: security.scorecard-vulnerabilities
+    dimension: security
+    title: 'OpenSSF Scorecard Vulnerabilities check'
+    rationale: "Scorecard's own OSV-based vulnerability check."
+    evidence: [scorecard.check.vulnerabilities]
+    weight: 8
+    group: vulnerabilities
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: security.sast
+    dimension: security
+    title: 'Static analysis (SAST) in CI'
+    rationale: 'A SAST tool such as CodeQL or Semgrep in CI can catch some classes of vulnerabilities early.'
+    evidence: [github.workflows.uses_sast]
+    weight: 3
+    group: sast
+    applies_when: { evidence: github.workflows.analyzed_count, gt: 0 }
+    scoring: { type: map, values: { 'true': 10, 'false': 3 } }
+  - id: security.scorecard-sast
+    dimension: security
+    title: 'OpenSSF Scorecard SAST check'
+    rationale: "Scorecard's detection of SAST tools on merged changes."
+    evidence: [scorecard.check.sast]
+    weight: 3
+    group: sast
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: security.code-review
+    dimension: security
+    title: 'Changes are code-reviewed (Scorecard)'
+    rationale: 'Reviewed changes reduce the chance of unnoticed malicious or faulty commits. Solo-maintainer projects structurally score low here.'
+    evidence: [scorecard.check.code_review]
+    weight: 4
+    applies_when: { evidence: github.contributors.count, gt: 1 }
+    scoring: { type: linear, min: 0, max: 10 }
+    limitations: 'Not applicable to single-contributor repositories (nobody can review). Their key-person risk is reported by maintenance.bus-factor instead; see docs/bias.md.'
+  - id: security.binary-artifacts
+    dimension: security
+    title: 'No committed binary artifacts (Scorecard)'
+    rationale: 'Checked-in binaries cannot be reviewed as source.'
+    evidence: [scorecard.check.binary_artifacts]
+    weight: 2
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: security.best-practices-badge
+    dimension: security
+    title: 'OpenSSF Best Practices badge level (Scorecard)'
+    rationale: 'A self-assessed OpenSSF Best Practices badge is a weak but independent signal of security process.'
+    evidence: [scorecard.check.cii_best_practices]
+    weight: 2
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: security.fuzzing
+    dimension: security
+    title: 'Fuzzing integration (Scorecard)'
+    rationale: 'Fuzzing is valuable but uncommon and language-dependent, so it is shown without affecting the score.'
+    evidence: [scorecard.check.fuzzing]
+    weight: 0
+    informational: true
+    scoring: { type: linear, min: 0, max: 10 }

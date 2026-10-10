@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+(\\.[a-z0-9_-]+)+$"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "github",
+        "scorecard",
+        "osv",
+        "manifest",
+        "heuristic",
+        "identity"
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "fact",
+        "heuristic"
+      ]
+    },
+    "observed_at": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "ref": {
+          "type": "string"
+        },
+        "http_status": {
+          "type": "number"
+        },
+        "method": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    }
+  },
+  "required": [
+    "id",
+    "value",
+    "source",
+    "kind",
+    "observed_at",
+    "confidence",
+    "provenance",
+    "metadata"
+  ],
+  "additionalProperties": false,
+  "title": "repo-radar evidence item"
+}

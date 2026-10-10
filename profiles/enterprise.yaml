@@ -1,0 +1,27 @@
+id: enterprise
+version: '0.1'
+title: Enterprise
+description: >-
+  For adopting third-party software into regulated or large environments. Weights supply chain,
+  security and long-term maintenance most heavily, and treats signing, provenance, SBOMs, review
+  and license clarity as expected. Solo-maintained projects will score lower by design.
+dimension_weights:
+  security: 2
+  maintenance: 1.5
+  code-quality: 1.2
+  supply-chain: 2
+  community: 0.5
+  documentation: 1
+  semantic-clarity: 0.5
+rule_weights:
+  supply-chain.signed-releases: 5
+  supply-chain.provenance: 5
+  supply-chain.sbom: 4
+  supply-chain.license-detected: 6
+  security.code-review: 6
+  maintenance.bus-factor: 5
+minimums:
+  security: 70
+  supply-chain: 60
+  maintenance: 60
+  overall: 65

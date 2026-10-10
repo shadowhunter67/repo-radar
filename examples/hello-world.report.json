@@ -1,0 +1,3021 @@
+{
+  "tool": {
+    "name": "repo-radar",
+    "version": "0.1.0"
+  },
+  "schema_version": "0.1",
+  "methodology": {
+    "version": "0.1",
+    "rules_digest": "d00b57deab34434405d360f00377a7484e908922af355a6426a851347674bf83",
+    "rule_count": 77,
+    "classifier": "heuristic-v0.1"
+  },
+  "profile": {
+    "id": "default",
+    "version": "0.1",
+    "title": "Default"
+  },
+  "generated_at": "2026-10-10T13:39:42.388Z",
+  "subject": {
+    "owner": "octocat",
+    "repo": "Hello-World",
+    "url": "https://github.com/octocat/Hello-World",
+    "default_branch": "master",
+    "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+  },
+  "identity": {
+    "repository_name": "Hello-World",
+    "normalized_name": "hello-world",
+    "search_name": "hello world",
+    "canonical_type": "unclassified",
+    "primary_function": "My first repository on GitHub!",
+    "secondary_functions": [],
+    "declared_summary": "My first repository on GitHub!",
+    "ecosystem": [],
+    "interfaces": [],
+    "target_users": [],
+    "search_aliases": [],
+    "confidence": 0,
+    "name_purpose_divergence": null,
+    "classifier": "heuristic-v0.1",
+    "evidence": ["no taxonomy type matched strongly enough"]
+  },
+  "overall": {
+    "score": 36.3,
+    "grade": "F",
+    "confidence": 0.757,
+    "sufficiency": "sufficient",
+    "weight_covered": 1,
+    "dimension_weights": {
+      "security": 1,
+      "maintenance": 1,
+      "code-quality": 1,
+      "supply-chain": 1,
+      "community": 1,
+      "documentation": 1,
+      "semantic-clarity": 1
+    }
+  },
+  "dimensions": [
+    {
+      "dimension": "security",
+      "label": "Security",
+      "score": 18.9,
+      "score_range": [9, 61.5],
+      "grade": "F",
+      "confidence": 0.433,
+      "coverage": 0.475,
+      "evidence_quality": 0.911,
+      "sufficiency": "low",
+      "scored_rules": 8,
+      "applicable_rules": 16,
+      "rules": [
+        {
+          "rule_id": "security.best-practices-badge",
+          "title": "OpenSSF Best Practices badge level (Scorecard)",
+          "status": "scored",
+          "score": 0,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 2,
+          "contribution": 0,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "scorecard.check.cii_best_practices",
+              "value": 0,
+              "confidence": 1,
+              "source": "scorecard",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["scorecard.check.cii_best_practices"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "scorecard.check.cii_best_practices=0 -> 0 (linear)"
+        },
+        {
+          "rule_id": "security.binary-artifacts",
+          "title": "No committed binary artifacts (Scorecard)",
+          "status": "scored",
+          "score": 10,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 2,
+          "contribution": 10.53,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "scorecard.check.binary_artifacts",
+              "value": 10,
+              "confidence": 1,
+              "source": "scorecard",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["scorecard.check.binary_artifacts"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "scorecard.check.binary_artifacts=10 -> 10 (linear)"
+        },
+        {
+          "rule_id": "security.branch-protected",
+          "title": "Default branch has protection rules",
+          "status": "scored",
+          "score": 2,
+          "max_score": 10,
+          "declared_weight": 4,
+          "profile_weight": 4,
+          "effective_weight": 2,
+          "contribution": 2.11,
+          "group": "branch-protection",
+          "inputs": [
+            {
+              "evidence_id": "github.branch.default_protected",
+              "value": false,
+              "confidence": 0.9,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.branch.default_protected"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "github.branch.default_protected=false -> 2 (map)"
+        },
+        {
+          "rule_id": "security.code-review",
+          "title": "Changes are code-reviewed (Scorecard)",
+          "status": "scored",
+          "score": 3,
+          "max_score": 10,
+          "declared_weight": 4,
+          "profile_weight": 4,
+          "effective_weight": 4,
+          "contribution": 6.32,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "scorecard.check.code_review",
+              "value": 3,
+              "confidence": 1,
+              "source": "scorecard",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["scorecard.check.code_review"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "scorecard.check.code_review=3 -> 3 (linear)"
+        },
+        {
+          "rule_id": "security.dangerous-workflow",
+          "title": "No dangerous pull_request_target checkout pattern",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 6,
+          "profile_weight": 6,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "dangerous-workflow",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: github.workflows.dangerous_checkout)"
+        },
+        {
+          "rule_id": "security.expression-injection",
+          "title": "No untrusted event data interpolated into run scripts",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: github.workflows.expression_injection_risk)"
+        },
+        {
+          "rule_id": "security.fuzzing",
+          "title": "Fuzzing integration (Scorecard)",
+          "status": "informational",
+          "score": 0,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "scorecard.check.fuzzing",
+              "value": 0,
+              "confidence": 1,
+              "source": "scorecard",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["scorecard.check.fuzzing"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "scorecard.check.fuzzing=0 -> 0 (linear)"
+        },
+        {
+          "rule_id": "security.known-vulnerabilities",
+          "title": "Pinned dependencies with known vulnerabilities (OSV)",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 8,
+          "profile_weight": 8,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "vulnerabilities",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: osv.vulnerable_ratio)"
+        },
+        {
+          "rule_id": "security.sast",
+          "title": "Static analysis (SAST) in CI",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "sast",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: github.workflows.uses_sast)"
+        },
+        {
+          "rule_id": "security.scorecard-branch-protection",
+          "title": "OpenSSF Scorecard Branch-Protection check",
+          "status": "scored",
+          "score": 0,
+          "max_score": 10,
+          "declared_weight": 4,
+          "profile_weight": 4,
+          "effective_weight": 2,
+          "contribution": 0,
+          "group": "branch-protection",
+          "inputs": [
+            {
+              "evidence_id": "scorecard.check.branch_protection",
+              "value": 0,
+              "confidence": 1,
+              "source": "scorecard",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["scorecard.check.branch_protection"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "scorecard.check.branch_protection=0 -> 0 (linear)"
+        },
+        {
+          "rule_id": "security.scorecard-dangerous-workflow",
+          "title": "OpenSSF Scorecard Dangerous-Workflow check",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 6,
+          "profile_weight": 6,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "dangerous-workflow",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: scorecard.check.dangerous_workflow)"
+        },
+        {
+          "rule_id": "security.scorecard-sast",
+          "title": "OpenSSF Scorecard SAST check",
+          "status": "scored",
+          "score": 0,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 0,
+          "group": "sast",
+          "inputs": [
+            {
+              "evidence_id": "scorecard.check.sast",
+              "value": 0,
+              "confidence": 1,
+              "source": "scorecard",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["scorecard.check.sast"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "scorecard.check.sast=0 -> 0 (linear)"
+        },
+        {
+          "rule_id": "security.scorecard-security-policy",
+          "title": "OpenSSF Scorecard Security-Policy check",
+          "status": "scored",
+          "score": 0,
+          "max_score": 10,
+          "declared_weight": 4,
+          "profile_weight": 4,
+          "effective_weight": 2,
+          "contribution": 0,
+          "group": "security-policy",
+          "inputs": [
+            {
+              "evidence_id": "scorecard.check.security_policy",
+              "value": 0,
+              "confidence": 1,
+              "source": "scorecard",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["scorecard.check.security_policy"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "scorecard.check.security_policy=0 -> 0 (linear)"
+        },
+        {
+          "rule_id": "security.scorecard-token-permissions",
+          "title": "OpenSSF Scorecard Token-Permissions check",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 4,
+          "profile_weight": 4,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "token-permissions",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: scorecard.check.token_permissions)"
+        },
+        {
+          "rule_id": "security.scorecard-vulnerabilities",
+          "title": "OpenSSF Scorecard Vulnerabilities check",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 8,
+          "profile_weight": 8,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "vulnerabilities",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: scorecard.check.vulnerabilities)"
+        },
+        {
+          "rule_id": "security.security-policy",
+          "title": "Security policy file present",
+          "status": "scored",
+          "score": 0,
+          "max_score": 10,
+          "declared_weight": 4,
+          "profile_weight": 4,
+          "effective_weight": 2,
+          "contribution": 0,
+          "group": "security-policy",
+          "inputs": [
+            {
+              "evidence_id": "github.file.security_policy",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.security_policy"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.file.security_policy=false -> 0 (map)"
+        },
+        {
+          "rule_id": "security.token-permissions",
+          "title": "Workflows declare explicit token permissions",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 4,
+          "profile_weight": 4,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "token-permissions",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: github.workflows.permissions_declared_ratio)"
+        }
+      ]
+    },
+    {
+      "dimension": "maintenance",
+      "label": "Maintenance",
+      "score": 66.4,
+      "score_range": [59.8, 69.8],
+      "grade": "C+",
+      "confidence": 0.822,
+      "coverage": 0.9,
+      "evidence_quality": 0.913,
+      "sufficiency": "sufficient",
+      "scored_rules": 10,
+      "applicable_rules": 11,
+      "rules": [
+        {
+          "rule_id": "maintenance.bus-factor",
+          "title": "Contributor concentration (bus factor approximation)",
+          "status": "scored",
+          "score": 7,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 7.78,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.contributors.bus_factor",
+              "value": 2,
+              "confidence": 0.8,
+              "source": "github",
+              "kind": "heuristic"
+            }
+          ],
+          "evidence_ids": ["github.contributors.bus_factor"],
+          "confidence": 0.8,
+          "missing_reason": null,
+          "explanation": "github.contributors.bus_factor=2 -> 7 (thresholds)"
+        },
+        {
+          "rule_id": "maintenance.commit-frequency",
+          "title": "Commits in the last 90 days",
+          "status": "scored",
+          "score": 1,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 1.2857,
+          "contribution": 0.48,
+          "group": "activity",
+          "inputs": [
+            {
+              "evidence_id": "github.commits.recent_count_90d",
+              "value": 0,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.commits.recent_count_90d"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.commits.recent_count_90d=0 -> 1 (thresholds)"
+        },
+        {
+          "rule_id": "maintenance.has-releases",
+          "title": "Releases or tags exist (informational)",
+          "status": "informational",
+          "score": 3,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.releases.has_any",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.releases.has_any"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.releases.has_any=false -> 3 (map)"
+        },
+        {
+          "rule_id": "maintenance.history-depth",
+          "title": "Commit history depth",
+          "status": "scored",
+          "score": 3,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 2,
+          "contribution": 2.22,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.commits.total",
+              "value": 3,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.commits.total"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.commits.total=3 -> 3 (thresholds)"
+        },
+        {
+          "rule_id": "maintenance.issue-resolution",
+          "title": "Median time to close issues (recent sample)",
+          "status": "scored",
+          "score": 10,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 11.11,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.issues.median_days_to_close",
+              "value": 0,
+              "confidence": 0.72,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.issues.median_days_to_close"],
+          "confidence": 0.72,
+          "missing_reason": null,
+          "explanation": "github.issues.median_days_to_close=0 -> 10 (thresholds)"
+        },
+        {
+          "rule_id": "maintenance.not-archived",
+          "title": "Repository is not archived",
+          "status": "scored",
+          "score": 10,
+          "max_score": 10,
+          "declared_weight": 6,
+          "profile_weight": 6,
+          "effective_weight": 6,
+          "contribution": 22.22,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.repo.archived",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.repo.archived"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.repo.archived=false -> 10 (map)"
+        },
+        {
+          "rule_id": "maintenance.pr-resolution",
+          "title": "Median time to close pull requests (recent sample)",
+          "status": "scored",
+          "score": 7,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 7.78,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.pulls.median_days_to_close",
+              "value": 28.8,
+              "confidence": 0.9,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.pulls.median_days_to_close"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "github.pulls.median_days_to_close=28.8 -> 7 (thresholds)"
+        },
+        {
+          "rule_id": "maintenance.recent-activity",
+          "title": "Recent commit on the default branch",
+          "status": "scored",
+          "score": 0,
+          "max_score": 10,
+          "declared_weight": 6,
+          "profile_weight": 6,
+          "effective_weight": 2.5714,
+          "contribution": 0,
+          "group": "activity",
+          "inputs": [
+            {
+              "evidence_id": "github.commits.last_commit_age_days",
+              "value": 5330.6,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.commits.last_commit_age_days"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.commits.last_commit_age_days=5330.6 -> 0 (thresholds)"
+        },
+        {
+          "rule_id": "maintenance.release-cadence",
+          "title": "Median gap between recent releases",
+          "status": "informational",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: github.releases.median_gap_days)"
+        },
+        {
+          "rule_id": "maintenance.release-recency",
+          "title": "Most recent GitHub release is recent",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: github.releases.latest_age_days)"
+        },
+        {
+          "rule_id": "maintenance.scorecard-maintained",
+          "title": "OpenSSF Scorecard Maintained check",
+          "status": "scored",
+          "score": 0,
+          "max_score": 10,
+          "declared_weight": 5,
+          "profile_weight": 5,
+          "effective_weight": 2.1429,
+          "contribution": 0,
+          "group": "activity",
+          "inputs": [
+            {
+              "evidence_id": "scorecard.check.maintained",
+              "value": 0,
+              "confidence": 1,
+              "source": "scorecard",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["scorecard.check.maintained"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "scorecard.check.maintained=0 -> 0 (linear)"
+        },
+        {
+          "rule_id": "maintenance.stale-issues",
+          "title": "Share of sampled open issues untouched for 180+ days",
+          "status": "scored",
+          "score": 10,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 2,
+          "contribution": 7.41,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.issues.stale_open_ratio",
+              "value": 0,
+              "confidence": 0.9,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.issues.stale_open_ratio"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "github.issues.stale_open_ratio=0 -> 10 (linear)"
+        },
+        {
+          "rule_id": "maintenance.stale-prs",
+          "title": "Share of sampled open pull requests untouched for 180+ days",
+          "status": "scored",
+          "score": 10,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 2,
+          "contribution": 7.41,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.pulls.stale_open_ratio",
+              "value": 0,
+              "confidence": 0.9,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.pulls.stale_open_ratio"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "github.pulls.stale_open_ratio=0 -> 10 (linear)"
+        }
+      ]
+    },
+    {
+      "dimension": "code-quality",
+      "label": "Code Quality",
+      "score": 15,
+      "score_range": [12.4, 30],
+      "grade": "F",
+      "confidence": 0.782,
+      "coverage": 0.824,
+      "evidence_quality": 0.95,
+      "sufficiency": "sufficient",
+      "scored_rules": 4,
+      "applicable_rules": 7,
+      "rules": [
+        {
+          "rule_id": "code-quality.ci-present",
+          "title": "CI workflows exist",
+          "status": "scored",
+          "score": 2,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 4.29,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.workflows.count",
+              "value": 0,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.workflows.count"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.workflows.count=0 -> 2 (thresholds)"
+        },
+        {
+          "rule_id": "code-quality.ci-runs-tests",
+          "title": "CI executes a test command",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "ci-tests",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: github.workflows.runs_tests)"
+        },
+        {
+          "rule_id": "code-quality.ci-without-tests",
+          "title": "Scaffolding indicator, CI without any tests",
+          "status": "informational",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: heuristic.substance.ci_without_tests)"
+        },
+        {
+          "rule_id": "code-quality.lint-config",
+          "title": "Linter or static-analysis configuration",
+          "status": "scored",
+          "score": 3,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 6.43,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.file.lint_config",
+              "value": false,
+              "confidence": 0.9,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.lint_config"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "github.file.lint_config=false -> 3 (map)"
+        },
+        {
+          "rule_id": "code-quality.readme-heavy",
+          "title": "Scaffolding indicator, large README with a very small source tree",
+          "status": "informational",
+          "score": 10,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "heuristic.substance.readme_heavy",
+              "value": false,
+              "confidence": 0.5,
+              "source": "heuristic",
+              "kind": "heuristic"
+            }
+          ],
+          "evidence_ids": ["heuristic.substance.readme_heavy"],
+          "confidence": 0.3,
+          "missing_reason": null,
+          "explanation": "heuristic.substance.readme_heavy=false -> 10 (map)"
+        },
+        {
+          "rule_id": "code-quality.scorecard-ci-tests",
+          "title": "OpenSSF Scorecard CI-Tests check",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "ci-tests",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: scorecard.check.ci_tests)"
+        },
+        {
+          "rule_id": "code-quality.test-ratio",
+          "title": "Test-to-source file ratio",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "tests",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: github.tree.test_to_source_ratio)"
+        },
+        {
+          "rule_id": "code-quality.tests-present",
+          "title": "Test files exist",
+          "status": "scored",
+          "score": 0,
+          "max_score": 10,
+          "declared_weight": 6,
+          "profile_weight": 6,
+          "effective_weight": 6,
+          "contribution": 0,
+          "group": "tests",
+          "inputs": [
+            {
+              "evidence_id": "github.tree.has_tests",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.tree.has_tests"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.tree.has_tests=false -> 0 (map)"
+        },
+        {
+          "rule_id": "code-quality.type-checking",
+          "title": "Static typing or type-checker configuration",
+          "status": "scored",
+          "score": 3,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 2,
+          "contribution": 4.29,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.file.type_check_config",
+              "value": false,
+              "confidence": 0.8,
+              "source": "github",
+              "kind": "heuristic"
+            }
+          ],
+          "evidence_ids": ["github.file.type_check_config"],
+          "confidence": 0.8,
+          "missing_reason": null,
+          "explanation": "github.file.type_check_config=false -> 3 (map)"
+        }
+      ]
+    },
+    {
+      "dimension": "supply-chain",
+      "label": "Supply Chain",
+      "score": 20.8,
+      "score_range": [11.7, 55.2],
+      "grade": "F",
+      "confidence": 0.565,
+      "coverage": 0.565,
+      "evidence_quality": 1,
+      "sufficiency": "sufficient",
+      "scored_rules": 4,
+      "applicable_rules": 10,
+      "rules": [
+        {
+          "rule_id": "supply-chain.dependency-count",
+          "title": "Direct runtime dependency count",
+          "status": "informational",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: manifest.dependency_count)"
+        },
+        {
+          "rule_id": "supply-chain.dependency-updates",
+          "title": "Automated dependency update tooling",
+          "status": "scored",
+          "score": 3,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 6.92,
+          "group": "dep-updates",
+          "inputs": [
+            {
+              "evidence_id": "github.file.dependency_updates",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.dependency_updates"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.file.dependency_updates=false -> 3 (map)"
+        },
+        {
+          "rule_id": "supply-chain.license-detected",
+          "title": "License detected by GitHub",
+          "status": "scored",
+          "score": 0,
+          "max_score": 10,
+          "declared_weight": 4,
+          "profile_weight": 4,
+          "effective_weight": 4,
+          "contribution": 0,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.repo.license_spdx",
+              "value": "none",
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.repo.license_spdx"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.repo.license_spdx=\"none\" -> 0 (map)"
+        },
+        {
+          "rule_id": "supply-chain.lockfile",
+          "title": "Dependency lockfile committed",
+          "status": "scored",
+          "score": 2,
+          "max_score": 10,
+          "declared_weight": 4,
+          "profile_weight": 4,
+          "effective_weight": 4,
+          "contribution": 6.15,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.file.lockfile",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.lockfile"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.file.lockfile=false -> 2 (map)"
+        },
+        {
+          "rule_id": "supply-chain.pinned-actions",
+          "title": "GitHub Actions pinned to commit SHAs",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 4,
+          "profile_weight": 4,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "pinned",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: github.workflows.pinned_actions_ratio)"
+        },
+        {
+          "rule_id": "supply-chain.provenance",
+          "title": "Build provenance (SLSA-style attestations)",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: github.releases.provenance_assets, github.workflows.uses_provenance)"
+        },
+        {
+          "rule_id": "supply-chain.sbom",
+          "title": "SBOM published",
+          "status": "scored",
+          "score": 5,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 2,
+          "contribution": 7.69,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.file.sbom_file",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.sbom_file"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.file.sbom_file=false -> 5 (map, combine=max)"
+        },
+        {
+          "rule_id": "supply-chain.scorecard-dependency-update-tool",
+          "title": "OpenSSF Scorecard Dependency-Update-Tool check",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "dep-updates",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: scorecard.check.dependency_update_tool)"
+        },
+        {
+          "rule_id": "supply-chain.scorecard-pinned-dependencies",
+          "title": "OpenSSF Scorecard Pinned-Dependencies check",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 4,
+          "profile_weight": 4,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "pinned",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: scorecard.check.pinned_dependencies)"
+        },
+        {
+          "rule_id": "supply-chain.scorecard-signed-releases",
+          "title": "OpenSSF Scorecard Signed-Releases check",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "signing",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: scorecard.check.signed_releases)"
+        },
+        {
+          "rule_id": "supply-chain.signed-releases",
+          "title": "Release artifacts are signed",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": "signing",
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: github.releases.signed_assets)"
+        },
+        {
+          "rule_id": "supply-chain.vulnerability-check-coverage",
+          "title": "Share of direct dependencies covered by the OSV check",
+          "status": "informational",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: osv.coverage_ratio)"
+        }
+      ]
+    },
+    {
+      "dimension": "community",
+      "label": "Community",
+      "score": 37,
+      "score_range": [37, 37],
+      "grade": "F",
+      "confidence": 1,
+      "coverage": 1,
+      "evidence_quality": 1,
+      "sufficiency": "sufficient",
+      "scored_rules": 7,
+      "applicable_rules": 7,
+      "rules": [
+        {
+          "rule_id": "community.code-of-conduct",
+          "title": "Code of conduct",
+          "status": "scored",
+          "score": 3,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 2,
+          "contribution": 6,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.file.code_of_conduct",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.code_of_conduct"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.file.code_of_conduct=false -> 3 (map)"
+        },
+        {
+          "rule_id": "community.codeowners",
+          "title": "CODEOWNERS file",
+          "status": "scored",
+          "score": 5,
+          "max_score": 10,
+          "declared_weight": 1,
+          "profile_weight": 1,
+          "effective_weight": 1,
+          "contribution": 5,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.file.codeowners",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.codeowners"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.file.codeowners=false -> 5 (map)"
+        },
+        {
+          "rule_id": "community.contributing-guide",
+          "title": "Contribution guidelines",
+          "status": "scored",
+          "score": 2,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 6,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.file.contributing",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.contributing"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.file.contributing=false -> 2 (map)"
+        },
+        {
+          "rule_id": "community.contributor-count",
+          "title": "Number of human contributors (top 100 listed)",
+          "status": "scored",
+          "score": 6,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 1,
+          "contribution": 6,
+          "group": "breadth",
+          "inputs": [
+            {
+              "evidence_id": "github.contributors.count",
+              "value": 3,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.contributors.count"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.contributors.count=3 -> 6 (thresholds)"
+        },
+        {
+          "rule_id": "community.distinct-authors",
+          "title": "Distinct authors among the latest 100 commits",
+          "status": "scored",
+          "score": 6,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 1,
+          "contribution": 6,
+          "group": "breadth",
+          "inputs": [
+            {
+              "evidence_id": "github.commits.distinct_authors_sampled",
+              "value": 3,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.commits.distinct_authors_sampled"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.commits.distinct_authors_sampled=3 -> 6 (thresholds)"
+        },
+        {
+          "rule_id": "community.issue-templates",
+          "title": "Issue templates",
+          "status": "scored",
+          "score": 4,
+          "max_score": 10,
+          "declared_weight": 1,
+          "profile_weight": 1,
+          "effective_weight": 1,
+          "contribution": 4,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.file.issue_templates",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.issue_templates"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.file.issue_templates=false -> 4 (map)"
+        },
+        {
+          "rule_id": "community.pr-template",
+          "title": "Pull request template",
+          "status": "scored",
+          "score": 4,
+          "max_score": 10,
+          "declared_weight": 1,
+          "profile_weight": 1,
+          "effective_weight": 1,
+          "contribution": 4,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.file.pr_template",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.pr_template"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.file.pr_template=false -> 4 (map)"
+        },
+        {
+          "rule_id": "community.top-contributor-share",
+          "title": "Share of commits by the top contributor",
+          "status": "informational",
+          "score": 9.53,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.contributors.top_share",
+              "value": 0.333,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.contributors.top_share"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.contributors.top_share=0.333 -> 9.53 (linear)"
+        }
+      ]
+    },
+    {
+      "dimension": "documentation",
+      "label": "Documentation",
+      "score": 50,
+      "score_range": [50, 50],
+      "grade": "D",
+      "confidence": 0.937,
+      "coverage": 1,
+      "evidence_quality": 0.937,
+      "sufficiency": "sufficient",
+      "scored_rules": 8,
+      "applicable_rules": 8,
+      "rules": [
+        {
+          "rule_id": "documentation.changelog",
+          "title": "Changelog or published releases",
+          "status": "scored",
+          "score": 4,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 2,
+          "contribution": 4.21,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.file.changelog",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            },
+            {
+              "evidence_id": "github.releases.has_any",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.changelog", "github.releases.has_any"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.file.changelog=false -> 4; github.releases.has_any=false -> 4 (map, combine=max)"
+        },
+        {
+          "rule_id": "documentation.configuration-docs",
+          "title": "Configuration documented",
+          "status": "informational",
+          "score": 5,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "docs.readme.has_config_docs",
+              "value": false,
+              "confidence": 0.7,
+              "source": "github",
+              "kind": "heuristic"
+            },
+            {
+              "evidence_id": "github.file.env_example",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["docs.readme.has_config_docs", "github.file.env_example"],
+          "confidence": 0.85,
+          "missing_reason": null,
+          "explanation": "docs.readme.has_config_docs=false -> 5; github.file.env_example=false -> 5 (map, combine=max)"
+        },
+        {
+          "rule_id": "documentation.deployment-docs",
+          "title": "Deployment or container support",
+          "status": "informational",
+          "score": 5,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "docs.readme.has_deploy_docs",
+              "value": false,
+              "confidence": 0.7,
+              "source": "github",
+              "kind": "heuristic"
+            },
+            {
+              "evidence_id": "github.file.deploy_config",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            },
+            {
+              "evidence_id": "github.file.dockerfile",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": [
+            "docs.readme.has_deploy_docs",
+            "github.file.deploy_config",
+            "github.file.dockerfile"
+          ],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "docs.readme.has_deploy_docs=false -> 5; github.file.deploy_config=false -> 5; github.file.dockerfile=false -> 5 (map, combine=max)"
+        },
+        {
+          "rule_id": "documentation.docs-directory",
+          "title": "docs/ directory",
+          "status": "scored",
+          "score": 5,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 2,
+          "contribution": 5.26,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.file.docs_dir",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.docs_dir"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.file.docs_dir=false -> 5 (map)"
+        },
+        {
+          "rule_id": "documentation.examples",
+          "title": "Code examples (README code blocks)",
+          "status": "scored",
+          "score": 2,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 1,
+          "contribution": 1.05,
+          "group": "examples",
+          "inputs": [
+            {
+              "evidence_id": "docs.readme.code_block_count",
+              "value": 0,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["docs.readme.code_block_count"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "docs.readme.code_block_count=0 -> 2 (thresholds)"
+        },
+        {
+          "rule_id": "documentation.examples-directory",
+          "title": "examples/ directory",
+          "status": "scored",
+          "score": 5,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 1,
+          "contribution": 2.63,
+          "group": "examples",
+          "inputs": [
+            {
+              "evidence_id": "github.file.examples_dir",
+              "value": false,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.file.examples_dir"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.file.examples_dir=false -> 5 (map)"
+        },
+        {
+          "rule_id": "documentation.install-instructions",
+          "title": "Installation or setup section",
+          "status": "scored",
+          "score": 3,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 4.74,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "docs.readme.has_install",
+              "value": false,
+              "confidence": 0.8,
+              "source": "github",
+              "kind": "heuristic"
+            }
+          ],
+          "evidence_ids": ["docs.readme.has_install"],
+          "confidence": 0.8,
+          "missing_reason": null,
+          "explanation": "docs.readme.has_install=false -> 3 (map)"
+        },
+        {
+          "rule_id": "documentation.readme-depth",
+          "title": "README length",
+          "status": "scored",
+          "score": 1,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 2,
+          "contribution": 1.05,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "docs.readme.length_chars",
+              "value": 13,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["docs.readme.length_chars"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "docs.readme.length_chars=13 -> 1 (thresholds)"
+        },
+        {
+          "rule_id": "documentation.readme-present",
+          "title": "README present",
+          "status": "scored",
+          "score": 10,
+          "max_score": 10,
+          "declared_weight": 5,
+          "profile_weight": 5,
+          "effective_weight": 5,
+          "contribution": 26.32,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "docs.readme.present",
+              "value": true,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["docs.readme.present"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "docs.readme.present=true -> 10 (map)"
+        },
+        {
+          "rule_id": "documentation.usage-instructions",
+          "title": "Usage or example section",
+          "status": "scored",
+          "score": 3,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 4.74,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "docs.readme.has_usage",
+              "value": false,
+              "confidence": 0.8,
+              "source": "github",
+              "kind": "heuristic"
+            }
+          ],
+          "evidence_ids": ["docs.readme.has_usage"],
+          "confidence": 0.8,
+          "missing_reason": null,
+          "explanation": "docs.readme.has_usage=false -> 3 (map)"
+        }
+      ]
+    },
+    {
+      "dimension": "semantic-clarity",
+      "label": "Semantic Clarity",
+      "score": 46,
+      "score_range": [40.6, 52.4],
+      "grade": "D",
+      "confidence": 0.759,
+      "coverage": 0.882,
+      "evidence_quality": 0.86,
+      "sufficiency": "sufficient",
+      "scored_rules": 5,
+      "applicable_rules": 6,
+      "rules": [
+        {
+          "rule_id": "semantic-clarity.description-quality",
+          "title": "Description long enough to say something",
+          "status": "scored",
+          "score": 10,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 2,
+          "contribution": 13.33,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.repo.description_length",
+              "value": 30,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.repo.description_length"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.repo.description_length=30 -> 10 (thresholds)"
+        },
+        {
+          "rule_id": "semantic-clarity.detected-purpose",
+          "title": "Purpose could be determined from declared metadata",
+          "status": "scored",
+          "score": 0,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 0,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "identity.confidence",
+              "value": 0,
+              "confidence": 1,
+              "source": "identity",
+              "kind": "heuristic"
+            }
+          ],
+          "evidence_ids": ["identity.confidence"],
+          "confidence": 0.7,
+          "missing_reason": null,
+          "explanation": "identity.confidence=0 -> 0 (linear)"
+        },
+        {
+          "rule_id": "semantic-clarity.has-description",
+          "title": "Repository description set",
+          "status": "scored",
+          "score": 10,
+          "max_score": 10,
+          "declared_weight": 4,
+          "profile_weight": 4,
+          "effective_weight": 4,
+          "contribution": 26.67,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.repo.has_description",
+              "value": true,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.repo.has_description"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.repo.has_description=true -> 10 (map)"
+        },
+        {
+          "rule_id": "semantic-clarity.manifest-description",
+          "title": "Package manifest has a description",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 2,
+          "profile_weight": 2,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: manifest.has_description)"
+        },
+        {
+          "rule_id": "semantic-clarity.name-normalization",
+          "title": "Name contains symbols that normalization removes (informational)",
+          "status": "informational",
+          "score": 10,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "identity.name_normalization_lossy",
+              "value": false,
+              "confidence": 1,
+              "source": "identity",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["identity.name_normalization_lossy"],
+          "confidence": 0.7,
+          "missing_reason": null,
+          "explanation": "identity.name_normalization_lossy=false -> 10 (map)"
+        },
+        {
+          "rule_id": "semantic-clarity.name-purpose-divergence",
+          "title": "Name vs detected purpose (informational)",
+          "status": "informational",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "not_reported",
+          "explanation": "no usable evidence (not reported; looked for: identity.name_purpose_divergence)"
+        },
+        {
+          "rule_id": "semantic-clarity.readme-purpose",
+          "title": "README opens with a prose purpose statement",
+          "status": "scored",
+          "score": 2,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 4,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "docs.readme.purpose_statement",
+              "value": false,
+              "confidence": 0.6,
+              "source": "github",
+              "kind": "heuristic"
+            }
+          ],
+          "evidence_ids": ["docs.readme.purpose_statement"],
+          "confidence": 0.6,
+          "missing_reason": null,
+          "explanation": "docs.readme.purpose_statement=false -> 2 (map)"
+        },
+        {
+          "rule_id": "semantic-clarity.topics",
+          "title": "Topics assigned",
+          "status": "scored",
+          "score": 1,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 2,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "github.repo.topic_count",
+              "value": 0,
+              "confidence": 1,
+              "source": "github",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["github.repo.topic_count"],
+          "confidence": 1,
+          "missing_reason": null,
+          "explanation": "github.repo.topic_count=0 -> 1 (thresholds)"
+        }
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "rule_id": "security.security-policy",
+      "dimension": "security",
+      "message": "No security policy (SECURITY.md) detected.",
+      "evidence_ids": ["github.file.security_policy"]
+    },
+    {
+      "rule_id": "maintenance.recent-activity",
+      "dimension": "maintenance",
+      "message": "No commit on the default branch for over a year.",
+      "evidence_ids": ["github.commits.last_commit_age_days"]
+    },
+    {
+      "rule_id": "code-quality.tests-present",
+      "dimension": "code-quality",
+      "message": "No test files detected in the repository tree.",
+      "evidence_ids": ["github.tree.has_tests"]
+    },
+    {
+      "rule_id": "supply-chain.license-detected",
+      "dimension": "supply-chain",
+      "message": "No license detected.",
+      "evidence_ids": ["github.repo.license_spdx"]
+    }
+  ],
+  "policy": {
+    "source": "none",
+    "enforced": false,
+    "minimums": {},
+    "violations": []
+  },
+  "diagnostics": [
+    {
+      "source": "osv",
+      "level": "info",
+      "code": "osv_no_exact_versions",
+      "message": "no exact dependency versions found (lockfile/pins); vulnerability check skipped"
+    }
+  ],
+  "stats": {
+    "evidence_count": 76,
+    "http_requests": 15,
+    "authenticated": true
+  },
+  "evidence": [
+    {
+      "id": "docs.readme.code_block_count",
+      "value": 0,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/readme",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "docs.readme.has_config_docs",
+      "value": false,
+      "source": "github",
+      "kind": "heuristic",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 0.7,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/readme",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "docs.readme.has_deploy_docs",
+      "value": false,
+      "source": "github",
+      "kind": "heuristic",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 0.7,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/readme",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "docs.readme.has_install",
+      "value": false,
+      "source": "github",
+      "kind": "heuristic",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 0.8,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/readme",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "docs.readme.has_usage",
+      "value": false,
+      "source": "github",
+      "kind": "heuristic",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 0.8,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/readme",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "docs.readme.length_chars",
+      "value": 13,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/readme",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "docs.readme.present",
+      "value": true,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/readme",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "docs.readme.purpose_statement",
+      "value": false,
+      "source": "github",
+      "kind": "heuristic",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 0.6,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/readme",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.branch.default_protected",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.815Z",
+      "confidence": 0.9,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/branches/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.commits.distinct_authors_sampled",
+      "value": 3,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.815Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/commits",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {
+        "sample_size": 3
+      }
+    },
+    {
+      "id": "github.commits.last_commit_age_days",
+      "value": 5330.6,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.815Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/commits",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.commits.recent_count_90d",
+      "value": 0,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.815Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/commits",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {
+        "capped": false
+      }
+    },
+    {
+      "id": "github.commits.total",
+      "value": 3,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.815Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/commits?per_page=1",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.contributors.bus_factor",
+      "value": 2,
+      "source": "github",
+      "kind": "heuristic",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 0.8,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/contributors",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {
+        "capped_at_100": false
+      }
+    },
+    {
+      "id": "github.contributors.count",
+      "value": 3,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/contributors",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {
+        "capped_at_100": false
+      }
+    },
+    {
+      "id": "github.contributors.top_share",
+      "value": 0.333,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/contributors",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {
+        "capped_at_100": false
+      }
+    },
+    {
+      "id": "github.file.action_yml",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.changelog",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.code_of_conduct",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.codeowners",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.contributing",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.dependency_updates",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.deploy_config",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.dockerfile",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.docs_dir",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.env_example",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.examples_dir",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.issue_templates",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.license_file",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.lint_config",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 0.9,
+      "provenance": {
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.lockfile",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.makefile",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.pr_template",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.sbom_file",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.security_policy",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.file.type_check_config",
+      "value": false,
+      "source": "github",
+      "kind": "heuristic",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 0.8,
+      "provenance": {
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {
+        "statically_typed_language": false
+      }
+    },
+    {
+      "id": "github.issues.median_days_to_close",
+      "value": 0,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.815Z",
+      "confidence": 0.7200000000000001,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/issues",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {
+        "closed_in_sample": 16,
+        "sample": "most recently updated 100"
+      }
+    },
+    {
+      "id": "github.issues.sample_size",
+      "value": 51,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.815Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/issues",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.issues.stale_open_ratio",
+      "value": 0,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.815Z",
+      "confidence": 0.9,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/issues",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {
+        "open_in_sample": 35,
+        "stale_after_days": 180
+      }
+    },
+    {
+      "id": "github.pulls.median_days_to_close",
+      "value": 28.8,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.815Z",
+      "confidence": 0.9,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/pulls",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {
+        "closed_in_sample": 45,
+        "sample": "most recently updated 100"
+      }
+    },
+    {
+      "id": "github.pulls.sample_size",
+      "value": 100,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.815Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/pulls",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.pulls.stale_open_ratio",
+      "value": 0,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.815Z",
+      "confidence": 0.9,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/pulls",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {
+        "open_in_sample": 55,
+        "stale_after_days": 180
+      }
+    },
+    {
+      "id": "github.releases.has_any",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.815Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/releases",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {
+        "releases": 0,
+        "has_tags": false
+      }
+    },
+    {
+      "id": "github.repo.age_days",
+      "value": 5735.8,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.repo.archived",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.repo.days_since_push",
+      "value": 780.6,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.repo.default_branch",
+      "value": "master",
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.repo.description_length",
+      "value": 30,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.repo.fork",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.repo.forks",
+      "value": 7049,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {
+        "context_only": true
+      }
+    },
+    {
+      "id": "github.repo.has_description",
+      "value": true,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.repo.has_issues",
+      "value": true,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.repo.license_spdx",
+      "value": "none",
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.repo.size_kb",
+      "value": 1,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.repo.stars",
+      "value": 3804,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {
+        "context_only": true
+      }
+    },
+    {
+      "id": "github.repo.topic_count",
+      "value": 0,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:40.787Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.tree.file_count",
+      "value": 1,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {
+        "truncated": false
+      }
+    },
+    {
+      "id": "github.tree.has_tests",
+      "value": false,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.tree.source_file_count",
+      "value": 0,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.tree.test_file_count",
+      "value": 0,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "github.workflows.count",
+      "value": 0,
+      "source": "github",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:41.813Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
+        "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+      },
+      "metadata": {}
+    },
+    {
+      "id": "heuristic.substance.readme_heavy",
+      "value": false,
+      "source": "heuristic",
+      "kind": "heuristic",
+      "observed_at": "2026-10-10T13:39:41.814Z",
+      "confidence": 0.5,
+      "provenance": {},
+      "metadata": {
+        "readme_chars": 13,
+        "source_files": 0
+      }
+    },
+    {
+      "id": "identity.canonical_type",
+      "value": "unclassified",
+      "source": "identity",
+      "kind": "heuristic",
+      "observed_at": "2026-10-10T13:39:42.385Z",
+      "confidence": 1,
+      "provenance": {},
+      "metadata": {
+        "classifier": "heuristic-v0.1"
+      }
+    },
+    {
+      "id": "identity.confidence",
+      "value": 0,
+      "source": "identity",
+      "kind": "heuristic",
+      "observed_at": "2026-10-10T13:39:42.385Z",
+      "confidence": 1,
+      "provenance": {},
+      "metadata": {
+        "classifier": "heuristic-v0.1"
+      }
+    },
+    {
+      "id": "identity.interfaces",
+      "value": [],
+      "source": "identity",
+      "kind": "heuristic",
+      "observed_at": "2026-10-10T13:39:42.385Z",
+      "confidence": 1,
+      "provenance": {},
+      "metadata": {
+        "classifier": "heuristic-v0.1"
+      }
+    },
+    {
+      "id": "identity.name_normalization_lossy",
+      "value": false,
+      "source": "identity",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:42.385Z",
+      "confidence": 1,
+      "provenance": {},
+      "metadata": {}
+    },
+    {
+      "id": "scorecard.check.binary_artifacts",
+      "value": 10,
+      "source": "scorecard",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:38.700Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {
+        "scorecard_date": "2026-10-05",
+        "scorecard_version": "v5.5.1-0.20260928043300-ac4b58443938"
+      }
+    },
+    {
+      "id": "scorecard.check.branch_protection",
+      "value": 0,
+      "source": "scorecard",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:38.700Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {
+        "scorecard_date": "2026-10-05",
+        "scorecard_version": "v5.5.1-0.20260928043300-ac4b58443938"
+      }
+    },
+    {
+      "id": "scorecard.check.cii_best_practices",
+      "value": 0,
+      "source": "scorecard",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:38.700Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {
+        "scorecard_date": "2026-10-05",
+        "scorecard_version": "v5.5.1-0.20260928043300-ac4b58443938"
+      }
+    },
+    {
+      "id": "scorecard.check.code_review",
+      "value": 3,
+      "source": "scorecard",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:38.700Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {
+        "scorecard_date": "2026-10-05",
+        "scorecard_version": "v5.5.1-0.20260928043300-ac4b58443938"
+      }
+    },
+    {
+      "id": "scorecard.check.fuzzing",
+      "value": 0,
+      "source": "scorecard",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:38.700Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {
+        "scorecard_date": "2026-10-05",
+        "scorecard_version": "v5.5.1-0.20260928043300-ac4b58443938"
+      }
+    },
+    {
+      "id": "scorecard.check.license",
+      "value": 0,
+      "source": "scorecard",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:38.700Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {
+        "scorecard_date": "2026-10-05",
+        "scorecard_version": "v5.5.1-0.20260928043300-ac4b58443938"
+      }
+    },
+    {
+      "id": "scorecard.check.maintained",
+      "value": 0,
+      "source": "scorecard",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:38.700Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {
+        "scorecard_date": "2026-10-05",
+        "scorecard_version": "v5.5.1-0.20260928043300-ac4b58443938"
+      }
+    },
+    {
+      "id": "scorecard.check.sast",
+      "value": 0,
+      "source": "scorecard",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:38.700Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {
+        "scorecard_date": "2026-10-05",
+        "scorecard_version": "v5.5.1-0.20260928043300-ac4b58443938"
+      }
+    },
+    {
+      "id": "scorecard.check.security_policy",
+      "value": 0,
+      "source": "scorecard",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:38.700Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {
+        "scorecard_date": "2026-10-05",
+        "scorecard_version": "v5.5.1-0.20260928043300-ac4b58443938"
+      }
+    },
+    {
+      "id": "scorecard.score",
+      "value": 1.9,
+      "source": "scorecard",
+      "kind": "fact",
+      "observed_at": "2026-10-10T13:39:38.699Z",
+      "confidence": 1,
+      "provenance": {
+        "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
+        "http_status": 200
+      },
+      "metadata": {
+        "scorecard_date": "2026-10-05",
+        "scorecard_version": "v5.5.1-0.20260928043300-ac4b58443938"
+      }
+    }
+  ]
+}

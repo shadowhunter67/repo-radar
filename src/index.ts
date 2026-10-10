@@ -1,0 +1,12 @@
+export { analyzeRepository, toolVersion, type AnalyzeOptions } from './analyze.js';
+export { ReportSchema, REPORT_SCHEMA_VERSION, type Report } from './report/schema.js';
+export { renderText } from './report/text.js';
+export { EvidenceSchema, EVIDENCE_SCHEMA_VERSION, type Evidence } from './evidence/types.js';
+export { EvidenceStore } from './evidence/store.js';
+export { evaluate } from './scoring/engine.js';
+export { loadRuleSet, parseRuleFile, buildRuleSet } from './scoring/rules.js';
+export { METHODOLOGY_VERSION, RuleSchema, ProfileSchema } from './scoring/types.js';
+export { loadProfile, listProfiles, parseProfile } from './profiles/load.js';
+export { HeuristicClassifier, loadDefaultTaxonomy, normalizeName } from './identity/index.js';
+export type { IdentityClassifier, SemanticIdentity } from './identity/types.js';
+export { parseRepoRef } from './util/repo-ref.js';

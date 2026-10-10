@@ -1,0 +1,14 @@
+id: default
+version: '0.1'
+title: Default
+description: Balanced weighting for general-purpose evaluation. No advisory minimums.
+dimension_weights:
+  security: 1
+  maintenance: 1
+  code-quality: 1
+  supply-chain: 1
+  community: 1
+  documentation: 1
+  semantic-clarity: 1
+rule_weights: {}
+minimums: {}

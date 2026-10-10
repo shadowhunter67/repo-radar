@@ -1,0 +1,108 @@
+# Supply chain standards, methodology 0.1.
+methodology: '0.1'
+rules:
+  - id: supply-chain.lockfile
+    dimension: supply-chain
+    title: 'Dependency lockfile committed'
+    rationale: 'Lockfiles make installs reproducible and let tools check exact dependency versions.'
+    evidence: [github.file.lockfile]
+    weight: 4
+    applies_when: { evidence: manifest.file_count, gt: 0 }
+    scoring: { type: map, values: { 'true': 10, 'false': 2 } }
+    limitations: 'Libraries commonly (and reasonably) omit lockfiles; applications should have them.'
+  - id: supply-chain.pinned-actions
+    dimension: supply-chain
+    title: 'GitHub Actions pinned to commit SHAs'
+    rationale: "Tag references can be moved by the action's owner; a full commit SHA cannot."
+    evidence: [github.workflows.pinned_actions_ratio]
+    weight: 4
+    group: pinned
+    applies_when: { evidence: github.workflows.external_action_count, gt: 0 }
+    scoring: { type: linear, min: 0, max: 1 }
+  - id: supply-chain.scorecard-pinned-dependencies
+    dimension: supply-chain
+    title: 'OpenSSF Scorecard Pinned-Dependencies check'
+    rationale: 'Scorecard also covers Dockerfiles and install commands; overlaps with action pinning.'
+    evidence: [scorecard.check.pinned_dependencies]
+    weight: 4
+    group: pinned
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: supply-chain.dependency-updates
+    dimension: supply-chain
+    title: 'Automated dependency update tooling'
+    rationale: 'Dependabot or Renovate keeps dependencies and CVE fixes flowing.'
+    evidence: [github.file.dependency_updates]
+    weight: 3
+    group: dep-updates
+    applies_when: { evidence: manifest.file_count, gt: 0 }
+    scoring: { type: map, values: { 'true': 10, 'false': 3 } }
+  - id: supply-chain.scorecard-dependency-update-tool
+    dimension: supply-chain
+    title: 'OpenSSF Scorecard Dependency-Update-Tool check'
+    rationale: 'Same signal as the local file check, measured by Scorecard.'
+    evidence: [scorecard.check.dependency_update_tool]
+    weight: 3
+    group: dep-updates
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: supply-chain.signed-releases
+    dimension: supply-chain
+    title: 'Release artifacts are signed'
+    rationale: 'Signatures let consumers verify that artifacts came from the maintainers.'
+    evidence: [github.releases.signed_assets]
+    weight: 3
+    group: signing
+    scoring: { type: map, values: { 'true': 10, 'false': 2 } }
+    warn: { below: 3, message: 'No signature files found among recent release assets.' }
+    limitations: 'Only release asset names are inspected; signing done by a package registry (npm provenance, PyPI attestations) is not visible here.'
+  - id: supply-chain.scorecard-signed-releases
+    dimension: supply-chain
+    title: 'OpenSSF Scorecard Signed-Releases check'
+    rationale: 'Same fact measured by Scorecard.'
+    evidence: [scorecard.check.signed_releases]
+    weight: 3
+    group: signing
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: supply-chain.provenance
+    dimension: supply-chain
+    title: 'Build provenance (SLSA-style attestations)'
+    rationale: 'Provenance links artifacts to the source and build that produced them. Detected from release assets or known provenance workflow actions.'
+    evidence: [github.releases.provenance_assets, github.workflows.uses_provenance]
+    combine: max
+    weight: 3
+    scoring: { type: map, values: { 'true': 10, 'false': 4 } }
+    limitations: 'Absence here is weak evidence because provenance is often published to registries instead.'
+  - id: supply-chain.sbom
+    dimension: supply-chain
+    title: 'SBOM published'
+    rationale: 'An SBOM (in the tree or as a release asset) helps consumers audit transitive dependencies.'
+    evidence: [github.releases.sbom_assets, github.file.sbom_file]
+    combine: max
+    weight: 2
+    scoring: { type: map, values: { 'true': 10, 'false': 5 } }
+  - id: supply-chain.license-detected
+    dimension: supply-chain
+    title: 'License detected by GitHub'
+    rationale: 'Without a license, others have no legal right to use the code.'
+    evidence: [github.repo.license_spdx]
+    weight: 4
+    scoring: { type: map, values: { none: 0, NOASSERTION: 4 }, default: 10 }
+    warn: { below: 1, message: 'No license detected.' }
+  - id: supply-chain.dependency-count
+    dimension: supply-chain
+    title: 'Direct runtime dependency count'
+    rationale: 'Context only. More dependencies widen the attack surface, but libraries and applications differ so much that no threshold is fair.'
+    evidence: [manifest.dependency_count]
+    weight: 0
+    informational: true
+    scoring:
+      type: thresholds
+      steps: [{ gte: 100, score: 3 }, { gte: 40, score: 6 }]
+      otherwise: 10
+  - id: supply-chain.vulnerability-check-coverage
+    dimension: supply-chain
+    title: 'Share of direct dependencies covered by the OSV check'
+    rationale: 'Context for interpreting the vulnerability result; low coverage means the vulnerability check saw little.'
+    evidence: [osv.coverage_ratio]
+    weight: 0
+    informational: true
+    scoring: { type: linear, min: 0, max: 1 }

@@ -1,0 +1,23 @@
+id: startup
+version: '0.1'
+title: Startup production
+description: >-
+  For small teams shipping production software. Emphasizes security and engineering process, relaxes
+  community and governance expectations, and does not expect enterprise supply-chain artifacts (SBOM)
+  or multi-reviewer code review.
+dimension_weights:
+  security: 1.5
+  maintenance: 1
+  code-quality: 1.2
+  supply-chain: 1
+  community: 0.5
+  documentation: 1
+  semantic-clarity: 0.5
+rule_weights:
+  security.code-review: 2
+  supply-chain.sbom: 1
+  community.code-of-conduct: 1
+  community.codeowners: 0
+minimums:
+  security: 55
+  overall: 55

@@ -1,0 +1,67 @@
+# Semantic clarity standards, methodology 0.1.
+# Measures how easily a newcomer or a search engine can learn what the repository DOES.
+# An unusual repository NAME is never penalized: the name-purpose divergence rule is informational only.
+methodology: '0.1'
+rules:
+  - id: semantic-clarity.has-description
+    dimension: semantic-clarity
+    title: 'Repository description set'
+    rationale: 'The one-line description is what search results and lists show.'
+    evidence: [github.repo.has_description]
+    weight: 4
+    scoring: { type: map, values: { 'true': 10, 'false': 0 } }
+  - id: semantic-clarity.description-quality
+    dimension: semantic-clarity
+    title: 'Description long enough to say something'
+    rationale: 'One or two words rarely state purpose. Length is only a floor.'
+    evidence: [github.repo.description_length]
+    weight: 2
+    scoring:
+      { type: thresholds, steps: [{ gte: 25, score: 10 }, { gte: 10, score: 6 }], otherwise: 2 }
+  - id: semantic-clarity.topics
+    dimension: semantic-clarity
+    title: 'Topics assigned'
+    rationale: 'Topics make a repository discoverable independent of its name.'
+    evidence: [github.repo.topic_count]
+    weight: 3
+    scoring:
+      { type: thresholds, steps: [{ gte: 3, score: 10 }, { gte: 1, score: 6 }], otherwise: 1 }
+  - id: semantic-clarity.manifest-description
+    dimension: semantic-clarity
+    title: 'Package manifest has a description'
+    rationale: 'Package registries display the manifest description.'
+    evidence: [manifest.has_description]
+    weight: 2
+    scoring: { type: map, values: { 'true': 10, 'false': 3 } }
+  - id: semantic-clarity.readme-purpose
+    dimension: semantic-clarity
+    title: 'README opens with a prose purpose statement'
+    rationale: 'A first paragraph of plain prose explaining what the project is. Heuristic: first prose paragraph of useful length.'
+    evidence: [docs.readme.purpose_statement]
+    weight: 3
+    applies_when: { evidence: docs.readme.present, equals: true }
+    scoring: { type: map, values: { 'true': 10, 'false': 2 } }
+  - id: semantic-clarity.detected-purpose
+    dimension: semantic-clarity
+    title: 'Purpose could be determined from declared metadata'
+    rationale: 'Confidence of the identity classifier. High means description, topics, manifest and README agree on a purpose.'
+    evidence: [identity.confidence]
+    weight: 3
+    scoring: { type: linear, min: 0, max: 0.9 }
+    limitations: 'The default classifier knows a fixed taxonomy; niche domains outside it are read as unclear. Replace the classifier or extend standards/identity/taxonomy.yaml.'
+  - id: semantic-clarity.name-purpose-divergence
+    dimension: semantic-clarity
+    title: 'Name vs detected purpose (informational)'
+    rationale: 'Brand and coined names are normal. This only reports how little the name overlaps with the detected purpose, to explain why a repository may be hard to find by name. It is never scored.'
+    evidence: [identity.name_purpose_divergence]
+    weight: 0
+    informational: true
+    scoring: { type: linear, min: 0, max: 1, invert: true }
+  - id: semantic-clarity.name-normalization
+    dimension: semantic-clarity
+    title: 'Name contains symbols that normalization removes (informational)'
+    rationale: 'Emoji or symbols are dropped to build search forms; the original display name is always preserved. Never scored.'
+    evidence: [identity.name_normalization_lossy]
+    weight: 0
+    informational: true
+    scoring: { type: map, values: { 'true': 5, 'false': 10 } }

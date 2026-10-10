@@ -1,0 +1,98 @@
+# Code quality standards, methodology 0.1.
+# These are process indicators (tests, linting, typing), NOT a measurement of how good the code is.
+methodology: '0.1'
+rules:
+  - id: code-quality.tests-present
+    dimension: code-quality
+    title: 'Test files exist'
+    rationale: 'Automated tests are a prerequisite for safe change. Detected by path/name conventions only.'
+    evidence: [github.tree.has_tests]
+    weight: 6
+    group: tests
+    scoring: { type: map, values: { 'true': 10, 'false': 0 } }
+    warn: { below: 1, message: 'No test files detected in the repository tree.' }
+    limitations: 'Tests kept in other repositories, or in unconventional paths, are not seen.'
+  - id: code-quality.test-ratio
+    dimension: code-quality
+    title: 'Test-to-source file ratio'
+    rationale: 'Rough proportion of test files to source files. File counts say nothing about test depth.'
+    evidence: [github.tree.test_to_source_ratio]
+    weight: 3
+    group: tests
+    scoring:
+      type: thresholds
+      steps:
+        [
+          { gte: 0.5, score: 10 },
+          { gte: 0.25, score: 8 },
+          { gte: 0.1, score: 6 },
+          { gte: 0.02, score: 4 },
+        ]
+      otherwise: 2
+    limitations: 'Language idioms differ (e.g. Go and Rust keep unit tests inside source files).'
+  - id: code-quality.ci-present
+    dimension: code-quality
+    title: 'CI workflows exist'
+    rationale: 'Continuous integration runs checks consistently. Only GitHub Actions workflows are recognised.'
+    evidence: [github.workflows.count]
+    weight: 3
+    scoring: { type: thresholds, steps: [{ gte: 1, score: 10 }], otherwise: 2 }
+    limitations: 'Projects using other CI systems (CircleCI, Jenkins, GitLab mirrors) are not recognised.'
+  - id: code-quality.ci-runs-tests
+    dimension: code-quality
+    title: 'CI executes a test command'
+    rationale: 'Tests that never run in CI tend to rot.'
+    evidence: [github.workflows.runs_tests]
+    weight: 3
+    group: ci-tests
+    applies_when: { evidence: github.workflows.analyzed_count, gt: 0 }
+    scoring: { type: map, values: { 'true': 10, 'false': 2 } }
+  - id: code-quality.scorecard-ci-tests
+    dimension: code-quality
+    title: 'OpenSSF Scorecard CI-Tests check'
+    rationale: "Scorecard's check that merged changes ran CI tests."
+    evidence: [scorecard.check.ci_tests]
+    weight: 3
+    group: ci-tests
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: code-quality.lint-config
+    dimension: code-quality
+    title: 'Linter or static-analysis configuration'
+    rationale: 'A committed linter configuration indicates consistent style and common-bug checks.'
+    evidence: [github.file.lint_config]
+    weight: 3
+    scoring: { type: map, values: { 'true': 10, 'false': 3 } }
+  - id: code-quality.type-checking
+    dimension: code-quality
+    title: 'Static typing or type-checker configuration'
+    rationale: 'Static types (language-level or via a checker) catch a class of defects before runtime.'
+    evidence: [github.file.type_check_config]
+    weight: 2
+    scoring: { type: map, values: { 'true': 10, 'false': 3 } }
+    limitations: 'Heuristic; statically typed languages are credited without inspecting the code.'
+  - id: code-quality.ci-without-tests
+    dimension: code-quality
+    title: 'Scaffolding indicator, CI without any tests'
+    rationale: 'CI workflows that run no tests while the repository contains no test files can indicate scaffolding without substance. Heuristic risk indicator, not a verdict.'
+    evidence: [heuristic.substance.ci_without_tests]
+    weight: 0
+    informational: true
+    scoring: { type: map, values: { 'true': 2, 'false': 10 } }
+    warn:
+      {
+        below: 5,
+        message: 'CI workflows exist but no test step or test files were detected (heuristic substance indicator).',
+      }
+  - id: code-quality.readme-heavy
+    dimension: code-quality
+    title: 'Scaffolding indicator, large README with a very small source tree'
+    rationale: 'A long README next to almost no source and no tests can mean the documentation is ahead of the implementation. Heuristic risk indicator, not a verdict.'
+    evidence: [heuristic.substance.readme_heavy]
+    weight: 0
+    informational: true
+    scoring: { type: map, values: { 'true': 2, 'false': 10 } }
+    warn:
+      {
+        below: 5,
+        message: 'Large README with very few source files and no tests (heuristic substance indicator; early-stage projects often look like this).',
+      }

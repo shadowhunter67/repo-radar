@@ -1,0 +1,914 @@
+# Semantic Identity taxonomy (methodology v0.1)
+# Each entry describes what a repository DOES, independent of its name.
+# keywords : phrases matched (whole words, case-insensitive) in description / manifest / README
+# deps     : dependency names (exact, or prefix when ending in "*") that suggest the type
+# topics   : GitHub topics that suggest the type
+# Contributions welcome via pull request; keep entries specific to avoid false matches.
+version: '0.1'
+types:
+  - id: task-queue
+    label: distributed task queue
+    function: background job execution
+    keywords:
+      [
+        task queue,
+        job queue,
+        background job,
+        background jobs,
+        background tasks,
+        worker queue,
+        distributed task,
+        job scheduler,
+      ]
+    deps: [celery, bullmq, bull, rq, dramatiq, huey, asynq, sidekiq, agenda, bee-queue]
+    topics: [task-queue, job-queue, background-jobs, queue, workers]
+    aliases: [task queue, background job system, distributed worker queue]
+  - id: message-broker
+    label: message broker / streaming platform
+    function: message queuing and event streaming
+    keywords:
+      [
+        message broker,
+        message queue,
+        event streaming,
+        pub/sub,
+        publish subscribe,
+        event bus,
+        amqp,
+        kafka,
+      ]
+    deps: [kafkajs, confluent-kafka, pika, amqplib, nats, rdkafka]
+    topics: [message-queue, kafka, rabbitmq, pubsub, event-streaming, nats]
+    aliases: [message queue, event streaming platform, pub sub broker]
+  - id: web-framework
+    label: web framework
+    function: building HTTP servers and web applications
+    keywords:
+      [
+        web framework,
+        http server,
+        rest api framework,
+        web server framework,
+        micro framework,
+        microframework,
+        routing middleware,
+      ]
+    deps:
+      [
+        express,
+        fastify,
+        koa,
+        hono,
+        flask,
+        fastapi,
+        django,
+        starlette,
+        gin-gonic/gin,
+        labstack/echo,
+        gofiber/fiber,
+        actix-web,
+        axum,
+        rocket,
+        warp,
+        sinatra,
+        rails,
+      ]
+    topics: [web-framework, http-server, rest-api, framework, backend]
+    aliases: [web framework, http server library, rest api framework]
+  - id: frontend-framework
+    label: frontend UI framework or app
+    function: building user interfaces in the browser
+    keywords:
+      [
+        ui framework,
+        frontend framework,
+        component library,
+        user interface,
+        single page application,
+        spa,
+        web components,
+        design system,
+      ]
+    deps: [react, vue, svelte, solid-js, '@angular/core', preact, lit, next, nuxt, astro]
+    topics:
+      [react, vue, svelte, angular, frontend, ui, ui-components, design-system, component-library]
+    aliases: [ui component library, frontend framework, web ui toolkit]
+  - id: database
+    label: database engine or client
+    function: storing and querying data
+    keywords:
+      [
+        database,
+        sql database,
+        key-value store,
+        document database,
+        time series database,
+        embedded database,
+        orm,
+        query builder,
+        database driver,
+      ]
+    deps:
+      [
+        pg,
+        mysql2,
+        sqlalchemy,
+        psycopg2,
+        prisma,
+        typeorm,
+        sequelize,
+        knex,
+        gorm.io/gorm,
+        diesel,
+        sqlx,
+        redis,
+        mongodb,
+        mongoose,
+        drizzle-orm,
+      ]
+    topics: [database, sql, orm, nosql, key-value, db, sqlite, postgresql, mysql]
+    aliases: [database library, orm, sql client]
+  - id: vector-database
+    label: vector database / similarity search
+    function: embedding storage and nearest-neighbour search
+    keywords:
+      [
+        vector database,
+        vector search,
+        similarity search,
+        embeddings store,
+        nearest neighbor,
+        approximate nearest neighbor,
+        ann index,
+        vector store,
+      ]
+    deps: [faiss-cpu, hnswlib, chromadb, qdrant-client, pinecone-client, pgvector, usearch]
+    topics: [vector-database, vector-search, embeddings, similarity-search, ann]
+    aliases: [vector database, embedding search engine, similarity search library]
+  - id: llm-framework
+    label: LLM / AI agent framework or app
+    function: building applications on large language models
+    keywords:
+      [
+        llm,
+        large language model,
+        ai agent,
+        agents,
+        retrieval augmented generation,
+        rag,
+        prompt,
+        chatbot,
+        language model,
+        generative ai,
+        mcp server,
+      ]
+    deps:
+      [
+        openai,
+        anthropic,
+        langchain*,
+        llama-index,
+        llama_index,
+        transformers,
+        '@anthropic-ai/sdk',
+        ollama,
+        litellm,
+        '@modelcontextprotocol/sdk',
+        mcp,
+      ]
+    topics: [llm, ai, agents, rag, chatgpt, openai, langchain, generative-ai, mcp, ai-agents]
+    aliases: [llm framework, ai agent toolkit, rag application]
+  - id: ml-library
+    label: machine learning library
+    function: training and running machine learning models
+    keywords:
+      [
+        machine learning,
+        deep learning,
+        neural network,
+        model training,
+        tensor,
+        gradient boosting,
+        scikit,
+        computer vision,
+        ml library,
+      ]
+    deps:
+      [torch, tensorflow, scikit-learn, xgboost, lightgbm, jax, keras, onnxruntime, numpy, pandas]
+    topics:
+      [
+        machine-learning,
+        deep-learning,
+        pytorch,
+        tensorflow,
+        neural-network,
+        ml,
+        computer-vision,
+        data-science,
+      ]
+    aliases: [machine learning library, deep learning framework, ml toolkit]
+  - id: data-processing
+    label: data processing / ETL tool
+    function: transforming, validating and moving data
+    keywords:
+      [
+        data pipeline,
+        etl,
+        data processing,
+        dataframe,
+        data transformation,
+        stream processing,
+        batch processing,
+        data validation,
+        workflow orchestration,
+      ]
+    deps: [pandas, polars, pyarrow, dask, airflow, prefect, dagster, luigi, pyspark, apache-beam]
+    topics: [etl, data-pipeline, dataframe, data-engineering, big-data, workflow-orchestration]
+    aliases: [data pipeline tool, etl framework, dataframe library]
+  - id: cli-utility
+    label: command-line utility
+    function: command-line tooling for a specific task
+    keywords:
+      [
+        command-line,
+        command line,
+        command line tool,
+        command-line tool,
+        cli tool,
+        command line utility,
+        cli utility,
+        terminal tool,
+        command-line interface for,
+        shell utility,
+        tui,
+        terminal ui,
+      ]
+    deps: [commander, yargs, clap, cobra, click, typer, argparse, ink, bubbletea, urfave/cli]
+    topics: [cli, command-line, terminal, tui, command-line-tool, shell]
+    aliases: [command line tool, cli utility, terminal application]
+  - id: developer-tool
+    label: developer tooling (linter / formatter / build / codegen)
+    function: improving code quality, builds or code generation
+    keywords:
+      [
+        linter,
+        formatter,
+        code formatter,
+        static analysis,
+        build tool,
+        bundler,
+        transpiler,
+        code generator,
+        codegen,
+        compiler plugin,
+        developer tool,
+        dev tool,
+        task runner,
+        package manager,
+      ]
+    deps: [eslint, prettier, esbuild, webpack, rollup, vite, babel, black, ruff, flake8, mypy]
+    topics:
+      [
+        linter,
+        formatter,
+        static-analysis,
+        build-tool,
+        bundler,
+        devtools,
+        developer-tools,
+        codegen,
+        code-generation,
+        productivity,
+      ]
+    aliases: [developer tooling, code quality tool, build tool]
+  - id: testing-framework
+    label: testing framework / library
+    function: writing and running automated tests
+    keywords:
+      [
+        testing framework,
+        test framework,
+        test runner,
+        unit testing,
+        assertion library,
+        mocking library,
+        end-to-end testing,
+        e2e testing,
+        property based testing,
+        fuzzing,
+      ]
+    deps: [jest, vitest, mocha, pytest, playwright, cypress, testify, hypothesis, junit, rspec]
+    topics: [testing, test-framework, unit-testing, e2e-testing, mocking, fuzzing, test-automation]
+    aliases: [test framework, test runner, assertion library]
+  - id: infrastructure
+    label: infrastructure / DevOps tooling
+    function: provisioning, deploying and operating infrastructure
+    keywords:
+      [
+        infrastructure as code,
+        terraform,
+        kubernetes,
+        helm chart,
+        container orchestration,
+        deployment tool,
+        devops,
+        ci/cd,
+        gitops,
+        cloud infrastructure,
+        docker image,
+        ansible,
+      ]
+    deps: [pulumi, boto3, aws-cdk-lib, '@kubernetes/client-node', kubernetes, ansible]
+    topics:
+      [
+        devops,
+        kubernetes,
+        terraform,
+        docker,
+        infrastructure-as-code,
+        gitops,
+        cicd,
+        helm,
+        ansible,
+        cloud,
+      ]
+    aliases: [devops tooling, infrastructure as code tool, deployment automation]
+  - id: observability
+    label: monitoring / observability tool
+    function: collecting metrics, logs and traces
+    keywords:
+      [
+        monitoring,
+        observability,
+        metrics,
+        tracing,
+        logging library,
+        log aggregation,
+        alerting,
+        opentelemetry,
+        prometheus,
+        apm,
+        error tracking,
+      ]
+    deps:
+      [
+        '@opentelemetry/api',
+        opentelemetry-api,
+        prometheus-client,
+        prom-client,
+        pino,
+        winston,
+        structlog,
+        sentry-sdk,
+      ]
+    topics:
+      [
+        monitoring,
+        observability,
+        metrics,
+        tracing,
+        logging,
+        opentelemetry,
+        prometheus,
+        grafana,
+        apm,
+      ]
+    aliases: [monitoring tool, observability stack, logging library]
+  - id: security-tool
+    label: security / cryptography tool
+    function: securing software, secrets or communications
+    keywords:
+      [
+        security scanner,
+        vulnerability scanner,
+        penetration testing,
+        secret scanning,
+        cryptography library,
+        encryption,
+        authentication library,
+        oauth,
+        password manager,
+        sast,
+        dependency scanning,
+        sbom,
+      ]
+    deps: [cryptography, bcrypt, jsonwebtoken, passport, authlib, pynacl, ring, openssl]
+    topics:
+      [
+        security,
+        cryptography,
+        encryption,
+        authentication,
+        oauth,
+        pentest,
+        vulnerability-scanner,
+        infosec,
+        sbom,
+        appsec,
+      ]
+    aliases: [security tool, crypto library, authentication library]
+  - id: backup-tool
+    label: backup / sync tool
+    function: backing up and restoring or syncing data
+    keywords:
+      [
+        backup,
+        restore,
+        point-in-time recovery,
+        incremental backup,
+        file synchronization,
+        file sync,
+        snapshot backup,
+        disaster recovery,
+        replication,
+      ]
+    deps: []
+    topics: [backup, restore, sync, file-sync, disaster-recovery]
+    aliases: [backup tool, backup and restore utility, file sync tool]
+  - id: api-client
+    label: API client / SDK
+    function: calling a remote service from code
+    keywords:
+      [
+        api client,
+        sdk,
+        client library,
+        api wrapper,
+        rest client,
+        http client,
+        graphql client,
+        official sdk,
+        python client for,
+        node client for,
+        wrapper for the,
+      ]
+    deps: [axios, requests, httpx, node-fetch, got, reqwest, urllib3, ky]
+    topics: [sdk, api-client, api-wrapper, client-library, http-client, rest-client]
+    aliases: [api client library, sdk, service wrapper]
+  - id: scraper
+    label: web scraper / crawler
+    function: extracting data from websites
+    keywords:
+      [
+        web scraper,
+        web scraping,
+        web crawler,
+        crawler,
+        spider,
+        scrape,
+        headless browser automation,
+        data extraction from websites,
+      ]
+    deps: [puppeteer, playwright, beautifulsoup4, scrapy, cheerio, selenium, colly]
+    topics: [scraper, web-scraping, crawler, scrapy, puppeteer, spider, crawling]
+    aliases: [web scraper, crawler framework, scraping toolkit]
+  - id: bot
+    label: chat bot / automation bot
+    function: automating interactions on a messaging platform
+    keywords:
+      [
+        discord bot,
+        telegram bot,
+        slack bot,
+        chat bot,
+        chatbot for,
+        whatsapp bot,
+        matrix bot,
+        irc bot,
+        twitch bot,
+        bot framework,
+      ]
+    deps:
+      [
+        'discord.js',
+        discord.py,
+        python-telegram-bot,
+        telegraf,
+        '@slack/bolt',
+        grammy,
+        aiogram,
+        slack-bolt,
+      ]
+    topics: [discord-bot, telegram-bot, slack-bot, bot, chatbot, discord, telegram]
+    aliases: [chat bot, messaging bot, discord bot]
+  - id: parser-compiler
+    label: parser / compiler / language tooling
+    function: parsing, compiling or interpreting languages
+    keywords:
+      [
+        parser,
+        compiler,
+        interpreter,
+        programming language,
+        lexer,
+        abstract syntax tree,
+        ast,
+        language server,
+        syntax highlighting,
+        transpiler,
+        regex engine,
+        virtual machine,
+      ]
+    deps: [tree-sitter, antlr4, nom, pest, lark, '@babel/parser', acorn, pyparsing]
+    topics:
+      [
+        compiler,
+        parser,
+        interpreter,
+        programming-language,
+        lsp,
+        language-server,
+        ast,
+        tree-sitter,
+        language,
+      ]
+    aliases: [parser library, compiler, programming language implementation]
+  - id: static-site
+    label: static site generator / CMS
+    function: generating or managing website content
+    keywords:
+      [
+        static site generator,
+        static site,
+        blog engine,
+        content management system,
+        cms,
+        headless cms,
+        documentation site generator,
+        wiki engine,
+        website template,
+      ]
+    deps: [gatsby, hugo, jekyll, eleventy, '@11ty/eleventy', docusaurus, vitepress, mkdocs, hexo]
+    topics:
+      [static-site-generator, cms, blog, jekyll, hugo, documentation, headless-cms, website, wiki]
+    aliases: [static site generator, cms, documentation site tool]
+  - id: ecommerce
+    label: e-commerce / business application
+    function: running online shops and business workflows
+    keywords:
+      [
+        e-commerce,
+        ecommerce,
+        online store,
+        shopping cart,
+        payment processing,
+        point of sale,
+        invoicing,
+        accounting software,
+        crm,
+        erp,
+        inventory management,
+        booking system,
+      ]
+    deps: [stripe, medusa*, '@medusajs/medusa', saleor, spree]
+    topics: [ecommerce, e-commerce, shop, payments, erp, crm, pos, accounting, invoicing]
+    aliases: [e-commerce platform, business application, payment integration]
+  - id: game
+    label: game / game engine
+    function: interactive games and game development
+    keywords:
+      [
+        game engine,
+        video game,
+        2d game,
+        3d game,
+        game development,
+        game framework,
+        roguelike,
+        multiplayer game,
+        game jam,
+        gameplay,
+        sprite,
+        physics engine,
+      ]
+    deps:
+      [
+        phaser,
+        pygame,
+        bevy,
+        three,
+        pixi.js,
+        godot,
+        raylib,
+        ebitengine,
+        '@babylonjs/core',
+        macroquad,
+      ]
+    topics:
+      [
+        game,
+        game-engine,
+        gamedev,
+        game-development,
+        pygame,
+        unity,
+        godot,
+        roguelike,
+        games,
+        2d-game,
+        3d-game,
+      ]
+    aliases: [game engine, game project, game development framework]
+  - id: mobile-app
+    label: mobile / desktop application
+    function: end-user application for mobile or desktop
+    keywords:
+      [
+        android app,
+        ios app,
+        mobile app,
+        flutter app,
+        react native,
+        desktop application,
+        electron app,
+        tauri app,
+        cross-platform app,
+        swiftui,
+        jetpack compose,
+      ]
+    deps: [react-native, flutter, electron, tauri, '@capacitor/core', expo, cordova]
+    topics:
+      [
+        android,
+        ios,
+        flutter,
+        react-native,
+        mobile,
+        electron,
+        tauri,
+        desktop-app,
+        swift,
+        kotlin,
+        mobile-app,
+      ]
+    aliases: [mobile application, desktop application, cross platform app]
+  - id: media-processing
+    label: image / audio / video processing
+    function: transforming or generating media files
+    keywords:
+      [
+        image processing,
+        video processing,
+        audio processing,
+        video editing,
+        ffmpeg,
+        image generation,
+        speech synthesis,
+        text to speech,
+        speech recognition,
+        ocr,
+        transcoding,
+        diffusion model,
+        image editor,
+      ]
+    deps:
+      [
+        pillow,
+        opencv-python,
+        ffmpeg-python,
+        sharp,
+        imagemagick,
+        moviepy,
+        librosa,
+        torchaudio,
+        diffusers,
+      ]
+    topics:
+      [
+        image-processing,
+        video,
+        audio,
+        ffmpeg,
+        ocr,
+        tts,
+        speech-recognition,
+        computer-vision,
+        stable-diffusion,
+        image-generation,
+      ]
+    aliases: [media processing tool, image processing library, audio video toolkit]
+  - id: blockchain
+    label: blockchain / smart contract project
+    function: decentralized ledger and smart contracts
+    keywords:
+      [
+        blockchain,
+        smart contract,
+        ethereum,
+        solidity,
+        cryptocurrency,
+        web3,
+        defi,
+        nft,
+        decentralized application,
+        dapp,
+        bitcoin,
+        consensus protocol,
+      ]
+    deps: [web3, ethers, hardhat, solana-sdk, '@solana/web3.js', viem, wagmi, openzeppelin*]
+    topics:
+      [
+        blockchain,
+        ethereum,
+        solidity,
+        web3,
+        smart-contracts,
+        bitcoin,
+        defi,
+        crypto,
+        nft,
+        solana,
+        dapp,
+      ]
+    aliases: [blockchain project, smart contract, web3 application]
+  - id: scientific-computing
+    label: scientific computing / research code
+    function: numerical computing and research experiments
+    keywords:
+      [
+        scientific computing,
+        numerical computing,
+        linear algebra,
+        simulation,
+        bioinformatics,
+        computational physics,
+        research code,
+        reproducible research,
+        paper implementation,
+        finite element,
+        genomics,
+        astronomy,
+      ]
+    deps: [scipy, numpy, astropy, biopython, sympy, networkx, matplotlib, xarray]
+    topics:
+      [
+        scientific-computing,
+        bioinformatics,
+        simulation,
+        research,
+        numerical-methods,
+        physics,
+        science,
+        paper,
+        reproducibility,
+        astronomy,
+      ]
+    aliases: [scientific computing library, research code, simulation toolkit]
+  - id: editor-extension
+    label: editor / browser extension
+    function: extending an editor or browser
+    keywords:
+      [
+        vscode extension,
+        visual studio code extension,
+        vim plugin,
+        neovim plugin,
+        emacs package,
+        jetbrains plugin,
+        browser extension,
+        chrome extension,
+        firefox addon,
+        userscript,
+        sublime text package,
+        obsidian plugin,
+      ]
+    deps: ['@types/vscode', vscode, webextension-polyfill, '@types/chrome']
+    topics:
+      [
+        vscode-extension,
+        neovim-plugin,
+        vim-plugin,
+        chrome-extension,
+        browser-extension,
+        obsidian-plugin,
+        emacs,
+        vscode,
+        neovim,
+        firefox-addon,
+        userscript,
+      ]
+    aliases: [editor plugin, browser extension, ide extension]
+  - id: os-embedded
+    label: operating system / embedded / firmware
+    function: low-level system software
+    keywords:
+      [
+        operating system,
+        kernel,
+        bootloader,
+        firmware,
+        embedded systems,
+        microcontroller,
+        device driver,
+        rtos,
+        hypervisor,
+        arduino,
+        raspberry pi,
+        esp32,
+        bare metal,
+      ]
+    deps: [embedded-hal, cortex-m, esp-idf*]
+    topics:
+      [
+        kernel,
+        operating-system,
+        embedded,
+        firmware,
+        arduino,
+        esp32,
+        raspberry-pi,
+        rtos,
+        microcontroller,
+        linux,
+        driver,
+        osdev,
+      ]
+    aliases: [operating system project, embedded firmware, low level system software]
+  - id: educational
+    label: curated list / learning resource
+    function: collecting or teaching knowledge (not software)
+    keywords:
+      [
+        awesome list,
+        curated list,
+        cheat sheet,
+        interview questions,
+        study notes,
+        learning resources,
+        tutorial,
+        course materials,
+        roadmap to learn,
+        books,
+        free programming books,
+        a collection of,
+        handbook,
+        guide to,
+        resources for learning,
+      ]
+    deps: []
+    topics:
+      [
+        awesome,
+        awesome-list,
+        tutorial,
+        learning,
+        education,
+        cheatsheet,
+        interview,
+        roadmap,
+        books,
+        resources,
+        course,
+        interview-questions,
+      ]
+    aliases: [curated list, learning resource, tutorial collection]
+  - id: config-dotfiles
+    label: configuration / dotfiles / templates
+    function: reusable configuration and project templates
+    keywords:
+      [
+        dotfiles,
+        configuration files,
+        starter template,
+        boilerplate,
+        project template,
+        cookiecutter,
+        scaffold,
+        starter kit,
+        config for,
+        my setup,
+        nixos configuration,
+        home manager,
+      ]
+    deps: []
+    topics:
+      [
+        dotfiles,
+        template,
+        boilerplate,
+        starter,
+        starter-kit,
+        config,
+        nixos,
+        cookiecutter,
+        scaffold,
+        vimrc,
+        zsh,
+      ]
+    aliases: [project template, dotfiles, starter kit]
+  - id: github-action
+    label: GitHub Action / CI integration
+    function: automating tasks in CI pipelines
+    keywords:
+      [
+        github action,
+        github actions,
+        ci action,
+        workflow action,
+        reusable workflow,
+        composite action,
+        continuous integration action,
+      ]
+    deps: ['@actions/core', '@actions/github']
+    topics: [github-actions, github-action, actions, ci, continuous-integration]
+    aliases: [github action, ci integration, workflow automation]

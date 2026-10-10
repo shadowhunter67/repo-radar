@@ -1,0 +1,23 @@
+# Example: evaluate this repository with repo-radar on every push to main and weekly.
+# Replace OWNER/repo-radar@v1 with the published action reference.
+name: repo-radar
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 4 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: OWNER/repo-radar@v1
+        with:
+          profile: startup
+          minimum-security-score: '60'
+          minimum-overall-score: '55'
+          # enforce-profile: 'true'   # also fail on the profile's advisory minimums

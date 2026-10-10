@@ -1,0 +1,29 @@
+repo-radar v0.1.0  (methodology 0.1, profile: default)
+
+pallets/flask
+
+IDENTITY
+  building HTTP servers and web applications - detected type: web-framework
+  Confidence: 50% (heuristic classifier heuristic-v0.1)
+  Declared: "A simple framework for building complex web applications."
+  Interfaces: cli, library
+  Ecosystem: Python, PyPI
+  Note: the name says little about the purpose (informational, not scored)
+
+TRUST PROFILE (observed evidence evaluated against methodology 0.1)
+  Security           61  C    ######----  conf  90%
+  Maintenance        91  A    #########-  conf  79%
+  Code Quality      100  A+   ##########  conf  91%
+  Supply Chain       82  B+   ########--  conf  99%
+  Community          93  A    #########-  conf  98%
+  Documentation      85  A-   #########-  conf  94%
+  Semantic Clarity   92  A    #########-  conf  87%
+  Overall            86  A-   #########-  conf  91%  (weighted by profile "default"; not an absolute verdict)
+
+Overall confidence: 91%
+
+WARNINGS
+  - 7 of 100 pinned dependencies have known OSV advisories.
+
+Evidence: 107 signals | Methodology: v0.1 | Rules digest: d00b57deab34
+Scores summarize observed indicators; they are not a statement that code is safe, secure or trustworthy.

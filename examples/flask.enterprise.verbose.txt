@@ -1,0 +1,197 @@
+repo-radar v0.1.0  (methodology 0.1, profile: enterprise)
+
+pallets/flask
+
+IDENTITY
+  building HTTP servers and web applications - detected type: web-framework
+  Confidence: 50% (heuristic classifier heuristic-v0.1)
+  Declared: "A simple framework for building complex web applications."
+  Interfaces: cli, library
+  Ecosystem: Python, PyPI
+  Note: the name says little about the purpose (informational, not scored)
+
+TRUST PROFILE (observed evidence evaluated against methodology 0.1)
+  Security           58  C-   ######----  conf  90%
+  Maintenance        89  A-   #########-  conf  78%
+  Code Quality      100  A+   ##########  conf  91%
+  Supply Chain       83  B+   ########--  conf  99%
+  Community          93  A    #########-  conf  98%
+  Documentation      85  A-   #########-  conf  94%
+  Semantic Clarity   92  A    #########-  conf  87%
+  Overall            82  B+   ########--  conf  91%  (weighted by profile "enterprise"; not an absolute verdict)
+
+Overall confidence: 91%
+
+WARNINGS
+  - 7 of 100 pinned dependencies have known OSV advisories.
+
+POLICY (profile minimums, advisory)
+  - security: 57.7 < minimum 70
+
+DIAGNOSTICS
+
+RULE DETAIL
+  Security  (coverage 100%, evidence quality 90%)
+    scored          0.0/10  w=2     security.best-practices-badge
+      scorecard.check.cii_best_practices=0 -> 0 (linear)
+    scored         10.0/10  w=2     security.binary-artifacts
+      scorecard.check.binary_artifacts=10 -> 10 (linear)
+    scored         10.0/10  w=2     security.branch-protected
+      github.branch.default_protected=true -> 10 (map)
+    scored          0.0/10  w=6     security.code-review
+      scorecard.check.code_review=0 -> 0 (linear)
+    scored         10.0/10  w=3     security.dangerous-workflow
+      github.workflows.dangerous_checkout=false -> 10 (map)
+    scored         10.0/10  w=3     security.expression-injection
+      github.workflows.expression_injection_risk=false -> 10 (map)
+    informational  10.0/10  w=0     security.fuzzing
+      scorecard.check.fuzzing=10 -> 10 (linear)
+    scored          3.0/10  w=8     security.known-vulnerabilities
+      osv.vulnerable_ratio=0.07 -> 3 (thresholds)
+    scored          3.0/10  w=1.5   security.sast
+      github.workflows.uses_sast=false -> 3 (map)
+    scored          3.0/10  w=2     security.scorecard-branch-protection
+      scorecard.check.branch_protection=3 -> 3 (linear)
+    scored         10.0/10  w=3     security.scorecard-dangerous-workflow
+      scorecard.check.dangerous_workflow=10 -> 10 (linear)
+    scored          0.0/10  w=1.5   security.scorecard-sast
+      scorecard.check.sast=0 -> 0 (linear)
+    scored          9.0/10  w=2     security.scorecard-security-policy
+      scorecard.check.security_policy=9 -> 9 (linear)
+    scored         10.0/10  w=2     security.scorecard-token-permissions
+      scorecard.check.token_permissions=10 -> 10 (linear)
+    not_observed     - /10  w=0     security.scorecard-vulnerabilities
+      no usable evidence (not reported; looked for: scorecard.check.vulnerabilities)
+    scored         10.0/10  w=2     security.security-policy
+      github.file.security_policy=true -> 10 (map)
+    scored         10.0/10  w=2     security.token-permissions
+      github.workflows.permissions_declared_ratio=1 -> 10 (linear)
+  Maintenance  (coverage 88%, evidence quality 89%)
+    scored          7.0/10  w=5     maintenance.bus-factor
+      github.contributors.bus_factor=2 -> 7 (thresholds)
+    scored          8.0/10  w=1.2857 maintenance.commit-frequency
+      github.commits.recent_count_90d=22 -> 8 (thresholds)
+    informational  10.0/10  w=0     maintenance.has-releases
+      github.releases.has_any=true -> 10 (map)
+    scored         10.0/10  w=2     maintenance.history-depth
+      github.commits.total=5562 -> 10 (thresholds)
+    scored         10.0/10  w=3     maintenance.issue-resolution
+      github.issues.median_days_to_close=0 -> 10 (thresholds)
+    scored         10.0/10  w=6     maintenance.not-archived
+      github.repo.archived=false -> 10 (map)
+    scored         10.0/10  w=3     maintenance.pr-resolution
+      github.pulls.median_days_to_close=0 -> 10 (thresholds)
+    scored         10.0/10  w=2.5714 maintenance.recent-activity
+      github.commits.last_commit_age_days=3 -> 10 (thresholds)
+    informational   7.0/10  w=0     maintenance.release-cadence
+      github.releases.median_gap_days=104.2 -> 7 (thresholds)
+    scored          6.0/10  w=3     maintenance.release-recency
+      github.releases.latest_age_days=233.4 -> 6 (thresholds)
+    scored         10.0/10  w=2.1429 maintenance.scorecard-maintained
+      scorecard.check.maintained=10 -> 10 (linear)
+    not_observed     - /10  w=0     maintenance.stale-issues
+      no usable evidence (not reported; looked for: github.issues.stale_open_ratio)
+    not_observed     - /10  w=0     maintenance.stale-prs
+      no usable evidence (not reported; looked for: github.pulls.stale_open_ratio)
+  Code Quality  (coverage 100%, evidence quality 91%)
+    scored         10.0/10  w=3     code-quality.ci-present
+      github.workflows.count=5 -> 10 (thresholds)
+    scored         10.0/10  w=3     code-quality.ci-runs-tests
+      github.workflows.runs_tests=true -> 10 (map)
+    informational  10.0/10  w=0     code-quality.ci-without-tests
+      heuristic.substance.ci_without_tests=false -> 10 (map)
+    scored         10.0/10  w=3     code-quality.lint-config
+      github.file.lint_config=true -> 10 (map)
+    informational  10.0/10  w=0     code-quality.readme-heavy
+      heuristic.substance.readme_heavy=false -> 10 (map)
+    not_observed     - /10  w=0     code-quality.scorecard-ci-tests
+      no usable evidence (not reported; looked for: scorecard.check.ci_tests)
+    scored         10.0/10  w=2     code-quality.test-ratio
+      github.tree.test_to_source_ratio=1.92 -> 10 (thresholds)
+    scored         10.0/10  w=4     code-quality.tests-present
+      github.tree.has_tests=true -> 10 (map)
+    scored         10.0/10  w=2     code-quality.type-checking
+      github.file.type_check_config=true -> 10 (map)
+  Supply Chain  (coverage 100%, evidence quality 99%)
+    informational  10.0/10  w=0     supply-chain.dependency-count
+      manifest.dependency_count=31 -> 10 (thresholds)
+    scored          3.0/10  w=3     supply-chain.dependency-updates
+      github.file.dependency_updates=false -> 3 (map)
+    scored         10.0/10  w=6     supply-chain.license-detected
+      github.repo.license_spdx="BSD-3-Clause" -> 10 (map)
+    scored         10.0/10  w=4     supply-chain.lockfile
+      github.file.lockfile=true -> 10 (map)
+    scored         10.0/10  w=2     supply-chain.pinned-actions
+      github.workflows.pinned_actions_ratio=1 -> 10 (linear)
+    scored         10.0/10  w=5     supply-chain.provenance
+      github.releases.provenance_assets=true -> 10; github.workflows.uses_provenance=false -> 4 (map, combine=max)
+    scored          5.0/10  w=4     supply-chain.sbom
+      github.releases.sbom_assets=false -> 5; github.file.sbom_file=false -> 5 (map, combine=max)
+    not_observed     - /10  w=0     supply-chain.scorecard-dependency-update-tool
+      no usable evidence (not reported; looked for: scorecard.check.dependency_update_tool)
+    scored          8.0/10  w=2     supply-chain.scorecard-pinned-dependencies
+      scorecard.check.pinned_dependencies=8 -> 8 (linear)
+    scored          6.0/10  w=1.875 supply-chain.scorecard-signed-releases
+      scorecard.check.signed_releases=6 -> 6 (linear)
+    scored         10.0/10  w=3.125 supply-chain.signed-releases
+      github.releases.signed_assets=true -> 10 (map)
+    informational  10.0/10  w=0     supply-chain.vulnerability-check-coverage
+      osv.coverage_ratio=1 -> 10 (linear)
+  Community  (coverage 100%, evidence quality 98%)
+    scored         10.0/10  w=2     community.code-of-conduct
+      github.file.code_of_conduct=true -> 10 (map)
+    scored          5.0/10  w=1     community.codeowners
+      github.file.codeowners=false -> 5 (map)
+    scored         10.0/10  w=3     community.contributing-guide
+      github.file.contributing=true -> 10 (map)
+    scored         10.0/10  w=1     community.contributor-count
+      github.contributors.count=97 -> 10 (thresholds)
+    scored          8.0/10  w=1     community.distinct-authors
+      github.commits.distinct_authors_sampled=8 -> 8 (thresholds)
+    scored         10.0/10  w=1     community.issue-templates
+      github.file.issue_templates=true -> 10 (map)
+    scored         10.0/10  w=1     community.pr-template
+      github.file.pr_template=true -> 10 (map)
+    informational   8.2/10  w=0     community.top-contributor-share
+      github.contributors.top_share=0.426 -> 8.2 (linear)
+  Documentation  (coverage 100%, evidence quality 94%)
+    scored         10.0/10  w=2     documentation.changelog
+      github.file.changelog=true -> 10; github.releases.has_any=true -> 10 (map, combine=max)
+    informational   5.0/10  w=0     documentation.configuration-docs
+      docs.readme.has_config_docs=false -> 5; github.file.env_example=false -> 5 (map, combine=max)
+    informational   5.0/10  w=0     documentation.deployment-docs
+      docs.readme.has_deploy_docs=false -> 5; github.file.deploy_config=false -> 5; github.file.dockerfile=false -> 5 (map, combine=max)
+    scored         10.0/10  w=2     documentation.docs-directory
+      github.file.docs_dir=true -> 10 (map)
+    scored          7.0/10  w=1     documentation.examples
+      docs.readme.code_block_count=2 -> 7 (thresholds)
+    scored         10.0/10  w=1     documentation.examples-directory
+      github.file.examples_dir=true -> 10 (map)
+    scored          3.0/10  w=3     documentation.install-instructions
+      docs.readme.has_install=false -> 3 (map)
+    scored          8.0/10  w=2     documentation.readme-depth
+      docs.readme.length_chars=1639 -> 8 (thresholds)
+    scored         10.0/10  w=5     documentation.readme-present
+      docs.readme.present=true -> 10 (map)
+    scored         10.0/10  w=3     documentation.usage-instructions
+      docs.readme.has_usage=true -> 10 (map)
+  Semantic Clarity  (coverage 100%, evidence quality 87%)
+    scored         10.0/10  w=2     semantic-clarity.description-quality
+      github.repo.description_length=57 -> 10 (thresholds)
+    scored          5.6/10  w=3     semantic-clarity.detected-purpose
+      identity.confidence=0.5 -> 5.56 (linear)
+    scored         10.0/10  w=4     semantic-clarity.has-description
+      github.repo.has_description=true -> 10 (map)
+    scored         10.0/10  w=2     semantic-clarity.manifest-description
+      manifest.has_description=true -> 10 (map)
+    informational  10.0/10  w=0     semantic-clarity.name-normalization
+      identity.name_normalization_lossy=false -> 10 (map)
+    informational   0.0/10  w=0     semantic-clarity.name-purpose-divergence
+      identity.name_purpose_divergence=1 -> 0 (linear)
+    scored         10.0/10  w=3     semantic-clarity.readme-purpose
+      docs.readme.purpose_statement=true -> 10 (map)
+    scored         10.0/10  w=3     semantic-clarity.topics
+      github.repo.topic_count=7 -> 10 (thresholds)
+
+Evidence: 107 signals | Methodology: v0.1 | Rules digest: d00b57deab34
+Scores summarize observed indicators; they are not a statement that code is safe, secure or trustworthy.

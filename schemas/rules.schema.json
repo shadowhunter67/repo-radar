@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "methodology": {
+      "type": "string"
+    },
+    "rules": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z-]+\\.[a-z0-9-]+$"
+          },
+          "dimension": {
+            "type": "string",
+            "enum": [
+              "security",
+              "maintenance",
+              "code-quality",
+              "supply-chain",
+              "community",
+              "documentation",
+              "semantic-clarity"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 3
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 10
+          },
+          "evidence": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9_]+(\\.[a-z0-9_-]+)+$"
+            }
+          },
+          "combine": {
+            "default": "first",
+            "type": "string",
+            "enum": [
+              "first",
+              "min",
+              "max",
+              "mean"
+            ]
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "informational": {
+            "default": false,
+            "type": "boolean"
+          },
+          "group": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "applies_when": {
+            "type": "object",
+            "properties": {
+              "evidence": {
+                "type": "string",
+                "pattern": "^[a-z0-9_]+(\\.[a-z0-9_-]+)+$"
+              },
+              "equals": {
+                "type": [
+                  "boolean",
+                  "number",
+                  "string"
+                ]
+              },
+              "gt": {
+                "type": "number"
+              },
+              "gte": {
+                "type": "number"
+              },
+              "lt": {
+                "type": "number"
+              },
+              "lte": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "evidence"
+            ]
+          },
+          "scoring": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "map"
+                  },
+                  "values": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 10
+                    }
+                  },
+                  "default": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 10
+                  }
+                },
+                "required": [
+                  "type",
+                  "values"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "thresholds"
+                  },
+                  "steps": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "gte": {
+                          "type": "number"
+                        },
+                        "score": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 10
+                        }
+                      },
+                      "required": [
+                        "gte",
+                        "score"
+                      ]
+                    }
+                  },
+                  "otherwise": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 10
+                  }
+                },
+                "required": [
+                  "type",
+                  "steps",
+                  "otherwise"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "linear"
+                  },
+                  "min": {
+                    "type": "number"
+                  },
+                  "max": {
+                    "type": "number"
+                  },
+                  "invert": {
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "type",
+                  "min",
+                  "max"
+                ]
+              }
+            ]
+          },
+          "warn": {
+            "type": "object",
+            "properties": {
+              "below": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "message": {
+                "type": "string",
+                "minLength": 3
+              }
+            },
+            "required": [
+              "below",
+              "message"
+            ]
+          },
+          "limitations": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "dimension",
+          "title",
+          "rationale",
+          "evidence",
+          "weight",
+          "scoring"
+        ]
+      }
+    }
+  },
+  "required": [
+    "methodology",
+    "rules"
+  ],
+  "title": "repo-radar rule file"
+}

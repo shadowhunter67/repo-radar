@@ -1,0 +1,117 @@
+name: repo-radar
+description: Evidence-traceable repository intelligence report (identity + multidimensional trust profile) with optional score floors.
+author: repo-radar contributors
+branding:
+  icon: radio
+  color: blue
+
+inputs:
+  repository:
+    description: owner/repo to analyze.
+    default: ${{ github.repository }}
+  profile:
+    description: Scoring profile (default, startup, enterprise).
+    default: default
+  github-token:
+    description: Token for the GitHub API (read-only access is enough). Sent only to api.github.com.
+    default: ${{ github.token }}
+  output:
+    description: Path of the JSON report to write.
+    default: repo-radar-report.json
+  upload-artifact:
+    description: Upload the JSON report as a workflow artifact ("true" / "false").
+    default: 'true'
+  enforce-profile:
+    description: Fail when the profile's advisory minimums are not met ("true" / "false").
+    default: 'false'
+  minimum-overall-score:
+    description: Fail if the overall score is below this value (0-100) or cannot be verified.
+    default: ''
+  minimum-security-score:
+    description: Fail if the Security score is below this value (0-100) or cannot be verified.
+    default: ''
+  minimum-maintenance-score:
+    description: Same, for Maintenance.
+    default: ''
+  minimum-code-quality-score:
+    description: Same, for Code Quality.
+    default: ''
+  minimum-supply-chain-score:
+    description: Same, for Supply Chain.
+    default: ''
+  minimum-community-score:
+    description: Same, for Community.
+    default: ''
+  minimum-documentation-score:
+    description: Same, for Documentation.
+    default: ''
+  minimum-semantic-clarity-score:
+    description: Same, for Semantic Clarity.
+    default: ''
+
+outputs:
+  report-path:
+    description: Path of the JSON report.
+    value: ${{ inputs.output }}
+  exit-code:
+    description: 'repo-radar exit code (0 ok, 2 policy failed, 3 not found, 4 unavailable).'
+    value: ${{ steps.analyze.outputs.exit_code }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with:
+        node-version: '20'
+    - id: analyze
+      shell: bash
+      # Inputs are passed through env vars, never interpolated into the script (no injection).
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        RR_REPOSITORY: ${{ inputs.repository }}
+        RR_PROFILE: ${{ inputs.profile }}
+        RR_OUTPUT: ${{ inputs.output }}
+        RR_ENFORCE: ${{ inputs.enforce-profile }}
+        RR_MIN_OVERALL: ${{ inputs.minimum-overall-score }}
+        RR_MIN_SECURITY: ${{ inputs.minimum-security-score }}
+        RR_MIN_MAINTENANCE: ${{ inputs.minimum-maintenance-score }}
+        RR_MIN_CODE_QUALITY: ${{ inputs.minimum-code-quality-score }}
+        RR_MIN_SUPPLY_CHAIN: ${{ inputs.minimum-supply-chain-score }}
+        RR_MIN_COMMUNITY: ${{ inputs.minimum-community-score }}
+        RR_MIN_DOCUMENTATION: ${{ inputs.minimum-documentation-score }}
+        RR_MIN_SEMANTIC_CLARITY: ${{ inputs.minimum-semantic-clarity-score }}
+      run: |
+        args=(analyze "$RR_REPOSITORY" --format json --profile "$RR_PROFILE" --output "$RR_OUTPUT" --text-output "${RUNNER_TEMP}/repo-radar.txt")
+        add_min() { if [ -n "$2" ]; then args+=(--min "$1=$2"); fi; }
+        add_min overall "$RR_MIN_OVERALL"
+        add_min security "$RR_MIN_SECURITY"
+        add_min maintenance "$RR_MIN_MAINTENANCE"
+        add_min code-quality "$RR_MIN_CODE_QUALITY"
+        add_min supply-chain "$RR_MIN_SUPPLY_CHAIN"
+        add_min community "$RR_MIN_COMMUNITY"
+        add_min documentation "$RR_MIN_DOCUMENTATION"
+        add_min semantic-clarity "$RR_MIN_SEMANTIC_CLARITY"
+        if [ "$RR_ENFORCE" = "true" ]; then args+=(--enforce-profile); fi
+        set +e
+        node "$GITHUB_ACTION_PATH/dist/action/repo-radar.mjs" "${args[@]}"
+        code=$?
+        set -e
+        echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+        if [ -f "${RUNNER_TEMP}/repo-radar.txt" ]; then
+          { echo '### repo-radar'; echo '```text'; cat "${RUNNER_TEMP}/repo-radar.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+        fi
+        exit 0
+    - if: inputs.upload-artifact == 'true' && always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: repo-radar-report
+        path: ${{ inputs.output }}
+        if-no-files-found: ignore
+    - name: Apply policy result
+      if: steps.analyze.outputs.exit_code != '0'
+      shell: bash
+      env:
+        RR_CODE: ${{ steps.analyze.outputs.exit_code }}
+      run: |
+        echo "::error::repo-radar finished with exit code ${RR_CODE} (2 = policy floor not met or not verifiable, 3 = repository not found, 4 = service unavailable)"
+        exit "${RR_CODE}"

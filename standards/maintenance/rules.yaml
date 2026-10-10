@@ -1,0 +1,160 @@
+# Maintenance standards, methodology 0.1.
+# Activity is a proxy for care, not for quality. Stable, feature-complete libraries can look "inactive".
+methodology: '0.1'
+rules:
+  - id: maintenance.not-archived
+    dimension: maintenance
+    title: 'Repository is not archived'
+    rationale: 'Archived repositories are read-only and signal that the maintainers no longer intend to change them.'
+    evidence: [github.repo.archived]
+    weight: 6
+    scoring: { type: map, values: { 'false': 10, 'true': 0 } }
+    warn:
+      {
+        below: 5,
+        message: 'Repository is archived (read-only); no further maintenance is expected.',
+      }
+  - id: maintenance.recent-activity
+    dimension: maintenance
+    title: 'Recent commit on the default branch'
+    rationale: 'Days since the latest commit. Falls back to the last push when commit data is unavailable.'
+    evidence: [github.commits.last_commit_age_days, github.repo.days_since_push]
+    weight: 6
+    group: activity
+    scoring:
+      type: thresholds
+      steps:
+        [
+          { gte: 730, score: 0 },
+          { gte: 365, score: 2 },
+          { gte: 180, score: 4 },
+          { gte: 90, score: 7 },
+        ]
+      otherwise: 10
+    warn: { below: 3, message: 'No commit on the default branch for over a year.' }
+    limitations: 'Mature, finished projects may legitimately have long quiet periods.'
+  - id: maintenance.commit-frequency
+    dimension: maintenance
+    title: 'Commits in the last 90 days'
+    rationale: 'Sustained activity over a quarter. Counted from the latest 100 commits, so the maximum observable is 100.'
+    evidence: [github.commits.recent_count_90d]
+    weight: 3
+    group: activity
+    scoring:
+      type: thresholds
+      steps:
+        [{ gte: 30, score: 10 }, { gte: 10, score: 8 }, { gte: 3, score: 6 }, { gte: 1, score: 4 }]
+      otherwise: 1
+  - id: maintenance.scorecard-maintained
+    dimension: maintenance
+    title: 'OpenSSF Scorecard Maintained check'
+    rationale: "Scorecard's activity assessment (recent commits and issue activity); overlaps with the local activity signals."
+    evidence: [scorecard.check.maintained]
+    weight: 5
+    group: activity
+    scoring: { type: linear, min: 0, max: 10 }
+  - id: maintenance.has-releases
+    dimension: maintenance
+    title: 'Releases or tags exist (informational)'
+    rationale: 'Context only. Versioned releases let users pin and upgrade deliberately, but projects distributed from the default branch are not necessarily poor. Not scored, because the same fact already feeds documentation.changelog and release-recency.'
+    evidence: [github.releases.has_any]
+    weight: 0
+    informational: true
+    scoring: { type: map, values: { 'true': 10, 'false': 3 } }
+  - id: maintenance.release-recency
+    dimension: maintenance
+    title: 'Most recent GitHub release is recent'
+    rationale: 'Days since the latest published release.'
+    evidence: [github.releases.latest_age_days]
+    weight: 3
+    scoring:
+      type: thresholds
+      steps:
+        [
+          { gte: 730, score: 1 },
+          { gte: 365, score: 3 },
+          { gte: 180, score: 6 },
+          { gte: 90, score: 8 },
+        ]
+      otherwise: 10
+  - id: maintenance.release-cadence
+    dimension: maintenance
+    title: 'Median gap between recent releases'
+    rationale: 'Shown for context only: slow cadence is normal for stable software and fast cadence is not inherently better.'
+    evidence: [github.releases.median_gap_days]
+    weight: 0
+    informational: true
+    scoring:
+      type: thresholds
+      steps: [{ gte: 365, score: 3 }, { gte: 180, score: 5 }, { gte: 90, score: 7 }]
+      otherwise: 10
+  - id: maintenance.issue-resolution
+    dimension: maintenance
+    title: 'Median time to close issues (recent sample)'
+    rationale: 'How long recently updated issues took to close. Sampled from the 100 most recently updated issues, so long-lived open issues are underrepresented.'
+    evidence: [github.issues.median_days_to_close]
+    weight: 3
+    scoring:
+      type: thresholds
+      steps:
+        [{ gte: 180, score: 2 }, { gte: 60, score: 5 }, { gte: 14, score: 7 }, { gte: 3, score: 9 }]
+      otherwise: 10
+  - id: maintenance.stale-issues
+    dimension: maintenance
+    title: 'Share of sampled open issues untouched for 180+ days'
+    rationale: 'Indicates whether reported problems receive any attention.'
+    evidence: [github.issues.stale_open_ratio]
+    weight: 2
+    scoring: { type: linear, min: 0, max: 1, invert: true }
+  - id: maintenance.pr-resolution
+    dimension: maintenance
+    title: 'Median time to close pull requests (recent sample)'
+    rationale: 'How long recently updated pull requests took to merge or close.'
+    evidence: [github.pulls.median_days_to_close]
+    weight: 3
+    scoring:
+      type: thresholds
+      steps:
+        [{ gte: 90, score: 2 }, { gte: 30, score: 5 }, { gte: 7, score: 7 }, { gte: 2, score: 9 }]
+      otherwise: 10
+  - id: maintenance.stale-prs
+    dimension: maintenance
+    title: 'Share of sampled open pull requests untouched for 180+ days'
+    rationale: 'Contributions that sit untouched discourage contributors.'
+    evidence: [github.pulls.stale_open_ratio]
+    weight: 2
+    scoring: { type: linear, min: 0, max: 1, invert: true }
+  - id: maintenance.bus-factor
+    dimension: maintenance
+    title: 'Contributor concentration (bus factor approximation)'
+    rationale: 'Smallest number of contributors accounting for half of the commits among the top 100 contributors. A heuristic proxy for key-person risk.'
+    evidence: [github.contributors.bus_factor]
+    weight: 3
+    scoring:
+      type: thresholds
+      steps: [{ gte: 3, score: 10 }, { gte: 2, score: 7 }]
+      otherwise: 4
+    warn:
+      {
+        below: 5,
+        message: 'A single contributor accounts for at least half of the commits (bus factor 1).',
+      }
+    limitations: 'Solo-maintained projects are not worse software; this signals continuity risk only. Bots are excluded, but squash-merge and co-authored commits distort attribution.'
+  - id: maintenance.history-depth
+    dimension: maintenance
+    title: 'Commit history depth'
+    rationale: 'Very short histories give little evidence of sustained engineering. New projects are naturally penalized here.'
+    evidence: [github.commits.total]
+    weight: 2
+    scoring:
+      type: thresholds
+      steps:
+        [
+          { gte: 200, score: 10 },
+          { gte: 50, score: 8 },
+          { gte: 10, score: 6 },
+          { gte: 3, score: 3 },
+        ]
+      otherwise: 1
+    warn: { below: 2, message: 'Very thin commit history ({github.commits.total} commit(s)).' }
+    limitations: 'New-project bias; history may have been squashed or imported.'

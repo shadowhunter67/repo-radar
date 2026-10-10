@@ -1,0 +1,98 @@
+# Documentation & operability standards, methodology 0.1.
+# README checks look for conventional headings and code blocks. They detect structure, not truthfulness.
+methodology: '0.1'
+rules:
+  - id: documentation.readme-present
+    dimension: documentation
+    title: 'README present'
+    rationale: 'The README is the entry point for every user and contributor.'
+    evidence: [docs.readme.present]
+    weight: 5
+    scoring: { type: map, values: { 'true': 10, 'false': 0 } }
+    warn: { below: 1, message: 'No README detected.' }
+  - id: documentation.readme-depth
+    dimension: documentation
+    title: 'README length'
+    rationale: 'Extremely short READMEs rarely explain purpose, installation and usage. Length is only a floor, never a quality claim.'
+    evidence: [docs.readme.length_chars]
+    weight: 2
+    applies_when: { evidence: docs.readme.present, equals: true }
+    scoring:
+      type: thresholds
+      steps:
+        [
+          { gte: 2000, score: 10 },
+          { gte: 800, score: 8 },
+          { gte: 300, score: 5 },
+          { gte: 100, score: 3 },
+        ]
+      otherwise: 1
+  - id: documentation.install-instructions
+    dimension: documentation
+    title: 'Installation or setup section'
+    rationale: 'Users need a path from zero to running.'
+    evidence: [docs.readme.has_install]
+    weight: 3
+    applies_when: { evidence: docs.readme.present, equals: true }
+    scoring: { type: map, values: { 'true': 10, 'false': 3 } }
+    limitations: 'Matches common headings only; documentation hosted elsewhere is not seen.'
+  - id: documentation.usage-instructions
+    dimension: documentation
+    title: 'Usage or example section'
+    rationale: 'Usage documentation shows what the project is for.'
+    evidence: [docs.readme.has_usage]
+    weight: 3
+    applies_when: { evidence: docs.readme.present, equals: true }
+    scoring: { type: map, values: { 'true': 10, 'false': 3 } }
+  - id: documentation.examples
+    dimension: documentation
+    title: 'Code examples (README code blocks)'
+    rationale: 'Concrete examples make behaviour verifiable.'
+    evidence: [docs.readme.code_block_count]
+    weight: 2
+    group: examples
+    applies_when: { evidence: docs.readme.present, equals: true }
+    scoring:
+      { type: thresholds, steps: [{ gte: 3, score: 10 }, { gte: 1, score: 7 }], otherwise: 2 }
+  - id: documentation.examples-directory
+    dimension: documentation
+    title: 'examples/ directory'
+    rationale: 'Runnable examples complement README snippets.'
+    evidence: [github.file.examples_dir]
+    weight: 2
+    group: examples
+    scoring: { type: map, values: { 'true': 10, 'false': 5 } }
+  - id: documentation.docs-directory
+    dimension: documentation
+    title: 'docs/ directory'
+    rationale: 'Larger projects need documentation beyond one README.'
+    evidence: [github.file.docs_dir]
+    weight: 2
+    scoring: { type: map, values: { 'true': 10, 'false': 5 } }
+    limitations: 'Small tools are well served by a single README.'
+  - id: documentation.changelog
+    dimension: documentation
+    title: 'Changelog or published releases'
+    rationale: 'Users need to know what changed between versions.'
+    evidence: [github.file.changelog, github.releases.has_any]
+    combine: max
+    weight: 2
+    scoring: { type: map, values: { 'true': 10, 'false': 4 } }
+  - id: documentation.configuration-docs
+    dimension: documentation
+    title: 'Configuration documented'
+    rationale: 'Context for operators; relevance depends on whether the project is configurable software.'
+    evidence: [docs.readme.has_config_docs, github.file.env_example]
+    combine: max
+    weight: 0
+    informational: true
+    scoring: { type: map, values: { 'true': 10, 'false': 5 } }
+  - id: documentation.deployment-docs
+    dimension: documentation
+    title: 'Deployment or container support'
+    rationale: 'Context for operators; libraries do not need deployment instructions.'
+    evidence: [docs.readme.has_deploy_docs, github.file.deploy_config, github.file.dockerfile]
+    combine: max
+    weight: 0
+    informational: true
+    scoring: { type: map, values: { 'true': 10, 'false': 5 } }
