@@ -21,7 +21,7 @@ import { evaluatePolicy } from './scoring/policy.js';
 import { loadRuleSet } from './scoring/rules.js';
 import { HttpClient, HttpError, RateLimitError, type FetchLike } from './util/http.js';
 import { packageRoot } from './util/paths.js';
-import { parseRepoRef } from './util/repo-ref.js';
+import { parseGitRef, parseRepoRef } from './util/repo-ref.js';
 import { redactSecrets } from './util/text.js';
 
 export interface AnalyzeOptions {
@@ -38,6 +38,8 @@ export interface AnalyzeOptions {
   osv?: boolean;
   /** Static capability / execution / secret scan of fetched files (default on). */
   codeScan?: boolean;
+  /** Read repository files at this commit/ref instead of the default branch head (reproducible runs). */
+  ref?: string;
   root?: string;
 }
 
@@ -74,7 +76,10 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   const scanEnabled = opts.codeScan !== false;
 
   const [github, scorecard] = await Promise.all([
-    collectGithub(ref, gh, clock, { scan: scanEnabled }),
+    collectGithub(ref, gh, clock, {
+      scan: scanEnabled,
+      ...(opts.ref ? { ref: parseGitRef(opts.ref) } : {}),
+    }),
     opts.scorecard === false
       ? Promise.resolve({ evidence: [] as Evidence[], diagnostics: [] as Diagnostic[] })
       : collectScorecard(ref, sc, clock),
@@ -201,6 +206,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
           scorecard: opts.scorecard !== false,
           osv: opts.osv !== false,
           scan: scanEnabled,
+          pinned_ref: opts.ref ?? null,
           limits: LIMITS,
         }),
       ),

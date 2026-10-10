@@ -1,0 +1,20 @@
+repository: ossf/scorecard
+artifact_type: cli
+artifact_also_acceptable: [tooling, service]
+domain: security
+capabilities:
+  {
+    PROCESS_EXEC: unknown,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: yes,
+    REMOTE_DOWNLOAD: unknown,
+    FILESYSTEM_WRITE: unknown,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: unknown,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: "Security checks examine other projects, so many curl|bash and Dockerfile strings are test data for the checks (checks/raw/testdata). The pom.xml and Dockerfiles under testdata are not this project's own build files."

@@ -1,0 +1,20 @@
+repository: gitleaks/gitleaks
+artifact_type: cli
+artifact_also_acceptable: [tooling]
+domain: security
+capabilities:
+  {
+    PROCESS_EXEC: unknown,
+    NETWORK_CLIENT: unknown,
+    NETWORK_SERVER: yes,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: unknown,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'A secret scanner: its rule definitions and test data intentionally contain sample credentials, API-key examples and curl lines (tens of "secret pattern" and "curl" hits are rule text, not behavior). Committed environment-file names under testdata/ are scanner fixtures. A pprof HTTP server starts on localhost only with the diagnostics option.'

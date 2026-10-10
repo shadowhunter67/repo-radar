@@ -1,0 +1,20 @@
+repository: BurntSushi/ripgrep
+artifact_type: cli
+domain: developer-tooling
+domain_also_acceptable: [filesystem]
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: unknown,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: yes, names: [build.rs] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Spawns decompression helpers (--search-zip) and build.rs runs git. The `.bashrc`/`.bash_profile` strings in crates/ignore/src/default_types.rs are file-type name tables, not persistence.'

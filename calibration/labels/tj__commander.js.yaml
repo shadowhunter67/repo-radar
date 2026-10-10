@@ -1,0 +1,19 @@
+repository: tj/commander.js
+artifact_type: library
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: no,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'CLI-argument parsing library; spawns executable subcommands via child_process (lib/command.js).'

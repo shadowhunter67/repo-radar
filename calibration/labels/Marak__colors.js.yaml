@@ -1,0 +1,19 @@
+repository: Marak/colors.js
+artifact_type: library
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: no,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Supply-chain incident repository (a release was deliberately sabotaged with an infinite loop). The pinned revision shows no process, network or file-system capability; the incident was a denial-of-service in published versions, not a capability pattern this analyzer is built to see.'

@@ -1,0 +1,20 @@
+repository: louislam/uptime-kuma
+artifact_type: application
+artifact_also_acceptable: [service]
+domain: observability
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: yes,
+    REMOTE_DOWNLOAD: unknown,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: unknown,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Self-hosted monitoring app. `systemctl is-active` is a status probe, not persistence. extra/ holds maintainer/release scripts and sub-packages (kuma-pr has a bin entry). Root package.json has no lifecycle hooks.'

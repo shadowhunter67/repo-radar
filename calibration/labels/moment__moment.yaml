@@ -1,0 +1,20 @@
+repository: moment/moment
+artifact_type: library
+domain: general
+domain_also_acceptable: [developer-tooling]
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: no,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: no,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Date library. Child-process, https and fs use exist only in maintainer scripts under scripts/ (including scripts/install-hooks.js, which installs git hooks for contributors and is not an npm lifecycle script).'

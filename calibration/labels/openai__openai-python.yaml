@@ -1,0 +1,21 @@
+repository: openai/openai-python
+artifact_type: sdk
+artifact_also_acceptable: [library]
+domain: ai
+domain_also_acceptable: [networking]
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: disputed,
+    FILESYSTEM_WRITE: unknown,
+    DYNAMIC_CODE_LOAD: disputed,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'No subprocess use under src/ (only maintainer scripts/). Root package.json is private tooling. Hatchling backend. Test fixtures contain key material (excluded).'

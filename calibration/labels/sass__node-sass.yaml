@@ -1,0 +1,21 @@
+repository: sass/node-sass
+artifact_type: library
+artifact_also_acceptable: [cli]
+domain: developer-tooling
+domain_also_acceptable: [web]
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: yes,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: disputed,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: yes, names: [install, postinstall] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Archived native binding. install=`node scripts/install.js` downloads a prebuilt binary; postinstall=`node scripts/build.js` spawns node-gyp to compile. Reads npm config variables (sass_binary_site, ...) from .npmrc and the environment: disputed whether that is credential access. libsass sources contain C++ "eval" that is the Sass evaluator, not dynamic code loading.'

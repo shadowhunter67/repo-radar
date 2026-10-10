@@ -1,0 +1,20 @@
+repository: dtolnay/anyhow
+artifact_type: library
+domain: developer-tooling
+domain_also_acceptable: [general]
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: unknown,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: yes, names: [build.rs] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Error-handling crate. build.rs runs at compile time for every dependent and probes the compiler (spawns rustc, removes a temp dir).'

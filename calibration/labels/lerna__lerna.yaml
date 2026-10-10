@@ -1,0 +1,20 @@
+repository: lerna/lerna
+artifact_type: monorepo
+artifact_also_acceptable: [tooling, cli]
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: unknown,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: unknown,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: unknown
+ambiguity_notes: 'Large Nx workspace (private root). A file with an environment-file name exists at the repository root; the reviewer did not read it (policy: environment files are never opened), so secrets are unknown. __fixtures__ contains many sample package.json files that must not be treated as packages of the repository.'

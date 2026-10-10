@@ -1,0 +1,20 @@
+repository: junegunn/fzf
+artifact_type: cli
+domain: developer-tooling
+domain_also_acceptable: [filesystem]
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: unknown,
+    NETWORK_SERVER: yes,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: yes
+hard_coded_secrets: no
+ambiguity_notes: 'Persistence: the extension-less `install` script appends to ~/.bashrc / ~/.zshrc / fish config when the user runs it (manual, not automatic). That script has no .sh extension. Dockerfile edits of .bashrc are for tests. `--listen` starts an HTTP server.'

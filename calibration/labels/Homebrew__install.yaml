@@ -1,0 +1,20 @@
+repository: Homebrew/install
+artifact_type: tooling
+artifact_also_acceptable: [template, cli]
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: unknown,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: yes,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Installer/uninstaller scripts run manually via `curl | bash` per the README (the README, not the repository code, contains the pipe). The shell_rcfile variable is used to PRINT next-step instructions rather than to edit the file (reviewer is fairly but not fully sure).'

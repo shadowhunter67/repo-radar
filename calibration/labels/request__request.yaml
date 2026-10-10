@@ -1,0 +1,21 @@
+repository: request/request
+artifact_type: library
+artifact_also_acceptable: [sdk]
+domain: networking
+domain_also_acceptable: [web]
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: no,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Archived HTTP client. The crude patterns missed the client because it calls the http module through a property (self.httpModule.request). TLS keys/certificates under tests are fixtures.'

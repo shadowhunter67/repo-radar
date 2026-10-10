@@ -1,0 +1,20 @@
+repository: expressjs/express
+artifact_type: framework
+artifact_also_acceptable: [library]
+domain: web
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: yes,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: no,
+    DYNAMIC_CODE_LOAD: disputed,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: '`res.download` serves local files to clients (not a remote download). Dynamic `require` of view engines is module loading: disputed.'

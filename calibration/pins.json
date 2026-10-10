@@ -1,0 +1,245 @@
+{
+  "dataset_version": "0.1.0",
+  "repos": {
+    "sindresorhus/execa": {
+      "commit": "63ddae6aeb6934da06fdb3754647791e58cd87c3",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "chalk/chalk": {
+      "commit": "47fc05abd46171b235e24174cd2dba83d25bf037",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "tj/commander.js": {
+      "commit": "ba6d13ddb4243e5913367734f8c159089ffe7834",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "expressjs/express": {
+      "commit": "a419aa7350389a275ab45fde2e849ed1f02449ef",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "psf/requests": {
+      "commit": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "pallets/click": {
+      "commit": "2247b35ea1c47c727d7a06e51fa280e12a863ff6",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "Textualize/rich": {
+      "commit": "9d8f9a372cc5916fd4781fec207ced7ddac2f08f",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "dtolnay/anyhow": {
+      "commit": "2cbb4e1bcbf8e7015f8d8b04a291c4c0597030b4",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "spf13/cobra": {
+      "commit": "adbc8813901bba65827259daa8e22ff94ec1f30e",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "openai/openai-python": {
+      "commit": "ef676dbc199bc09d12a1d051f3b8b2486aa53dc2",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "junegunn/fzf": {
+      "commit": "25adb674537bb2140f82602651a31fbd7677cd50",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "BurntSushi/ripgrep": {
+      "commit": "3fce3b5bb0236da2df6d99672afb8a719642eca7",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "sharkdp/fd": {
+      "commit": "14dcd92fb76ca0ebc2e82671a275f67c790d25fc",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "nvm-sh/nvm": {
+      "commit": "b1b3a0038c0666c7436cb5d383608b4b72c8300b",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "pyenv/pyenv": {
+      "commit": "d28b750767d440d9ecabac0fef487eb8baf86a08",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "ohmyzsh/ohmyzsh": {
+      "commit": "42a4ccb1b14dbeffe81259105a5243b4f4cb618e",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "Homebrew/install": {
+      "commit": "8ab1549dfa1189fd4d818a2116592d8f0ee06d8c",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "docker/docker-install": {
+      "commit": "2b32480025b223ebfddae9a3a8bef09027680f53",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "pallets/flask": {
+      "commit": "d086db856be187255b8ec61ef409357393020f32",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "louislam/uptime-kuma": {
+      "commit": "b61b322c1257604906f9a9b16e5c182131a43a9f",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "prometheus/node_exporter": {
+      "commit": "638ec72c3ae829810b0617b6ba21626752a50237",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "caddyserver/caddy": {
+      "commit": "c31d9a71ed2f628210aa607ca6c69bbf21bd73e4",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "lerna/lerna": {
+      "commit": "77fbb788704924e1cdabb778e94e7cab208257de",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "changesets/changesets": {
+      "commit": "c73949ba7b3160a4aa5729223335c190de1528f8",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "trpc/trpc": {
+      "commit": "796700d8653b3832409fff997e6f5789519b9ea7",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "octocat/Hello-World": {
+      "commit": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "octocat/Spoon-Knife": {
+      "commit": "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "sindresorhus/awesome": {
+      "commit": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "github/gitignore": {
+      "commit": "0e5d690153ca3da8a4a1aef2d053406f408f531c",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "request/request": {
+      "commit": "3c0cddc7c8eb60b470e9519da85896ed7ee0081e",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "bower/bower": {
+      "commit": "4e0c3c1181c21624c5b3ab5bdf5d3becdb172b5a",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "moment/moment": {
+      "commit": "c2a703a4d84aa57ee2722ff8fb4a8016279fb3c4",
+      "branch": "develop",
+      "pinned_on": "2026-10-10"
+    },
+    "Marak/colors.js": {
+      "commit": "6bc50e79eeaa1d87369bb3e7e608ebed18c5cf26",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "gitleaks/gitleaks": {
+      "commit": "b58d3f102cf3a2c84cb7f923d05c25c9b1aed84b",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "ossf/scorecard": {
+      "commit": "b7acea69f1c50ffe22604a7979365989c533ccf7",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "anchore/syft": {
+      "commit": "33419c8f397e8e3ec1df9570c10c320a67fd2bc5",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "typicode/husky": {
+      "commit": "3f0023dc10d7003d70f2e31aa56300eab80e76d6",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "evanw/esbuild": {
+      "commit": "f6058f8364fe7ab91ca57a83e02577ed74c9cae4",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "lovell/sharp": {
+      "commit": "203f6e6bb21742f192c822af6aa63d05d5a703fa",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "zloirock/core-js": {
+      "commit": "d8a7886e8316f77eb24aa2051bcf1a7d56ed8a16",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "nodejs/node-gyp": {
+      "commit": "399f6faedf5abc1eb791678e0a03a91d3fef12aa",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "sass/node-sass": {
+      "commit": "107ded9434cfca43dbd9dfbaeb5c349228bf5cee",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "puppeteer/puppeteer": {
+      "commit": "0805b622a4ede4202d6f7567ebeb7a4f193ac466",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "juice-shop/juice-shop": {
+      "commit": "0e6d909b7466e76bc8deabf2fdb62bc5c849961f",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "OWASP/NodeGoat": {
+      "commit": "c5cb68a7084e4ae7dcc60e6a98768720a81841e8",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "digininja/DVWA": {
+      "commit": "068d974487a297c155c48722f9fcf7180a83adc4",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    },
+    "WebGoat/WebGoat": {
+      "commit": "044948d057b249735be2bfc14eccc9e3dc2eac34",
+      "branch": "main",
+      "pinned_on": "2026-10-10"
+    },
+    "karpathy/nanoGPT": {
+      "commit": "3adf61e154c3fe3fca428ad6bc3818b27a3b8291",
+      "branch": "master",
+      "pinned_on": "2026-10-10"
+    }
+  }
+}

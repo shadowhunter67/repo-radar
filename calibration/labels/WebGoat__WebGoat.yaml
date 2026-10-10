@@ -1,0 +1,21 @@
+repository: WebGoat/WebGoat
+artifact_type: application
+artifact_also_acceptable: [service]
+domain: security
+domain_also_acceptable: [web]
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: unknown,
+    NETWORK_SERVER: yes,
+    REMOTE_DOWNLOAD: unknown,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: unknown,
+    ENVIRONMENT_READ: unknown,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: yes
+ambiguity_notes: 'Deliberately insecure Java/Spring training application: the command-injection lesson runs processes on purpose and the cryptography lesson embeds a PEM private key literal in CryptoUtil.java (intentional sample). The Maven wrapper downloader is build tooling. pom.xml plugins run at build time, not for dependents. Java is not covered by the analyzer detector pack.'

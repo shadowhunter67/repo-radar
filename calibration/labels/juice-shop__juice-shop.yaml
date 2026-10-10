@@ -1,0 +1,21 @@
+repository: juice-shop/juice-shop
+artifact_type: application
+artifact_also_acceptable: [service]
+domain: security
+domain_also_acceptable: [web]
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: yes,
+    REMOTE_DOWNLOAD: yes,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: yes,
+    CREDENTIAL_ACCESS: unknown,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: yes
+ambiguity_notes: 'Intentionally insecure application: lib/insecurity.ts contains a hard-coded RSA private key on purpose (a training "vulnerability"), so a secret scanner should flag it even though it is deliberate. The root package.json is private and has a postinstall for contributors who clone it; nobody installs juice-shop as a dependency, so install hooks for dependents are no. scripts/package.mjs (execSync) is maintainer tooling.'

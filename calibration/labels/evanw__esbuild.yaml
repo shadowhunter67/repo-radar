@@ -1,0 +1,20 @@
+repository: evanw/esbuild
+artifact_type: tooling
+artifact_also_acceptable: [cli, library]
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: unknown,
+    NETWORK_CLIENT: unknown,
+    NETWORK_SERVER: yes,
+    REMOTE_DOWNLOAD: unknown,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: unknown,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: unknown,
+  }
+install_hooks: { automatic: yes, names: [postinstall] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'npm/esbuild/package.json declares postinstall=`node install.js`, but install.js is generated at publish time and is NOT committed, so the repository cannot show what the hook does (it validates or downloads the platform binary). Test fixtures contain many eval/http samples that are not behaviors of esbuild. Capabilities of the generated installer are unknown.'

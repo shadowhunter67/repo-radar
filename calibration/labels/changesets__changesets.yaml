@@ -1,0 +1,20 @@
+repository: changesets/changesets
+artifact_type: monorepo
+artifact_also_acceptable: [tooling, cli]
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: unknown,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: disputed,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'The root package.json (private) has postinstall=`manypkg check` which runs for contributors cloning the repo but is never installed by dependents; published packages have no hooks. Reads npm registry/auth configuration for publishing.'

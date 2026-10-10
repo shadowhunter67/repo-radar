@@ -1,0 +1,20 @@
+repository: anchore/syft
+artifact_type: cli
+artifact_also_acceptable: [library, tooling]
+domain: security
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: unknown,
+    REMOTE_DOWNLOAD: yes,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'SBOM generator; the root install.sh (manual) downloads release binaries with curl. `attest` shells out to cosign. Many hits (uvicorn, crontabs, keyring) are package names inside test fixtures. Key files under test/ are fixtures.'

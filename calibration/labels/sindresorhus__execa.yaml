@@ -1,0 +1,20 @@
+repository: sindresorhus/execa
+artifact_type: library
+domain: developer-tooling
+domain_also_acceptable: [automation]
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: disputed,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: "A library for running processes; supports a `detached` option for callers (BACKGROUND_PROCESS capability is the caller's choice: disputed). Domain is process execution; the closest vocabulary entry is developer-tooling."

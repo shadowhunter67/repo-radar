@@ -1,0 +1,21 @@
+repository: psf/requests
+artifact_type: library
+artifact_also_acceptable: [sdk]
+domain: networking
+domain_also_acceptable: [web]
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: yes,
+    CREDENTIAL_ACCESS: yes,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: yes, names: [setup.py] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'setup.py exists and the backend is setuptools, so source-distribution installs execute it. Reads ~/.netrc for credentials (CREDENTIAL_ACCESS). tests/certs hold test key material (excluded as test data).'

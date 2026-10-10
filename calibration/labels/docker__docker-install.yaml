@@ -1,0 +1,22 @@
+repository: docker/docker-install
+artifact_type: tooling
+artifact_also_acceptable: [template, cli]
+domain: cloud
+domain_also_acceptable: [developer-tooling]
+capabilities:
+  {
+    PROCESS_EXEC: unknown,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: yes,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: yes,
+    PRIVILEGE_CHANGE: yes,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: yes
+hard_coded_secrets: no
+ambiguity_notes: 'The install script installs Docker, starts the daemon and enables the service (systemd) unless --no-autostart; uses sudo. Manual installer, not an automatic hook.'

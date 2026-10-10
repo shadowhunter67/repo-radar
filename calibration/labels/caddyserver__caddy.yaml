@@ -1,0 +1,21 @@
+repository: caddyserver/caddy
+artifact_type: service
+artifact_also_acceptable: [application, cli]
+domain: web
+domain_also_acceptable: [networking]
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: yes,
+    REMOTE_DOWNLOAD: unknown,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: yes,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: yes,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: '`caddy start` re-executes itself as a background process; modules can be loaded (plugin system built in at compile time). The `echo ... >> ~/.zshrc` is help text. Private key and certificates are test fixtures.'

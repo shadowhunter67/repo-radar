@@ -1,0 +1,20 @@
+repository: octocat/Hello-World
+artifact_type: unknown
+artifact_also_acceptable: [documentation]
+domain: general
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: no,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: no,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'One-file repository (README). No code, so every capability is verifiably absent.'

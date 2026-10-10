@@ -57,7 +57,7 @@ export async function collectGithub(
   ref: RepoRef,
   http: HttpClient,
   clock: Clock,
-  options: { scan?: boolean } = {},
+  options: { scan?: boolean; ref?: string } = {},
 ): Promise<GithubCollection & CollectorResult> {
   const b = new EvidenceBuilder('github', clock);
   const now = clock.now();
@@ -73,6 +73,16 @@ export async function collectGithub(
     throw new HttpError(`GitHub returned HTTP ${repoRes.status}`, repoRes.status, base);
   const repo = JSON.parse(repoRes.body) as GhRepo;
   const branch = repo.default_branch;
+  // Files, tree and commits are read at `readRef` (a pinned commit for reproducible runs); API-derived signals
+  // such as issues, releases, contributors and branch protection always reflect the current state.
+  const readRef = options.ref ?? branch;
+  if (options.ref) {
+    b.diag(
+      'info',
+      'pinned_ref',
+      `repository files read at ${options.ref}; issues, releases, contributors and protection reflect the current state`,
+    );
+  }
 
   /** Run an optional fetch; failures become diagnostics, never abort the analysis. */
   async function safe<T>(
@@ -136,7 +146,7 @@ export async function collectGithub(
   ] = await Promise.all([
     getJson<{ tree?: TreeEntry[]; truncated?: boolean }>(
       'git tree',
-      `/git/trees/${encodeURIComponent(branch)}?recursive=1`,
+      `/git/trees/${encodeURIComponent(readRef)}?recursive=1`,
       [
         'github.tree.',
         'github.file.',
@@ -166,12 +176,12 @@ export async function collectGithub(
     ),
     getJson<GhRelease[]>('releases', '/releases?per_page=30', ['github.releases.']),
     getJson<unknown[]>('tags', '/tags?per_page=1'),
-    getJson<GhCommit[]>('commits', `/commits?per_page=100&sha=${encodeURIComponent(branch)}`, [
+    getJson<GhCommit[]>('commits', `/commits?per_page=100&sha=${encodeURIComponent(readRef)}`, [
       'github.commits.recent',
       'github.commits.last',
       'github.commits.distinct',
     ]),
-    getJson<unknown[]>('commit count', `/commits?per_page=1&sha=${encodeURIComponent(branch)}`, [
+    getJson<unknown[]>('commit count', `/commits?per_page=1&sha=${encodeURIComponent(readRef)}`, [
       'github.commits.total',
     ]),
     repo.has_issues
@@ -191,7 +201,7 @@ export async function collectGithub(
   ]);
 
   const headSha = commitsRes?.data?.[0]?.sha;
-  const refStr = headSha ?? branch;
+  const refStr = headSha ?? readRef;
   const url = (p: string): string => `${base}${p}`;
   const cap = { ref: refStr } as const;
 

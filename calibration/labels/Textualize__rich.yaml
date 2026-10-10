@@ -1,0 +1,19 @@
+repository: Textualize/rich
+artifact_type: library
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: disputed,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'A setup.py exists but the build backend is poetry-core, which ignores it, so no repository code runs at install: a detector that reports setup.py as an install hook without checking the backend is wrong here. The only subprocess use is in tools/ (maintainer script, not shipped). daemon=True refers to threads, not processes.'

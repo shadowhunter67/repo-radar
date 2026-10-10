@@ -1,0 +1,21 @@
+repository: karpathy/nanoGPT
+artifact_type: application
+artifact_also_acceptable: [tooling, library]
+domain: ml
+domain_also_acceptable: [ai]
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: yes,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: yes,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Training scripts rather than an installable package (no manifest). configurator.py executes a user-provided config file with exec(). Data preparation scripts download datasets with requests.'

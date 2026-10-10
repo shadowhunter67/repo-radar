@@ -1,0 +1,21 @@
+repository: github/gitignore
+artifact_type: template
+artifact_also_acceptable: [documentation]
+domain: developer-tooling
+domain_also_acceptable: [general]
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: no,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: no,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'A collection of .gitignore templates; no code. Template files mention credential and environment file names as patterns to ignore.'

@@ -1,0 +1,20 @@
+repository: nvm-sh/nvm
+artifact_type: cli
+artifact_also_acceptable: [tooling]
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: unknown,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: yes,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: disputed,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: yes
+hard_coded_secrets: no
+ambiguity_notes: 'A POSIX shell script CLI. install.sh (manual) appends the nvm loader to the user shell profile. nvm.sh reads npm config (.npmrc) paths to find the prefix: disputed whether that is credential access. package.json has no lifecycle hooks. Shell scripts execute programs by nature, so PROCESS_EXEC is not meaningful: unknown.'

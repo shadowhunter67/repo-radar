@@ -3,3 +3,4 @@ dist
 coverage
 *.log
 report.json
+calibration/runs/

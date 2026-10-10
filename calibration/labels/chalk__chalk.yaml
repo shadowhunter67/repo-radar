@@ -1,0 +1,19 @@
+repository: chalk/chalk
+artifact_type: library
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: no,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: unknown,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Terminal string styling. Colour detection likely reads environment/terminal info (vendored supports-color) but the reviewer did not confirm it: unknown.'

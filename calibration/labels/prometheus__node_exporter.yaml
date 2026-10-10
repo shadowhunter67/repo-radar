@@ -1,0 +1,20 @@
+repository: prometheus/node_exporter
+artifact_type: service
+artifact_also_acceptable: [application]
+domain: observability
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: yes,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: no,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: unknown,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Process execution, file writes and curl usage appear only in tests, the Makefile and e2e scripts. The systemd mentions are metrics about systemd, not service installation. NETWORK_CLIENT comes from the supervisord collector; the HTTP server comes from the exporter toolkit (no crude-pattern hit, known from the project).'

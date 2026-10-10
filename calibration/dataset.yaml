@@ -1,0 +1,86 @@
+# Calibration corpus v0 (dataset version 0.1.0)
+#
+# Selection criteria: deliberately NOT only famous, polished repositories. The mix covers library / CLI / service / framework /
+# monorepo / documentation / template artifacts, several ecosystems (npm, PyPI, Go, Rust, Java, PHP, shell), solo and team
+# maintenance, archived and stable projects, install-time hooks (native addons, binary downloads, lifecycle scripts), installer
+# scripts that touch shell profiles, intentionally vulnerable apps, and minimal repositories.
+#
+# `split` is assigned by the rule in calibration/README.md (stable hash of "owner/repo"), except repositories whose analyzer
+# output was looked at while building 0.2: those are forced to `dev` and flagged `tuned_on: true` (they must never be used to
+# claim generalization). Holdout repositories are labelled but their analyzer output must not be inspected while tuning.
+#
+# Exact revisions are recorded in pins.json (written by calibration/tools/fetch-corpus.mjs), never "latest main".
+version: 0.1.0
+selection_notes: >-
+  Targets 30-50 repositories for a first pass whose purpose is to expose systematic failures, not to calibrate every score.
+  Repositories are pinned at one revision each; behaviour on other revisions is not claimed.
+review_defaults:
+  kind: ai-assisted-single
+  method: >-
+    One AI reviewer (Claude) read a per-repository evidence dossier produced by calibration/tools/dossier.mjs (crude, independent
+    patterns over the pinned git tree; NOT analyzer output) and opened the hits in context. Scope of capability labels: code that
+    ships with or runs as part of the package for its users (library/application source, and install/build files that run for
+    consumers); tests, examples, docs, vendored code and maintainer-only scripts do not count. `unknown` means the reviewer could
+    not decide from the evidence read; `disputed` means a reasonable reviewer could decide either way. This is NOT independent
+    human review: label noise is expected and every metric must be read with that in mind.
+  reviewers: [claude-sonnet-5.5]
+  labelled_on: '2026-10-10'
+repositories:
+  # --- libraries --------------------------------------------------------------------------------------------------------
+  - { repo: sindresorhus/execa, categories: [library, npm, monorepo-no], tuned_on: true }
+  - { repo: chalk/chalk, categories: [library, npm, solo-ish] }
+  - { repo: tj/commander.js, categories: [library, npm] }
+  - { repo: expressjs/express, categories: [library, framework, npm] }
+  - { repo: psf/requests, categories: [library, pypi] }
+  - { repo: pallets/click, categories: [library, pypi] }
+  - { repo: Textualize/rich, categories: [library, pypi] }
+  - { repo: dtolnay/anyhow, categories: [library, rust, solo-ish] }
+  - { repo: spf13/cobra, categories: [library, framework, go] }
+  - { repo: openai/openai-python, categories: [sdk, pypi, ai] }
+  # --- CLI tools -------------------------------------------------------------------------------------------------------
+  - { repo: junegunn/fzf, categories: [cli, go, solo-ish], tuned_on: true }
+  - { repo: BurntSushi/ripgrep, categories: [cli, rust, solo-ish] }
+  - { repo: sharkdp/fd, categories: [cli, rust, solo-ish] }
+  - { repo: nvm-sh/nvm, categories: [cli, shell, installer], tuned_on: true }
+  - { repo: pyenv/pyenv, categories: [cli, shell, installer] }
+  - { repo: ohmyzsh/ohmyzsh, categories: [cli, shell, installer, persistence-suspect] }
+  - { repo: Homebrew/install, categories: [installer, shell] }
+  - { repo: docker/docker-install, categories: [installer, shell] }
+  # --- frameworks / services --------------------------------------------------------------------------------------------
+  - { repo: pallets/flask, categories: [framework, pypi], tuned_on: true }
+  - { repo: louislam/uptime-kuma, categories: [service, application, npm] }
+  - { repo: prometheus/node_exporter, categories: [service, go] }
+  - { repo: caddyserver/caddy, categories: [service, go] }
+  # --- monorepos --------------------------------------------------------------------------------------------------------
+  - { repo: lerna/lerna, categories: [monorepo, npm, tooling] }
+  - { repo: changesets/changesets, categories: [monorepo, npm, tooling] }
+  - { repo: trpc/trpc, categories: [monorepo, npm, framework] }
+  # --- documentation / template / minimal ---------------------------------------------------------------------------------
+  - { repo: octocat/Hello-World, categories: [minimal, tiny], tuned_on: true }
+  - { repo: octocat/Spoon-Knife, categories: [minimal, tiny] }
+  - { repo: sindresorhus/awesome, categories: [documentation, curated-list] }
+  - { repo: github/gitignore, categories: [template, documentation] }
+  # --- archived / stable / incident -------------------------------------------------------------------------------------
+  - { repo: request/request, categories: [library, npm, archived] }
+  - { repo: bower/bower, categories: [cli, npm, archived] }
+  - { repo: moment/moment, categories: [library, npm, stable-legacy] }
+  - { repo: Marak/colors.js, categories: [library, npm, supply-chain-incident] }
+  # --- security / developer tooling -------------------------------------------------------------------------------------
+  - { repo: gitleaks/gitleaks, categories: [cli, go, security-tool] }
+  - { repo: ossf/scorecard, categories: [cli, go, security-tool] }
+  - { repo: anchore/syft, categories: [cli, go, security-tool] }
+  - { repo: typicode/husky, categories: [tooling, npm, install-hook] }
+  # --- install-time execution / supply-chain-interesting -----------------------------------------------------------------
+  - { repo: evanw/esbuild, categories: [tooling, go, npm, install-hook], tuned_on: true }
+  - { repo: lovell/sharp, categories: [library, npm, native-addon, install-hook] }
+  - { repo: zloirock/core-js, categories: [library, npm, install-hook, solo-ish] }
+  - { repo: nodejs/node-gyp, categories: [tooling, npm, native-addon] }
+  - { repo: sass/node-sass, categories: [library, npm, native-addon, archived, install-hook] }
+  - { repo: puppeteer/puppeteer, categories: [library, npm, monorepo, install-hook] }
+  # --- intentionally vulnerable ------------------------------------------------------------------------------------------
+  - { repo: juice-shop/juice-shop, categories: [application, npm, intentionally-vulnerable] }
+  - { repo: OWASP/NodeGoat, categories: [application, npm, intentionally-vulnerable] }
+  - { repo: digininja/DVWA, categories: [application, php, intentionally-vulnerable] }
+  - { repo: WebGoat/WebGoat, categories: [application, java, maven, intentionally-vulnerable] }
+  # --- AI / ML -----------------------------------------------------------------------------------------------------------
+  - { repo: karpathy/nanoGPT, categories: [ml, pypi, solo-ish] }

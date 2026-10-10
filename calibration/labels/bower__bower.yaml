@@ -1,0 +1,20 @@
+repository: bower/bower
+artifact_type: cli
+artifact_also_acceptable: [tooling, monorepo]
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: yes,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: unknown,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Archived package manager. The root package is private with workspaces; sub-packages (bower-config, bower-json, ...) are libraries.'

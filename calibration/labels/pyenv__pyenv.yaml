@@ -1,0 +1,20 @@
+repository: pyenv/pyenv
+artifact_type: cli
+artifact_also_acceptable: [tooling]
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: unknown,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: yes,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Shell-script CLI plus python-build (downloads and compiles CPython, patches). It prints instructions for editing shell rc files rather than editing them (reviewer is fairly but not fully sure). No manifests.'

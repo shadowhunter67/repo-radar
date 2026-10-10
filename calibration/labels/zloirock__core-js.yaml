@@ -1,0 +1,21 @@
+repository: zloirock/core-js
+artifact_type: library
+artifact_also_acceptable: [monorepo]
+domain: developer-tooling
+domain_also_acceptable: [general]
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: unknown,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: yes, names: [postinstall] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'The published packages core-js, core-js-pure and core-js-bundle run postinstall=`node -e "try{require(./postinstall)}catch(e){}"`, which prints a funding message (reads environment to decide). A harmless-looking hook is still automatic code execution for every dependent. Process execution under scripts/ and website/ is maintainer tooling.'

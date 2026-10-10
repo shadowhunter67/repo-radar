@@ -1,0 +1,20 @@
+repository: typicode/husky
+artifact_type: tooling
+artifact_also_acceptable: [cli]
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: no,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: no,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Configures git hooks (git config core.hooksPath) when the user runs `husky` (typically from their own `prepare` script). That makes commits run user-defined scripts, but it is not boot/login persistence; label is no under this taxonomy. husky itself declares no lifecycle hook.'

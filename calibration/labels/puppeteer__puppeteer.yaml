@@ -1,0 +1,21 @@
+repository: puppeteer/puppeteer
+artifact_type: monorepo
+artifact_also_acceptable: [library]
+domain: automation
+domain_also_acceptable: [web, developer-tooling]
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: yes,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: unknown,
+  }
+install_hooks: { automatic: yes, names: [postinstall] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'packages/puppeteer declares postinstall=`node install.mjs`, which downloads a browser build. The private root has its own postinstall/prepare for contributors. The HTTP server under packages/testserver is test infrastructure, not shipped behavior.'

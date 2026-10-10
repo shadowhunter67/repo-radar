@@ -35,6 +35,20 @@ export class RepoRefError extends Error {
   }
 }
 
+/** A commit SHA, tag or branch name to read files at. Validated, then percent-encoded wherever it is used. */
+export function parseGitRef(input: string): string {
+  const r = input.trim();
+  if (
+    !/^[A-Za-z0-9][A-Za-z0-9._/-]{0,99}$/.test(r) ||
+    r.includes('..') ||
+    r.endsWith('/') ||
+    r.endsWith('.lock')
+  ) {
+    throw new RepoRefError('invalid --ref: use a commit SHA, tag or branch name');
+  }
+  return r;
+}
+
 /** Accepts `owner/repo` or a github.com URL. Anything else is rejected, never fetched. */
 export function parseRepoRef(input: string): RepoRef {
   const raw = input.trim();

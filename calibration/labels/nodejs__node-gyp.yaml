@@ -1,0 +1,20 @@
+repository: nodejs/node-gyp
+artifact_type: cli
+artifact_also_acceptable: [tooling]
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: yes,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: yes,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'Native addon build tool: downloads Node headers/tarballs and runs compilers via gyp (Python). It is the tool that other packages invoke from their own install scripts; it declares no lifecycle hook of its own.'

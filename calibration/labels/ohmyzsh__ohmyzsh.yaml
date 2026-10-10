@@ -1,0 +1,20 @@
+repository: ohmyzsh/ohmyzsh
+artifact_type: framework
+artifact_also_acceptable: [tooling, template]
+domain: developer-tooling
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: no,
+    REMOTE_DOWNLOAD: yes,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: unknown,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: unknown,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: yes
+hard_coded_secrets: no
+ambiguity_notes: 'A zsh configuration framework with 300+ plugins. tools/install.sh (manual) replaces ~/.zshrc and can change the login shell (chsh). It downloads (git clone) and checks for upgrades with curl/wget. Many `.zshrc` mentions are comments about plugins.'

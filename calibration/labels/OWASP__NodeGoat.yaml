@@ -1,0 +1,20 @@
+repository: OWASP/NodeGoat
+artifact_type: application
+domain: security
+domain_also_acceptable: [web]
+capabilities:
+  {
+    PROCESS_EXEC: no,
+    NETWORK_CLIENT: unknown,
+    NETWORK_SERVER: yes,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: unknown,
+    DYNAMIC_CODE_LOAD: yes,
+    CREDENTIAL_ACCESS: unknown,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: unknown
+ambiguity_notes: 'Intentionally vulnerable training app (eval on user input in app/routes/contributions.js is deliberate). Configuration likely holds deliberately weak sample secrets that high-precision patterns would not match; the reviewer did not verify them: unknown. The only child_process use is the Gruntfile (developer tooling).'

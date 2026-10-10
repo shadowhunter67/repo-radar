@@ -1,0 +1,20 @@
+repository: trpc/trpc
+artifact_type: monorepo
+artifact_also_acceptable: [framework, library]
+domain: web
+capabilities:
+  {
+    PROCESS_EXEC: yes,
+    NETWORK_CLIENT: yes,
+    NETWORK_SERVER: yes,
+    REMOTE_DOWNLOAD: no,
+    FILESYSTEM_WRITE: yes,
+    DYNAMIC_CODE_LOAD: unknown,
+    CREDENTIAL_ACCESS: no,
+    ENVIRONMENT_READ: yes,
+    BACKGROUND_PROCESS: no,
+  }
+install_hooks: { automatic: no, names: [] }
+persistence: no
+hard_coded_secrets: no
+ambiguity_notes: 'pnpm workspace; root and www hooks (prepublish, postinstall) belong to private packages. Environment-file names under examples/ are sample app configuration (examples are out of scope; contents not read).'
