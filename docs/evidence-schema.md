@@ -1,4 +1,7 @@
-# Evidence schema (version 0.1)
+# Evidence schema (version 0.2)
+
+> Schema 0.2 adds normalized **facts** and a **code_analysis** section: see [facts.md](facts.md) and [code-analysis.md](code-analysis.md).
+> Migration notes from 0.1: [migration.md](migration.md).
 
 Evidence is the only input to scoring. The machine-readable definition is
 [schemas/evidence.schema.json](../schemas/evidence.schema.json) (generated from the zod definition in
@@ -25,7 +28,7 @@ Evidence is the only input to scoring. The machine-readable definition is
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `id`          | Stable, dotted, lowercase. `<namespace>.<name>`. Rules refer to it. Renaming an id is a schema change.                        |
 | `value`       | boolean, number, string or string array. Never null: "not observed" is expressed by the absence of the evidence item.         |
-| `source`      | `github`, `scorecard`, `osv`, `manifest`, `heuristic` or `identity`. Selects the reliability multiplier.                      |
+| `source`      | `github`, `scorecard`, `osv`, `manifest`, `heuristic`, `identity` or `derived` (facts used as rule input). Selects the reliability multiplier. |
 | `kind`        | `fact`: read from an API or file. `heuristic`: inferred by a rule of thumb (pattern match, sampling).                          |
 | `observed_at` | When the collector observed it.                                                                                               |
 | `confidence`  | 0-1. How sure the collector is that `value` is right (sample size, truncated trees, stale Scorecard runs, partial coverage).  |

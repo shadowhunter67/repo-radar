@@ -65,7 +65,10 @@ describe('shipped standards', () => {
       fetch: fakeFetch(spec),
       clock: fixedClock,
     });
-    const produced = new Set(report.evidence.map((e) => e.id));
+    const produced = new Set([
+      ...report.evidence.map((e) => e.id),
+      ...report.facts.map((f) => f.id),
+    ]);
     const missing: string[] = [];
     for (const r of rs.rules) {
       for (const id of [...r.evidence, ...(r.applies_when ? [r.applies_when.evidence] : [])]) {
@@ -87,9 +90,9 @@ describe('shipped standards', () => {
   });
 
   it('rejects malformed rule files', () => {
-    const ok = `methodology: '0.1'\nrules:\n  - id: security.x\n    dimension: security\n    title: "t t"\n    rationale: "long enough rationale"\n    evidence: [a.b]\n    weight: 1\n    scoring: {type: map, values: {'true': 1}}\n`;
+    const ok = `methodology: '0.2'\nrules:\n  - id: security.x\n    dimension: security\n    title: "t t"\n    rationale: "long enough rationale"\n    evidence: [a.b]\n    weight: 1\n    scoring: {type: map, values: {'true': 1}}\n`;
     expect(parseRuleFile(ok, 'x')).toHaveLength(1);
-    expect(() => parseRuleFile(ok.replace("'0.1'", "'9.9'"), 'x')).toThrow(/methodology/);
+    expect(() => parseRuleFile(ok.replace("'0.2'", "'9.9'"), 'x')).toThrow(/methodology/);
     expect(() => parseRuleFile(ok.replace('security.x', 'community.x'), 'x')).toThrow();
     expect(() => parseRuleFile(ok.replace('weight: 1', 'weight: -1'), 'x')).toThrow();
     expect(() => parseRuleFile(ok.replace("{'true': 1}", "{'true': 11}"), 'x')).toThrow();

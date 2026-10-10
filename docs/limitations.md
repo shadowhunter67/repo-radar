@@ -1,11 +1,11 @@
 # Limitations
 
-Plain statements of what repo-radar v0.1 cannot do or does badly.
+Plain statements of what repo-radar v0.2 cannot do or does badly.
 
 ## What a score means
 
 - A score summarizes **indicators observed by specific rules**. It is not a security audit, a code review or a trust guarantee.
-- A high Code Quality score means tests, lint configuration, typing and CI were _seen_. It does not measure the code.
+- A high Engineering Hygiene score (dimension id `code-quality`) means tests, lint configuration, typing and CI were _seen_. It does not measure the code; no complexity, duplication, error-handling or design analysis exists yet.
 - Confidence is a hand-authored model (source reliabilities, sampling penalties). It has **not** been calibrated against labelled
   repositories or expert ratings. Weights and thresholds are informed judgement, not empirical results.
 - Overall numbers hide dimension differences; profiles encode preferences, not objective truth.
@@ -27,9 +27,22 @@ Plain statements of what repo-radar v0.1 cannot do or does badly.
 - Package manifests: `package.json`, `pyproject.toml`, `requirements.txt`, `go.mod`, `Cargo.toml` (root and up to depth 2, at most 6 files).
   Workspaces/monorepos are sampled, not traversed.
 
+## Static code analysis (capabilities, execution, persistence, secrets)
+
+Details in [code-analysis.md](code-analysis.md). In short:
+
+- It reads a **bounded sample** (at most 40 files of 64 KiB) of each repository. Large repositories are only partly covered; the report gives the coverage and says which limits were hit. "Not observed" means "not found in the sample", with confidence scaled by coverage.
+- Detection is **line-oriented pattern matching**: no AST, no data flow or taint tracking, no handling of obfuscation, encoding, string concatenation or dynamic `require`. A determined author can evade it; an innocent project can trigger it (test code, documentation helpers, installers).
+- Only **npm lifecycle execution** is traced in depth. Python build backends, Maven/Gradle plugins, Composer scripts, gemspec extensions and CMake/configure logic are not resolved; `setup.py`, `build.rs`, `Dockerfile`, `Makefile` and manual install scripts are listed and scanned but not followed through every call.
+- Hooks beyond manifests at depth 2 (or beyond the first 6 manifests) are not seen.
+- Dependencies' code is not analyzed, nor are binaries and release assets.
+- A capability is never evidence of intent; installers, agents and security tools legitimately trigger the highest-risk detections.
+- Secret scanning covers only fetched files plus file names from the git tree; high-precision patterns miss unusual formats, and found credentials may already be revoked or sample values.
+- Persistence/privilege constructs inside a `Dockerfile` apply to the image and are downgraded; this also means some real container-escape patterns are not reported.
+
 ## Identity
 
-- The default classifier is a keyword/dependency/topic heuristic over a fixed taxonomy of ~30 types. Niche domains are
+- The default classifier is a keyword/dependency/topic heuristic over a fixed taxonomy of ~30 types (taxonomy 0.2 adds a domain and an artifact-type hint per type). Artifact type (library, CLI, service, ...) comes from that hint and from observable structure, so it is as uncertain as the domain: it exposes `artifact_alternatives` and `alternatives` instead of hiding ambiguity. Real example: `nvm-sh/nvm` (a shell CLI) is reported with 20% confidence and a wrong "library" interface because the signals (a package.json, a Dockerfile) are misleading. Niche domains are
   `unclassified`; it can be wrong (it has no notion of negation, e.g. "not a database"), and keyword stuffing can steer it.
   Real example from development: `junegunn/fzf` first came out as "editor extension" (30% confidence) because the taxonomy
   lacked "command-line"; after adding it the result is "command-line utility" (65%). Confidence is the only protection users get.

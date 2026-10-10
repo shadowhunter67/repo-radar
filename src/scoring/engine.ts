@@ -49,7 +49,7 @@ export interface RuleResult {
    * Why a rule has no score: `unavailable` (a collector failed or was rate limited),
    * `not_collected` (source disabled by the user), `not_reported` (source answered, signal absent).
    */
-  missing_reason: 'unavailable' | 'not_collected' | 'not_reported' | null;
+  missing_reason: 'unavailable' | 'not_collected' | 'insufficient_coverage' | 'not_reported' | null;
   explanation: string;
 }
 
@@ -57,6 +57,8 @@ export interface RuleResult {
 export interface ScoringContext {
   unavailable?: string[];
   notCollected?: string[];
+  /** Collected, but too little was read for a "not found" result to count as evidence. */
+  insufficientCoverage?: string[];
 }
 
 export interface DimensionResult {
@@ -188,7 +190,9 @@ function evaluateRule(
       ? 'unavailable'
       : matches(ctx.notCollected)
         ? 'not_collected'
-        : 'not_reported';
+        : matches(ctx.insufficientCoverage)
+          ? 'insufficient_coverage'
+          : 'not_reported';
     return {
       ...base,
       status: rule.informational ? 'informational' : 'not_observed',

@@ -186,6 +186,7 @@ describe('text report', () => {
       clock: fixedClock,
       scorecard: false,
       osv: false,
+      codeScan: false,
     });
     const text = renderText(report, { ascii: true });
     expect(text).toMatch(/insufficient evidence/);

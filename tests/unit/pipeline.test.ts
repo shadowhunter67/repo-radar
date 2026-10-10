@@ -57,7 +57,8 @@ describe('pipeline: healthy repository', () => {
 
   it('every scored rule traces back to evidence that exists in the report', async () => {
     const r = await run(goodRepo());
-    const ids = new Set(r.evidence.map((e) => e.id));
+    // Rule inputs resolve against raw evidence or normalized facts.
+    const ids = new Set([...r.evidence.map((e) => e.id), ...r.facts.map((f) => f.id)]);
     let traced = 0;
     for (const d of r.dimensions) {
       for (const rule of d.rules) {
@@ -112,7 +113,7 @@ describe('pipeline: weak and edge-case repositories', () => {
   });
 
   it('sparse evidence is reported as insufficient instead of graded', async () => {
-    const r = await run(emptyRepo(), { scorecard: false, osv: false });
+    const r = await run(emptyRepo(), { scorecard: false, osv: false, codeScan: false });
     const sec = dim(r, 'security');
     expect(sec.sufficiency).toBe('insufficient');
     expect(sec.grade).toBe('N/A');
@@ -321,7 +322,12 @@ describe('profiles and policy', () => {
   });
 
   it('an unverifiable floor counts as a violation', async () => {
-    const r = await run(emptyRepo(), { minimums: { security: 10 }, scorecard: false, osv: false });
+    const r = await run(emptyRepo(), {
+      minimums: { security: 10 },
+      scorecard: false,
+      osv: false,
+      codeScan: false,
+    });
     expect(r.policy.violations[0]?.reason).toBe('insufficient_evidence');
   });
 

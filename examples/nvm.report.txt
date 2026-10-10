@@ -1,0 +1,66 @@
+repo-radar v0.2.0  (methodology 0.2, profile: default)
+
+nvm-sh/nvm
+
+IDENTITY
+  command-line tooling for a specific task - detected type: cli-utility
+  Confidence: 20% (heuristic classifier heuristic-v0.1)
+  Declared: "Node Version Manager - Simple bash script to manage multiple active node.js versions"
+  Interfaces: container, library
+  Ecosystem: Shell, npm
+  Artifact: library (48%), alternatives: cli  Domain: developer-tooling
+  Candidates: cli-utility 50%, config-dotfiles 50%
+
+TRUST PROFILE (observed evidence evaluated against methodology 0.2)
+  Security              88  A-   #########-  conf  74%
+  Maintenance           90  A    #########-  conf  89%
+  Engineering Hygiene   77  B    ########--  conf  89%
+  Supply Chain          47  D    #####-----  conf  87%
+  Community             89  A-   #########-  conf  98%
+  Documentation         92  A    #########-  conf  94%
+  Semantic Clarity      86  A-   #########-  conf  87%
+  Overall               81  B+   ########--  conf  88%  (weighted by profile "default"; not an absolute verdict)
+
+Overall confidence: 88%
+
+WARNINGS
+  - A single contributor accounts for at least half of the commits (bus factor 1).
+
+CAPABILITIES (static scan of 27 files, 100% of source files sampled)
+  BINARY_EXECUTION     MEDIUM  INFERRED 50%  [build,runtime] install.sh, test/common.sh
+  BACKGROUND_PROCESS   MEDIUM  DIRECT 85%  [build,runtime] install.sh, test/common.sh
+  NETWORK_CLIENT       LOW     INFERRED 72%  [build,runtime] .github/scripts/docker-image.sh, Dockerfile
+  REMOTE_DOWNLOAD      MEDIUM  DIRECT 90%  [build,runtime] .github/scripts/docker-image.sh, Dockerfile
+  PRIVILEGE_CHANGE     LOW     POSSIBLE 35%  [build] Dockerfile
+  PERSISTENCE          LOW     POSSIBLE 35%  [build] Dockerfile
+  Not observed in the scanned sample: PROCESS_EXEC, NETWORK_SERVER, FILESYSTEM_WRITE, FILESYSTEM_DELETE, ENVIRONMENT_READ, CREDENTIAL_ACCESS, BROWSER_DATA_ACCESS, DYNAMIC_CODE_LOAD
+  (A capability describes what code can do, not why. Intent: undetermined.)
+
+INSTALL-TIME EXECUTION
+  make:Makefile  risk LOW  confidence 80%
+    trigger: make (default target)
+  shell:install.sh  risk MEDIUM  confidence 90%
+    trigger: documented/manual install script
+    capabilities: BACKGROUND_PROCESS, BINARY_EXECUTION, REMOTE_DOWNLOAD
+  docker:Dockerfile  risk MEDIUM  confidence 90%
+    trigger: docker build
+    capabilities: REMOTE_DOWNLOAD
+    chains: CHAIN-001
+  CHAIN-001 download-extract-exec INFERRED 55%  Dockerfile:44,64,73  [build]
+  CHAIN-002 download-chmod-exec INFERRED 55%  test/common.sh:66,80  [runtime]
+
+PERSISTENCE
+  background execution only: detached_process  Intent: undetermined
+
+SECRETS (values are never shown)
+  None found in 27 scanned files.
+
+FINDINGS
+  RR-EXEC-001 [low] Download-and-execute chain observed in Dockerfile  confidence 55%
+  RR-EXEC-002 [low] Download-and-execute chain observed in test/common.sh  confidence 55%
+
+SCAN LIMITS
+  - 2 file(s) skipped: larger than 65536 bytes
+
+Evidence: 97 signals | Methodology: v0.2 | Rules digest: ba7c93da8413
+Scores summarize observed indicators; they are not a statement that code is safe, secure or trustworthy.

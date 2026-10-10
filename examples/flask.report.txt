@@ -1,4 +1,4 @@
-repo-radar v0.1.0  (methodology 0.1, profile: default)
+repo-radar v0.2.0  (methodology 0.2, profile: default)
 
 pallets/flask
 
@@ -8,22 +8,44 @@ IDENTITY
   Declared: "A simple framework for building complex web applications."
   Interfaces: cli, library
   Ecosystem: Python, PyPI
+  Artifact: framework (60%), alternatives: cli, library  Domain: web
+  Candidates: web-framework 52%, task-queue 31%, educational 17%
   Note: the name says little about the purpose (informational, not scored)
 
-TRUST PROFILE (observed evidence evaluated against methodology 0.1)
-  Security           61  C    ######----  conf  90%
-  Maintenance        91  A    #########-  conf  79%
-  Code Quality      100  A+   ##########  conf  91%
-  Supply Chain       82  B+   ########--  conf  99%
-  Community          93  A    #########-  conf  98%
-  Documentation      85  A-   #########-  conf  94%
-  Semantic Clarity   92  A    #########-  conf  87%
-  Overall            86  A-   #########-  conf  91%  (weighted by profile "default"; not an absolute verdict)
+TRUST PROFILE (observed evidence evaluated against methodology 0.2)
+  Security              70  C+   #######---  conf  88%
+  Maintenance           91  A    #########-  conf  79%
+  Engineering Hygiene  100  A+   ##########  conf  91%
+  Supply Chain          84  B+   ########--  conf  98%
+  Community             93  A    #########-  conf  98%
+  Documentation         85  A-   #########-  conf  94%
+  Semantic Clarity      92  A    #########-  conf  87%
+  Overall               88  A-   #########-  conf  90%  (weighted by profile "default"; not an absolute verdict)
 
-Overall confidence: 91%
+Overall confidence: 90%
 
 WARNINGS
   - 7 of 100 pinned dependencies have known OSV advisories.
 
-Evidence: 107 signals | Methodology: v0.1 | Rules digest: d00b57deab34
+CAPABILITIES (static scan of 37 files, 100% of source files sampled)
+  NETWORK_SERVER       LOW     INFERRED 60%  [runtime] src/flask/app.py
+  ENVIRONMENT_READ     LOW     DIRECT 90%  [runtime] src/flask/app.py, src/flask/cli.py
+  DYNAMIC_CODE_LOAD    MEDIUM  DIRECT 85%  [runtime] src/flask/cli.py, src/flask/config.py
+  Not observed in the scanned sample: PROCESS_EXEC, BINARY_EXECUTION, BACKGROUND_PROCESS, NETWORK_CLIENT, REMOTE_DOWNLOAD, FILESYSTEM_WRITE, FILESYSTEM_DELETE, CREDENTIAL_ACCESS, BROWSER_DATA_ACCESS, PRIVILEGE_CHANGE, PERSISTENCE
+  (A capability describes what code can do, not why. Intent: undetermined.)
+
+INSTALL-TIME EXECUTION
+  make:Makefile  risk LOW  confidence 80%
+    trigger: make (default target)
+
+PERSISTENCE
+  None observed in the scanned sample.
+
+SECRETS (values are never shown)
+  SEC-0001 committed-env-file DIRECT 30%  tests/test_apps/.env  [file name only]  (test/example)
+
+FINDINGS
+  RR-SEC-001 [low] Low-confidence hard-coded secret: committed-env-file (1 location)  confidence 30%
+
+Evidence: 107 signals | Methodology: v0.2 | Rules digest: ba7c93da8413
 Scores summarize observed indicators; they are not a statement that code is safe, secure or trustworthy.

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { RepoSnapshot } from '../collectors/types.js';
+import { ARTIFACT_TYPES } from './taxonomy.js';
 
 export const SemanticIdentitySchema = z.object({
   repository_name: z.string(),
@@ -18,6 +19,19 @@ export const SemanticIdentitySchema = z.object({
   confidence: z.number().min(0).max(1),
   /** Heuristic, never a verdict: how little the name overlaps with the detected purpose. */
   name_purpose_divergence: z.number().min(0).max(1).nullable(),
+  /** Layer 1: kind of software artifact (library, cli, service, ...). */
+  artifact_type: z.enum(ARTIFACT_TYPES),
+  artifact_confidence: z.number().min(0).max(1),
+  artifact_alternatives: z.array(z.enum(ARTIFACT_TYPES)),
+  /** Layer 2: subject area (web, database, security, ...), "unknown" when unclassified. */
+  domain: z.string(),
+  /** Runner-up domain candidates with their share of the matched evidence (never forced into one label). */
+  alternatives: z.array(z.object({ canonical_type: z.string(), share: z.number() })),
+  /** Layer 3: capabilities observed by the static capability scan (filled after scanning; empty if not scanned). */
+  capabilities: z.array(z.string()),
+  /** Layer 4: deterministic evidence-based purpose sentence (not LLM generated). */
+  purpose_summary: z.string(),
+  taxonomy_version: z.string(),
   classifier: z.string(),
   /** Human-readable reasons that produced the classification. */
   evidence: z.array(z.string()),

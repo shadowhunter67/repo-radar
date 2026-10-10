@@ -3,6 +3,7 @@ import type { ParsedManifest } from '../collectors/manifests/parse.js';
 import { round, sanitizeForTerminal } from '../util/text.js';
 import { normalizeName } from './normalize.js';
 import type { Taxonomy, TaxonomyEntry } from './taxonomy.js';
+import { classifyArtifact, purposeSummary } from './artifact.js';
 import type { IdentityClassifier, SemanticIdentity } from './types.js';
 
 // Source weights: structured, author-declared fields outrank free text.
@@ -71,9 +72,38 @@ function compile(t: Taxonomy): Compiled[] {
 export class HeuristicClassifier implements IdentityClassifier {
   readonly id = 'heuristic-v0.1';
   private readonly compiled: Compiled[];
+  private readonly taxonomyVersion: string;
 
   constructor(taxonomy: Taxonomy) {
     this.compiled = compile(taxonomy);
+    this.taxonomyVersion = taxonomy.version;
+  }
+
+  /** Identity layers 1-4: artifact type, domain, candidate alternatives and a purpose sentence. */
+  private layers(
+    s: RepoSnapshot,
+    interfaces: string[],
+    entry: TaxonomyEntry | undefined,
+    domainConfidence: number,
+    canonical: string,
+    declared: string | undefined,
+    candidates: { entry: TaxonomyEntry; score: number }[],
+  ) {
+    const art = classifyArtifact(s, interfaces, entry, domainConfidence);
+    const total = candidates.reduce((a, c) => a + c.score, 0);
+    return {
+      artifact_type: art.type,
+      artifact_confidence: art.confidence,
+      artifact_alternatives: art.alternatives,
+      domain: entry?.domain ?? 'unknown',
+      alternatives: candidates.map((c) => ({
+        canonical_type: c.entry.id,
+        share: total > 0 ? round(c.score / total, 2) : 0,
+      })),
+      purpose_summary: purposeSummary(art.type, entry?.function ?? 'unknown', canonical, declared),
+      capabilities: [] as string[],
+      taxonomy_version: this.taxonomyVersion,
+    };
   }
 
   classify(s: RepoSnapshot): SemanticIdentity {
@@ -154,6 +184,7 @@ export class HeuristicClassifier implements IdentityClassifier {
         name_purpose_divergence: null,
         classifier: this.id,
         evidence: ['no taxonomy type matched strongly enough'],
+        ...this.layers(s, interfaces, undefined, 0, 'unclassified', declared, []),
       };
     }
 
@@ -202,6 +233,15 @@ export class HeuristicClassifier implements IdentityClassifier {
       evidence: [...new Set(top.reasons)]
         .slice(0, MAX_REASONS)
         .map((r) => sanitizeForTerminal(r, 120)),
+      ...this.layers(
+        s,
+        interfaces,
+        top.entry,
+        confidence,
+        top.entry.id,
+        declared,
+        scored.slice(0, 3).filter((x) => x.score >= 2),
+      ),
     };
   }
 }

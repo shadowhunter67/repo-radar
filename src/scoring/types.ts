@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { EvidenceIdSchema } from '../evidence/types.js';
 
-export const METHODOLOGY_VERSION = '0.1';
+export const METHODOLOGY_VERSION = '0.2';
 
 export const DIMENSIONS = [
   'security',
@@ -17,7 +17,7 @@ export type Dimension = (typeof DIMENSIONS)[number];
 export const DIMENSION_LABELS: Record<Dimension, string> = {
   security: 'Security',
   maintenance: 'Maintenance',
-  'code-quality': 'Code Quality',
+  'code-quality': 'Engineering Hygiene',
   'supply-chain': 'Supply Chain',
   community: 'Community',
   documentation: 'Documentation',

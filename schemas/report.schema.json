@@ -21,7 +21,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "0.1"
+      "const": "0.2"
     },
     "methodology": {
       "type": "object",
@@ -37,13 +37,29 @@
         },
         "classifier": {
           "type": "string"
+        },
+        "taxonomy_version": {
+          "type": "string"
+        },
+        "detector_pack_version": {
+          "type": "string"
+        },
+        "facts_version": {
+          "type": "string"
+        },
+        "config_digest": {
+          "type": "string"
         }
       },
       "required": [
         "version",
         "rules_digest",
         "rule_count",
-        "classifier"
+        "classifier",
+        "taxonomy_version",
+        "detector_pack_version",
+        "facts_version",
+        "config_digest"
       ],
       "additionalProperties": false
     },
@@ -172,6 +188,94 @@
             }
           ]
         },
+        "artifact_type": {
+          "type": "string",
+          "enum": [
+            "library",
+            "application",
+            "cli",
+            "service",
+            "framework",
+            "plugin",
+            "extension",
+            "sdk",
+            "driver",
+            "container",
+            "infrastructure",
+            "dataset",
+            "model",
+            "documentation",
+            "template",
+            "monorepo",
+            "tooling",
+            "unknown"
+          ]
+        },
+        "artifact_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "artifact_alternatives": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "library",
+              "application",
+              "cli",
+              "service",
+              "framework",
+              "plugin",
+              "extension",
+              "sdk",
+              "driver",
+              "container",
+              "infrastructure",
+              "dataset",
+              "model",
+              "documentation",
+              "template",
+              "monorepo",
+              "tooling",
+              "unknown"
+            ]
+          }
+        },
+        "domain": {
+          "type": "string"
+        },
+        "alternatives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "canonical_type": {
+                "type": "string"
+              },
+              "share": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "canonical_type",
+              "share"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "purpose_summary": {
+          "type": "string"
+        },
+        "taxonomy_version": {
+          "type": "string"
+        },
         "classifier": {
           "type": "string"
         },
@@ -196,6 +300,14 @@
         "search_aliases",
         "confidence",
         "name_purpose_divergence",
+        "artifact_type",
+        "artifact_confidence",
+        "artifact_alternatives",
+        "domain",
+        "alternatives",
+        "capabilities",
+        "purpose_summary",
+        "taxonomy_version",
         "classifier",
         "evidence"
       ],
@@ -438,6 +550,7 @@
                       "enum": [
                         "unavailable",
                         "not_collected",
+                        "insufficient_coverage",
                         "not_reported"
                       ]
                     },
@@ -697,7 +810,8 @@
               "osv",
               "manifest",
               "heuristic",
-              "identity"
+              "identity",
+              "derived"
             ]
           },
           "kind": {
@@ -753,6 +867,810 @@
         ],
         "additionalProperties": false
       }
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+(\\.[a-z0-9_-]+)+$"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "repo",
+              "artifact",
+              "ci",
+              "capability",
+              "execution",
+              "secret",
+              "scan"
+            ]
+          },
+          "derived_from": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "derived_by": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "value",
+          "confidence",
+          "scope",
+          "derived_from",
+          "derived_by"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "code_analysis": {
+      "type": "object",
+      "properties": {
+        "scan": {
+          "type": "object",
+          "properties": {
+            "performed": {
+              "type": "boolean"
+            },
+            "files_scanned": {
+              "type": "number"
+            },
+            "source_files_scanned": {
+              "type": "number"
+            },
+            "source_files_total": {
+              "type": "number"
+            },
+            "source_coverage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "skipped_too_large": {
+              "type": "number"
+            },
+            "skipped_over_budget": {
+              "type": "number"
+            },
+            "limits_hit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "performed",
+            "files_scanned",
+            "source_files_scanned",
+            "source_files_total",
+            "source_coverage",
+            "skipped_too_large",
+            "skipped_over_budget",
+            "limits_hit"
+          ],
+          "additionalProperties": false
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "summary": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "capability": {
+                    "type": "string",
+                    "enum": [
+                      "PROCESS_EXEC",
+                      "BINARY_EXECUTION",
+                      "BACKGROUND_PROCESS",
+                      "NETWORK_CLIENT",
+                      "NETWORK_SERVER",
+                      "REMOTE_DOWNLOAD",
+                      "FILESYSTEM_WRITE",
+                      "FILESYSTEM_DELETE",
+                      "ENVIRONMENT_READ",
+                      "CREDENTIAL_ACCESS",
+                      "BROWSER_DATA_ACCESS",
+                      "DYNAMIC_CODE_LOAD",
+                      "PRIVILEGE_CHANGE",
+                      "PERSISTENCE"
+                    ]
+                  },
+                  "observed": {
+                    "type": "boolean"
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "DIRECT",
+                          "INFERRED",
+                          "POSSIBLE"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "risk": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  "confidence": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "count": {
+                    "type": "number"
+                  },
+                  "contexts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "install",
+                        "build",
+                        "runtime"
+                      ]
+                    }
+                  },
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "capability",
+                  "observed",
+                  "mode",
+                  "risk",
+                  "confidence",
+                  "count",
+                  "contexts",
+                  "files"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "detections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "detector": {
+                    "type": "string"
+                  },
+                  "capability": {
+                    "type": "string",
+                    "enum": [
+                      "PROCESS_EXEC",
+                      "BINARY_EXECUTION",
+                      "BACKGROUND_PROCESS",
+                      "NETWORK_CLIENT",
+                      "NETWORK_SERVER",
+                      "REMOTE_DOWNLOAD",
+                      "FILESYSTEM_WRITE",
+                      "FILESYSTEM_DELETE",
+                      "ENVIRONMENT_READ",
+                      "CREDENTIAL_ACCESS",
+                      "BROWSER_DATA_ACCESS",
+                      "DYNAMIC_CODE_LOAD",
+                      "PRIVILEGE_CHANGE",
+                      "PERSISTENCE"
+                    ]
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "DIRECT",
+                      "INFERRED",
+                      "POSSIBLE"
+                    ]
+                  },
+                  "confidence": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "file": {
+                    "type": "string"
+                  },
+                  "line": {
+                    "type": "number"
+                  },
+                  "contexts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "install",
+                        "build",
+                        "runtime"
+                      ]
+                    }
+                  },
+                  "persistence_kind": {
+                    "type": "string",
+                    "enum": [
+                      "systemd_service",
+                      "cron_job",
+                      "launchd_service",
+                      "windows_service",
+                      "registry_run_key",
+                      "scheduled_task",
+                      "startup_folder",
+                      "shell_profile_modification",
+                      "login_item",
+                      "browser_extension_install",
+                      "ssh_authorized_keys_write",
+                      "container_restart_policy",
+                      "daemon_creation",
+                      "detached_process"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "detector",
+                  "capability",
+                  "mode",
+                  "confidence",
+                  "file",
+                  "line",
+                  "contexts"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "detections_total": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "summary",
+            "detections",
+            "detections_total"
+          ],
+          "additionalProperties": false
+        },
+        "persistence": {
+          "type": "object",
+          "properties": {
+            "observed": {
+              "type": "boolean"
+            },
+            "kinds": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "systemd_service",
+                  "cron_job",
+                  "launchd_service",
+                  "windows_service",
+                  "registry_run_key",
+                  "scheduled_task",
+                  "startup_folder",
+                  "shell_profile_modification",
+                  "login_item",
+                  "browser_extension_install",
+                  "ssh_authorized_keys_write",
+                  "container_restart_policy",
+                  "daemon_creation",
+                  "detached_process"
+                ]
+              }
+            },
+            "install_time": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "observed",
+            "kinds",
+            "install_time"
+          ],
+          "additionalProperties": false
+        },
+        "execution": {
+          "type": "object",
+          "properties": {
+            "hooks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "ecosystem": {
+                    "type": "string",
+                    "enum": [
+                      "npm",
+                      "pypi",
+                      "cargo",
+                      "docker",
+                      "make",
+                      "shell"
+                    ]
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "type": "string"
+                  },
+                  "runs_for_dependents": {
+                    "type": "boolean"
+                  },
+                  "context": {
+                    "type": "string",
+                    "enum": [
+                      "install",
+                      "build"
+                    ]
+                  },
+                  "script": {
+                    "type": "string"
+                  },
+                  "risk": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  "confidence": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "analyzed": {
+                    "type": "boolean"
+                  },
+                  "capabilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "PROCESS_EXEC",
+                        "BINARY_EXECUTION",
+                        "BACKGROUND_PROCESS",
+                        "NETWORK_CLIENT",
+                        "NETWORK_SERVER",
+                        "REMOTE_DOWNLOAD",
+                        "FILESYSTEM_WRITE",
+                        "FILESYSTEM_DELETE",
+                        "ENVIRONMENT_READ",
+                        "CREDENTIAL_ACCESS",
+                        "BROWSER_DATA_ACCESS",
+                        "DYNAMIC_CODE_LOAD",
+                        "PRIVILEGE_CHANGE",
+                        "PERSISTENCE"
+                      ]
+                    }
+                  },
+                  "chain_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "unanalyzed_commands": {
+                    "type": "number"
+                  },
+                  "node_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "ecosystem",
+                  "name",
+                  "trigger",
+                  "runs_for_dependents",
+                  "context",
+                  "risk",
+                  "confidence",
+                  "analyzed",
+                  "capabilities",
+                  "chain_ids",
+                  "files",
+                  "unanalyzed_commands",
+                  "node_ids"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "chains": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "pipe-to-shell",
+                      "download-chmod-exec",
+                      "download-eval",
+                      "download-extract-exec"
+                    ]
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "DIRECT",
+                      "INFERRED",
+                      "POSSIBLE"
+                    ]
+                  },
+                  "confidence": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "file": {
+                    "type": "string"
+                  },
+                  "lines": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "contexts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "install",
+                        "build",
+                        "runtime"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "kind",
+                  "mode",
+                  "confidence",
+                  "file",
+                  "lines",
+                  "steps",
+                  "contexts"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "graph": {
+              "type": "object",
+              "properties": {
+                "nodes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "hook",
+                          "script",
+                          "command",
+                          "file",
+                          "implicit"
+                        ]
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "file": {
+                        "type": "string"
+                      },
+                      "analyzed": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "kind",
+                      "label",
+                      "analyzed"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "edges": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "from": {
+                        "type": "string"
+                      },
+                      "to": {
+                        "type": "string"
+                      },
+                      "relation": {
+                        "type": "string",
+                        "enum": [
+                          "RUNS",
+                          "EXECUTES",
+                          "REFERENCES",
+                          "DOWNLOADS"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "from",
+                      "to",
+                      "relation"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "truncated": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "nodes",
+                "edges",
+                "truncated"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "hooks",
+            "chains",
+            "graph"
+          ],
+          "additionalProperties": false
+        },
+        "secrets": {
+          "type": "object",
+          "properties": {
+            "candidates": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "DIRECT",
+                      "POSSIBLE"
+                    ]
+                  },
+                  "confidence": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "file": {
+                    "type": "string"
+                  },
+                  "line": {
+                    "type": "number"
+                  },
+                  "redacted": {
+                    "type": "string"
+                  },
+                  "in_test_or_example": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "mode",
+                  "confidence",
+                  "file",
+                  "line",
+                  "redacted",
+                  "in_test_or_example"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "scored_count": {
+              "type": "number"
+            },
+            "files_scanned": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "candidates",
+            "scored_count",
+            "files_scanned"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "scan",
+        "capabilities",
+        "persistence",
+        "execution",
+        "secrets"
+      ],
+      "additionalProperties": false
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "info",
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "dimension": {
+            "type": "string",
+            "enum": [
+              "security",
+              "supply-chain"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "execution",
+              "capability",
+              "secrets",
+              "persistence"
+            ]
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rule_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "standards": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "summary": {
+            "type": "string"
+          },
+          "remediation": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string",
+            "const": "undetermined"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "severity",
+          "confidence",
+          "dimension",
+          "category",
+          "evidence_ids",
+          "rule_ids",
+          "standards",
+          "summary",
+          "remediation",
+          "intent"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "properties": {
+        "report_sha256": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "report_sha256"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -769,7 +1687,11 @@
     "policy",
     "diagnostics",
     "stats",
-    "evidence"
+    "evidence",
+    "facts",
+    "code_analysis",
+    "findings",
+    "integrity"
   ],
   "additionalProperties": false,
   "title": "repo-radar report"

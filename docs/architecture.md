@@ -32,6 +32,41 @@ repo-radar is a **stateless, read-only** pipeline. Nothing from an analyzed repo
  Interfaces      src/cli.ts (CLI)   action.yml (GitHub Action: bundled single file)
 ```
 
+## Architecture in 0.2: facts and static code analysis
+
+```text
+Collectors (GitHub, Scorecard, OSV)        text files from the git tree (bounded, never executed)
+        |                                          |
+        v                                          v
+Raw evidence --------------+            src/analysis: detectors, chains, execution graph, persistence, secrets
+        |                  |                       |
+        v                  +-----------+-----------+
+Semantic identity                      v
+ (artifact, domain, alternatives)  Normalized facts (src/facts)  <- derived_from ids resolve to evidence / detections
+        |                              |
+        +--------------+---------------+
+                       v
+                 Rules (YAML) -> dimension scores / coverage / confidence -> profile -> policy
+                       |
+                       v
+         Report: evidence, facts, code_analysis, findings, integrity digest
+```
+
+Status against the target architecture (collectors -> raw evidence -> normalized facts -> repository model -> identity /
+capabilities / dependency graph / execution graph -> applicability engine -> rule packs -> findings -> scores -> policies -> reports):
+
+| Target component | State in 0.2 |
+| ---------------- | ------------ |
+| Normalized facts | Implemented (`src/facts`), used by 2 migrated rules and all 7 new rules; the other rules migrate incrementally |
+| Repository model | Not built as a separate model. Pieces exist: `RepoSnapshot`, parsed manifests, `ScannedFile`, the execution graph (nodes and edges). A unified entity/relationship model is future work |
+| Identity layers | Artifact type, domain, alternatives, capabilities and a deterministic purpose sentence (heuristic) |
+| Capabilities | 14 capabilities, line-oriented detectors, contexts (install, build, runtime), persistence kinds, secret candidates |
+| Execution graph | npm lifecycle traced in depth; other ecosystems list build roots; compound download-and-execute chains |
+| Dependency graph | Not built (exact-version OSV lookups only; deps.dev and transitive resolution are planned) |
+| Applicability engine | Minimal: `applies_when` conditions on rules. Artifact-type-driven applicability (library vs service) is planned |
+| Rule packs | One YAML pack per dimension, loaded by directory; versioned by digest. Versioned third-party standard packs (`slsa@x`, `nist-ssdf@x`) are planned |
+| Dynamic analysis / sandbox | Not built, deliberately: see the isolation requirements in [roadmap.md](roadmap.md) |
+
 ## Module map
 
 | Path                          | Responsibility                                                                                          |
@@ -45,7 +80,10 @@ repo-radar is a **stateless, read-only** pipeline. Nothing from an analyzed repo
 | `src/scoring/`                | Rule/profile schemas, rule loader (+digest), engine, grading, policy                                     |
 | `src/profiles/`               | Profile loader and validation against the rule set                                                      |
 | `src/report/`                 | Report schema (zod -> JSON Schema), text renderer                                                       |
-| `src/analyze.ts`              | Orchestration: collectors -> identity -> evidence store -> scoring -> report                            |
+| `src/analysis/`               | Static capability / execution / persistence / secret analysis over fetched text; findings                |
+| `src/facts/`                  | Normalized fact schema and derivation                                                                    |
+| `src/limits.ts`               | Every resource limit in one place                                                                        |
+| `src/analyze.ts`              | Orchestration: collectors -> identity -> code analysis -> facts -> scoring -> report                     |
 | `standards/`                  | Rules and the identity taxonomy as data                                                                 |
 | `schemas/`                    | Generated JSON Schemas (kept in sync by a test)                                                         |
 

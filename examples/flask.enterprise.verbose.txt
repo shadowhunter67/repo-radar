@@ -1,4 +1,4 @@
-repo-radar v0.1.0  (methodology 0.1, profile: enterprise)
+repo-radar v0.2.0  (methodology 0.2, profile: enterprise)
 
 pallets/flask
 
@@ -8,46 +8,61 @@ IDENTITY
   Declared: "A simple framework for building complex web applications."
   Interfaces: cli, library
   Ecosystem: Python, PyPI
+  Artifact: framework (60%), alternatives: cli, library  Domain: web
+  Candidates: web-framework 52%, task-queue 31%, educational 17%
   Note: the name says little about the purpose (informational, not scored)
 
-TRUST PROFILE (observed evidence evaluated against methodology 0.1)
-  Security           58  C-   ######----  conf  90%
-  Maintenance        89  A-   #########-  conf  78%
-  Code Quality      100  A+   ##########  conf  91%
-  Supply Chain       83  B+   ########--  conf  99%
-  Community          93  A    #########-  conf  98%
-  Documentation      85  A-   #########-  conf  94%
-  Semantic Clarity   92  A    #########-  conf  87%
-  Overall            82  B+   ########--  conf  91%  (weighted by profile "enterprise"; not an absolute verdict)
+TRUST PROFILE (observed evidence evaluated against methodology 0.2)
+  Security              67  C+   #######---  conf  88%
+  Maintenance           89  A-   #########-  conf  78%
+  Engineering Hygiene  100  A+   ##########  conf  91%
+  Supply Chain          85  B+   ########--  conf  98%
+  Community             93  A    #########-  conf  98%
+  Documentation         85  A-   #########-  conf  94%
+  Semantic Clarity      92  A    #########-  conf  87%
+  Overall               85  B+   ########--  conf  90%  (weighted by profile "enterprise"; not an absolute verdict)
 
-Overall confidence: 91%
+Overall confidence: 90%
 
 WARNINGS
   - 7 of 100 pinned dependencies have known OSV advisories.
 
 POLICY (profile minimums, advisory)
-  - security: 57.7 < minimum 70
+  - security: 67.1 < minimum 70
 
 DIAGNOSTICS
+  none
 
 RULE DETAIL
-  Security  (coverage 100%, evidence quality 90%)
+  Security  (coverage 100%, evidence quality 88%)
     scored          0.0/10  w=2     security.best-practices-badge
       scorecard.check.cii_best_practices=0 -> 0 (linear)
     scored         10.0/10  w=2     security.binary-artifacts
       scorecard.check.binary_artifacts=10 -> 10 (linear)
     scored         10.0/10  w=2     security.branch-protected
       github.branch.default_protected=true -> 10 (map)
+    informational  10.0/10  w=0     security.browser-data-capability
+      capability.browser_data_access.observed=false -> 10 (map)
     scored          0.0/10  w=6     security.code-review
       scorecard.check.code_review=0 -> 0 (linear)
+    informational  10.0/10  w=0     security.credential-access-capability
+      capability.credential_access.observed=false -> 10 (map)
     scored         10.0/10  w=3     security.dangerous-workflow
       github.workflows.dangerous_checkout=false -> 10 (map)
+    informational  10.0/10  w=0     security.download-execute-chain
+      execution.chain.any=false -> 10 (map)
     scored         10.0/10  w=3     security.expression-injection
       github.workflows.expression_injection_risk=false -> 10 (map)
     informational  10.0/10  w=0     security.fuzzing
       scorecard.check.fuzzing=10 -> 10 (linear)
+    scored         10.0/10  w=6     security.hardcoded-secrets
+      secret.candidates.count=0 -> 10 (thresholds)
+    scored         10.0/10  w=6     security.install-time-download-execute
+      execution.chain.install_time=false -> 10 (map)
     scored          3.0/10  w=8     security.known-vulnerabilities
       osv.vulnerable_ratio=0.07 -> 3 (thresholds)
+    informational  10.0/10  w=0     security.persistence-capability
+      persistence.observed=false -> 10 (map)
     scored          3.0/10  w=1.5   security.sast
       github.workflows.uses_sast=false -> 3 (map)
     scored          3.0/10  w=2     security.scorecard-branch-protection
@@ -65,7 +80,7 @@ RULE DETAIL
     scored         10.0/10  w=2     security.security-policy
       github.file.security_policy=true -> 10 (map)
     scored         10.0/10  w=2     security.token-permissions
-      github.workflows.permissions_declared_ratio=1 -> 10 (linear)
+      ci.permissions.declared_ratio=1 -> 10 (linear)
   Maintenance  (coverage 88%, evidence quality 89%)
     scored          7.0/10  w=5     maintenance.bus-factor
       github.contributors.bus_factor=2 -> 7 (thresholds)
@@ -93,7 +108,7 @@ RULE DETAIL
       no usable evidence (not reported; looked for: github.issues.stale_open_ratio)
     not_observed     - /10  w=0     maintenance.stale-prs
       no usable evidence (not reported; looked for: github.pulls.stale_open_ratio)
-  Code Quality  (coverage 100%, evidence quality 91%)
+  Engineering Hygiene  (coverage 100%, evidence quality 91%)
     scored         10.0/10  w=3     code-quality.ci-present
       github.workflows.count=5 -> 10 (thresholds)
     scored         10.0/10  w=3     code-quality.ci-runs-tests
@@ -112,17 +127,19 @@ RULE DETAIL
       github.tree.has_tests=true -> 10 (map)
     scored         10.0/10  w=2     code-quality.type-checking
       github.file.type_check_config=true -> 10 (map)
-  Supply Chain  (coverage 100%, evidence quality 99%)
+  Supply Chain  (coverage 100%, evidence quality 98%)
     informational  10.0/10  w=0     supply-chain.dependency-count
       manifest.dependency_count=31 -> 10 (thresholds)
     scored          3.0/10  w=3     supply-chain.dependency-updates
       github.file.dependency_updates=false -> 3 (map)
+    scored         10.0/10  w=3     supply-chain.install-hooks
+      execution.install_hooks.max_risk=0 -> 10 (thresholds)
     scored         10.0/10  w=6     supply-chain.license-detected
       github.repo.license_spdx="BSD-3-Clause" -> 10 (map)
     scored         10.0/10  w=4     supply-chain.lockfile
       github.file.lockfile=true -> 10 (map)
     scored         10.0/10  w=2     supply-chain.pinned-actions
-      github.workflows.pinned_actions_ratio=1 -> 10 (linear)
+      ci.actions.pinned_ratio=1 -> 10 (linear)
     scored         10.0/10  w=5     supply-chain.provenance
       github.releases.provenance_assets=true -> 10; github.workflows.uses_provenance=false -> 4 (map, combine=max)
     scored          5.0/10  w=4     supply-chain.sbom
@@ -193,5 +210,26 @@ RULE DETAIL
     scored         10.0/10  w=3     semantic-clarity.topics
       github.repo.topic_count=7 -> 10 (thresholds)
 
-Evidence: 107 signals | Methodology: v0.1 | Rules digest: d00b57deab34
+CAPABILITIES (static scan of 37 files, 100% of source files sampled)
+  NETWORK_SERVER       LOW     INFERRED 60%  [runtime] src/flask/app.py
+  ENVIRONMENT_READ     LOW     DIRECT 90%  [runtime] src/flask/app.py, src/flask/cli.py
+  DYNAMIC_CODE_LOAD    MEDIUM  DIRECT 85%  [runtime] src/flask/cli.py, src/flask/config.py
+  Not observed in the scanned sample: PROCESS_EXEC, BINARY_EXECUTION, BACKGROUND_PROCESS, NETWORK_CLIENT, REMOTE_DOWNLOAD, FILESYSTEM_WRITE, FILESYSTEM_DELETE, CREDENTIAL_ACCESS, BROWSER_DATA_ACCESS, PRIVILEGE_CHANGE, PERSISTENCE
+  (A capability describes what code can do, not why. Intent: undetermined.)
+
+INSTALL-TIME EXECUTION
+  make:Makefile  risk LOW  confidence 80%
+    trigger: make (default target)
+    files: docs/Makefile
+
+PERSISTENCE
+  None observed in the scanned sample.
+
+SECRETS (values are never shown)
+  SEC-0001 committed-env-file DIRECT 30%  tests/test_apps/.env  [file name only]  (test/example)
+
+FINDINGS
+  RR-SEC-001 [low] Low-confidence hard-coded secret: committed-env-file (1 location)  confidence 30%
+
+Evidence: 107 signals | Methodology: v0.2 | Rules digest: ba7c93da8413
 Scores summarize observed indicators; they are not a statement that code is safe, secure or trustworthy.

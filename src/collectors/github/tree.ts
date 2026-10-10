@@ -76,6 +76,16 @@ const LOCK_BASENAMES = new Set([
 const ANY_LOCK =
   /(?:^|\/)(?:package-lock\.json|yarn\.lock|pnpm-lock\.yaml|bun\.lockb?|Cargo\.lock|poetry\.lock|uv\.lock|Pipfile\.lock|go\.sum|Gemfile\.lock|composer\.lock|pdm\.lock)$/;
 
+/** Source file (by extension), outside vendored/build directories, tests and docs/examples. */
+export function isSourcePath(path: string): boolean {
+  return (
+    SOURCE_EXT.test(path) &&
+    !VENDOR_DIR.test(path) &&
+    !TEST_PATH.test(path) &&
+    !/^(?:docs?|examples?)\//i.test(path)
+  );
+}
+
 export function isSafeTreePath(p: string): boolean {
   return (
     p.length > 0 &&

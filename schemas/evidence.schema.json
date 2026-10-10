@@ -33,7 +33,8 @@
         "osv",
         "manifest",
         "heuristic",
-        "identity"
+        "identity",
+        "derived"
       ]
     },
     "kind": {

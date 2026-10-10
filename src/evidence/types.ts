@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const EVIDENCE_SCHEMA_VERSION = '0.1';
+export const EVIDENCE_SCHEMA_VERSION = '0.2';
 
 export const EvidenceSources = [
   'github',
@@ -9,6 +9,7 @@ export const EvidenceSources = [
   'manifest',
   'heuristic',
   'identity',
+  'derived',
 ] as const;
 export type EvidenceSource = (typeof EvidenceSources)[number];
 
@@ -66,4 +67,6 @@ export const SOURCE_RELIABILITY: Record<EvidenceSource, number> = {
   manifest: 0.9,
   heuristic: 0.6,
   identity: 0.7,
+  /** Derived facts carry their own confidence; no extra source discount. */
+  derived: 1.0,
 };

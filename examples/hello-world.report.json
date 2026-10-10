@@ -1,21 +1,25 @@
 {
   "tool": {
     "name": "repo-radar",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "methodology": {
-    "version": "0.1",
-    "rules_digest": "d00b57deab34434405d360f00377a7484e908922af355a6426a851347674bf83",
-    "rule_count": 77,
-    "classifier": "heuristic-v0.1"
+    "version": "0.2",
+    "rules_digest": "ba7c93da8413dae294ac939aa41fcbd817c89a145969ff6568708a33a6412533",
+    "rule_count": 84,
+    "classifier": "heuristic-v0.1",
+    "taxonomy_version": "0.2",
+    "detector_pack_version": "0.1",
+    "facts_version": "0.1",
+    "config_digest": "4722e1b480dde52b0a640cbafbb6f610299d89276108be955c86af517270fec6"
   },
   "profile": {
     "id": "default",
     "version": "0.1",
     "title": "Default"
   },
-  "generated_at": "2026-10-10T13:39:42.388Z",
+  "generated_at": "2026-10-10T14:56:25.768Z",
   "subject": {
     "owner": "octocat",
     "repo": "Hello-World",
@@ -38,12 +42,20 @@
     "confidence": 0,
     "name_purpose_divergence": null,
     "classifier": "heuristic-v0.1",
-    "evidence": ["no taxonomy type matched strongly enough"]
+    "evidence": ["no taxonomy type matched strongly enough"],
+    "artifact_type": "unknown",
+    "artifact_confidence": 0.2,
+    "artifact_alternatives": [],
+    "domain": "unknown",
+    "alternatives": [],
+    "purpose_summary": "Purpose not determined from available metadata. Declared: \"My first repository on GitHub!\"",
+    "capabilities": [],
+    "taxonomy_version": "0.2"
   },
   "overall": {
-    "score": 36.3,
+    "score": 38.4,
     "grade": "F",
-    "confidence": 0.757,
+    "confidence": 0.748,
     "sufficiency": "sufficient",
     "weight_covered": 1,
     "dimension_weights": {
@@ -61,14 +73,14 @@
       "dimension": "security",
       "label": "Security",
       "score": 18.9,
-      "score_range": [9, 61.5],
+      "score_range": [6.9, 70.4],
       "grade": "F",
-      "confidence": 0.433,
-      "coverage": 0.475,
+      "confidence": 0.333,
+      "coverage": 0.365,
       "evidence_quality": 0.911,
       "sufficiency": "low",
       "scored_rules": 8,
-      "applicable_rules": 16,
+      "applicable_rules": 18,
       "rules": [
         {
           "rule_id": "security.best-practices-badge",
@@ -146,6 +158,23 @@
           "explanation": "github.branch.default_protected=false -> 2 (map)"
         },
         {
+          "rule_id": "security.browser-data-capability",
+          "title": "Code touches browser profile data (informational)",
+          "status": "informational",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "insufficient_coverage",
+          "explanation": "no usable evidence (insufficient coverage; looked for: capability.browser_data_access.observed)"
+        },
+        {
           "rule_id": "security.code-review",
           "title": "Changes are code-reviewed (Scorecard)",
           "status": "scored",
@@ -171,6 +200,23 @@
           "explanation": "scorecard.check.code_review=3 -> 3 (linear)"
         },
         {
+          "rule_id": "security.credential-access-capability",
+          "title": "Code touches credential stores (informational)",
+          "status": "informational",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "insufficient_coverage",
+          "explanation": "no usable evidence (insufficient coverage; looked for: capability.credential_access.observed)"
+        },
+        {
           "rule_id": "security.dangerous-workflow",
           "title": "No dangerous pull_request_target checkout pattern",
           "status": "not_observed",
@@ -186,6 +232,23 @@
           "confidence": null,
           "missing_reason": "not_reported",
           "explanation": "no usable evidence (not reported; looked for: github.workflows.dangerous_checkout)"
+        },
+        {
+          "rule_id": "security.download-execute-chain",
+          "title": "Download-and-execute chain elsewhere in scanned files (informational)",
+          "status": "informational",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "insufficient_coverage",
+          "explanation": "no usable evidence (insufficient coverage; looked for: execution.chain.any)"
         },
         {
           "rule_id": "security.expression-injection",
@@ -230,6 +293,40 @@
           "explanation": "scorecard.check.fuzzing=0 -> 0 (linear)"
         },
         {
+          "rule_id": "security.hardcoded-secrets",
+          "title": "No hard-coded secrets in scanned files",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 6,
+          "profile_weight": 6,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "insufficient_coverage",
+          "explanation": "no usable evidence (insufficient coverage; looked for: secret.candidates.count)"
+        },
+        {
+          "rule_id": "security.install-time-download-execute",
+          "title": "No download-and-execute chain reachable from an install-time hook",
+          "status": "not_observed",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 6,
+          "profile_weight": 6,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "insufficient_coverage",
+          "explanation": "no usable evidence (insufficient coverage; looked for: execution.chain.install_time)"
+        },
+        {
           "rule_id": "security.known-vulnerabilities",
           "title": "Pinned dependencies with known vulnerabilities (OSV)",
           "status": "not_observed",
@@ -245,6 +342,23 @@
           "confidence": null,
           "missing_reason": "not_reported",
           "explanation": "no usable evidence (not reported; looked for: osv.vulnerable_ratio)"
+        },
+        {
+          "rule_id": "security.persistence-capability",
+          "title": "Persistence mechanism present (informational)",
+          "status": "informational",
+          "score": null,
+          "max_score": 10,
+          "declared_weight": 0,
+          "profile_weight": 0,
+          "effective_weight": 0,
+          "contribution": null,
+          "group": null,
+          "inputs": [],
+          "evidence_ids": [],
+          "confidence": null,
+          "missing_reason": "insufficient_coverage",
+          "explanation": "no usable evidence (insufficient coverage; looked for: persistence.observed)"
         },
         {
           "rule_id": "security.sast",
@@ -429,7 +543,7 @@
           "evidence_ids": [],
           "confidence": null,
           "missing_reason": "not_reported",
-          "explanation": "no usable evidence (not reported; looked for: github.workflows.permissions_declared_ratio)"
+          "explanation": "no usable evidence (not reported; looked for: ci.permissions.declared_ratio)"
         }
       ]
     },
@@ -635,7 +749,7 @@
           "inputs": [
             {
               "evidence_id": "github.commits.last_commit_age_days",
-              "value": 5330.6,
+              "value": 5330.7,
               "confidence": 1,
               "source": "github",
               "kind": "fact"
@@ -644,7 +758,7 @@
           "evidence_ids": ["github.commits.last_commit_age_days"],
           "confidence": 1,
           "missing_reason": null,
-          "explanation": "github.commits.last_commit_age_days=5330.6 -> 0 (thresholds)"
+          "explanation": "github.commits.last_commit_age_days=5330.7 -> 0 (thresholds)"
         },
         {
           "rule_id": "maintenance.release-cadence",
@@ -759,7 +873,7 @@
     },
     {
       "dimension": "code-quality",
-      "label": "Code Quality",
+      "label": "Engineering Hygiene",
       "score": 15,
       "score_range": [12.4, 30],
       "grade": "F",
@@ -968,15 +1082,15 @@
     {
       "dimension": "supply-chain",
       "label": "Supply Chain",
-      "score": 20.8,
-      "score_range": [11.7, 55.2],
+      "score": 35.6,
+      "score_range": [21.9, 60.4],
       "grade": "F",
-      "confidence": 0.565,
-      "coverage": 0.565,
-      "evidence_quality": 1,
+      "confidence": 0.604,
+      "coverage": 0.615,
+      "evidence_quality": 0.981,
       "sufficiency": "sufficient",
-      "scored_rules": 4,
-      "applicable_rules": 10,
+      "scored_rules": 5,
+      "applicable_rules": 11,
       "rules": [
         {
           "rule_id": "supply-chain.dependency-count",
@@ -1004,7 +1118,7 @@
           "declared_weight": 3,
           "profile_weight": 3,
           "effective_weight": 3,
-          "contribution": 6.92,
+          "contribution": 5.63,
           "group": "dep-updates",
           "inputs": [
             {
@@ -1019,6 +1133,31 @@
           "confidence": 1,
           "missing_reason": null,
           "explanation": "github.file.dependency_updates=false -> 3 (map)"
+        },
+        {
+          "rule_id": "supply-chain.install-hooks",
+          "title": "Install-time hooks that run for dependents",
+          "status": "scored",
+          "score": 10,
+          "max_score": 10,
+          "declared_weight": 3,
+          "profile_weight": 3,
+          "effective_weight": 3,
+          "contribution": 18.75,
+          "group": null,
+          "inputs": [
+            {
+              "evidence_id": "execution.install_hooks.max_risk",
+              "value": 0,
+              "confidence": 0.9,
+              "source": "derived",
+              "kind": "fact"
+            }
+          ],
+          "evidence_ids": ["execution.install_hooks.max_risk"],
+          "confidence": 0.9,
+          "missing_reason": null,
+          "explanation": "execution.install_hooks.max_risk=0 -> 10 (thresholds)"
         },
         {
           "rule_id": "supply-chain.license-detected",
@@ -1054,7 +1193,7 @@
           "declared_weight": 4,
           "profile_weight": 4,
           "effective_weight": 4,
-          "contribution": 6.15,
+          "contribution": 5,
           "group": null,
           "inputs": [
             {
@@ -1085,7 +1224,7 @@
           "evidence_ids": [],
           "confidence": null,
           "missing_reason": "not_reported",
-          "explanation": "no usable evidence (not reported; looked for: github.workflows.pinned_actions_ratio)"
+          "explanation": "no usable evidence (not reported; looked for: ci.actions.pinned_ratio)"
         },
         {
           "rule_id": "supply-chain.provenance",
@@ -1113,7 +1252,7 @@
           "declared_weight": 2,
           "profile_weight": 2,
           "effective_weight": 2,
-          "contribution": 7.69,
+          "contribution": 6.25,
           "group": null,
           "inputs": [
             {
@@ -1966,6 +2105,12 @@
       "level": "info",
       "code": "osv_no_exact_versions",
       "message": "no exact dependency versions found (lockfile/pins); vulnerability check skipped"
+    },
+    {
+      "source": "analysis",
+      "level": "info",
+      "code": "scan_absence_withheld",
+      "message": "scan coverage (0% of source files, 0 code file(s)) is below the minimum for \"nothing found\" results: capability, persistence, chain and secret absence facts were withheld and their rules are unobserved"
     }
   ],
   "stats": {
@@ -1979,7 +2124,7 @@
       "value": 0,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/readme",
@@ -1992,7 +2137,7 @@
       "value": false,
       "source": "github",
       "kind": "heuristic",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 0.7,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/readme",
@@ -2005,7 +2150,7 @@
       "value": false,
       "source": "github",
       "kind": "heuristic",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 0.7,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/readme",
@@ -2018,7 +2163,7 @@
       "value": false,
       "source": "github",
       "kind": "heuristic",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 0.8,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/readme",
@@ -2031,7 +2176,7 @@
       "value": false,
       "source": "github",
       "kind": "heuristic",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 0.8,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/readme",
@@ -2044,7 +2189,7 @@
       "value": 13,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/readme",
@@ -2057,7 +2202,7 @@
       "value": true,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/readme",
@@ -2070,7 +2215,7 @@
       "value": false,
       "source": "github",
       "kind": "heuristic",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 0.6,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/readme",
@@ -2083,7 +2228,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.815Z",
+      "observed_at": "2026-10-10T14:56:25.596Z",
       "confidence": 0.9,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/branches/master",
@@ -2096,7 +2241,7 @@
       "value": 3,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.815Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/commits",
@@ -2108,10 +2253,10 @@
     },
     {
       "id": "github.commits.last_commit_age_days",
-      "value": 5330.6,
+      "value": 5330.7,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.815Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/commits",
@@ -2124,7 +2269,7 @@
       "value": 0,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.815Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/commits",
@@ -2139,7 +2284,7 @@
       "value": 3,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.815Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/commits?per_page=1",
@@ -2152,7 +2297,7 @@
       "value": 2,
       "source": "github",
       "kind": "heuristic",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 0.8,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/contributors",
@@ -2167,7 +2312,7 @@
       "value": 3,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/contributors",
@@ -2182,7 +2327,7 @@
       "value": 0.333,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/contributors",
@@ -2197,7 +2342,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2210,7 +2355,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2223,7 +2368,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2236,7 +2381,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2249,7 +2394,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2262,7 +2407,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2275,7 +2420,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2288,7 +2433,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2301,7 +2446,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2314,7 +2459,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2327,7 +2472,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2340,7 +2485,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2353,7 +2498,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2366,7 +2511,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 0.9,
       "provenance": {
         "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
@@ -2378,7 +2523,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2391,7 +2536,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2404,7 +2549,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2417,7 +2562,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2430,7 +2575,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2443,7 +2588,7 @@
       "value": false,
       "source": "github",
       "kind": "heuristic",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 0.8,
       "provenance": {
         "ref": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
@@ -2457,7 +2602,7 @@
       "value": 0,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.815Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 0.7200000000000001,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/issues",
@@ -2473,7 +2618,7 @@
       "value": 51,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.815Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/issues",
@@ -2486,7 +2631,7 @@
       "value": 0,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.815Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 0.9,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/issues",
@@ -2502,7 +2647,7 @@
       "value": 28.8,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.815Z",
+      "observed_at": "2026-10-10T14:56:25.596Z",
       "confidence": 0.9,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/pulls",
@@ -2518,7 +2663,7 @@
       "value": 100,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.815Z",
+      "observed_at": "2026-10-10T14:56:25.596Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/pulls",
@@ -2531,7 +2676,7 @@
       "value": 0,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.815Z",
+      "observed_at": "2026-10-10T14:56:25.596Z",
       "confidence": 0.9,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/pulls",
@@ -2547,7 +2692,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.815Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/releases",
@@ -2563,7 +2708,7 @@
       "value": 5735.8,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2576,7 +2721,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2589,7 +2734,7 @@
       "value": 780.6,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2602,7 +2747,7 @@
       "value": "master",
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2615,7 +2760,7 @@
       "value": 30,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2628,7 +2773,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2641,7 +2786,7 @@
       "value": 7049,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2656,7 +2801,7 @@
       "value": true,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2669,7 +2814,7 @@
       "value": true,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2682,7 +2827,7 @@
       "value": "none",
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2695,7 +2840,7 @@
       "value": 1,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2708,7 +2853,7 @@
       "value": 3804,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2723,7 +2868,7 @@
       "value": 0,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:40.787Z",
+      "observed_at": "2026-10-10T14:56:25.217Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World",
@@ -2736,7 +2881,7 @@
       "value": 1,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2751,7 +2896,7 @@
       "value": false,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2764,7 +2909,7 @@
       "value": 0,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2777,7 +2922,7 @@
       "value": 0,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2790,7 +2935,7 @@
       "value": 0,
       "source": "github",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:41.813Z",
+      "observed_at": "2026-10-10T14:56:25.594Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.github.com/repos/octocat/Hello-World/git/trees/master",
@@ -2803,7 +2948,7 @@
       "value": false,
       "source": "heuristic",
       "kind": "heuristic",
-      "observed_at": "2026-10-10T13:39:41.814Z",
+      "observed_at": "2026-10-10T14:56:25.595Z",
       "confidence": 0.5,
       "provenance": {},
       "metadata": {
@@ -2816,7 +2961,7 @@
       "value": "unclassified",
       "source": "identity",
       "kind": "heuristic",
-      "observed_at": "2026-10-10T13:39:42.385Z",
+      "observed_at": "2026-10-10T14:56:25.764Z",
       "confidence": 1,
       "provenance": {},
       "metadata": {
@@ -2828,7 +2973,7 @@
       "value": 0,
       "source": "identity",
       "kind": "heuristic",
-      "observed_at": "2026-10-10T13:39:42.385Z",
+      "observed_at": "2026-10-10T14:56:25.764Z",
       "confidence": 1,
       "provenance": {},
       "metadata": {
@@ -2840,7 +2985,7 @@
       "value": [],
       "source": "identity",
       "kind": "heuristic",
-      "observed_at": "2026-10-10T13:39:42.385Z",
+      "observed_at": "2026-10-10T14:56:25.764Z",
       "confidence": 1,
       "provenance": {},
       "metadata": {
@@ -2852,7 +2997,7 @@
       "value": false,
       "source": "identity",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:42.385Z",
+      "observed_at": "2026-10-10T14:56:25.764Z",
       "confidence": 1,
       "provenance": {},
       "metadata": {}
@@ -2862,7 +3007,7 @@
       "value": 10,
       "source": "scorecard",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:38.700Z",
+      "observed_at": "2026-10-10T14:56:23.358Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
@@ -2878,7 +3023,7 @@
       "value": 0,
       "source": "scorecard",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:38.700Z",
+      "observed_at": "2026-10-10T14:56:23.359Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
@@ -2894,7 +3039,7 @@
       "value": 0,
       "source": "scorecard",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:38.700Z",
+      "observed_at": "2026-10-10T14:56:23.359Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
@@ -2910,7 +3055,7 @@
       "value": 3,
       "source": "scorecard",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:38.700Z",
+      "observed_at": "2026-10-10T14:56:23.358Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
@@ -2926,7 +3071,7 @@
       "value": 0,
       "source": "scorecard",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:38.700Z",
+      "observed_at": "2026-10-10T14:56:23.359Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
@@ -2942,7 +3087,7 @@
       "value": 0,
       "source": "scorecard",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:38.700Z",
+      "observed_at": "2026-10-10T14:56:23.359Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
@@ -2958,7 +3103,7 @@
       "value": 0,
       "source": "scorecard",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:38.700Z",
+      "observed_at": "2026-10-10T14:56:23.358Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
@@ -2974,7 +3119,7 @@
       "value": 0,
       "source": "scorecard",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:38.700Z",
+      "observed_at": "2026-10-10T14:56:23.359Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
@@ -2990,7 +3135,7 @@
       "value": 0,
       "source": "scorecard",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:38.700Z",
+      "observed_at": "2026-10-10T14:56:23.359Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
@@ -3006,7 +3151,7 @@
       "value": 1.9,
       "source": "scorecard",
       "kind": "fact",
-      "observed_at": "2026-10-10T13:39:38.699Z",
+      "observed_at": "2026-10-10T14:56:23.358Z",
       "confidence": 1,
       "provenance": {
         "url": "https://api.securityscorecards.dev/projects/github.com/octocat/Hello-World",
@@ -3017,5 +3162,236 @@
         "scorecard_version": "v5.5.1-0.20260928043300-ac4b58443938"
       }
     }
-  ]
+  ],
+  "facts": [
+    {
+      "id": "artifact.type",
+      "value": "unknown",
+      "confidence": 0.2,
+      "scope": "artifact",
+      "derived_from": ["identity.canonical_type"],
+      "derived_by": "artifact-classifier@0.1"
+    },
+    {
+      "id": "scan.source_coverage",
+      "value": 0,
+      "confidence": 1,
+      "scope": "scan",
+      "derived_from": [],
+      "derived_by": "scan@0.1"
+    },
+    {
+      "id": "scan.files_scanned",
+      "value": 0,
+      "confidence": 1,
+      "scope": "scan",
+      "derived_from": [],
+      "derived_by": "scan@0.1"
+    },
+    {
+      "id": "scan.absence_reliable",
+      "value": false,
+      "confidence": 1,
+      "scope": "scan",
+      "derived_from": [],
+      "derived_by": "scan@0.1"
+    },
+    {
+      "id": "execution.install_hooks.count",
+      "value": 0,
+      "confidence": 0.9,
+      "scope": "execution",
+      "derived_from": [],
+      "derived_by": "execution-graph@0.1"
+    },
+    {
+      "id": "execution.install_hooks.max_risk",
+      "value": 0,
+      "confidence": 0.9,
+      "scope": "execution",
+      "derived_from": [],
+      "derived_by": "execution-graph@0.1"
+    }
+  ],
+  "code_analysis": {
+    "scan": {
+      "performed": true,
+      "files_scanned": 0,
+      "source_files_scanned": 0,
+      "source_files_total": 0,
+      "source_coverage": 0,
+      "skipped_too_large": 0,
+      "skipped_over_budget": 0,
+      "limits_hit": []
+    },
+    "capabilities": {
+      "summary": [
+        {
+          "capability": "PROCESS_EXEC",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "BINARY_EXECUTION",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "BACKGROUND_PROCESS",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "NETWORK_CLIENT",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "NETWORK_SERVER",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "REMOTE_DOWNLOAD",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "FILESYSTEM_WRITE",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "FILESYSTEM_DELETE",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "ENVIRONMENT_READ",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "CREDENTIAL_ACCESS",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "BROWSER_DATA_ACCESS",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "DYNAMIC_CODE_LOAD",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "PRIVILEGE_CHANGE",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        },
+        {
+          "capability": "PERSISTENCE",
+          "observed": false,
+          "mode": null,
+          "risk": "none",
+          "confidence": 0,
+          "count": 0,
+          "contexts": [],
+          "files": []
+        }
+      ],
+      "detections": [],
+      "detections_total": 0
+    },
+    "persistence": {
+      "observed": false,
+      "kinds": [],
+      "install_time": false
+    },
+    "execution": {
+      "hooks": [],
+      "chains": [],
+      "graph": {
+        "nodes": [],
+        "edges": [],
+        "truncated": false
+      }
+    },
+    "secrets": {
+      "candidates": [],
+      "scored_count": 0,
+      "files_scanned": 0
+    }
+  },
+  "findings": [],
+  "integrity": {
+    "report_sha256": "488c448ef6407ee95f7b20f0e4ed5453f66eff06b6b455ed2740324e666a6148"
+  }
 }

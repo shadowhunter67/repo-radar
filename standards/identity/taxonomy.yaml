@@ -4,11 +4,13 @@
 # deps     : dependency names (exact, or prefix when ending in "*") that suggest the type
 # topics   : GitHub topics that suggest the type
 # Contributions welcome via pull request; keep entries specific to avoid false matches.
-version: '0.1'
+version: '0.2'
 types:
   - id: task-queue
     label: distributed task queue
     function: background job execution
+    domain: automation
+    artifact: library
     keywords:
       [
         task queue,
@@ -26,6 +28,8 @@ types:
   - id: message-broker
     label: message broker / streaming platform
     function: message queuing and event streaming
+    domain: networking
+    artifact: service
     keywords:
       [
         message broker,
@@ -43,6 +47,8 @@ types:
   - id: web-framework
     label: web framework
     function: building HTTP servers and web applications
+    domain: web
+    artifact: framework
     keywords:
       [
         web framework,
@@ -78,6 +84,8 @@ types:
   - id: frontend-framework
     label: frontend UI framework or app
     function: building user interfaces in the browser
+    domain: web
+    artifact: framework
     keywords:
       [
         ui framework,
@@ -96,6 +104,7 @@ types:
   - id: database
     label: database engine or client
     function: storing and querying data
+    domain: database
     keywords:
       [
         database,
@@ -131,6 +140,7 @@ types:
   - id: vector-database
     label: vector database / similarity search
     function: embedding storage and nearest-neighbour search
+    domain: database
     keywords:
       [
         vector database,
@@ -148,6 +158,7 @@ types:
   - id: llm-framework
     label: LLM / AI agent framework or app
     function: building applications on large language models
+    domain: ai
     keywords:
       [
         llm,
@@ -181,6 +192,8 @@ types:
   - id: ml-library
     label: machine learning library
     function: training and running machine learning models
+    domain: ml
+    artifact: library
     keywords:
       [
         machine learning,
@@ -210,6 +223,7 @@ types:
   - id: data-processing
     label: data processing / ETL tool
     function: transforming, validating and moving data
+    domain: data
     keywords:
       [
         data pipeline,
@@ -228,6 +242,8 @@ types:
   - id: cli-utility
     label: command-line utility
     function: command-line tooling for a specific task
+    domain: developer-tooling
+    artifact: cli
     keywords:
       [
         command-line,
@@ -249,6 +265,8 @@ types:
   - id: developer-tool
     label: developer tooling (linter / formatter / build / codegen)
     function: improving code quality, builds or code generation
+    domain: developer-tooling
+    artifact: tooling
     keywords:
       [
         linter,
@@ -284,6 +302,8 @@ types:
   - id: testing-framework
     label: testing framework / library
     function: writing and running automated tests
+    domain: developer-tooling
+    artifact: framework
     keywords:
       [
         testing framework,
@@ -303,6 +323,8 @@ types:
   - id: infrastructure
     label: infrastructure / DevOps tooling
     function: provisioning, deploying and operating infrastructure
+    domain: cloud
+    artifact: infrastructure
     keywords:
       [
         infrastructure as code,
@@ -336,6 +358,7 @@ types:
   - id: observability
     label: monitoring / observability tool
     function: collecting metrics, logs and traces
+    domain: observability
     keywords:
       [
         monitoring,
@@ -377,6 +400,7 @@ types:
   - id: security-tool
     label: security / cryptography tool
     function: securing software, secrets or communications
+    domain: security
     keywords:
       [
         security scanner,
@@ -410,6 +434,7 @@ types:
   - id: backup-tool
     label: backup / sync tool
     function: backing up and restoring or syncing data
+    domain: filesystem
     keywords:
       [
         backup,
@@ -428,6 +453,8 @@ types:
   - id: api-client
     label: API client / SDK
     function: calling a remote service from code
+    domain: networking
+    artifact: sdk
     keywords:
       [
         api client,
@@ -448,6 +475,7 @@ types:
   - id: scraper
     label: web scraper / crawler
     function: extracting data from websites
+    domain: web
     keywords:
       [
         web scraper,
@@ -465,6 +493,8 @@ types:
   - id: bot
     label: chat bot / automation bot
     function: automating interactions on a messaging platform
+    domain: automation
+    artifact: application
     keywords:
       [
         discord bot,
@@ -494,6 +524,7 @@ types:
   - id: parser-compiler
     label: parser / compiler / language tooling
     function: parsing, compiling or interpreting languages
+    domain: developer-tooling
     keywords:
       [
         parser,
@@ -526,6 +557,8 @@ types:
   - id: static-site
     label: static site generator / CMS
     function: generating or managing website content
+    domain: web
+    artifact: tooling
     keywords:
       [
         static site generator,
@@ -545,6 +578,8 @@ types:
   - id: ecommerce
     label: e-commerce / business application
     function: running online shops and business workflows
+    domain: finance
+    artifact: application
     keywords:
       [
         e-commerce,
@@ -566,6 +601,8 @@ types:
   - id: game
     label: game / game engine
     function: interactive games and game development
+    domain: game
+    artifact: application
     keywords:
       [
         game engine,
@@ -612,6 +649,8 @@ types:
   - id: mobile-app
     label: mobile / desktop application
     function: end-user application for mobile or desktop
+    domain: general
+    artifact: application
     keywords:
       [
         android app,
@@ -645,6 +684,7 @@ types:
   - id: media-processing
     label: image / audio / video processing
     function: transforming or generating media files
+    domain: media
     keywords:
       [
         image processing,
@@ -690,6 +730,7 @@ types:
   - id: blockchain
     label: blockchain / smart contract project
     function: decentralized ledger and smart contracts
+    domain: finance
     keywords:
       [
         blockchain,
@@ -724,6 +765,8 @@ types:
   - id: scientific-computing
     label: scientific computing / research code
     function: numerical computing and research experiments
+    domain: science
+    artifact: library
     keywords:
       [
         scientific computing,
@@ -757,6 +800,8 @@ types:
   - id: editor-extension
     label: editor / browser extension
     function: extending an editor or browser
+    domain: developer-tooling
+    artifact: extension
     keywords:
       [
         vscode extension,
@@ -791,6 +836,7 @@ types:
   - id: os-embedded
     label: operating system / embedded / firmware
     function: low-level system software
+    domain: general
     keywords:
       [
         operating system,
@@ -827,6 +873,8 @@ types:
   - id: educational
     label: curated list / learning resource
     function: collecting or teaching knowledge (not software)
+    domain: general
+    artifact: documentation
     keywords:
       [
         awesome list,
@@ -865,6 +913,8 @@ types:
   - id: config-dotfiles
     label: configuration / dotfiles / templates
     function: reusable configuration and project templates
+    domain: general
+    artifact: template
     keywords:
       [
         dotfiles,
@@ -899,6 +949,8 @@ types:
   - id: github-action
     label: GitHub Action / CI integration
     function: automating tasks in CI pipelines
+    domain: automation
+    artifact: plugin
     keywords:
       [
         github action,

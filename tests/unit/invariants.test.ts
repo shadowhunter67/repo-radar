@@ -20,12 +20,19 @@ const srcFiles = walk(join(root, 'src')).filter((f) => f.endsWith('.ts'));
 
 describe('security invariants of the source tree', () => {
   it('contains no process spawning, dynamic code evaluation or shell access', () => {
-    for (const f of srcFiles) {
+    // detectors.ts is declarative data: it contains these words as DETECTION PATTERNS for other
+    // people's code. It is checked separately below to prove it has no executable imports.
+    for (const f of srcFiles.filter((x) => !x.endsWith('detectors.ts'))) {
       const text = readFileSync(f, 'utf8');
       expect(text, f).not.toMatch(
         /child_process|\bexecSync\b|\bspawn(Sync)?\(|\beval\(|new Function\(|node:vm|\bworker_threads\b/,
       );
     }
+  });
+  it('the detector pack is pure data: it imports nothing but types', () => {
+    const f = srcFiles.find((x) => x.endsWith('detectors.ts')) as string;
+    const imports = [...readFileSync(f, 'utf8').matchAll(/^import .*$/gm)].map((m) => m[0]);
+    expect(imports.every((i) => i.startsWith('import type'))).toBe(true);
   });
   it('only the CLI reads environment variables, and only for its own settings', () => {
     for (const f of srcFiles) {
@@ -96,6 +103,6 @@ describe('documentation stays in sync with the code', () => {
     const readme = readFileSync(join(root, 'README.md'), 'utf8');
     for (const p of ['default', 'startup', 'enterprise']) expect(readme).toContain(p);
     const methodology = readFileSync(join(root, 'docs', 'methodology.md'), 'utf8');
-    expect(methodology).toMatch(/version 0\.1/);
+    expect(methodology).toMatch(/version 0\.2/);
   });
 });

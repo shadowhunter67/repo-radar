@@ -13,6 +13,9 @@ import type { GithubCollection } from '../types.js';
 import { analyzeReadme } from './readme.js';
 import { analyzeTree, isStaticallyTyped, type TreeEntry } from './tree.js';
 import { analyzeWorkflow, type WorkflowFacts } from './workflows.js';
+import { nextRefCandidates, selectScanCandidates } from './scanfiles.js';
+import type { FileRole, ScannedFile } from '../../analysis/types.js';
+import { LIMITS } from '../../limits.js';
 
 export const GITHUB_HOSTS = ['api.github.com', 'raw.githubusercontent.com'];
 const API = 'https://api.github.com';
@@ -54,6 +57,7 @@ export async function collectGithub(
   ref: RepoRef,
   http: HttpClient,
   clock: Clock,
+  options: { scan?: boolean } = {},
 ): Promise<GithubCollection & CollectorResult> {
   const b = new EvidenceBuilder('github', clock);
   const now = clock.now();
@@ -625,6 +629,66 @@ export async function collectGithub(
     });
   }
 
+  // ---- static scan files (fetched as text, never executed) ----------------------------------
+  const files: ScannedFile[] = [];
+  const fetchStats = { skippedTooLarge: 0, skippedOverBudget: 0 };
+  const doScan = options.scan !== false;
+  if (doScan) {
+    wfPaths.forEach((p, i) => {
+      const t = wfTexts[i];
+      if (t) files.push({ path: p, content: t, size: t.length, role: 'workflow' });
+    });
+    manifestPaths.forEach((p, i) => {
+      const t = manifestTexts[i];
+      if (t) files.push({ path: p, content: t, size: t.length, role: 'manifest' });
+    });
+    let totalBytes = files.reduce((a, f) => a + f.size, 0);
+    let failed = 0;
+    const known = new Set(files.map((f) => f.path));
+    const quietFetch = async (path: string, role: FileRole): Promise<void> => {
+      if (known.has(path)) return;
+      known.add(path);
+      if (
+        files.length >= LIMITS.maxScanFiles + wfPaths.length + manifestPaths.length ||
+        totalBytes >= LIMITS.maxScanTotalBytes
+      ) {
+        fetchStats.skippedOverBudget++;
+        return;
+      }
+      try {
+        const u = `${RAW}/${encodeURIComponent(ref.owner)}/${encodeURIComponent(ref.repo)}/${encodeURIComponent(refStr)}/${path.split('/').map(encodeURIComponent).join('/')}`;
+        const r = await http.request(u, { maxBytes: LIMITS.maxScanFileBytes });
+        if (r.status === 200) {
+          totalBytes += r.body.length;
+          files.push({ path, content: r.body, size: r.body.length, role });
+        } else {
+          failed++;
+        }
+      } catch (e) {
+        if (e instanceof TooLargeError) fetchStats.skippedTooLarge++;
+        else failed++;
+      }
+    };
+    const selection = selectScanCandidates(entries, manifests);
+    fetchStats.skippedTooLarge += selection.skippedTooLarge;
+    const budget = LIMITS.maxScanFiles;
+    const first = selection.candidates.slice(0, budget);
+    fetchStats.skippedOverBudget += Math.max(0, selection.candidates.length - budget);
+    await pool(first, 5, (c) => quietFetch(c.path, c.role));
+    for (let round = 0; round < LIMITS.maxRefRounds; round++) {
+      const next = nextRefCandidates(
+        files.filter((f) => f.role !== 'workflow' && f.role !== 'manifest'),
+        entries,
+        known,
+      );
+      fetchStats.skippedTooLarge += next.skippedTooLarge;
+      if (next.paths.length === 0) break;
+      await pool(next.paths, 5, (p) => quietFetch(p, 'ref'));
+    }
+    if (failed > 0)
+      b.diag('warn', 'scan_fetch_failed', `${failed} scan file(s) could not be fetched`);
+  }
+
   const snapshot = {
     owner: ref.owner,
     repo: ref.repo,
@@ -650,6 +714,14 @@ export async function collectGithub(
     snapshot,
     locked,
     directDependencyCount: directDeps,
+    files,
+    allTreePaths: entries
+      .filter((e) => e.type === 'blob')
+      .map((e) => e.path)
+      .slice(0, 100_000),
+    sourceFileCount: tree.sourceFileCount,
+    fetchStats,
+    scanned: doScan,
   };
 }
 

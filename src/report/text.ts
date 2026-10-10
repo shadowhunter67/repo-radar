@@ -37,6 +37,13 @@ export function renderText(r: Report, o: TextOptions = {}): string {
   if (id.interfaces.length > 0)
     out.push(`  Interfaces: ${id.interfaces.map((x) => s(x)).join(', ')}`);
   if (id.ecosystem.length > 0) out.push(`  Ecosystem: ${id.ecosystem.map((x) => s(x)).join(', ')}`);
+  out.push(
+    `  Artifact: ${s(id.artifact_type)} (${pct(id.artifact_confidence)})${id.artifact_alternatives.length > 0 ? `, alternatives: ${id.artifact_alternatives.map((x) => s(x)).join(', ')}` : ''}  Domain: ${s(id.domain)}`,
+  );
+  if (id.alternatives.length > 1)
+    out.push(
+      `  Candidates: ${id.alternatives.map((a) => `${s(a.canonical_type)} ${pct(a.share)}`).join(', ')}`,
+    );
   if (id.name_purpose_divergence !== null && id.name_purpose_divergence >= 0.8) {
     out.push(`  Note: the name says little about the purpose (informational, not scored)`);
   }
@@ -118,6 +125,8 @@ export function renderText(r: Report, o: TextOptions = {}): string {
     }
   }
 
+  out.push(...renderCodeAnalysis(r, s, !!o.verbose));
+
   out.push('');
   out.push(
     `Evidence: ${r.stats.evidence_count} signals | Methodology: v${r.methodology.version} | Rules digest: ${r.methodology.rules_digest.slice(0, 12)}`,
@@ -126,4 +135,96 @@ export function renderText(r: Report, o: TextOptions = {}): string {
     'Scores summarize observed indicators; they are not a statement that code is safe, secure or trustworthy.',
   );
   return out.join('\n') + '\n';
+}
+
+const RISK_LABEL = { none: 'NONE OBSERVED', low: 'LOW', medium: 'MEDIUM', high: 'HIGH' } as const;
+
+/** Capability, install-time execution, persistence, secrets and findings sections. */
+function renderCodeAnalysis(
+  r: Report,
+  s: (x: string, n?: number) => string,
+  verbose: boolean,
+): string[] {
+  const c = r.code_analysis;
+  const out: string[] = [];
+  if (!c.scan.performed) {
+    out.push(
+      '',
+      'CODE ANALYSIS',
+      '  Not performed (--no-scan): capabilities, install-time execution and secrets were not evaluated.',
+    );
+    return out;
+  }
+  out.push(
+    '',
+    `CAPABILITIES (static scan of ${c.scan.files_scanned} files, ${pct(c.scan.source_coverage)} of source files sampled)`,
+  );
+  const observed = c.capabilities.summary.filter((x) => x.observed);
+  for (const cap of observed) {
+    out.push(
+      `  ${cap.capability.padEnd(20)} ${RISK_LABEL[cap.risk].padEnd(7)} ${String(cap.mode)} ${pct(cap.confidence)}  [${cap.contexts.join(',')}] ${cap.files
+        .slice(0, 2)
+        .map((f) => s(f, 50))
+        .join(', ')}`,
+    );
+  }
+  const none = c.capabilities.summary.filter((x) => !x.observed).map((x) => x.capability);
+  out.push(
+    `  Not observed in the scanned sample: ${none.length > 0 ? none.join(', ') : '(all observed)'}`,
+  );
+  out.push('  (A capability describes what code can do, not why. Intent: undetermined.)');
+  if (r.facts.some((f) => f.id === 'scan.absence_reliable' && f.value === false)) {
+    out.push(
+      '  Too little code was scanned for "not observed" to count as evidence: those results are not used for scoring.',
+    );
+  }
+
+  out.push('', 'INSTALL-TIME EXECUTION');
+  if (c.execution.hooks.length === 0)
+    out.push('  No install/build hooks detected in the parsed manifests and scanned build files.');
+  for (const h of c.execution.hooks) {
+    out.push(
+      `  ${h.ecosystem}:${s(h.name)}  risk ${RISK_LABEL[h.risk]}  confidence ${pct(h.confidence)}${h.runs_for_dependents ? '  (runs for dependents)' : ''}${h.analyzed ? '' : '  (not fully analyzed)'}`,
+    );
+    out.push(`    trigger: ${s(h.trigger, 100)}`);
+    if (h.capabilities.length > 0) out.push(`    capabilities: ${h.capabilities.join(', ')}`);
+    if (h.chain_ids.length > 0) out.push(`    chains: ${h.chain_ids.join(', ')}`);
+    if (verbose && h.files.length > 0)
+      out.push(
+        `    files: ${h.files
+          .slice(0, 6)
+          .map((f) => s(f, 60))
+          .join(', ')}`,
+      );
+  }
+  for (const ch of c.execution.chains) {
+    out.push(
+      `  ${ch.id} ${ch.kind} ${ch.mode} ${pct(ch.confidence)}  ${s(ch.file, 60)}:${ch.lines.join(',')}  [${ch.contexts.join(',')}]`,
+    );
+  }
+
+  out.push('', 'PERSISTENCE');
+  out.push(
+    c.persistence.kinds.length === 0
+      ? '  None observed in the scanned sample.'
+      : `  ${c.persistence.observed ? 'OBSERVED' : 'background execution only'}: ${c.persistence.kinds.join(', ')}${c.persistence.install_time ? ' (install time)' : ''}  Intent: undetermined`,
+  );
+
+  out.push('', 'SECRETS (values are never shown)');
+  if (c.secrets.candidates.length === 0)
+    out.push(`  None found in ${c.secrets.files_scanned} scanned files.`);
+  for (const sc of c.secrets.candidates.slice(0, verbose ? 50 : 8)) {
+    out.push(
+      `  ${sc.id} ${sc.type} ${sc.mode} ${pct(sc.confidence)}  ${s(sc.file, 60)}${sc.line > 0 ? `:${sc.line}` : ''}  ${sc.redacted}${sc.in_test_or_example ? '  (test/example)' : ''}`,
+    );
+  }
+
+  if (r.findings.length > 0) {
+    out.push('', 'FINDINGS');
+    for (const f of r.findings)
+      out.push(`  ${f.id} [${f.severity}] ${s(f.title, 110)}  confidence ${pct(f.confidence)}`);
+  }
+  if (c.scan.limits_hit.length > 0)
+    out.push('', 'SCAN LIMITS', ...c.scan.limits_hit.map((l) => `  - ${s(l, 120)}`));
+  return out;
 }

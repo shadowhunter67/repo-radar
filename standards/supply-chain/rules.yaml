@@ -1,5 +1,5 @@
 # Supply chain standards, methodology 0.1.
-methodology: '0.1'
+methodology: '0.2'
 rules:
   - id: supply-chain.lockfile
     dimension: supply-chain
@@ -14,7 +14,7 @@ rules:
     dimension: supply-chain
     title: 'GitHub Actions pinned to commit SHAs'
     rationale: "Tag references can be moved by the action's owner; a full commit SHA cannot."
-    evidence: [github.workflows.pinned_actions_ratio]
+    evidence: [ci.actions.pinned_ratio]
     weight: 4
     group: pinned
     applies_when: { evidence: github.workflows.external_action_count, gt: 0 }

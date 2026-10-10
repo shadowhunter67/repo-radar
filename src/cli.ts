@@ -38,6 +38,7 @@ Options for analyze:
   --enforce-profile          Fail (exit 2) when the profile's advisory minimums are not met
   --no-scorecard             Skip the OpenSSF Scorecard lookup
   --no-osv                   Skip the OSV vulnerability lookup
+  --no-scan                  Skip the static capability / execution / secret scan of repository files
   --verbose                  Show per-rule detail and all diagnostics
   --ascii                    ASCII-only output
 
@@ -76,6 +77,7 @@ export async function main(
         'enforce-profile': { type: 'boolean', default: false },
         'no-scorecard': { type: 'boolean', default: false },
         'no-osv': { type: 'boolean', default: false },
+        'no-scan': { type: 'boolean', default: false },
         verbose: { type: 'boolean', default: false },
         ascii: { type: 'boolean', default: false },
         help: { type: 'boolean', short: 'h', default: false },
@@ -139,6 +141,7 @@ export async function main(
       enforcePolicy: values['enforce-profile'],
       scorecard: !values['no-scorecard'],
       osv: !values['no-osv'],
+      codeScan: !values['no-scan'],
     });
     const body =
       format === 'json'

@@ -1,4 +1,4 @@
-# Scoring methodology (version 0.1)
+# Scoring methodology (version 0.2)
 
 repo-radar evaluates **observed evidence** against **published rules**. Everything below is implemented in
 [src/scoring/engine.ts](../src/scoring/engine.ts); the rules are data in [standards/](../standards).
@@ -23,7 +23,8 @@ A rule ends in exactly one **status**:
 
 - `scored`: evidence was observed.
 - `not_observed`: no usable evidence. `missing_reason` says why: `unavailable` (collector failed or was rate limited),
-  `not_collected` (source disabled by the user), `not_reported` (source answered, signal absent).
+  `not_collected` (source disabled by the user), `insufficient_coverage` (collected, but too little code was read for a
+  "not found" result to count), `not_reported` (source answered, signal absent).
 - `not_applicable`: its `applies_when` condition is false (for example "pinned actions" when there are no external actions,
   or "code review" for a single-contributor repository). If the condition's evidence is itself unobserved, the rule stays applicable.
 - `informational`: shown with its score, weight 0.
@@ -98,15 +99,59 @@ because "unknown" must not pass a gate.
 
 Identity influences scoring in exactly one place: `semantic-clarity.detected-purpose` (weight 3 within Semantic Clarity),
 which treats "a classifier could determine the purpose from declared metadata" as a clarity signal. No Security,
-Supply Chain, Maintenance, Code Quality or Community rule reads identity.
+Supply Chain, Maintenance, Engineering Hygiene or Community rule reads identity.
 
-## 9. Versioning
+## 9. Normalized facts
+
+Rules do not have to read raw collector output. `src/facts` derives **facts** from evidence and from the static code analysis
+([code-analysis.md](code-analysis.md)); a fact has an id, value, `confidence`, `scope`, `derived_by` and `derived_from` (ids
+that resolve to evidence or to detections, chains, hooks and secret candidates in the report). Families: `artifact.*`, `ci.*`,
+`capability.*`, `execution.*`, `persistence.*`, `secret.*`, `scan.*`.
+
+- Facts enter scoring as evidence of source `derived` (reliability 1.0: the fact already carries its own confidence). The report
+  lists raw evidence in `evidence[]` and facts in `facts[]`; a rule input id resolves in either.
+- **Absence is a fact with reduced confidence, and only when enough was read.** `capability.x.observed = false` has confidence
+  `0.3 + 0.5 x source_coverage` (0.3 to 0.8): "not found in what was scanned", never "not present". Because the score is a
+  weighted mean of rule scores (confidence does not weight it), a cheap "nothing found" must not become full marks:
+  absence facts (`capability.*.observed=false`, `persistence.*`, `execution.chain.*`, `secret.candidates.count=0`) are **only
+  emitted when the scan covered at least 20% of the source files and at least 3 code files** (`scan.absence_reliable`).
+  Otherwise the rules that read them are `not_observed` with `missing_reason: insufficient_coverage`, a diagnostic
+  explains why, and the score range widens. Positive observations are always emitted. (Found during development: a
+  README-only repository gained 31 Security points from "nothing found in 0 files" before this gate existed.)
+- Rules migrated to facts so far: `security.token-permissions`, `supply-chain.pinned-actions` (via `ci.*`) and every
+  rule added in 0.2. The remaining 70+ rules still read evidence directly and migrate incrementally; they behave identically.
+
+## 10. Rules added in 0.2
+
+Scored: `security.hardcoded-secrets` (6), `security.install-time-download-execute` (6), `supply-chain.install-hooks` (3).
+Informational (weight 0, may warn): chains outside install hooks, persistence, credential-store access, browser-data access.
+Capability findings are **context for review**; only a clean/dirty outcome on secrets, install-time download-and-execute and
+install-hook risk changes a score. The score impact of the scored rules is visible in `dimensions[].rules[]` and linked from
+findings through `rule_ids`.
+
+## 11. Dimension naming
+
+The dimension id `code-quality` is kept for compatibility, but its label is **Engineering Hygiene**: it measures whether tests,
+lint configuration, static typing and CI are *present*, not whether the code is good. Deeper code analysis (complexity,
+duplication, error handling, API design) is future work and will be a separate dimension; see [migration.md](migration.md).
+
+## 12. Reproducibility and integrity
+
+Reports record: tool version, `schema_version`, `methodology.version`, `rules_digest`, `taxonomy_version`,
+`detector_pack_version`, `facts_version`, the classifier id, profile id/version and a `config_digest` (profile, source toggles,
+scan limits). `integrity.report_sha256` is the SHA-256 of the report without that field: **tamper evidence, not a signature**
+(anyone can recompute it). Reports from different digests are not comparable.
+
+## 13. Versioning
 
 | Thing                        | Where                                             | Current |
 | ---------------------------- | ------------------------------------------------- | ------- |
-| Evidence/report schema       | `schema_version`, `schemas/*.json`                | 0.1     |
-| Methodology (rules, formulas)| `methodology.version`, `methodology.rules_digest` | 0.1     |
+| Evidence/report schema       | `schema_version`, `schemas/*.json`                | 0.2     |
+| Methodology (rules, formulas)| `methodology.version`, `methodology.rules_digest` | 0.2     |
 | Profiles                     | `profile.version`                                 | 0.1     |
-| CLI                          | `tool.version` (`package.json`)                   | 0.1.0   |
+| CLI                          | `tool.version` (`package.json`)                   | 0.2.0   |
+| Identity taxonomy            | `methodology.taxonomy_version`                    | 0.2     |
+| Detector pack                | `methodology.detector_pack_version`               | 0.1     |
+| Facts                        | `methodology.facts_version`                       | 0.1     |
 
 Any change to a rule, weight, threshold or formula changes the digest; a change in meaning bumps the methodology version.

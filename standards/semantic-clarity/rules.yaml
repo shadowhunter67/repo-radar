@@ -1,7 +1,7 @@
 # Semantic clarity standards, methodology 0.1.
 # Measures how easily a newcomer or a search engine can learn what the repository DOES.
 # An unusual repository NAME is never penalized: the name-purpose divergence rule is informational only.
-methodology: '0.1'
+methodology: '0.2'
 rules:
   - id: semantic-clarity.has-description
     dimension: semantic-clarity

@@ -1,0 +1,43 @@
+repo-radar v0.2.0  (methodology 0.2, profile: default)
+
+octocat/Hello-World
+
+IDENTITY
+  Purpose not determined from available metadata (confidence 0%)
+  Declared: "My first repository on GitHub!"
+  Artifact: unknown (20%)  Domain: unknown
+
+TRUST PROFILE (observed evidence evaluated against methodology 0.2)
+  Security              19  F    ##--------  conf  33%  low confidence range 7-70
+  Maintenance           66  C+   #######---  conf  82%
+  Engineering Hygiene   15  F    ##--------  conf  78%
+  Supply Chain          36  F    ####------  conf  60% range 22-60
+  Community             37  F    ####------  conf 100%
+  Documentation         50  D    #####-----  conf  94%
+  Semantic Clarity      46  D    #####-----  conf  76%
+  Overall               38  F    ####------  conf  75%  (weighted by profile "default"; not an absolute verdict)
+
+Overall confidence: 75%
+
+WARNINGS
+  - No security policy (SECURITY.md) detected.
+  - No commit on the default branch for over a year.
+  - No test files detected in the repository tree.
+  - No license detected.
+
+CAPABILITIES (static scan of 0 files, 0% of source files sampled)
+  Not observed in the scanned sample: PROCESS_EXEC, BINARY_EXECUTION, BACKGROUND_PROCESS, NETWORK_CLIENT, NETWORK_SERVER, REMOTE_DOWNLOAD, FILESYSTEM_WRITE, FILESYSTEM_DELETE, ENVIRONMENT_READ, CREDENTIAL_ACCESS, BROWSER_DATA_ACCESS, DYNAMIC_CODE_LOAD, PRIVILEGE_CHANGE, PERSISTENCE
+  (A capability describes what code can do, not why. Intent: undetermined.)
+  Too little code was scanned for "not observed" to count as evidence: those results are not used for scoring.
+
+INSTALL-TIME EXECUTION
+  No install/build hooks detected in the parsed manifests and scanned build files.
+
+PERSISTENCE
+  None observed in the scanned sample.
+
+SECRETS (values are never shown)
+  None found in 0 scanned files.
+
+Evidence: 76 signals | Methodology: v0.2 | Rules digest: ba7c93da8413
+Scores summarize observed indicators; they are not a statement that code is safe, secure or trustworthy.

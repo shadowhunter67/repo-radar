@@ -21,6 +21,10 @@ export interface ParsedManifest {
   /** Executable entry points (bin names, console scripts, `[[bin]]`). */
   entrypoints: string[];
   isPrivate?: boolean;
+  /** npm `scripts` (name -> command), bounded in count and length; never executed. */
+  scripts?: Record<string, string>;
+  /** Files the manifest names as entry points (npm main/bin/exports string). */
+  entryFiles?: string[];
 }
 
 export interface LockedPackage {
@@ -92,6 +96,29 @@ export function parseManifest(file: string, text: string): ParsedManifest | unde
   }
 }
 
+function boundedScripts(v: unknown): Record<string, string> {
+  const out: Record<string, string> = Object.create(null) as Record<string, string>;
+  if (!isObj(v)) return out;
+  let n = 0;
+  for (const [k, val] of Object.entries(v)) {
+    if (n >= 100) break;
+    if (typeof val === 'string' && k.length <= 100) {
+      out[k] = val.slice(0, 4000);
+      n++;
+    }
+  }
+  return out;
+}
+
+function npmEntryFiles(j: Record<string, unknown>): string[] {
+  const out: string[] = [];
+  for (const v of [j['main'], j['module'], j['bin']]) {
+    if (typeof v === 'string') out.push(v);
+    else if (isObj(v)) for (const x of Object.values(v)) if (typeof x === 'string') out.push(x);
+  }
+  return out.slice(0, 20);
+}
+
 function parsePackageJson(file: string, text: string): ParsedManifest | undefined {
   const j = safeJson(text);
   if (!isObj(j)) return undefined;
@@ -107,6 +134,8 @@ function parsePackageJson(file: string, text: string): ParsedManifest | undefine
     devDependencyNames: isObj(j['devDependencies']) ? Object.keys(j['devDependencies']) : [],
     entrypoints,
     isPrivate: j['private'] === true,
+    scripts: boundedScripts(j['scripts']),
+    entryFiles: npmEntryFiles(j),
   };
   const name = str(j['name']);
   const description = str(j['description']);

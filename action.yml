@@ -21,6 +21,9 @@ inputs:
   upload-artifact:
     description: Upload the JSON report as a workflow artifact ("true" / "false").
     default: 'true'
+  code-scan:
+    description: Static capability / install-time execution / secret scan of repository files ("true" / "false").
+    default: 'true'
   enforce-profile:
     description: Fail when the profile's advisory minimums are not met ("true" / "false").
     default: 'false'
@@ -72,6 +75,7 @@ runs:
         RR_PROFILE: ${{ inputs.profile }}
         RR_OUTPUT: ${{ inputs.output }}
         RR_ENFORCE: ${{ inputs.enforce-profile }}
+        RR_CODE_SCAN: ${{ inputs.code-scan }}
         RR_MIN_OVERALL: ${{ inputs.minimum-overall-score }}
         RR_MIN_SECURITY: ${{ inputs.minimum-security-score }}
         RR_MIN_MAINTENANCE: ${{ inputs.minimum-maintenance-score }}
@@ -92,6 +96,7 @@ runs:
         add_min documentation "$RR_MIN_DOCUMENTATION"
         add_min semantic-clarity "$RR_MIN_SEMANTIC_CLARITY"
         if [ "$RR_ENFORCE" = "true" ]; then args+=(--enforce-profile); fi
+        if [ "$RR_CODE_SCAN" = "false" ]; then args+=(--no-scan); fi
         set +e
         node "$GITHUB_ACTION_PATH/dist/action/repo-radar.mjs" "${args[@]}"
         code=$?

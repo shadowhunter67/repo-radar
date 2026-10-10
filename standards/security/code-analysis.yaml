@@ -1,0 +1,80 @@
+# Security rules fed by the static code analysis (capabilities, execution graph, secrets), methodology 0.2.
+# These rules read normalized facts (src/facts), not raw collector data. Scanning covers a bounded SAMPLE of
+# files; "not observed" holds only inside that sample, which the facts' confidence reflects.
+# A capability is never evidence of intent: informational rules show context, scored rules cover risky
+# patterns where a clean result is the normal expectation.
+methodology: '0.2'
+rules:
+  - id: security.hardcoded-secrets
+    dimension: security
+    title: 'No hard-coded secrets in scanned files'
+    rationale: 'Credentials committed to a repository are exposed to everyone with read access and persist in history. High-precision patterns only (cloud keys, tokens, private keys, DB URLs with passwords); tests and examples are excluded from the count.'
+    evidence: [secret.candidates.count]
+    weight: 6
+    scoring:
+      type: thresholds
+      steps: [{ gte: 3, score: 0 }, { gte: 1, score: 2 }]
+      otherwise: 10
+    warn:
+      {
+        below: 5,
+        message: '{secret.candidates.count} possible hard-coded secret(s) found in scanned files (values redacted, see findings).',
+      }
+    limitations: 'Only fetched files are scanned (scripts, build files, workflows, manifests, a source sample); a clean result is not proof of absence. Pattern-based: some matches can be revoked or sample credentials.'
+  - id: security.install-time-download-execute
+    dimension: security
+    title: 'No download-and-execute chain reachable from an install-time hook'
+    rationale: 'Fetching code from a remote host and running it during installation hands control to whoever serves that host at that moment.'
+    evidence: [execution.chain.install_time]
+    weight: 6
+    scoring: { type: map, values: { 'true': 0, 'false': 10 } }
+    warn:
+      {
+        below: 1,
+        message: 'A download-and-execute chain is reachable from an install-time hook (capability observed; intent undetermined).',
+      }
+    limitations: 'Static, per-file chain heuristics. Legitimate installers (for example toolchain bootstrappers) use this pattern, which is why it is reported as a capability and with confidence.'
+  - id: security.download-execute-chain
+    dimension: security
+    title: 'Download-and-execute chain elsewhere in scanned files (informational)'
+    rationale: 'The same pattern outside install hooks (build scripts, documentation helpers, runtime code) is context for reviewers but is not scored.'
+    evidence: [execution.chain.any]
+    weight: 0
+    informational: true
+    scoring: { type: map, values: { 'true': 3, 'false': 10 } }
+  - id: security.persistence-capability
+    dimension: security
+    title: 'Persistence mechanism present (informational)'
+    rationale: 'Constructs that make software restart after login or reboot (services, scheduled tasks, startup entries). Normal for agents and servers, notable for libraries and CLIs; shown for review and never scored.'
+    evidence: [persistence.observed]
+    weight: 0
+    informational: true
+    scoring: { type: map, values: { 'true': 4, 'false': 10 } }
+    warn:
+      {
+        below: 5,
+        message: 'A persistence mechanism (service, scheduled task, startup entry or similar) appears in scanned files. Capability, not intent.',
+      }
+  - id: security.credential-access-capability
+    dimension: security
+    title: 'Code touches credential stores (informational)'
+    rationale: 'References to SSH keys, cloud credential files, token files or password stores. Required by some tools (Git helpers, cloud CLIs), alarming in others; shown for review and never scored.'
+    evidence: [capability.credential_access.observed]
+    weight: 0
+    informational: true
+    scoring: { type: map, values: { 'true': 3, 'false': 10 } }
+    warn:
+      {
+        below: 5,
+        message: 'Scanned files reference credential stores (SSH keys, cloud credentials, token files). Capability, not intent.',
+      }
+  - id: security.browser-data-capability
+    dimension: security
+    title: 'Code touches browser profile data (informational)'
+    rationale: 'References to browser password/cookie stores or profile directories.'
+    evidence: [capability.browser_data_access.observed]
+    weight: 0
+    informational: true
+    scoring: { type: map, values: { 'true': 3, 'false': 10 } }
+    warn:
+      { below: 5, message: 'Scanned files reference browser profile data. Capability, not intent.' }

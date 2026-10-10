@@ -1,7 +1,7 @@
 # Security standards, methodology 0.1.
 # Rules observe *indicators*. A high score is "no risk indicators observed by these checks", never "secure".
 # Rules sharing `group` split one weight budget (same underlying fact measured twice).
-methodology: '0.1'
+methodology: '0.2'
 rules:
   - id: security.branch-protected
     dimension: security
@@ -59,7 +59,7 @@ rules:
     dimension: security
     title: 'Workflows declare explicit token permissions'
     rationale: 'Declaring permissions limits what a compromised workflow can do with GITHUB_TOKEN.'
-    evidence: [github.workflows.permissions_declared_ratio]
+    evidence: [ci.permissions.declared_ratio]
     weight: 4
     group: token-permissions
     applies_when: { evidence: github.workflows.analyzed_count, gt: 0 }

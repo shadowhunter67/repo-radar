@@ -1,9 +1,12 @@
 import { z } from 'zod';
+import { CodeAnalysisSchema } from '../analysis/index.js';
+import { FindingSchema } from '../analysis/findings.js';
 import { EvidenceSchema } from '../evidence/types.js';
+import { FactSchema } from '../facts/index.js';
 import { SemanticIdentitySchema } from '../identity/types.js';
 import { DIMENSIONS } from '../scoring/types.js';
 
-export const REPORT_SCHEMA_VERSION = '0.1';
+export const REPORT_SCHEMA_VERSION = '0.2';
 
 const SufficiencySchema = z.enum(['sufficient', 'low', 'insufficient']);
 
@@ -29,7 +32,9 @@ export const RuleResultSchema = z.object({
   ),
   evidence_ids: z.array(z.string()),
   confidence: z.number().nullable(),
-  missing_reason: z.enum(['unavailable', 'not_collected', 'not_reported']).nullable(),
+  missing_reason: z
+    .enum(['unavailable', 'not_collected', 'insufficient_coverage', 'not_reported'])
+    .nullable(),
   explanation: z.string(),
 });
 
@@ -56,6 +61,11 @@ export const ReportSchema = z.object({
     rules_digest: z.string(),
     rule_count: z.number(),
     classifier: z.string(),
+    taxonomy_version: z.string(),
+    detector_pack_version: z.string(),
+    facts_version: z.string(),
+    /** sha256 of the profile, flags and limits that shaped this analysis. */
+    config_digest: z.string(),
   }),
   profile: z.object({ id: z.string(), version: z.string(), title: z.string() }),
   generated_at: z.string(),
@@ -112,6 +122,14 @@ export const ReportSchema = z.object({
     http_requests: z.number(),
     authenticated: z.boolean(),
   }),
+  /** Raw evidence from collectors and identity. Derived facts are listed separately in `facts`. */
   evidence: z.array(EvidenceSchema),
+  /** Normalized facts that rules consume; `derived_from` ids resolve to evidence, detections, chains, hooks or secrets. */
+  facts: z.array(FactSchema),
+  /** Static capability, execution-graph, persistence and secret analysis (never executes repository code). */
+  code_analysis: CodeAnalysisSchema,
+  findings: z.array(FindingSchema),
+  /** Tamper evidence: sha256 of the canonical JSON of this report without this field. Not a signature. */
+  integrity: z.object({ report_sha256: z.string() }),
 });
 export type Report = z.infer<typeof ReportSchema>;

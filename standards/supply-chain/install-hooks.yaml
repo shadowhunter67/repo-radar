@@ -1,0 +1,19 @@
+# Install-time execution, methodology 0.2. Reads the execution graph facts.
+methodology: '0.2'
+rules:
+  - id: supply-chain.install-hooks
+    dimension: supply-chain
+    title: 'Install-time hooks that run for dependents'
+    rationale: 'Lifecycle scripts (npm preinstall/install/postinstall, setup.py, build.rs) execute code on the machine of everyone who installs the package. The score reflects the highest capability risk reachable from a hook that runs for dependents: none = no hook, low, medium, high.'
+    evidence: [execution.install_hooks.max_risk]
+    weight: 3
+    scoring:
+      type: thresholds
+      steps: [{ gte: 3, score: 1 }, { gte: 2, score: 4 }, { gte: 1, score: 8 }]
+      otherwise: 10
+    warn:
+      {
+        below: 5,
+        message: 'An install-time hook with medium or high capability risk runs for dependents (see findings; capability, not intent).',
+      }
+    limitations: 'Native-addon builds and tool bootstrappers legitimately run code at install time. Hook analysis follows local script references to a bounded depth; unreadable files lower confidence. Only npm hooks are traced in depth in v0.2; other ecosystems list their build files as hooks.'
