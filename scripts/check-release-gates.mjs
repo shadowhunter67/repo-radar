@@ -69,7 +69,7 @@ if (online) {
 // 2 Action on >= 3 real repositories
 {
   const ci = exists('.github/workflows/ci.yml') ? read('.github/workflows/ci.yml') : '';
-  const matrix = ci.split('action-matrix:')[1]?.split(/\n  \S+:\n/)[0] ?? '';
+  const matrix = ci.split('action-matrix:')[1]?.split(/\n {2}\S+:\n/)[0] ?? '';
   const repos = [...matrix.matchAll(/^\s+- ([\w.-]+\/[\w.-]+)\s*$/gm)].map((m) => m[1]);
   gate(
     2,
