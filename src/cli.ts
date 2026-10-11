@@ -39,6 +39,7 @@ Options for analyze:
   --no-scorecard             Skip the OpenSSF Scorecard lookup
   --no-osv                   Skip the OSV vulnerability lookup
   --no-deps-dev              Skip deps.dev package metadata (licenses, current-version candidates)
+  --no-compliance            Skip regulatory readiness packs and privacy/AI technical indicators
   --no-sbom                  Do not discover or ingest SBOM files in the repository
   --ref <sha|tag|branch>     Read repository files at this revision (reproducible runs; API metadata stays current)
   --no-scan                  Skip the static capability / execution / secret scan of repository files
@@ -82,6 +83,7 @@ export async function main(
         'no-osv': { type: 'boolean', default: false },
         'no-deps-dev': { type: 'boolean', default: false },
         'no-sbom': { type: 'boolean', default: false },
+        'no-compliance': { type: 'boolean', default: false },
         'no-scan': { type: 'boolean', default: false },
         ref: { type: 'string' },
         verbose: { type: 'boolean', default: false },
@@ -149,6 +151,7 @@ export async function main(
       osv: !values['no-osv'],
       depsDev: !values['no-deps-dev'],
       sbom: !values['no-sbom'],
+      compliance: !values['no-compliance'],
       codeScan: !values['no-scan'],
       ...(values.ref ? { ref: values.ref } : {}),
     });

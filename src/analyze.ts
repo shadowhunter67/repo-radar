@@ -19,7 +19,21 @@ import { collectScorecard, SCORECARD_HOSTS } from './collectors/scorecard.js';
 import { systemClock, type Clock } from './evidence/builder.js';
 import { EvidenceStore } from './evidence/store.js';
 import type { Diagnostic, Evidence } from './evidence/types.js';
-import { FACTS_VERSION, deriveFacts, factToEvidence } from './facts/index.js';
+import {
+  collectIndicators,
+  deriveIndicatorFacts,
+  evaluateCompliance,
+  loadPacks,
+  LEGAL_DISCLAIMER,
+  type Regulatory,
+} from './compliance/index.js';
+import {
+  ABSENCE_MIN_COVERAGE,
+  ABSENCE_MIN_FILES,
+  FACTS_VERSION,
+  deriveFacts,
+  factToEvidence,
+} from './facts/index.js';
 import { HeuristicClassifier, identityEvidence, loadDefaultTaxonomy } from './identity/index.js';
 import type { IdentityClassifier } from './identity/types.js';
 import { LIMITS } from './limits.js';
@@ -49,6 +63,8 @@ export interface AnalyzeOptions {
   depsDev?: boolean;
   /** Discover and ingest SBOM files (default true). */
   sbom?: boolean;
+  /** Evaluate regulatory readiness packs and privacy/AI technical indicators (default true). */
+  compliance?: boolean;
   /** Static capability / execution / secret scan of fetched files (default on). */
   codeScan?: boolean;
   /** Read repository files at this commit/ref instead of the default branch head (reproducible runs). */
@@ -187,7 +203,21 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
 
   // Normalized facts: rules consume these, not raw collector structures.
   // (Facts that say "nothing found" are withheld when the scan covered too little code; see ABSENCE_MIN_COVERAGE.)
+  const scanReliable =
+    code.scan.performed &&
+    code.scan.source_coverage >= ABSENCE_MIN_COVERAGE &&
+    code.scan.source_files_scanned >= ABSENCE_MIN_FILES;
+  const complianceOn = opts.compliance !== false;
+  const packs = complianceOn ? loadPacks(root, ruleSet.methodology) : [];
+  const indicators = complianceOn
+    ? collectIndicators({
+        files: github.files,
+        treePaths: github.allTreePaths,
+        allDependencies: depsStatic.deps,
+      })
+    : [];
   const facts = [
+    ...(complianceOn ? deriveIndicatorFacts(indicators, scanReliable, code) : []),
     ...deriveFacts({
       store,
       code,
@@ -208,6 +238,30 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   }
   const scoringStore = new EvidenceStore(store.all());
   for (const f of facts) scoringStore.add(factToEvidence(f, clock));
+
+  // Regulatory readiness (technical indicators only; never a legal determination).
+  const regulatory: Regulatory = complianceOn
+    ? evaluateCompliance(
+        {
+          packs,
+          identity: {
+            artifact_type: identity.artifact_type,
+            artifact_confidence: identity.artifact_confidence,
+            domain: identity.domain,
+            ecosystem: identity.ecosystem,
+          },
+          code,
+          intel,
+          allDependencies: depsStatic.deps,
+          manifests: github.snapshot.manifests,
+          files: github.files,
+          treePaths: github.allTreePaths,
+          scanReliable,
+        },
+        indicators,
+        scoringStore,
+      )
+    : { engine_version: '0.1', disclaimer: LEGAL_DISCLAIMER, packs: [], indicators: [] };
 
   const scoring = evaluate(scoringStore, ruleSet.rules, profile, {
     unavailable: diagnostics.flatMap((d) => d.affects ?? []),
@@ -246,6 +300,9 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
           osv: opts.osv !== false,
           deps_dev: opts.depsDev !== false,
           sbom: opts.sbom !== false,
+          compliance: complianceOn
+            ? packs.map((p) => `${p.pack.pack}@${p.pack.version}:${p.digest.slice(0, 12)}`)
+            : false,
           deps_limits: {
             osv: OSV_LIMITS,
             deps_dev: DEPSDEV_LIMITS,
@@ -288,6 +345,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     code_analysis: code,
     findings: [...buildFindings(code), ...buildDependencyFindings(intel)],
     dependency_intel: intel,
+    regulatory,
   };
   return { ...report, integrity: { report_sha256: sha256(JSON.stringify(report)) } };
 }

@@ -1,0 +1,95 @@
+# EU Cyber Resilience Act - technical READINESS indicators (indicative).
+#
+# This pack looks for repository evidence of practices that the Regulation (EU) 2024/2847 talks about for products with
+# digital elements. It is a technical checklist, not an interpretation of the text and not legal advice. Whether the
+# Regulation applies to a given project depends on facts a repository does not show (whether it is placed on the EU market in the
+# course of a commercial activity, the organization's role, exemptions such as certain non-commercial open source).
+pack: eu-cra
+version: '0.1.0'
+title: 'EU Cyber Resilience Act - technical readiness indicators'
+jurisdiction: EU
+instrument: 'Regulation (EU) 2024/2847 (Cyber Resilience Act)'
+status: indicative
+methodology: '0.4'
+requires_context:
+  - 'whether the software is made available on the EU market in the course of a commercial activity'
+  - 'the organization role (manufacturer, importer, distributor, open-source steward)'
+  - 'product category and any exemption that applies'
+applies_when:
+  artifact_type:
+    [library, application, cli, service, framework, plugin, extension, sdk, driver, tooling, container, monorepo]
+indicators:
+  - id: cra.vulnerability-disclosure-policy
+    title: 'A security policy / vulnerability disclosure channel is published'
+    reference: 'CRA Annex I Part II (vulnerability handling): coordinated vulnerability disclosure policy (indicative)'
+    rationale: 'A SECURITY policy tells reporters how to disclose a vulnerability.'
+    observed_when: { fact: { id: github.file.security_policy, equals: true } }
+    limitations: 'A file existing says nothing about whether the process is operated; an organization-level policy in another repository is only partly visible.'
+  - id: cra.sbom
+    title: 'A software bill of materials is committed and parsable'
+    reference: 'CRA Annex I Part II (identify and document components, incl. an SBOM) (indicative)'
+    rationale: 'A valid CycloneDX/SPDX document lets consumers and authorities see the components. A file merely named like an SBOM does not count as observed.'
+    observed_when: { fact: { id: deps.sbom.present, equals: true } }
+    partial_when: { fact: { id: github.file.sbom_file, equals: true } }
+    limitations: 'SBOMs published only as release assets are not fetched; an SBOM can be present and inaccurate (see the SBOM comparison findings).'
+  - id: cra.dependency-inventory
+    title: 'Dependencies are inventoried with exact versions'
+    reference: 'CRA Annex I Part II (identify and document vulnerabilities and components) (indicative)'
+    rationale: 'Exact, evidenced versions (lockfile, SBOM, pins) are what makes the component inventory usable.'
+    observed_when: { fact: { id: deps.resolution.exact_ratio, gte: 0.8 } }
+    partial_when: { fact: { id: deps.resolution.exact_ratio, gte: 0.3 } }
+    limitations: 'Libraries commonly publish ranges on purpose; the ratio covers direct registry dependencies only.'
+  - id: cra.vulnerability-handling
+    title: 'Dependency vulnerabilities are checked and updates are automated'
+    reference: 'CRA Annex I Part II (address and remediate vulnerabilities; regular testing) (indicative)'
+    rationale: 'Automated dependency updates plus a vulnerability lookup that covers most direct dependencies indicate a handling process.'
+    observed_when:
+      all:
+        - { fact: { id: github.file.dependency_updates, equals: true } }
+        - { fact: { id: deps.vulnerability.checked_ratio, gte: 0.8 } }
+    partial_when:
+      any:
+        - { fact: { id: github.file.dependency_updates, equals: true } }
+        - { fact: { id: deps.vulnerability.checked_ratio, gte: 0.5 } }
+    limitations: 'Reflects tooling present in the repository, not how findings are triaged or fixed.'
+  - id: cra.update-release-process
+    title: 'Releases are published and recent'
+    reference: 'CRA Annex I Part II (security updates made available) (indicative)'
+    rationale: 'A recent release history shows that fixes reach users.'
+    observed_when:
+      all:
+        - { fact: { id: github.releases.has_any, equals: true } }
+        - { fact: { id: github.releases.latest_age_days, lte: 365 } }
+    partial_when: { fact: { id: github.releases.has_any, equals: true } }
+    limitations: 'Projects that publish only to a registry or via tags can look unreleased here.'
+  - id: cra.secure-development-practices
+    title: 'Tests, static analysis and branch protection are in place'
+    reference: 'CRA Annex I Part I (security-by-design practices) (indicative)'
+    rationale: 'CI that runs tests, a static-analysis step and a protected default branch are common evidence of a secure development process.'
+    observed_when:
+      all:
+        - { fact: { id: github.workflows.runs_tests, equals: true } }
+        - { fact: { id: github.workflows.uses_sast, equals: true } }
+        - { fact: { id: github.branch.default_protected, equals: true } }
+    partial_when:
+      any:
+        - { fact: { id: github.workflows.runs_tests, equals: true } }
+        - { fact: { id: github.workflows.uses_sast, equals: true } }
+        - { fact: { id: github.branch.default_protected, equals: true } }
+    limitations: 'Branch protection is only visible with a suitable token; heuristics detect tests and SAST by name.'
+  - id: cra.provenance
+    title: 'Release provenance or signatures are published'
+    reference: 'CRA Annex I Part II (integrity of updates) (indicative)'
+    rationale: 'Signed releases or build provenance let consumers verify that an update comes from the maintainers.'
+    observed_when:
+      any:
+        - { fact: { id: github.workflows.uses_provenance, equals: true } }
+        - { fact: { id: github.releases.provenance_assets, equals: true } }
+        - { fact: { id: github.releases.signed_assets, equals: true } }
+    limitations: 'Provenance is often published to the package registry instead, where this analysis does not look.'
+  - id: cra.support-information
+    title: 'Support and security-update period information is documented'
+    reference: 'CRA information obligations (support period) (indicative)'
+    rationale: 'Users need to know how long security updates are provided.'
+    observed_when: { path: '(^|/)(SUPPORT|SUPPORTED_VERSIONS|support-policy)(\.[a-z]+)?$' }
+    limitations: 'Support terms are frequently stated in a README or on a website, which this check does not read.'

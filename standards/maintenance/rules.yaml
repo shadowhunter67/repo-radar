@@ -1,6 +1,6 @@
 # Maintenance standards, methodology 0.1.
 # Activity is a proxy for care, not for quality. Stable, feature-complete libraries can look "inactive".
-methodology: '0.3'
+methodology: '0.4'
 rules:
   - id: maintenance.not-archived
     dimension: maintenance

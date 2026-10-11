@@ -1,6 +1,6 @@
 # Code quality standards, methodology 0.1.
 # These are process indicators (tests, linting, typing), NOT a measurement of how good the code is.
-methodology: '0.3'
+methodology: '0.4'
 rules:
   - id: code-quality.tests-present
     dimension: code-quality

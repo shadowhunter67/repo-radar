@@ -1,5 +1,5 @@
 # Install-time execution, methodology 0.2. Reads the execution graph facts.
-methodology: '0.3'
+methodology: '0.4'
 rules:
   - id: supply-chain.install-hooks
     dimension: supply-chain

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CodeAnalysisSchema } from '../analysis/index.js';
+import { RegulatorySchema } from '../compliance/packs.js';
 import { DependencyIntelSchema } from '../deps/model.js';
 import { FindingSchema } from '../analysis/findings.js';
 import { EvidenceSchema } from '../evidence/types.js';
@@ -7,7 +8,7 @@ import { FactSchema } from '../facts/index.js';
 import { SemanticIdentitySchema } from '../identity/types.js';
 import { DIMENSIONS } from '../scoring/types.js';
 
-export const REPORT_SCHEMA_VERSION = '0.3';
+export const REPORT_SCHEMA_VERSION = '0.4';
 
 const SufficiencySchema = z.enum(['sufficient', 'low', 'insufficient']);
 
@@ -132,6 +133,8 @@ export const ReportSchema = z.object({
   findings: z.array(FindingSchema),
   /** Dependency model, resolution state, vulnerability coverage, deps.dev status and SBOM comparison (schema 0.3). */
   dependency_intel: DependencyIntelSchema,
+  /** Regulatory readiness packs and the technical indicators they read. Never a legal determination. */
+  regulatory: RegulatorySchema,
   /** Tamper evidence: sha256 of the canonical JSON of this report without this field. Not a signature. */
   integrity: z.object({ report_sha256: z.string() }),
 });

@@ -1,6 +1,6 @@
 # Documentation & operability standards, methodology 0.1.
 # README checks look for conventional headings and code blocks. They detect structure, not truthfulness.
-methodology: '0.3'
+methodology: '0.4'
 rules:
   - id: documentation.readme-present
     dimension: documentation

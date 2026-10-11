@@ -1,7 +1,7 @@
 # Community standards, methodology 0.1.
 # Issue/PR responsiveness is scored once, under maintenance, to avoid counting the same evidence twice.
 # More contributors is not always better: breadth rules carry small weights and solo projects are documented as a known bias.
-methodology: '0.3'
+methodology: '0.4'
 rules:
   - id: community.contributor-count
     dimension: community

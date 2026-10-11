@@ -1,0 +1,56 @@
+# EU AI Act - foundation (technical documentation indicators, indicative).
+#
+# Deliberately small and conservative. It is only evaluated when the repository shows AI/ML components; an ordinary
+# repository is reported as not applicable and none of the indicators below are looked at. Which obligations (if any)
+# apply depends on the role (provider, deployer, ...), the risk classification and the intended purpose, none of
+# which a repository states reliably. Not legal advice.
+pack: eu-ai-act
+version: '0.1.0'
+title: 'EU AI Act - technical documentation indicators (foundation)'
+jurisdiction: EU
+instrument: 'Regulation (EU) 2024/1689 (Artificial Intelligence Act)'
+status: indicative
+methodology: '0.4'
+requires_context:
+  - 'the role of the organization (provider, deployer, importer, distributor)'
+  - 'the intended purpose and the risk classification of the AI system'
+  - 'whether a general-purpose AI model is placed on the EU market'
+applies_when:
+  any:
+    - { ai: [model_weights, training, fine_tuning] }
+    - all:
+        - { ai: [ml_framework, llm_client, inference, agent] }
+        - not: { artifact_type: [library, sdk, tooling, plugin, extension] }
+    - { domain: [ai, ml] }
+indicators:
+  - id: ai.model-documentation
+    title: 'A model card / model documentation is present'
+    reference: 'AI Act technical documentation and transparency (indicative)'
+    rationale: 'A model card is the usual place for intended use, limitations and training/evaluation summaries.'
+    observed_when: { path: '(^|/)(MODEL_?CARD|model[-_]card|modelcard)(\.[a-z]+)?$' }
+    limitations: 'Documentation can live in a README, a hub page or a separate site that this check does not read.'
+  - id: ai.dataset-provenance
+    title: 'Dataset / data provenance documentation is present'
+    reference: 'AI Act data governance (indicative)'
+    rationale: 'Datasheets or data cards describe where training data comes from.'
+    observed_when: { path: '(^|/)(DATA_?CARD|datasheet|dataset[-_]card|DATASETS?|data[-_]provenance|training[-_]data)(\.[a-z]+)?$' }
+    limitations: 'Data documentation is often external; its absence in the repository is not evidence of absence.'
+  - id: ai.model-license
+    title: 'A license file is present for the model/code'
+    reference: 'AI Act documentation and downstream obligations (indicative)'
+    rationale: 'Weights and code need a stated license so downstream users know the terms.'
+    observed_when: { fact: { id: github.file.license_file, equals: true } }
+    partial_when: { fact: { id: github.repo.license_spdx, exists: true } }
+    limitations: 'A repository license does not necessarily cover separately published weights or data.'
+  - id: ai.evaluation-artifacts
+    title: 'Evaluation or benchmark artifacts are present'
+    reference: 'AI Act accuracy / robustness documentation (indicative)'
+    rationale: 'Reproducible evaluation scripts or results support accuracy and robustness claims.'
+    observed_when: { path: '(^|/)(evals?|evaluation|benchmarks?|leaderboard)(/|\.[a-z]+$)|eval[_-]results' }
+    limitations: 'Evaluation can be hosted elsewhere; the presence of files says nothing about their quality.'
+  - id: ai.copyright-provenance-documentation
+    title: 'Copyright / third-party notices or a training-data summary is present'
+    reference: 'AI Act copyright policy and training-content summary for general-purpose models (indicative)'
+    rationale: 'Notices and training-content summaries are how providers document rights and sources.'
+    observed_when: { path: '(^|/)(COPYRIGHT|NOTICE|THIRD[_-]PARTY[\w-]*|copyright[-_]policy|training[-_]data[-_]summary)(\.[a-z]+)?$' }
+    limitations: 'Only file presence is checked; no statement about legality of the underlying data is made.'

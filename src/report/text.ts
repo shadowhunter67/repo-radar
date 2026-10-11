@@ -128,6 +128,7 @@ export function renderText(r: Report, o: TextOptions = {}): string {
   }
 
   out.push(...renderDependencies(r, s));
+  out.push(...renderRegulatory(r, s, !!o.verbose));
   out.push(...renderCodeAnalysis(r, s, !!o.verbose));
 
   out.push('');
@@ -138,6 +139,47 @@ export function renderText(r: Report, o: TextOptions = {}): string {
     'Scores summarize observed indicators; they are not a statement that code is safe, secure or trustworthy.',
   );
   return out.join('\n') + '\n';
+}
+
+/** Regulatory readiness: technical indicators and applicability; always with the legal disclaimer. */
+function renderRegulatory(
+  r: Report,
+  s: (x: string, n?: number) => string,
+  verbose: boolean,
+): string[] {
+  const g = r.regulatory;
+  const shown = g.packs.filter((p) => p.applicability.state !== 'not_applicable' || verbose);
+  const privacy = [
+    ...new Set(g.indicators.filter((i) => i.family === 'privacy').map((i) => i.category)),
+  ];
+  const ai = [...new Set(g.indicators.filter((i) => i.family === 'ai').map((i) => i.category))];
+  if (g.packs.length === 0 && privacy.length === 0 && ai.length === 0) return [];
+  const out = ['', 'REGULATORY READINESS (technical indicators only; not legal advice)'];
+  for (const p of shown) {
+    out.push(`  ${s(p.title, 90)}  [${p.pack}@${p.version}, ${s(p.jurisdiction, 20)}]`);
+    out.push(
+      `    applicability: ${p.applicability.state} (confidence ${pct(p.applicability.confidence)})`,
+    );
+    if (p.applicability.missing_context.length > 0)
+      out.push(
+        `    depends on context a repository cannot show: ${p.applicability.missing_context
+          .slice(0, 3)
+          .map((x) => s(x, 80))
+          .join('; ')}`,
+      );
+    if (p.evaluated) {
+      out.push(
+        `    indicators: ${p.summary.observed} observed, ${p.summary.partial} partial, ${p.summary.not_observed} not observed, ${p.summary.unknown} unknown`,
+      );
+      for (const i of p.indicators) out.push(`      [${i.status}] ${s(i.title, 100)}`);
+    } else out.push('    indicators not evaluated (the pack does not apply to what was observed)');
+    out.push('    legal determination: not provided');
+  }
+  if (privacy.length > 0)
+    out.push(`  Privacy-related technical indicators observed: ${privacy.join(', ')}`);
+  if (ai.length > 0) out.push(`  AI/ML technical indicators observed: ${ai.join(', ')}`);
+  out.push(`  ${s(g.disclaimer, 400)}`);
+  return out;
 }
 
 /** Dependency intelligence: counts that must be read together (a clean result means little at low coverage). */
