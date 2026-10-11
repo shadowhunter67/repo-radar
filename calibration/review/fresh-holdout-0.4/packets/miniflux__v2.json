@@ -1,0 +1,99 @@
+{
+  "packet_version": 1,
+  "corpus": "fresh-holdout-0.4",
+  "repository": "miniflux/v2",
+  "commit": "899fe04c7e0babb30d36e5428a328c7f1ae69fdb",
+  "browse": "https://github.com/miniflux/v2/tree/899fe04c7e0babb30d36e5428a328c7f1ae69fdb",
+  "file_count": 658,
+  "blind": "This packet contains no analyzer output and no existing labels.",
+  "read_these": {
+    "manifests": ["go.mod"],
+    "lockfiles": ["go.sum"],
+    "sbom_like": [],
+    "install_and_build_scripts": [
+      "Makefile",
+      "packaging/debian/Dockerfile",
+      "packaging/docker/alpine/Dockerfile",
+      "packaging/docker/distroless/Dockerfile",
+      "packaging/rpm/Dockerfile"
+    ],
+    "ci_workflows": [
+      ".github/workflows/build_binaries.yml",
+      ".github/workflows/codeberg_mirror.yml",
+      ".github/workflows/codeql-analysis.yml",
+      ".github/workflows/debian_packages.yml",
+      ".github/workflows/docker.yml",
+      ".github/workflows/linters.yml",
+      ".github/workflows/rpm_packages.yml",
+      ".github/workflows/scripts/commit-checker.py",
+      ".github/workflows/stale.yml",
+      ".github/workflows/tests.yml"
+    ]
+  },
+  "top_level_entries": [
+    ".devcontainer",
+    ".github",
+    ".gitignore",
+    ".golangci.yml",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "Makefile",
+    "Procfile",
+    "README.md",
+    "SECURITY.md",
+    "client",
+    "contrib",
+    "go.mod",
+    "go.sum",
+    "internal",
+    "main.go",
+    "miniflux.1",
+    "packaging"
+  ],
+  "label_form": {
+    "reviewer": {
+      "id": "<your id>",
+      "kind": "human-single",
+      "labelled_on": "<YYYY-MM-DD>"
+    },
+    "artifact_type": "<library | application | cli | service | framework | plugin | extension | sdk | tooling | monorepo | ...>",
+    "artifact_also_acceptable": [],
+    "domain": "<free text slug, e.g. developer-tooling>",
+    "capabilities": {
+      "PROCESS_EXEC": "<yes | no | unknown | disputed>",
+      "NETWORK_CLIENT": "<yes | no | unknown | disputed>",
+      "NETWORK_SERVER": "<yes | no | unknown | disputed>",
+      "REMOTE_DOWNLOAD": "<yes | no | unknown | disputed>",
+      "FILESYSTEM_WRITE": "<yes | no | unknown | disputed>",
+      "DYNAMIC_CODE_LOAD": "<yes | no | unknown | disputed>",
+      "CREDENTIAL_ACCESS": "<yes | no | unknown | disputed>",
+      "ENVIRONMENT_READ": "<yes | no | unknown | disputed>",
+      "BACKGROUND_PROCESS": "<yes | no | unknown | disputed>"
+    },
+    "install_hooks": {
+      "automatic": "<yes | no | unknown | disputed>",
+      "names": []
+    },
+    "persistence": "<yes | no | unknown | disputed>",
+    "hard_coded_secrets": "<yes | no | unknown | disputed>",
+    "dependencies": {
+      "has_lockfile": "<yes | no | unknown | disputed | not_applicable>",
+      "lockfile_types": [],
+      "lockfile_scope": "<root | workspace | none | unknown>",
+      "dependency_manifest_count": "<number | unknown>",
+      "direct_dependency_count_expected": "<number | unknown>",
+      "exact_version_expected": "<yes | no | unknown | disputed | not_applicable>",
+      "osv_checkable": "<yes | no | unknown | disputed | not_applicable>",
+      "osv_expected_known_vulnerabilities": "<yes | no | unknown | disputed | not_applicable>",
+      "has_sbom": "<yes | no | unknown | disputed | not_applicable>",
+      "sbom_format": "<CycloneDX | SPDX | other | none | unknown>",
+      "sbom_scope": "<application | library | container | mixed | ci_workflow | none | unknown>",
+      "sbom_consistency": "<consistent | partial | mismatch | unable_to_compare | unknown | not_applicable | disputed>",
+      "manifest_sbom_missing": "<yes | no | unknown | disputed | not_applicable>",
+      "sbom_extra_components": "<yes | no | unknown | disputed | not_applicable>",
+      "auxiliary_dependency_presence": "<yes | no | unknown | disputed | not_applicable>",
+      "dependency_scope_ambiguity": "<yes | no | unknown | disputed | not_applicable>"
+    },
+    "notes": "<free text: what you read, what you could not decide and why>"
+  }
+}

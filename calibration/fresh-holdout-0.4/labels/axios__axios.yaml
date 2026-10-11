@@ -1,0 +1,37 @@
+repository: axios/axios
+artifact_type: library
+artifact_also_acceptable: [sdk]
+domain: networking
+capabilities:
+  PROCESS_EXEC: yes
+  NETWORK_CLIENT: no
+  NETWORK_SERVER: no
+  REMOTE_DOWNLOAD: unknown
+  FILESYSTEM_WRITE: yes
+  DYNAMIC_CODE_LOAD: no
+  CREDENTIAL_ACCESS: no
+  ENVIRONMENT_READ: yes
+  BACKGROUND_PROCESS: no
+install_hooks:
+  automatic: no
+  names: []
+persistence: no
+hard_coded_secrets: no
+dependencies:
+  has_lockfile: yes
+  lockfile_types: [package-lock.json]
+  lockfile_scope: root
+  dependency_manifest_count: 1
+  direct_dependency_count_expected: 42
+  exact_version_expected: yes
+  osv_checkable: yes
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: no
+  sbom_format: none
+  sbom_scope: none
+  sbom_consistency: not_applicable
+  manifest_sbom_missing: not_applicable
+  sbom_extra_components: not_applicable
+  auxiliary_dependency_presence: yes
+  dependency_scope_ambiguity: no
+ambiguity_notes: HTTP client library. docs/ and tests/ hold their own package.json and package-lock.json (independent projects). Test fixtures contain cert.pem/key.pem (test only). gulpfile/scripts are build tooling (write package.json, read GITHUB_TOKEN).

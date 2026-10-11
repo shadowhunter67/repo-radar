@@ -1,0 +1,37 @@
+repository: nodeshift/faas-js-runtime
+artifact_type: framework
+artifact_also_acceptable: [library, cli]
+domain: cloud
+capabilities:
+  PROCESS_EXEC: no
+  NETWORK_CLIENT: no
+  NETWORK_SERVER: yes
+  REMOTE_DOWNLOAD: no
+  FILESYSTEM_WRITE: no
+  DYNAMIC_CODE_LOAD: yes
+  CREDENTIAL_ACCESS: no
+  ENVIRONMENT_READ: yes
+  BACKGROUND_PROCESS: no
+install_hooks:
+  automatic: no
+  names: []
+persistence: no
+hard_coded_secrets: no
+dependencies:
+  has_lockfile: yes
+  lockfile_types: [package-lock.json]
+  lockfile_scope: root
+  dependency_manifest_count: 1
+  direct_dependency_count_expected: 22
+  exact_version_expected: yes
+  osv_checkable: yes
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: yes
+  sbom_format: CycloneDX
+  sbom_scope: library
+  sbom_consistency: mismatch
+  manifest_sbom_missing: no
+  sbom_extra_components: yes
+  auxiliary_dependency_presence: yes
+  dependency_scope_ambiguity: no
+ambiguity_notes: 'CycloneDX 1.6 sbom.json (114 library components) lists all 10 runtime dependencies, dev dependencies are absent (normal), but qs is 6.11.2 in the SBOM while package-lock.json and package.json (^6.14.2) say 6.14.2: a genuine version mismatch (stale SBOM). test/fixtures hold small auxiliary package.json files. Dynamic import via new Function loads the user function.'

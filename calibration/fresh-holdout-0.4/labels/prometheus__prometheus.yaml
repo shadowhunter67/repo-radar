@@ -1,0 +1,36 @@
+repository: prometheus/prometheus
+artifact_type: service
+domain: observability
+capabilities:
+  PROCESS_EXEC: unknown
+  NETWORK_CLIENT: yes
+  NETWORK_SERVER: yes
+  REMOTE_DOWNLOAD: unknown
+  FILESYSTEM_WRITE: yes
+  DYNAMIC_CODE_LOAD: unknown
+  CREDENTIAL_ACCESS: unknown
+  ENVIRONMENT_READ: yes
+  BACKGROUND_PROCESS: unknown
+install_hooks:
+  automatic: no
+  names: []
+persistence: no
+hard_coded_secrets: unknown
+dependencies:
+  has_lockfile: yes
+  lockfile_types: [go.sum, pnpm-lock.yaml]
+  lockfile_scope: root
+  dependency_manifest_count: 7
+  direct_dependency_count_expected: unknown
+  exact_version_expected: yes
+  osv_checkable: yes
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: no
+  sbom_format: none
+  sbom_scope: none
+  sbom_consistency: not_applicable
+  manifest_sbom_missing: not_applicable
+  sbom_extra_components: not_applicable
+  auxiliary_dependency_presence: yes
+  dependency_scope_ambiguity: yes
+ambiguity_notes: 'Large Go service (1.7k files) with separate Go modules (compliance/, internal/tools/) and a pnpm UI workspace (web/ui, private packages). An environment file name exists under web/ui/react-app; its content was not read (policy: never read environment files).'

@@ -1,0 +1,36 @@
+repository: digitalfabrik/integreat-app
+artifact_type: application
+domain: web
+capabilities:
+  PROCESS_EXEC: unknown
+  NETWORK_CLIENT: no
+  NETWORK_SERVER: unknown
+  REMOTE_DOWNLOAD: unknown
+  FILESYSTEM_WRITE: unknown
+  DYNAMIC_CODE_LOAD: unknown
+  CREDENTIAL_ACCESS: unknown
+  ENVIRONMENT_READ: unknown
+  BACKGROUND_PROCESS: unknown
+install_hooks:
+  automatic: no
+  names: []
+persistence: unknown
+hard_coded_secrets: disputed
+dependencies:
+  has_lockfile: yes
+  lockfile_types: [yarn.lock]
+  lockfile_scope: workspace
+  dependency_manifest_count: 9
+  direct_dependency_count_expected: unknown
+  exact_version_expected: yes
+  osv_checkable: yes
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: yes
+  sbom_format: SPDX
+  sbom_scope: ci_workflow
+  sbom_consistency: disputed
+  manifest_sbom_missing: yes
+  sbom_extra_components: unknown
+  auxiliary_dependency_presence: yes
+  dependency_scope_ambiguity: yes
+ambiguity_notes: 'Yarn 4 workspace monorepo (all packages private) plus Ruby Gemfile.lock and Android Gradle files. sbom.spdx.json (SPDX-2.3, 25 packages) lists GitHub Actions workflow dependencies (actions/checkout...), not the npm dependencies, so its consistency with the manifests is not meaningful (disputed). build-configs contains a Google API key literal (client-side key, public by design: disputed as a secret). The committed .yarn/releases yarn-4 bundle dominates crude capability dossiers and was ignored; most capabilities are left unknown.'

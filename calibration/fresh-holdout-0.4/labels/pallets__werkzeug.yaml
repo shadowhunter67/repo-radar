@@ -1,0 +1,37 @@
+repository: pallets/werkzeug
+artifact_type: library
+artifact_also_acceptable: [framework]
+domain: web
+capabilities:
+  PROCESS_EXEC: yes
+  NETWORK_CLIENT: unknown
+  NETWORK_SERVER: no
+  REMOTE_DOWNLOAD: yes
+  FILESYSTEM_WRITE: yes
+  DYNAMIC_CODE_LOAD: yes
+  CREDENTIAL_ACCESS: yes
+  ENVIRONMENT_READ: no
+  BACKGROUND_PROCESS: no
+install_hooks:
+  automatic: no
+  names: []
+persistence: no
+hard_coded_secrets: no
+dependencies:
+  has_lockfile: yes
+  lockfile_types: [uv.lock]
+  lockfile_scope: root
+  dependency_manifest_count: 1
+  direct_dependency_count_expected: unknown
+  exact_version_expected: yes
+  osv_checkable: yes
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: no
+  sbom_format: none
+  sbom_scope: none
+  sbom_consistency: not_applicable
+  manifest_sbom_missing: not_applicable
+  sbom_extra_components: not_applicable
+  auxiliary_dependency_presence: no
+  dependency_scope_ambiguity: no
+ambiguity_notes: WSGI library (flit_core backend, no setup.py). The development server and reloader spawn subprocesses; the debugger evaluates user code by design (labelled DYNAMIC_CODE_LOAD yes). Serving uses http.server. Daemon threads are not background processes.

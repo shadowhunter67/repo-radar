@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const calib = join(here, '..');
+const calib = process.env.RR_CALIB_DIR ?? join(here, '..');
 const corpus = process.env.RR_CORPUS_DIR ?? join(tmpdir(), 'repo-radar-corpus');
 const repin = process.argv.includes('--repin');
 const dataset = parse(readFileSync(join(calib, 'dataset.yaml'), 'utf8'));

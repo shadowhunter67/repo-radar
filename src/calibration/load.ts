@@ -85,7 +85,7 @@ export function loadCorpus(calibrationDir: string): LoadedCorpus {
     if (seen.has(raw.repository)) problems.push(`${f}: duplicate label for ${raw.repository}`);
     seen.add(raw.repository);
     const tuned = entry.tuned_on === true;
-    const split = assignSplit(raw.repository, tuned);
+    const split = dataset.fixed_split ?? assignSplit(raw.repository, tuned);
     if (raw.commit && raw.commit !== pin)
       problems.push(`${f}: commit ${raw.commit} differs from pin ${pin}`);
     if (raw.split && raw.split !== split)

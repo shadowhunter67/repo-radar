@@ -12,6 +12,48 @@ export type Split = (typeof SPLITS)[number];
 
 const ArtifactLabel = z.union([z.enum(ARTIFACT_TYPES), z.literal('disputed')]);
 
+/** Phase 4 label family (dependency intelligence and SBOM). Every field may be `unknown` or `not_applicable`. */
+export const TriNaSchema = z.enum(['yes', 'no', 'unknown', 'disputed', 'not_applicable']);
+export type TriNa = z.infer<typeof TriNaSchema>;
+export const SBOM_CONSISTENCY = [
+  'consistent',
+  'partial',
+  'mismatch',
+  'unable_to_compare',
+  'unknown',
+  'not_applicable',
+  'disputed',
+] as const;
+export const DependencyLabelSchema = z.object({
+  has_lockfile: TriNaSchema.default('unknown'),
+  /** Lockfile file names that cover the primary project(s), e.g. [package-lock.json]. */
+  lockfile_types: z.array(z.string()).default([]),
+  /** What the lockfile covers: the root project only, a workspace, or nothing in this tree. */
+  lockfile_scope: z.enum(['root', 'workspace', 'none', 'unknown']).default('unknown'),
+  /** Number of manifests that declare dependencies of the primary project (excluding examples/tests/tools). */
+  dependency_manifest_count: z.union([z.number(), z.literal('unknown')]).default('unknown'),
+  /** Direct dependencies (all relationships) declared by those manifests. */
+  direct_dependency_count_expected: z.union([z.number(), z.literal('unknown')]).default('unknown'),
+  /** A reasonable tool could assign an exact version to (nearly) all direct registry dependencies from this revision. */
+  exact_version_expected: TriNaSchema.default('unknown'),
+  /** Exact versions exist for enough dependencies that a vulnerability lookup is meaningful. */
+  osv_checkable: TriNaSchema.default('unknown'),
+  osv_expected_known_vulnerabilities: TriNaSchema.default('unknown'),
+  has_sbom: TriNaSchema.default('unknown'),
+  sbom_format: z.enum(['CycloneDX', 'SPDX', 'other', 'none', 'unknown']).default('unknown'),
+  sbom_scope: z
+    .enum(['application', 'library', 'container', 'mixed', 'ci_workflow', 'none', 'unknown'])
+    .default('unknown'),
+  sbom_consistency: z.enum(SBOM_CONSISTENCY).default('unknown'),
+  manifest_sbom_missing: TriNaSchema.default('unknown'),
+  sbom_extra_components: TriNaSchema.default('unknown'),
+  /** Manifests under examples/tests/docs/tools declare dependencies that could be mistaken for the project's own. */
+  auxiliary_dependency_presence: TriNaSchema.default('unknown'),
+  /** It is genuinely unclear which manifests/lockfiles define "the" dependencies of the project. */
+  dependency_scope_ambiguity: TriNaSchema.default('unknown'),
+});
+export type DependencyLabel = z.infer<typeof DependencyLabelSchema>;
+
 export const LabelSchema = z.object({
   repository: z.string().regex(/^[\w.-]+\/[\w.-]+$/),
   commit: z.string().regex(/^[0-9a-f]{40}$/),
@@ -38,6 +80,8 @@ export const LabelSchema = z.object({
   }),
   persistence: TriSchema,
   hard_coded_secrets: TriSchema,
+  /** Optional: labels of the dependency/SBOM family. Absent for corpora labelled before Phase 4. */
+  dependencies: DependencyLabelSchema.optional(),
   ambiguity_notes: z.string().default(''),
 });
 export type Label = z.infer<typeof LabelSchema>;
@@ -45,6 +89,12 @@ export type Label = z.infer<typeof LabelSchema>;
 export const DatasetSchema = z.object({
   version: z.string(),
   selection_notes: z.string(),
+  /** Identifier of the corpus, e.g. `fresh-holdout-0.4`; used by results and release gates. */
+  corpus_id: z.string().optional(),
+  /** Methodology version this corpus was built to evaluate (a fresh holdout is only valid for that version). */
+  for_methodology: z.string().optional(),
+  /** All repositories belong to this split (a fresh holdout is entirely `holdout`). Overrides the hash rule. */
+  fixed_split: z.enum(SPLITS).optional(),
   repositories: z
     .array(
       z.object({

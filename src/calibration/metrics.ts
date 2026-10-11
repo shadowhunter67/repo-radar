@@ -1,6 +1,7 @@
 import type { CAPABILITIES } from '../analysis/types.js';
 import type { Report } from '../report/schema.js';
 import type { Label, Tri } from './schema.js';
+// Tri is still used by disagreements()
 
 /**
  * Pure evaluation of analyzer reports against labels. Nothing here touches the network or the filesystem.
@@ -27,7 +28,7 @@ export interface Prf extends Counts {
 
 export const emptyCounts = (): Counts => ({ tp: 0, fp: 0, fn: 0, tn: 0, n: 0, excluded: 0 });
 
-export function addBinary(c: Counts, predicted: boolean, label: Tri): void {
+export function addBinary(c: Counts, predicted: boolean, label: string): void {
   if (label !== 'yes' && label !== 'no') {
     c.excluded++;
     return;

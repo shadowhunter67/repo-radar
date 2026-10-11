@@ -1,0 +1,51 @@
+version: '0.1.0'
+corpus_id: fresh-holdout-0.4
+for_methodology: '0.4'
+fixed_split: holdout
+selection_notes: >-
+  Fresh holdout for methodology 0.4 (created 2026-10-11, before the methodology 0.4 analyzer was run on any of
+  these repositories). Rules: (1) none of these repositories appears in the dev/validation/holdout corpus of
+  calibration/dataset.yaml; (2) none was analyzed by repo-radar output that was read while building the analyzer, EXCEPT
+  as noted below; (3) every repository is pinned to an exact commit in pins.json at fetch time and never re-pinned;
+  (4) labels are written from the pinned source (crude-pattern dossiers and direct reading), never from analyzer
+  output; (5) the analyzer is run on this corpus ONCE per methodology version (scripts/calibrate.mjs --corpus
+  calibration/fresh-holdout-0.4 --final); results are recorded and NOT used to tune this cycle.
+  Excluded on purpose: mongodb/node-mongodb-native, mongodb/mongo-go-driver, mongodb/mongo-python-driver,
+  mongodb/mongo-tools, ruby/ruby.wasm, onnx/onnx, google/brotli, jrsoftware/issrc - their analyzer output was inspected
+  during the Phase 4 SBOM probes (and one analyzer bug was fixed from it), so they are no longer fresh.
+  Coverage targets: npm with lockfile (axios, faas-js-runtime), npm without lockfile (got, slugify), yarn monorepo with
+  SPDX SBOM (integreat-app), Python with lockfile (poetry, click, pydantic-core), Python without lockfile (httpx,
+  django-mongodb-backend), Cargo workspace (clap), Cargo CLI (starship), Go service with a large tree (prometheus),
+  Go application (miniflux), repositories with a real SBOM (faas-js-runtime CycloneDX, integreat-app SPDX,
+  django-mongodb-backend CycloneDX), examples/tools scope confusion (axios, click, clap), maturin Rust-backed Python
+  (pydantic-core), solo/stable low-churn (slugify, got), CLI (poetry, starship, miniflux), library (axios, got, httpx, click,
+  clap, slugify), service/application (prometheus, miniflux, integreat-app).
+review_defaults:
+  kind: ai-assisted-single
+  method: >-
+    One AI-assisted reviewer read crude-pattern dossiers (calibration/tools/dossier.mjs, independent of the analyzer's
+    detector pack) and the pinned manifests, lockfiles and SBOMs directly. NOT independent human review: see
+    calibration/review/ for the blind-review workflow that must be completed before any public claim.
+  reviewers: [claude-ai-assisted]
+  labelled_on: '2026-10-11'
+repositories:
+  - { repo: axios/axios, categories: [library, npm-lockfile, examples-scope] }
+  - { repo: sindresorhus/got, categories: [library, npm-no-lockfile, solo-maintained] }
+  - { repo: sindresorhus/slugify, categories: [library, npm-no-lockfile, minimal, stable] }
+  - { repo: python-poetry/poetry, categories: [cli, python-lockfile] }
+  - { repo: encode/httpx, categories: [library, python-no-lockfile] }
+  - { repo: pallets/werkzeug, categories: [library, python-lockfile, examples-scope] }
+  - {
+      repo: pydantic/pydantic-core,
+      categories: [library, python-lockfile, native-extension, maturin],
+    }
+  - { repo: clap-rs/clap, categories: [library, cargo-workspace, examples-scope] }
+  - { repo: starship/starship, categories: [cli, cargo-lockfile] }
+  - { repo: prometheus/prometheus, categories: [service, go-module, large-tree] }
+  - { repo: miniflux/v2, categories: [application, go-module, cli] }
+  - { repo: nodeshift/faas-js-runtime, categories: [library, npm-lockfile, sbom-cyclonedx] }
+  - { repo: digitalfabrik/integreat-app, categories: [application, yarn-monorepo, sbom-spdx] }
+  - {
+      repo: mongodb/django-mongodb-backend,
+      categories: [library, python-no-lockfile, sbom-cyclonedx],
+    }

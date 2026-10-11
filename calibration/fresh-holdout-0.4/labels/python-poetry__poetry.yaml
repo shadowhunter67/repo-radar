@@ -1,0 +1,37 @@
+repository: python-poetry/poetry
+artifact_type: cli
+artifact_also_acceptable: [tooling]
+domain: developer-tooling
+capabilities:
+  PROCESS_EXEC: yes
+  NETWORK_CLIENT: yes
+  NETWORK_SERVER: yes
+  REMOTE_DOWNLOAD: no
+  FILESYSTEM_WRITE: yes
+  DYNAMIC_CODE_LOAD: unknown
+  CREDENTIAL_ACCESS: yes
+  ENVIRONMENT_READ: yes
+  BACKGROUND_PROCESS: no
+install_hooks:
+  automatic: no
+  names: []
+persistence: no
+hard_coded_secrets: no
+dependencies:
+  has_lockfile: yes
+  lockfile_types: [poetry.lock]
+  lockfile_scope: root
+  dependency_manifest_count: 1
+  direct_dependency_count_expected: unknown
+  exact_version_expected: yes
+  osv_checkable: yes
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: no
+  sbom_format: none
+  sbom_scope: none
+  sbom_consistency: not_applicable
+  manifest_sbom_missing: not_applicable
+  sbom_extra_components: not_applicable
+  auxiliary_dependency_presence: yes
+  dependency_scope_ambiguity: no
+ambiguity_notes: Package manager. tests/fixtures contains ~100 pyproject.toml/setup.py files (auxiliary, intentionally unusual). Build backend poetry-core. Downloading distributions is its core function. keyring access via config.

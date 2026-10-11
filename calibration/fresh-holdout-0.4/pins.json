@@ -1,0 +1,75 @@
+{
+  "dataset_version": "0.1.0",
+  "repos": {
+    "axios/axios": {
+      "commit": "f694ecd6ac49bb1917e086b5e532e1627c62d43a",
+      "branch": "v1.x",
+      "pinned_on": "2026-10-11"
+    },
+    "sindresorhus/got": {
+      "commit": "e1d87d2ced01d5b7d855a7dc8b091bf7b014a1e4",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "sindresorhus/slugify": {
+      "commit": "3b17b2e84b97624a683aafaa38184bf2746fab22",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "python-poetry/poetry": {
+      "commit": "63bba274f8ea6bc9a064f5328fa6c67bce617cc1",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "encode/httpx": {
+      "commit": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "pydantic/pydantic-core": {
+      "commit": "383eb95a19433754c0cecf7025b50c26b6d97a36",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "clap-rs/clap": {
+      "commit": "ccc89b83875474399e9d9d70841163f6319d1a41",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "starship/starship": {
+      "commit": "d93e3f86799d92ee0c594500c472cdc54f994b9e",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "prometheus/prometheus": {
+      "commit": "2213c3c192574b8a339acd336ea6385974a7567b",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "miniflux/v2": {
+      "commit": "899fe04c7e0babb30d36e5428a328c7f1ae69fdb",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "nodeshift/faas-js-runtime": {
+      "commit": "53505e510fea653191ef686d3d2e82b936aa110b",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "digitalfabrik/integreat-app": {
+      "commit": "9232f15c2dd2147fd013a74b66ce319d73e6e989",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "mongodb/django-mongodb-backend": {
+      "commit": "b20bb6c824ad75ba6417bfc9576bfdeed0282363",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "pallets/werkzeug": {
+      "commit": "3e430f68900f2ffd89906137526a722eb4f6ebbb",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    }
+  }
+}

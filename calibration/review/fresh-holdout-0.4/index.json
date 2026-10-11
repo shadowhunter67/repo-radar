@@ -1,0 +1,76 @@
+{
+  "corpus": "fresh-holdout-0.4",
+  "generated_for": "blind human review",
+  "repositories": [
+    {
+      "repository": "axios/axios",
+      "commit": "f694ecd6ac49bb1917e086b5e532e1627c62d43a",
+      "packet": "packets/axios__axios.json"
+    },
+    {
+      "repository": "sindresorhus/got",
+      "commit": "e1d87d2ced01d5b7d855a7dc8b091bf7b014a1e4",
+      "packet": "packets/sindresorhus__got.json"
+    },
+    {
+      "repository": "sindresorhus/slugify",
+      "commit": "3b17b2e84b97624a683aafaa38184bf2746fab22",
+      "packet": "packets/sindresorhus__slugify.json"
+    },
+    {
+      "repository": "python-poetry/poetry",
+      "commit": "63bba274f8ea6bc9a064f5328fa6c67bce617cc1",
+      "packet": "packets/python-poetry__poetry.json"
+    },
+    {
+      "repository": "encode/httpx",
+      "commit": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "packet": "packets/encode__httpx.json"
+    },
+    {
+      "repository": "pallets/werkzeug",
+      "commit": "3e430f68900f2ffd89906137526a722eb4f6ebbb",
+      "packet": "packets/pallets__werkzeug.json"
+    },
+    {
+      "repository": "pydantic/pydantic-core",
+      "commit": "383eb95a19433754c0cecf7025b50c26b6d97a36",
+      "packet": "packets/pydantic__pydantic-core.json"
+    },
+    {
+      "repository": "clap-rs/clap",
+      "commit": "ccc89b83875474399e9d9d70841163f6319d1a41",
+      "packet": "packets/clap-rs__clap.json"
+    },
+    {
+      "repository": "starship/starship",
+      "commit": "d93e3f86799d92ee0c594500c472cdc54f994b9e",
+      "packet": "packets/starship__starship.json"
+    },
+    {
+      "repository": "prometheus/prometheus",
+      "commit": "2213c3c192574b8a339acd336ea6385974a7567b",
+      "packet": "packets/prometheus__prometheus.json"
+    },
+    {
+      "repository": "miniflux/v2",
+      "commit": "899fe04c7e0babb30d36e5428a328c7f1ae69fdb",
+      "packet": "packets/miniflux__v2.json"
+    },
+    {
+      "repository": "nodeshift/faas-js-runtime",
+      "commit": "53505e510fea653191ef686d3d2e82b936aa110b",
+      "packet": "packets/nodeshift__faas-js-runtime.json"
+    },
+    {
+      "repository": "digitalfabrik/integreat-app",
+      "commit": "9232f15c2dd2147fd013a74b66ce319d73e6e989",
+      "packet": "packets/digitalfabrik__integreat-app.json"
+    },
+    {
+      "repository": "mongodb/django-mongodb-backend",
+      "commit": "b20bb6c824ad75ba6417bfc9576bfdeed0282363",
+      "packet": "packets/mongodb__django-mongodb-backend.json"
+    }
+  ]
+}

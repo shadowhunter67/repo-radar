@@ -132,8 +132,13 @@ try {
   } catch {
     /* reported through gate 5 */
   }
+  // Only a FRESH holdout built for this methodology counts: an older holdout that was already observed is not independent.
   const finals = all.filter(
-    (x) => x.r.holdout_evaluated && x.r.methodology_version === methodology,
+    (x) =>
+      x.r.holdout_evaluated &&
+      x.r.fresh_holdout === true &&
+      x.r.for_methodology === methodology &&
+      x.r.methodology_version === methodology,
   );
   gate(
     5,
@@ -141,7 +146,7 @@ try {
     finals.length ? 'PASS' : 'FAIL',
     finals.length
       ? finals.map((x) => x.f).join(', ')
-      : `no holdout result for methodology ${methodology} (run scripts/calibrate.mjs --final once, after tuning)`,
+      : `no FRESH holdout result for methodology ${methodology} (run scripts/calibrate.mjs --corpus <fresh holdout dir> --final once, after tuning)`,
   );
   const withSplit = all.filter(
     (x) =>

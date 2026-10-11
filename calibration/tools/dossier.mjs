@@ -16,7 +16,9 @@ import { fileURLToPath } from 'node:url';
 const repo = process.argv[2];
 if (!repo || !/^[\w.-]+\/[\w.-]+$/.test(repo)) throw new Error('usage: dossier.mjs owner/repo');
 const here = dirname(fileURLToPath(import.meta.url));
-const pins = JSON.parse(readFileSync(join(here, '..', 'pins.json'), 'utf8')).repos[repo];
+const pins = JSON.parse(
+  readFileSync(join(process.env.RR_CALIB_DIR ?? join(here, '..'), 'pins.json'), 'utf8'),
+).repos[repo];
 const dir = join(
   process.env.RR_CORPUS_DIR ?? join(tmpdir(), 'repo-radar-corpus'),
   repo.replace('/', '__'),

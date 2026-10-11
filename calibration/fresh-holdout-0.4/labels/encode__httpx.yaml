@@ -1,0 +1,36 @@
+repository: encode/httpx
+artifact_type: library
+domain: networking
+capabilities:
+  PROCESS_EXEC: no
+  NETWORK_CLIENT: yes
+  NETWORK_SERVER: no
+  REMOTE_DOWNLOAD: no
+  FILESYSTEM_WRITE: unknown
+  DYNAMIC_CODE_LOAD: unknown
+  CREDENTIAL_ACCESS: no
+  ENVIRONMENT_READ: yes
+  BACKGROUND_PROCESS: no
+install_hooks:
+  automatic: no
+  names: []
+persistence: no
+hard_coded_secrets: no
+dependencies:
+  has_lockfile: no
+  lockfile_types: []
+  lockfile_scope: none
+  dependency_manifest_count: 2
+  direct_dependency_count_expected: unknown
+  exact_version_expected: no
+  osv_checkable: no
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: no
+  sbom_format: none
+  sbom_scope: none
+  sbom_consistency: not_applicable
+  manifest_sbom_missing: not_applicable
+  sbom_extra_components: not_applicable
+  auxiliary_dependency_presence: no
+  dependency_scope_ambiguity: yes
+ambiguity_notes: pyproject.toml declares ranged runtime dependencies; requirements.txt pins the development/docs environment. Which one is the dependency set is ambiguous. Credential read = netrc support in _auth.py.

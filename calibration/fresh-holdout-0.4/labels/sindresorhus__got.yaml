@@ -1,0 +1,36 @@
+repository: sindresorhus/got
+artifact_type: library
+domain: networking
+capabilities:
+  PROCESS_EXEC: yes
+  NETWORK_CLIENT: no
+  NETWORK_SERVER: no
+  REMOTE_DOWNLOAD: no
+  FILESYSTEM_WRITE: no
+  DYNAMIC_CODE_LOAD: no
+  CREDENTIAL_ACCESS: no
+  ENVIRONMENT_READ: no
+  BACKGROUND_PROCESS: no
+install_hooks:
+  automatic: no
+  names: []
+persistence: no
+hard_coded_secrets: no
+dependencies:
+  has_lockfile: no
+  lockfile_types: []
+  lockfile_scope: none
+  dependency_manifest_count: 1
+  direct_dependency_count_expected: 50
+  exact_version_expected: no
+  osv_checkable: no
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: no
+  sbom_format: none
+  sbom_scope: none
+  sbom_consistency: not_applicable
+  manifest_sbom_missing: not_applicable
+  sbom_extra_components: not_applicable
+  auxiliary_dependency_presence: no
+  dependency_scope_ambiguity: no
+ambiguity_notes: HTTP request library, no lockfile committed (ranges only). prepare=npm run build is a developer/git-install hook, not run for registry dependents. REMOTE_DOWNLOAD hits are download-progress events, not file downloads.

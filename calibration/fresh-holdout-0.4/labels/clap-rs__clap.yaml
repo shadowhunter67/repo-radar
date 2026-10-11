@@ -1,0 +1,37 @@
+repository: clap-rs/clap
+artifact_type: library
+artifact_also_acceptable: [framework]
+domain: developer-tooling
+capabilities:
+  PROCESS_EXEC: no
+  NETWORK_CLIENT: no
+  NETWORK_SERVER: no
+  REMOTE_DOWNLOAD: no
+  FILESYSTEM_WRITE: yes
+  DYNAMIC_CODE_LOAD: no
+  CREDENTIAL_ACCESS: no
+  ENVIRONMENT_READ: yes
+  BACKGROUND_PROCESS: no
+install_hooks:
+  automatic: no
+  names: []
+persistence: no
+hard_coded_secrets: no
+dependencies:
+  has_lockfile: yes
+  lockfile_types: [Cargo.lock]
+  lockfile_scope: workspace
+  dependency_manifest_count: 8
+  direct_dependency_count_expected: unknown
+  exact_version_expected: yes
+  osv_checkable: yes
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: no
+  sbom_format: none
+  sbom_scope: none
+  sbom_consistency: not_applicable
+  manifest_sbom_missing: not_applicable
+  sbom_extra_components: not_applicable
+  auxiliary_dependency_presence: no
+  dependency_scope_ambiguity: no
+ambiguity_notes: "Rust workspace of 8 crates with one root Cargo.lock. Command::new in the source is clap's own command builder, NOT process execution. Doc comments mention appending to ~/.bashrc (documentation, not code)."

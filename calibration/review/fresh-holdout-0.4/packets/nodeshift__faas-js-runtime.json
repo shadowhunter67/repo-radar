@@ -1,0 +1,92 @@
+{
+  "packet_version": 1,
+  "corpus": "fresh-holdout-0.4",
+  "repository": "nodeshift/faas-js-runtime",
+  "commit": "53505e510fea653191ef686d3d2e82b936aa110b",
+  "browse": "https://github.com/nodeshift/faas-js-runtime/tree/53505e510fea653191ef686d3d2e82b936aa110b",
+  "file_count": 69,
+  "blind": "This packet contains no analyzer output and no existing labels.",
+  "read_these": {
+    "manifests": [
+      "package.json",
+      "test/fixtures/cjs-module/package.json",
+      "test/fixtures/esm-module-mjs/package.json",
+      "test/fixtures/esm-module-type-module/package.json",
+      "test/fixtures/esm-module-type-up-dir/package.json",
+      "test/fixtures/http-get/package.json"
+    ],
+    "lockfiles": ["package-lock.json", "test/fixtures/http-get/package-lock.json"],
+    "sbom_like": ["sbom.json"],
+    "install_and_build_scripts": [],
+    "ci_workflows": [
+      ".github/workflows/nodejs-ci-action.yml",
+      ".github/workflows/release-please.yml"
+    ]
+  },
+  "top_level_entries": [
+    ".eslintrc",
+    ".github",
+    ".gitignore",
+    ".release-please-manifest.json",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md",
+    "bin",
+    "index.d.ts",
+    "index.js",
+    "lib",
+    "package-lock.json",
+    "package.json",
+    "release-please-config.json",
+    "sample",
+    "sbom.json",
+    "test",
+    "tsconfig.json"
+  ],
+  "label_form": {
+    "reviewer": {
+      "id": "<your id>",
+      "kind": "human-single",
+      "labelled_on": "<YYYY-MM-DD>"
+    },
+    "artifact_type": "<library | application | cli | service | framework | plugin | extension | sdk | tooling | monorepo | ...>",
+    "artifact_also_acceptable": [],
+    "domain": "<free text slug, e.g. developer-tooling>",
+    "capabilities": {
+      "PROCESS_EXEC": "<yes | no | unknown | disputed>",
+      "NETWORK_CLIENT": "<yes | no | unknown | disputed>",
+      "NETWORK_SERVER": "<yes | no | unknown | disputed>",
+      "REMOTE_DOWNLOAD": "<yes | no | unknown | disputed>",
+      "FILESYSTEM_WRITE": "<yes | no | unknown | disputed>",
+      "DYNAMIC_CODE_LOAD": "<yes | no | unknown | disputed>",
+      "CREDENTIAL_ACCESS": "<yes | no | unknown | disputed>",
+      "ENVIRONMENT_READ": "<yes | no | unknown | disputed>",
+      "BACKGROUND_PROCESS": "<yes | no | unknown | disputed>"
+    },
+    "install_hooks": {
+      "automatic": "<yes | no | unknown | disputed>",
+      "names": []
+    },
+    "persistence": "<yes | no | unknown | disputed>",
+    "hard_coded_secrets": "<yes | no | unknown | disputed>",
+    "dependencies": {
+      "has_lockfile": "<yes | no | unknown | disputed | not_applicable>",
+      "lockfile_types": [],
+      "lockfile_scope": "<root | workspace | none | unknown>",
+      "dependency_manifest_count": "<number | unknown>",
+      "direct_dependency_count_expected": "<number | unknown>",
+      "exact_version_expected": "<yes | no | unknown | disputed | not_applicable>",
+      "osv_checkable": "<yes | no | unknown | disputed | not_applicable>",
+      "osv_expected_known_vulnerabilities": "<yes | no | unknown | disputed | not_applicable>",
+      "has_sbom": "<yes | no | unknown | disputed | not_applicable>",
+      "sbom_format": "<CycloneDX | SPDX | other | none | unknown>",
+      "sbom_scope": "<application | library | container | mixed | ci_workflow | none | unknown>",
+      "sbom_consistency": "<consistent | partial | mismatch | unable_to_compare | unknown | not_applicable | disputed>",
+      "manifest_sbom_missing": "<yes | no | unknown | disputed | not_applicable>",
+      "sbom_extra_components": "<yes | no | unknown | disputed | not_applicable>",
+      "auxiliary_dependency_presence": "<yes | no | unknown | disputed | not_applicable>",
+      "dependency_scope_ambiguity": "<yes | no | unknown | disputed | not_applicable>"
+    },
+    "notes": "<free text: what you read, what you could not decide and why>"
+  }
+}

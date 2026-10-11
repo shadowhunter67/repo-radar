@@ -1,0 +1,37 @@
+repository: pydantic/pydantic-core
+artifact_type: library
+artifact_also_acceptable: [tooling]
+domain: developer-tooling
+capabilities:
+  PROCESS_EXEC: no
+  NETWORK_CLIENT: unknown
+  NETWORK_SERVER: no
+  REMOTE_DOWNLOAD: no
+  FILESYSTEM_WRITE: no
+  DYNAMIC_CODE_LOAD: no
+  CREDENTIAL_ACCESS: no
+  ENVIRONMENT_READ: yes
+  BACKGROUND_PROCESS: no
+install_hooks:
+  automatic: yes
+  names: [build.rs]
+persistence: no
+hard_coded_secrets: no
+dependencies:
+  has_lockfile: yes
+  lockfile_types: [Cargo.lock, uv.lock]
+  lockfile_scope: root
+  dependency_manifest_count: 3
+  direct_dependency_count_expected: unknown
+  exact_version_expected: yes
+  osv_checkable: yes
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: no
+  sbom_format: none
+  sbom_scope: none
+  sbom_consistency: not_applicable
+  manifest_sbom_missing: not_applicable
+  sbom_extra_components: not_applicable
+  auxiliary_dependency_presence: no
+  dependency_scope_ambiguity: yes
+ambiguity_notes: Rust extension built with maturin. build.rs runs when building from source (sdist); wheel users do not run it, hence automatic is ambiguous (labelled yes for source builds). package.json is test tooling for the emscripten runner. wasm-preview/worker.js fetch is an auxiliary demo.

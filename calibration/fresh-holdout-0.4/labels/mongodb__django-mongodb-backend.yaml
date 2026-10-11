@@ -1,0 +1,36 @@
+repository: mongodb/django-mongodb-backend
+artifact_type: library
+domain: database
+capabilities:
+  PROCESS_EXEC: unknown
+  NETWORK_CLIENT: unknown
+  NETWORK_SERVER: unknown
+  REMOTE_DOWNLOAD: no
+  FILESYSTEM_WRITE: unknown
+  DYNAMIC_CODE_LOAD: unknown
+  CREDENTIAL_ACCESS: unknown
+  ENVIRONMENT_READ: no
+  BACKGROUND_PROCESS: unknown
+install_hooks:
+  automatic: no
+  names: []
+persistence: no
+hard_coded_secrets: no
+dependencies:
+  has_lockfile: no
+  lockfile_types: []
+  lockfile_scope: none
+  dependency_manifest_count: 2
+  direct_dependency_count_expected: 2
+  exact_version_expected: no
+  osv_checkable: no
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: yes
+  sbom_format: CycloneDX
+  sbom_scope: library
+  sbom_consistency: consistent
+  manifest_sbom_missing: no
+  sbom_extra_components: yes
+  auxiliary_dependency_presence: no
+  dependency_scope_ambiguity: yes
+ambiguity_notes: 'Dependencies are dynamic (hatch-requirements-txt): requirements.txt declares django>=6.1,<6.2 and pymongo>=4.7,<5.0. CycloneDX 1.5 sbom.json (25 components) has Django 6.1 and pymongo 4.17.0, both inside the ranges; extras are transitive. No lockfile, so exact versions come only from the SBOM. .evergreen/ holds CI performance tooling (subprocess/curl).'

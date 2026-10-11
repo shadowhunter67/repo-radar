@@ -1,0 +1,36 @@
+repository: starship/starship
+artifact_type: cli
+domain: developer-tooling
+capabilities:
+  PROCESS_EXEC: no
+  NETWORK_CLIENT: no
+  NETWORK_SERVER: no
+  REMOTE_DOWNLOAD: yes
+  FILESYSTEM_WRITE: yes
+  DYNAMIC_CODE_LOAD: no
+  CREDENTIAL_ACCESS: unknown
+  ENVIRONMENT_READ: yes
+  BACKGROUND_PROCESS: unknown
+install_hooks:
+  automatic: yes
+  names: [build.rs]
+persistence: no
+hard_coded_secrets: no
+dependencies:
+  has_lockfile: yes
+  lockfile_types: [Cargo.lock]
+  lockfile_scope: root
+  dependency_manifest_count: 1
+  direct_dependency_count_expected: unknown
+  exact_version_expected: yes
+  osv_checkable: yes
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: no
+  sbom_format: none
+  sbom_scope: none
+  sbom_consistency: not_applicable
+  manifest_sbom_missing: not_applicable
+  sbom_extra_components: not_applicable
+  auxiliary_dependency_presence: yes
+  dependency_scope_ambiguity: no
+ambiguity_notes: Rust CLI with build.rs (cargo build). install/install.sh downloads a release with curl/wget (user-run installer, not automatic). docs/package.json + lockfile are an auxiliary documentation site. bug_report.rs reads shell rc files (read, not persistence).

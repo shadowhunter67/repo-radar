@@ -1,0 +1,37 @@
+repository: miniflux/v2
+artifact_type: application
+artifact_also_acceptable: [service]
+domain: web
+capabilities:
+  PROCESS_EXEC: no
+  NETWORK_CLIENT: yes
+  NETWORK_SERVER: yes
+  REMOTE_DOWNLOAD: yes
+  FILESYSTEM_WRITE: no
+  DYNAMIC_CODE_LOAD: no
+  CREDENTIAL_ACCESS: no
+  ENVIRONMENT_READ: yes
+  BACKGROUND_PROCESS: unknown
+install_hooks:
+  automatic: no
+  names: []
+persistence: no
+hard_coded_secrets: no
+dependencies:
+  has_lockfile: yes
+  lockfile_types: [go.sum]
+  lockfile_scope: root
+  dependency_manifest_count: 1
+  direct_dependency_count_expected: 33
+  exact_version_expected: yes
+  osv_checkable: yes
+  osv_expected_known_vulnerabilities: unknown
+  has_sbom: no
+  sbom_format: none
+  sbom_scope: none
+  sbom_consistency: not_applicable
+  manifest_sbom_missing: not_applicable
+  sbom_extra_components: not_applicable
+  auxiliary_dependency_presence: no
+  dependency_scope_ambiguity: no
+ambiguity_notes: Self-hosted feed reader (Go). go.mod lists 33 requirements, 20 of them // indirect. FILESYSTEM_WRITE hits are tests only.
