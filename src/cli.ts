@@ -48,6 +48,7 @@ Options for analyze:
   --no-osv                   Skip the OSV vulnerability lookup
   --no-deps-dev              Skip deps.dev package metadata (licenses, current-version candidates)
   --no-compliance            Skip regulatory readiness packs and privacy/AI technical indicators
+  --no-registry              Skip npm / PyPI / crates.io lookups for the packages this repository publishes
   --no-releases              Skip release asset / checksum / signature / provenance metadata
   --no-targeted-tree         Do not walk priority directories when the recursive git tree is truncated or too large
   --no-sbom                  Do not discover or ingest SBOM files in the repository
@@ -96,6 +97,7 @@ export async function main(
         'no-compliance': { type: 'boolean', default: false },
         'no-targeted-tree': { type: 'boolean', default: false },
         'no-releases': { type: 'boolean', default: false },
+        'no-registry': { type: 'boolean', default: false },
         'no-scan': { type: 'boolean', default: false },
         ref: { type: 'string' },
         from: { type: 'string' },
@@ -159,6 +161,7 @@ export async function main(
         compliance: !values['no-compliance'],
         targetedTree: !values['no-targeted-tree'],
         releases: !values['no-releases'],
+        registry: !values['no-registry'],
         codeScan: !values['no-scan'],
       });
       const histProfile = loadProfile(values.profile);
@@ -247,6 +250,7 @@ export async function main(
       compliance: !values['no-compliance'],
       targetedTree: !values['no-targeted-tree'],
       releases: !values['no-releases'],
+      registry: !values['no-registry'],
       codeScan: !values['no-scan'],
       ...(values.ref ? { ref: values.ref } : {}),
     });

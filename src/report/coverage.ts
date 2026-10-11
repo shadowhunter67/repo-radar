@@ -37,6 +37,21 @@ export const TreeRetrievalSchema = z.object({
   stopped_by: z.enum(['complete', 'request_budget', 'node_budget', 'byte_budget', 'time_budget']),
   github_truncated: z.boolean(),
   failed_requests: z.number().int().min(0),
+  passes: z
+    .array(
+      z.object({
+        name: z.enum(['root', 'ci_build', 'hinted', 'source_roots', 'breadth']),
+        directories: z.number().int().min(0),
+      }),
+    )
+    .max(10),
+  hints: z.object({
+    files_read: z.number().int().min(0),
+    directories_named: z.number().int().min(0),
+    files: z.array(z.string().max(400)).max(20),
+  }),
+  skipped_by_rule: z.number().int().min(0),
+  wide_directories: z.array(z.string().max(400)).max(10),
 });
 
 export const CoverageEntrySchema = z.object({

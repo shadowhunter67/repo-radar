@@ -1,12 +1,22 @@
+import { extractHints, HINT_FILE_RE, type HintDirs } from './hints.js';
 import { isSafeTreePath, type TreeEntry } from './tree.js';
 
 /**
  * Targeted tree retrieval for repositories whose recursive git tree is too large for one response, or which GitHub
- * truncated. Instead of raising the size limit forever, a bounded, prioritised walk fetches only the directories that are
- * likely to hold structural evidence (manifests, workflows, build files, source roots) and says exactly what it did not read.
+ * truncated (kubernetes, linux, nixpkgs, flink...). Instead of raising the size limit forever it runs a bounded, multi-pass,
+ * prioritised walk:
  *
- * Everything is budgeted: requests, tree nodes, bytes and wall-clock time. An exhausted budget is a visible result
- * (`stopped_by`), never a silent truncation, and the result is never presented as a complete tree.
+ *   root          the root listing
+ *   ci_build      CI, build and installer directories (small, decide install/build behaviour)
+ *   hinted        directories that workspace/build manifests near the root NAME (workspaces, Cargo members, Gradle includes,
+ *                 Maven modules, CMake add_subdirectory, go.work, Makefile.am SUBDIRS, meson subdir)
+ *   source_roots  conventional package/source roots (src, packages, crates, cmd, ...)
+ *   breadth       everything else, shallow directories first
+ *
+ * Wide directories (hundreds of sub-directories: drivers/, pkgs/) are not expanded level by level; their children rank low
+ * unless a hint names them. Documentation, tests, examples and vendored code rank LOW but are not forbidden; only
+ * dependency/VCS/cache directories are never read. Everything is budgeted (requests, nodes, bytes, time, depth, hint reads);
+ * an exhausted budget is a visible result (`stopped_by`) and the result is never presented as a complete tree.
  */
 const hasControlChars = (p: string): boolean =>
   [...p].some((c) => c.charCodeAt(0) < 32 || c.charCodeAt(0) === 127);
@@ -22,18 +32,28 @@ export interface RetrievalBudget {
   maxMillis: number;
   /** Do not descend below this directory depth (root entries are depth 0). */
   maxDepth: number;
+  /** Small workspace/build manifests read to learn which directories matter. */
+  maxHintReads: number;
+  /** A directory with more sub-directories than this is "wide": its children are not expanded breadth-first. */
+  wideFanout: number;
 }
 
+/** Budget for repositories whose recursive tree does not fit: explicit, finite, reported in every result. */
 export const DEFAULT_RETRIEVAL_BUDGET: RetrievalBudget = {
-  maxRequests: 70,
-  maxNodes: 150_000,
-  maxBytes: 24 * 1024 * 1024,
-  maxMillis: 90_000,
-  maxDepth: 3,
+  maxRequests: 90,
+  maxNodes: 200_000,
+  maxBytes: 32 * 1024 * 1024,
+  maxMillis: 120_000,
+  maxDepth: 4,
+  maxHintReads: 16,
+  wideFanout: 120,
 };
 
 export type StoppedBy =
   'complete' | 'request_budget' | 'node_budget' | 'byte_budget' | 'time_budget';
+
+export const PASS_NAMES = ['root', 'ci_build', 'hinted', 'source_roots', 'breadth'] as const;
+export type PassName = (typeof PASS_NAMES)[number];
 
 export interface TreeRetrieval {
   method: 'recursive' | 'targeted' | 'none';
@@ -53,6 +73,14 @@ export interface TreeRetrieval {
   github_truncated: boolean;
   /** Subtree requests that failed (rate limit, network, ...): those directories are unexplored. */
   failed_requests: number;
+  /** Listings per pass. */
+  passes: { name: PassName; directories: number }[];
+  /** Hint files read and the directories they named. */
+  hints: { files_read: number; directories_named: number; files: string[] };
+  /** Known directories that were never eligible (dependency/VCS/cache directories). */
+  skipped_by_rule: number;
+  /** Directories with more sub-directories than the fan-out limit (their children were deprioritised). */
+  wide_directories: string[];
 }
 
 /** One non-recursive or recursive tree listing by object sha or ref name. */
@@ -61,34 +89,65 @@ export type TreeFetcher = (
   recursive: boolean,
 ) => Promise<{ tree: TreeNode[]; truncated: boolean; bytes: number } | undefined>;
 
-const SKIP_DIR =
-  /^(?:node_modules|vendor|third_party|thirdparty|dist|build|target|out|__pycache__|\.git|\.venv|venv|site-packages|coverage|\.next|\.cache|testdata|fixtures?|tests?|__tests__|e2e|spec|specs|docs?|doc|documentation|examples?|samples?|demo|demos|benchmarks?|bench|assets|images?|img|static|public|locales?|i18n|translations?|data|datasets|\.idea|\.vscode)$/i;
+/** Reads a small repository file as text for hints (undefined when absent or unreadable). */
+export type HintReader = (path: string) => Promise<string | undefined>;
+
+/** Never read: dependency trees, VCS data, caches and virtual environments. */
+const HARD_SKIP =
+  /^(?:node_modules|\.git|__pycache__|\.venv|venv|site-packages|\.next|\.cache|\.tox|\.mypy_cache|\.gradle|\.idea|\.vscode)$/i;
+/** Readable but ranked low: documentation, tests, examples, generated and vendored code, assets. */
+const LOW_DIR =
+  /^(?:vendor|third_party|thirdparty|dist|build|target|out|coverage|testdata|fixtures?|tests?|__tests__|e2e|spec|specs|docs?|doc|documentation|examples?|samples?|demo|demos|benchmarks?|bench|assets|images?|img|static|public|locales?|i18n|translations?|data|datasets|generated|gen)$/i;
 /** Directories holding build, CI or install logic: listed recursively because they are small and high value. */
 const BUILD_DIR =
-  /^(?:\.github|\.circleci|\.buildkite|\.gitlab|\.mvn|gradle|buildSrc|build-logic|scripts?|ci|\.ci|tools?|tooling|docker|deploy|deployment|k8s|helm|infra|packaging|dev|bin|tasks?|release|releases?)$/i;
-/** Directories that usually hold packages, modules or source roots: descended one level at a time. */
+  /^(?:\.github|\.circleci|\.buildkite|\.gitlab|\.mvn|gradle|buildSrc|build-logic|scripts?|ci|\.ci|tools?|tooling|docker|deploy|deployment|k8s|helm|infra|packaging|dev|bin|tasks?|release|releases?|cmake|\.cargo|hack|contrib|misc)$/i;
+/** Directories that usually hold packages, modules or source roots. */
 const SOURCE_DIR =
   /^(?:src|source|sources|lib|libs|app|apps|cmd|internal|pkg|packages|crates|modules|plugins|services|projects|components|python|js|ts|go|rust|java|kotlin|main|core|server|client|cli|api|sdk|frontend|backend|web)$/i;
 
-/**
- * Higher is read earlier; -1 is never read. Pure and deterministic.
- *
- * CI/build directories come first (they are small and decide install/build behaviour). Everything else is read
- * breadth-first: all directories at one depth before any directory one level deeper, with source-root names ahead of
- * unknown names inside a level. This is what finds the manifests of a repository with many sibling modules (a Maven
- * reactor, a Cargo workspace) before it descends into the source tree of the first module.
- */
-export function dirPriority(path: string): number {
+export interface PriorityContext {
+  hintExact?: ReadonlySet<string>;
+  hintParents?: ReadonlySet<string>;
+  /** Directories that lie on the way to a hinted directory (they must be listed to reach it). */
+  hintAncestors?: ReadonlySet<string>;
+  /** Parents whose children should not be expanded breadth-first. */
+  wideParents?: ReadonlySet<string>;
+}
+
+const parentOf = (p: string): string => p.slice(0, Math.max(0, p.lastIndexOf('/')));
+
+/** True when a hint names this directory (exactly, or as a direct child of a glob parent). */
+export function isHinted(path: string, ctx: PriorityContext): boolean {
+  if (ctx.hintExact?.has(path)) return true;
+  const parent = path.includes('/') ? parentOf(path) : '';
+  return (ctx.hintParents?.has(parent) ?? false) || (ctx.hintAncestors?.has(path) ?? false);
+}
+
+/** Higher is read earlier; -1 is never read. Pure and deterministic. */
+export function dirPriority(path: string, ctx: PriorityContext = {}): number {
   const parts = path.split('/');
   const name = parts[parts.length - 1] as string;
-  if (parts.some((p) => SKIP_DIR.test(p))) return -1;
-  if (/^.git$/i.test(parts[0] as string)) return -1;
+  if (parts.some((p) => HARD_SKIP.test(p))) return -1;
   const depth = parts.length - 1;
   if (path === '.github' || path === '.github/workflows') return 1000;
   if (BUILD_DIR.test(parts[0] as string) && depth <= 2) return 900 - depth;
+  if (isHinted(path, ctx)) return 800 - depth * 10;
   if (BUILD_DIR.test(name)) return 400 - depth * 100;
-  const tier = SOURCE_DIR.test(name) ? 40 : 20;
-  return Math.max(1, 300 - depth * 100 + tier);
+  // Breadth first: every directory of one level before any directory one level deeper.
+  let p = 300 - depth * 100 + (SOURCE_DIR.test(name) ? 40 : 20);
+  if (parts.some((x) => LOW_DIR.test(x))) p = Math.min(p, 8 - depth);
+  if (ctx.wideParents?.has(parentOf(path))) p -= 250;
+  return Math.max(p < 0 ? 1 : p, 1);
+}
+
+function passOf(path: string, ctx: PriorityContext): PassName {
+  const parts = path.split('/');
+  const name = parts[parts.length - 1] as string;
+  if (path === '.github' || path === '.github/workflows' || BUILD_DIR.test(parts[0] as string))
+    return 'ci_build';
+  if (isHinted(path, ctx)) return 'hinted';
+  if (SOURCE_DIR.test(name)) return 'source_roots';
+  return 'breadth';
 }
 
 export interface RetrievalResult {
@@ -109,6 +168,7 @@ export async function retrieveTargeted(
     reason: TreeRetrieval['reason'];
     githubTruncated: boolean;
     now?: () => number;
+    readHint?: HintReader;
   },
 ): Promise<RetrievalResult> {
   const now = opts.now ?? Date.now;
@@ -123,8 +183,17 @@ export async function retrieveTargeted(
   const entries = new Map<string, TreeNode>();
   const explored: string[] = [];
   const known = new Map<string, string>(); // directory path -> tree sha, not yet listed
+  const passCount = new Map<PassName, number>();
+  const hintExact = new Set<string>();
+  const hintParents = new Set<string>();
+  const hintAncestors = new Set<string>();
+  const hintFiles: string[] = [];
+  const hintsRead = new Set<string>();
+  const wide = new Set<string>();
+  const ctx: PriorityContext = { hintExact, hintParents, hintAncestors, wideParents: wide };
 
   const addEntries = (prefix: string, list: TreeNode[]): void => {
+    let subdirs = 0;
     for (const e of list) {
       const path = prefix ? `${prefix}/${e.path}` : e.path;
       // Names come from the repository: traversal segments, backslashes and control characters are never followed.
@@ -132,8 +201,12 @@ export async function retrieveTargeted(
       if (entries.has(path) || nodes >= budget.maxNodes) continue;
       entries.set(path, { ...e, path });
       nodes++;
-      if (e.type === 'tree' && e.sha) known.set(path, e.sha);
+      if (e.type === 'tree' && e.sha) {
+        known.set(path, e.sha);
+        subdirs++;
+      }
     }
+    if (subdirs > budget.wideFanout) wide.add(prefix);
   };
 
   for (const e of opts.initial ?? []) {
@@ -168,43 +241,101 @@ export async function retrieveTargeted(
     return r;
   };
 
-  // Root listing (non-recursive: always small).
-  const root = await spend(rootRef, false);
-  if (root && root !== 'stop') addEntries('', root.tree);
-  else if (root === undefined) {
-    return {
-      entries: [...entries.values()],
-      report: {
-        method: entries.size > 0 ? 'targeted' : 'none',
-        complete: false,
-        reason: opts.reason,
-        requests,
-        nodes,
-        bytes,
-        explored,
-        unexplored: [],
-        unexplored_count: 0,
-        stopped_by: stopped,
-        github_truncated: opts.githubTruncated,
-        failed_requests: failed,
-      },
-    };
-  }
-  explored.push('');
+  /** Read workspace/build manifests that appeared in a new listing and learn which directories they name. */
+  const learnHints = async (dir: string): Promise<void> => {
+    if (!opts.readHint) return;
+    if (dir.split('/').filter(Boolean).length > 1) return; // hints near the root only
+    const prefix = dir ? `${dir}/` : '';
+    const files = [...entries.values()]
+      .filter(
+        (e) =>
+          e.type === 'blob' &&
+          e.path.startsWith(prefix) &&
+          !e.path.slice(prefix.length).includes('/'),
+      )
+      .map((e) => e.path)
+      .filter((p) => HINT_FILE_RE.test(p.slice(prefix.length)) && !hintsRead.has(p));
+    for (const path of files) {
+      if (hintsRead.size >= budget.maxHintReads || requests >= budget.maxRequests) return;
+      if (now() - started > budget.maxMillis) return;
+      hintsRead.add(path);
+      requests++;
+      let text: string | undefined;
+      try {
+        text = await opts.readHint(path);
+      } catch {
+        text = undefined;
+      }
+      if (text === undefined) continue;
+      bytes += text.length;
+      const name = path.slice(prefix.length);
+      const h: HintDirs = extractHints(name, dir, text);
+      if (h.exact.length + h.parents.length > 0) hintFiles.push(path);
+      for (const d of [...h.exact, ...h.parents]) {
+        const parts = d.split('/');
+        for (let i = 1; i < parts.length; i++) hintAncestors.add(parts.slice(0, i).join('/'));
+      }
+      for (const d of h.exact) hintExact.add(d);
+      for (const d of h.parents) hintParents.add(d);
+    }
+  };
 
-  // Prioritised walk. Directories already present in `initial` (as blobs below them) are not fetched again.
+  const bumpPass = (name: PassName): void =>
+    void passCount.set(name, (passCount.get(name) ?? 0) + 1);
+
+  const report = (
+    complete: boolean,
+    unexplored: string[],
+    skippedByRule: number,
+  ): RetrievalResult => ({
+    entries: [...entries.values()],
+    report: {
+      method: entries.size > 0 ? 'targeted' : 'none',
+      complete,
+      reason: opts.reason,
+      requests,
+      nodes,
+      bytes,
+      explored,
+      unexplored: unexplored.slice(0, 25),
+      unexplored_count: unexplored.length,
+      stopped_by: stopped,
+      github_truncated: opts.githubTruncated || sawTruncated,
+      failed_requests: failed,
+      passes: PASS_NAMES.map((name) => ({ name, directories: passCount.get(name) ?? 0 })).filter(
+        (p) => p.directories > 0,
+      ),
+      hints: {
+        files_read: hintsRead.size,
+        directories_named: hintExact.size + hintParents.size,
+        files: hintFiles.slice(0, 20),
+      },
+      skipped_by_rule: skippedByRule,
+      wide_directories: [...wide].slice(0, 10),
+    },
+  });
+
+  // Pass 1: the root listing (non-recursive: always small).
+  const root = await spend(rootRef, false);
+  if (root === undefined || root === 'stop') return report(false, [], 0);
+  addEntries('', root.tree);
+  explored.push('');
+  bumpPass('root');
+  await learnHints('');
+
   const hasChildren = (dir: string): boolean => {
     const prefix = `${dir}/`;
     for (const p of entries.keys()) if (p.startsWith(prefix)) return true;
     return false;
   };
+  // Passes 2-5: highest priority first. Priorities are re-evaluated every round because listings teach new hints.
   for (;;) {
     const queue = [...known.entries()]
       .filter(([path]) => !explored.includes(path) && !failedDirs.has(path))
       .map(([path, sha]) => ({
         path,
         sha,
-        pr: dirPriority(path),
+        pr: dirPriority(path, ctx),
         depth: path.split('/').length - 1,
       }))
       .filter((d) => d.pr >= 0 && d.depth <= budget.maxDepth && !hasChildren(d.path))
@@ -216,35 +347,26 @@ export async function retrieveTargeted(
     if (r === 'stop') break;
     if (r) {
       explored.push(next.path);
+      bumpPass(passOf(next.path, ctx));
       if (r.truncated) sawTruncated = true;
       addEntries(next.path, r.tree);
+      await learnHints(next.path);
     } else {
       failed++;
       failedDirs.add(next.path);
     }
   }
 
-  // Everything that is a known directory but was never listed.
-  const unexplored = [...known.keys()]
-    .filter((p) => !explored.includes(p) && !hasChildren(p))
-    .sort((a, b) => dirPriority(b) - dirPriority(a) || (a < b ? -1 : 1));
-  const truncatedAny = opts.githubTruncated || sawTruncated;
-  const complete = unexplored.length === 0 && !truncatedAny && failed === 0;
-  return {
-    entries: [...entries.values()],
-    report: {
-      method: 'targeted',
-      complete,
-      reason: opts.reason,
-      requests,
-      nodes,
-      bytes,
-      explored,
-      unexplored: unexplored.slice(0, 25),
-      unexplored_count: unexplored.length,
-      stopped_by: stopped,
-      github_truncated: truncatedAny,
-      failed_requests: failed,
-    },
-  };
+  const all = [...known.keys()].filter((p) => !explored.includes(p) && !hasChildren(p));
+  const skippedByRule = all.filter((p) => dirPriority(p, ctx) < 0).length;
+  const unexplored = all
+    .filter((p) => dirPriority(p, ctx) >= 0)
+    .sort((a, b) => dirPriority(b, ctx) - dirPriority(a, ctx) || (a < b ? -1 : 1));
+  const complete =
+    unexplored.length === 0 &&
+    skippedByRule === 0 &&
+    !sawTruncated &&
+    !opts.githubTruncated &&
+    failed === 0;
+  return report(complete, unexplored, skippedByRule);
 }

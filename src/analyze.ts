@@ -11,6 +11,9 @@ import {
   enrichWithDepsDev,
   type DepsDevResult,
 } from './deps/depsdev.js';
+import { collectRegistry, REGISTRY_HOSTS } from './collectors/registry.js';
+import { buildRegistryFindings, deriveRegistryFacts } from './registry/findings.js';
+import { EMPTY_REGISTRY_INTEL, type RegistryIntel } from './registry/model.js';
 import { analyzeGovernance } from './governance/temporal.js';
 import {
   buildGovernanceFindings,
@@ -82,6 +85,8 @@ export interface AnalyzeOptions {
   ref?: string;
   /** Reuse unchanged files across revisions analyzed in one run (see src/history). */
   blobCache?: BlobCache;
+  /** Look up the packages this repository publishes in their registries (default true). */
+  registry?: boolean;
   /** Collect release/provenance metadata (default true). */
   releases?: boolean;
   /** Walk priority directories when the recursive tree is truncated or too large (default true). */
@@ -140,6 +145,20 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   ]);
   // Dependency intelligence: offline resolution first, then optional network enrichment. Network failures only ever
   // reduce coverage; they never turn an unchecked dependency into a safe one.
+  // Registry intelligence for the packages THIS repository publishes (npm, PyPI, crates.io). Failures are diagnostics.
+  const registryDiag: Diagnostic[] = [];
+  const registryHttp = new HttpClient({ ...common, allowedHosts: REGISTRY_HOSTS });
+  const registryIntel: RegistryIntel =
+    opts.registry === false
+      ? EMPTY_REGISTRY_INTEL
+      : await collectRegistry({
+          http: registryHttp,
+          manifests: github.snapshot.manifests,
+          analyzed: { owner: ref.owner, repo: ref.repo },
+          clock,
+          note: (code, message) =>
+            registryDiag.push({ source: 'registry', level: 'warn', code, message }),
+        });
   const depsStatic = analyzeDependencies({
     manifests: github.snapshot.manifests,
     locks: github.depInputs.locks,
@@ -199,6 +218,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...osvRes.diagnostics,
     ...depsStatic.diagnostics,
     ...(depsDev?.diagnostics ?? []),
+    ...registryDiag,
   ];
   for (const e of [...github.evidence, ...scorecard.evidence, ...osvRes.evidence, ...idEvidence]) {
     if (store.has(e.id))
@@ -264,6 +284,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     }),
     ...deriveDependencyFacts(intel, opts.sbom !== false),
     ...deriveReleaseFacts(github.releaseIntel, governance),
+    ...deriveRegistryFacts(registryIntel),
   ];
   if (
     code.scan.performed &&
@@ -324,6 +345,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...buildFindings(code),
     ...buildDependencyFindings(intel),
     ...buildReleaseFindings(github.releaseIntel),
+    ...buildRegistryFindings(registryIntel),
     ...buildGovernanceFindings(governance),
   ];
   const blockViolations = evaluateBlocks(
@@ -387,6 +409,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
           scan: scanEnabled,
           targeted_tree: opts.targetedTree !== false,
           releases: opts.releases !== false,
+          registry: opts.registry !== false,
           limits: LIMITS,
         }),
       ),
@@ -404,6 +427,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     identity_v2: identityV2,
     retrieval: github.treeRetrieval,
     release_intel: github.releaseIntel,
+    registry_intel: registryIntel,
     governance,
     coverage_map: coverageMap,
     overall: scoring.overall,
@@ -424,7 +448,8 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     diagnostics: diagnostics.map((d) => ({ ...d, message: redactSecrets(d.message) })),
     stats: {
       evidence_count: store.size,
-      http_requests: gh.requests + sc.requests + osv.requests + depsDevHttp.requests,
+      http_requests:
+        gh.requests + sc.requests + osv.requests + depsDevHttp.requests + registryHttp.requests,
       authenticated: gh.hasToken,
     },
     evidence: store.all(),

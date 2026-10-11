@@ -43,7 +43,7 @@ function fsFetcher(
 const opts = { reason: 'response_too_large' as const, githubTruncated: false };
 
 describe('directory priority', () => {
-  it('reads CI and build directories first, source roots next, and never vendored/doc/test directories', () => {
+  it('reads CI and build directories first, source roots next, low-ranks docs/tests/vendor, and never reads dependency/VCS directories', () => {
     expect(dirPriority('.github')).toBeGreaterThan(dirPriority('src'));
     expect(dirPriority('.github/workflows')).toBe(1000);
     // breadth first: every directory of one level before any directory one level deeper
@@ -51,17 +51,13 @@ describe('directory priority', () => {
     expect(dirPriority('zzz')).toBeGreaterThan(dirPriority('src/main'));
     expect(dirPriority('scripts')).toBeGreaterThan(dirPriority('packages'));
     expect(dirPriority('packages')).toBeGreaterThan(dirPriority('random-dir'));
-    for (const d of [
-      'node_modules',
-      'vendor',
-      'docs',
-      'tests',
-      'examples',
-      'src/node_modules',
-      'testdata',
-      'dist',
-    ])
+    for (const d of ['node_modules', 'src/node_modules', '.git', 'a/b/.venv'])
       expect(dirPriority(d), d).toBe(-1);
+    // low does not mean never
+    for (const d of ['vendor', 'docs', 'tests', 'examples', 'testdata', 'dist']) {
+      expect(dirPriority(d), d).toBeGreaterThan(0);
+      expect(dirPriority(d), d).toBeLessThan(dirPriority('random-dir'));
+    }
   });
 });
 
@@ -92,10 +88,13 @@ describe('targeted retrieval', () => {
         'src/index.ts',
       ]),
     );
-    expect(log.join(' ')).not.toMatch(/node_modules|docs|tests/);
+    expect(log.join(' ')).not.toMatch(/node_modules/);
     expect(r.report.method).toBe('targeted');
-    expect(r.report.complete).toBe(false); // docs/tests/node_modules are known but unread
-    expect(r.report.unexplored).toEqual(expect.arrayContaining(['node_modules', 'docs', 'tests']));
+    expect(r.report.complete).toBe(false); // node_modules is known but never read
+    expect(r.report.skipped_by_rule).toBe(1);
+    expect(r.report.passes.map((x) => x.name)).toEqual(
+      expect.arrayContaining(['root', 'ci_build']),
+    );
     expect(r.report.stopped_by).toBe('complete');
     expect(log[0]).toBe('main'); // root first
     expect(log.indexOf('tree:.github')).toBeLessThan(log.indexOf('tree:src'));
@@ -274,5 +273,141 @@ describe('analysis of repositories whose recursive tree is too large or truncate
     const r = await run(goodRepo());
     expect(r.retrieval).toMatchObject({ method: 'recursive', complete: true });
     expect(r.coverage_map.manifest.state).toBe('complete');
+  });
+});
+
+describe('retrieval v2: structural hints, wide directories, passes', () => {
+  const files = [
+    'Cargo.toml',
+    'crates/a/Cargo.toml',
+    'crates/b/Cargo.toml',
+    'zzz-other/readme.txt',
+    'aaa-first/readme.txt',
+    'src/lib.rs',
+    'CMakeLists.txt',
+    'engine/CMakeLists.txt',
+    'engine/core/x.c',
+  ];
+  const reader = (texts: Record<string, string>) => async (path: string) => texts[path];
+
+  it('a Cargo workspace names its members, which then outrank unknown directories', async () => {
+    const log: string[] = [];
+    const r = await retrieveTargeted(
+      fsFetcher(files, log),
+      'main',
+      { ...DEFAULT_RETRIEVAL_BUDGET, maxRequests: 4 },
+      {
+        ...opts,
+        readHint: reader({ 'Cargo.toml': '[workspace]\nmembers = ["crates/*"]\n' }),
+      },
+    );
+    expect(r.report.hints.files).toContain('Cargo.toml');
+    expect(r.report.hints.directories_named).toBeGreaterThan(0);
+    expect(log.indexOf('tree:crates')).toBeGreaterThan(-1);
+    expect(log.indexOf('tree:crates')).toBeLessThan(
+      log.indexOf('tree:aaa-first') === -1 ? 99 : log.indexOf('tree:aaa-first'),
+    );
+  });
+
+  it('CMake add_subdirectory targets are followed before alphabetically earlier unrelated directories', async () => {
+    const log: string[] = [];
+    await retrieveTargeted(
+      fsFetcher(files, log),
+      'main',
+      { ...DEFAULT_RETRIEVAL_BUDGET, maxRequests: 4 },
+      {
+        ...opts,
+        readHint: reader({ 'CMakeLists.txt': 'add_subdirectory(engine)\n' }),
+      },
+    );
+    expect(log).toContain('tree:engine');
+    expect(log).not.toContain('tree:aaa-first');
+  });
+
+  it('hint reads are budgeted and counted as requests', async () => {
+    const reads: string[] = [];
+    const r = await retrieveTargeted(
+      fsFetcher(files),
+      'main',
+      { ...DEFAULT_RETRIEVAL_BUDGET, maxHintReads: 1 },
+      {
+        ...opts,
+        readHint: async (p) => (reads.push(p), '[workspace]\nmembers = ["crates/*"]\n'),
+      },
+    );
+    expect(reads.length).toBe(1);
+    expect(r.report.hints.files_read).toBe(1);
+    expect(r.report.requests).toBeGreaterThanOrEqual(2);
+  });
+
+  it('a wide directory is recorded and its children are deprioritised', async () => {
+    const wide = Array.from({ length: 30 }, (_, i) => `drivers/d${i}/x.c`);
+    const r = await retrieveTargeted(
+      fsFetcher([...wide, 'src/a.c', 'src/sub/b.c']),
+      'main',
+      { ...DEFAULT_RETRIEVAL_BUDGET, wideFanout: 10, maxRequests: 6 },
+      opts,
+    );
+    expect(r.report.wide_directories).toContain('drivers');
+    expect(r.report.explored).toContain('src');
+    expect(r.report.explored.filter((d) => d.startsWith('drivers/')).length).toBeLessThan(4);
+  });
+
+  it('hostile hint content cannot produce unsafe paths', async () => {
+    const r = await retrieveTargeted(fsFetcher(files), 'main', DEFAULT_RETRIEVAL_BUDGET, {
+      ...opts,
+      readHint: reader({
+        'Cargo.toml': '[workspace]\nmembers = ["../../etc", "/abs", "crates/*", "a/../b"]\n',
+      }),
+    });
+    expect(r.entries.every((e) => !e.path.includes('..') && !e.path.startsWith('/'))).toBe(true);
+  });
+});
+
+describe('retrieval v2: hint extraction', () => {
+  it('extracts the directories each build/workspace file names, as data only', async () => {
+    const { extractHints } = await import('../../src/collectors/github/hints.js');
+    expect(
+      extractHints('go.work', '', 'use (\n\t./staging/src/k8s.io/api\n\t./cmd/x\n)\n').exact,
+    ).toEqual(['staging/src/k8s.io/api', 'cmd/x']);
+    expect(
+      extractHints(
+        'settings.gradle',
+        '',
+        "include ':app', ':libs:core'\nincludeBuild('build-logic')\n",
+      ).exact,
+    ).toEqual(['app', 'libs/core', 'build-logic']);
+    expect(
+      extractHints('pom.xml', '', '<modules><module>a</module><module>b/c</module></modules>')
+        .exact,
+    ).toEqual(['a', 'b/c']);
+    expect(extractHints('package.json', '', '{"workspaces":["packages/*","tools/cli"]}')).toEqual({
+      exact: ['tools/cli'],
+      parents: ['packages'],
+    });
+    expect(
+      extractHints('Makefile', '', 'core-y += kernel/ mm/ fs/\ndrivers-y += drivers/ \\n').exact,
+    ).toEqual(expect.arrayContaining(['kernel', 'mm', 'fs', 'drivers']));
+    expect(extractHints('Makefile.am', '', 'SUBDIRS = lib src\n').exact).toEqual(['lib', 'src']);
+    expect(extractHints('meson.build', '', "subdir('src')\n").exact).toEqual(['src']);
+    expect(extractHints('package.json', '', 'not json').exact).toEqual([]);
+  });
+
+  it('directories on the way to a hinted directory are listed first (ancestors)', async () => {
+    const files = ['go.work', 'deep/a/b/go.mod', 'aaa/x.txt', 'deep/a/x.txt'];
+    const log: string[] = [];
+    await retrieveTargeted(
+      fsFetcher(files, log),
+      'main',
+      { ...DEFAULT_RETRIEVAL_BUDGET, maxRequests: 5 },
+      {
+        ...opts,
+        readHint: async (p) => (p === 'go.work' ? 'use ./deep/a/b\n' : undefined),
+      },
+    );
+    expect(log).toContain('tree:deep/a');
+    expect(log.indexOf('tree:deep')).toBeLessThan(
+      log.indexOf('tree:aaa') === -1 ? 99 : log.indexOf('tree:aaa'),
+    );
   });
 });

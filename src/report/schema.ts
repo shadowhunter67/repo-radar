@@ -7,6 +7,7 @@ import { EvidenceSchema } from '../evidence/types.js';
 import { FactSchema } from '../facts/index.js';
 import { SemanticIdentitySchema } from '../identity/types.js';
 import { IdentityV2Schema } from '../identity/v2.js';
+import { RegistryIntelSchema } from '../registry/model.js';
 import { GovernanceSchema } from '../governance/temporal.js';
 import { ReleaseIntelSchema } from '../release/model.js';
 import { CoverageMapSchema, TreeRetrievalSchema } from './coverage.js';
@@ -153,6 +154,8 @@ export const ReportSchema = z.object({
   retrieval: TreeRetrievalSchema,
   /** Release assets, checksums, signature states and provenance; never a claim of reproducibility. */
   release_intel: ReleaseIntelSchema,
+  /** Registry package intelligence (npm, PyPI, crates.io) for the packages this repository publishes. */
+  registry_intel: RegistryIntelSchema,
   /** Temporal governance signals (committer / release-author changes, dormancy). Descriptive; intent undetermined. */
   governance: GovernanceSchema,
   /** Coverage by evidence class instead of one generic percentage. */

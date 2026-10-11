@@ -40,6 +40,8 @@ const MAX_MANIFESTS = 10;
 const MAX_LOCKS = 6;
 const MAX_SBOMS = 3;
 const TREE_MAX_BYTES = 8 * 1024 * 1024;
+/** Bump when parseManifest output changes so a memoized parse is never reused across versions. */
+const MANIFEST_PARSER_VERSION = '1';
 const SUBTREE_MAX_BYTES = 4 * 1024 * 1024;
 /** Lockfiles and SBOMs are routinely larger than ordinary manifests. */
 const DEPFILE_MAX_BYTES = 5 * 1024 * 1024;
@@ -305,6 +307,10 @@ export async function collectGithub(
     stopped_by: 'complete',
     github_truncated: treeResRecursive?.data.truncated === true,
     failed_requests: 0,
+    passes: [],
+    hints: { files_read: 0, directories_named: 0, files: [] },
+    skipped_by_rule: 0,
+    wide_directories: [],
   };
   const needTargeted =
     options.targetedTree !== false &&
@@ -332,6 +338,11 @@ export async function collectGithub(
         ...(treeResRecursive?.data.tree ? { initial: treeResRecursive.data.tree } : {}),
         reason: treeResRecursive ? 'github_truncated' : 'response_too_large',
         githubTruncated: treeResRecursive?.data.truncated === true,
+        readHint: async (path) => {
+          const u = `${RAW}/${encodeURIComponent(ref.owner)}/${encodeURIComponent(ref.repo)}/${encodeURIComponent(refStr)}/${path.split('/').map(encodeURIComponent).join('/')}`;
+          const r = await http.request(u, { maxBytes: 128 * 1024 });
+          return r.status === 200 ? r.body : undefined;
+        },
       },
     );
     treeRetrieval = res.report;
@@ -522,7 +533,15 @@ export async function collectGithub(
   manifestPaths.forEach((p, i) => {
     const text = manifestTexts[i];
     if (!text) return;
-    const m = parseManifest(p, text);
+    const m = options.blobCache
+      ? options.blobCache.memoParse(
+          slug,
+          blobShas.get(p),
+          `manifest:${p}`,
+          MANIFEST_PARSER_VERSION,
+          () => parseManifest(p, text),
+        )
+      : parseManifest(p, text);
     if (m) manifests.push(m);
     else b.diag('info', 'manifest_unparsed', `could not parse ${p}`);
   });

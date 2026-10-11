@@ -85,6 +85,12 @@ export interface FakeSpec {
   osvRaw: unknown;
   /** deps.dev: URL substring -> JSON body (anything else answers 404) */
   depsDev: Record<string, unknown>;
+  /** registry URL substring -> JSON body (npm, PyPI, crates.io); anything else answers 404. */
+  registry: Record<string, unknown>;
+  /** registry URL substring -> HTTP status (e.g. 429, 500) or 'slow' (aborts) or 'html' (wrong content type) or 'broken' (bad JSON). */
+  registryFail: Record<string, number | string>;
+  /** Registry URLs requested, in order. */
+  registryRequests: string[];
   /** files in the owner's `.github` repo (org-level defaults), keyed by path */
   orgFiles: Record<string, string>;
   /** GitHub community profile `files` object (inherited health files show up here) */
@@ -131,6 +137,9 @@ export function baseSpec(over: Partial<FakeSpec> = {}): FakeSpec {
     linkHeader: null,
     osvRaw: null,
     depsDev: {},
+    registry: {},
+    registryFail: {},
+    registryRequests: [],
     orgFiles: {},
     community: null,
     ...over,
@@ -201,6 +210,28 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
     }
     if (url.startsWith('https://api.deps.dev/')) {
       const hit = Object.entries(spec.depsDev).find(([k]) => url.includes(k));
+      return hit ? json(hit[1]) : json({ error: 'not found' }, 404);
+    }
+    if (
+      ['https://registry.npmjs.org/', 'https://pypi.org/', 'https://crates.io/'].some((h) =>
+        url.startsWith(h),
+      )
+    ) {
+      spec.registryRequests.push(url);
+      const fail = Object.entries(spec.registryFail).find(([k]) => url.includes(k));
+      if (fail) {
+        const v = fail[1];
+        if (v === 'slow') throw new Error('The operation was aborted due to timeout');
+        if (v === 'html')
+          return new Response('<html>', { status: 200, headers: { 'content-type': 'text/html' } });
+        if (v === 'broken')
+          return new Response('{not json', {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          });
+        return new Response('err', { status: Number(v) });
+      }
+      const hit = Object.entries(spec.registry).find(([k]) => url.includes(k));
       return hit ? json(hit[1]) : json({ error: 'not found' }, 404);
     }
     const dlPrefix = `https://github.com/${spec.owner}/${spec.repo}/releases/download/`;

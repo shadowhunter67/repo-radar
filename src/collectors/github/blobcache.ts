@@ -38,6 +38,31 @@ export class BlobCache {
     this.bytes += content.length;
   }
 
+  private readonly parsed = new Map<string, unknown>();
+  parseHits = 0;
+
+  /**
+   * Parse a blob once per run: keyed by repository, blob sha, parser id and parser version, so a changed parser (or a
+   * different parser for the same bytes) never reuses a stale result. A missing sha means "no content address": no reuse.
+   */
+  memoParse<T>(
+    repo: string,
+    sha: string | undefined,
+    parser: string,
+    version: string,
+    fn: () => T,
+  ): T {
+    if (!sha || !/^[0-9a-f]{40}$/.test(sha)) return fn();
+    const k = `${this.key(repo, sha)}#${parser}@${version}`;
+    if (this.parsed.has(k)) {
+      this.parseHits++;
+      return this.parsed.get(k) as T;
+    }
+    const v = fn();
+    if (this.parsed.size < this.maxEntries) this.parsed.set(k, v);
+    return v;
+  }
+
   get size(): number {
     return this.map.size;
   }

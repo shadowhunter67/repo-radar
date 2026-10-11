@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { analyzeRepository } from '../../src/analyze.js';
+import { DEFAULT_RETRIEVAL_BUDGET } from '../../src/collectors/github/retrieval.js';
 import { BlobCache } from '../../src/collectors/github/blobcache.js';
 import { compareSnapshots, renderHistoricalText } from '../../src/history/index.js';
 import type { Report } from '../../src/report/schema.js';
@@ -187,7 +188,9 @@ describe('CLI revision mode and report text', () => {
   it('the text report shows an EVIDENCE COVERAGE section when the tree was read only partially', async () => {
     const { renderText } = await import('../../src/report/text.js');
     const partial = goodRepo({ treeTooLarge: true });
-    const r = await run(partial);
+    const r = await run(partial, {
+      retrievalBudget: { ...DEFAULT_RETRIEVAL_BUDGET, maxRequests: 3 },
+    });
     const t = renderText(r, { ascii: true });
     expect(t).toMatch(/EVIDENCE COVERAGE/);
     expect(t).toMatch(/Targeted retrieval/);
@@ -218,5 +221,20 @@ describe('CLI revision mode and report text', () => {
       0,
     );
     expect(r.facts.find((f) => f.id === 'release.checksums.published')?.value).toBe(true);
+  });
+});
+
+describe('parse memoization by blob sha', () => {
+  it('reuses a parse for identical content at the same path, never across parser ids or versions, never without a sha', () => {
+    const c = new BlobCache();
+    const sha = blobSha('x');
+    let calls = 0;
+    const f = () => ++calls;
+    expect(c.memoParse('o/r', sha, 'manifest:package.json', '1', f)).toBe(1);
+    expect(c.memoParse('o/r', sha, 'manifest:package.json', '1', f)).toBe(1);
+    expect(c.memoParse('o/r', sha, 'manifest:sub/package.json', '1', f)).toBe(2);
+    expect(c.memoParse('o/r', sha, 'manifest:package.json', '2', f)).toBe(3);
+    expect(c.memoParse('o/r', undefined, 'manifest:package.json', '1', f)).toBe(4);
+    expect(c.parseHits).toBe(1);
   });
 });
