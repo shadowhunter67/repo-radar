@@ -486,3 +486,51 @@ describe('observed risk and completeness are reported separately', () => {
     expect(r.identity.confidence_semantics).toBe('heuristic_uncalibrated');
   });
 });
+
+describe('JVM dependencies reach the same vulnerability pipeline, conservatively', () => {
+  const POM = `<project><groupId>com.acme</groupId><artifactId>app</artifactId><version>1</version><dependencies>
+    <dependency><groupId>org.slf4j</groupId><artifactId>slf4j-api</artifactId><version>2.0.9</version></dependency>
+    <dependency><groupId>com.google.guava</groupId><artifactId>guava</artifactId></dependency>
+    <dependency><groupId>x</groupId><artifactId>ranged</artifactId><version>[1.0,2.0)</version></dependency>
+  </dependencies></project>`;
+
+  it('a literal Maven version is queried as Maven group:artifact; managed and ranged ones are not', async () => {
+    const spec = withFiles(
+      { 'pom.xml': POM },
+      { osvVulns: { 'org.slf4j:slf4j-api': ['GHSA-mvn-1'] } },
+    );
+    delete spec.files['package.json'];
+    delete spec.files['package-lock.json'];
+    const { r, calls } = await run(spec);
+    const q = osvBody(calls).queries;
+    expect(q).toEqual([
+      { package: { name: 'org.slf4j:slf4j-api', ecosystem: 'Maven' }, version: '2.0.9' },
+    ]);
+    expect(dep(r, 'org.slf4j:slf4j-api')).toMatchObject({
+      resolved: { source: 'manifest_pin', version: '2.0.9', confidence: 0.6 },
+      vulnerability: { state: 'checked', advisory_ids: ['GHSA-mvn-1'] },
+    });
+    expect(dep(r, 'com.google.guava:guava')).toMatchObject({
+      resolution: 'unresolved',
+      vulnerability: { state: 'unresolved_version' },
+    });
+    expect(dep(r, 'x:ranged').requested?.kind).toBe('range');
+    expect(r.diagnostics.some((d) => d.code === 'jvm_partial_resolution')).toBe(true);
+  });
+
+  it('a gradle.lockfile gives exact versions for dependencies the build script leaves unversioned', async () => {
+    const spec = withFiles({
+      'build.gradle': "dependencies {\n  implementation 'com.google.guava:guava'\n}\n",
+      'gradle.lockfile':
+        '# comment\ncom.google.guava:guava:33.0.0-jre=compileClasspath,runtimeClasspath\nempty=annotationProcessor\n',
+    });
+    delete spec.files['package.json'];
+    delete spec.files['package-lock.json'];
+    const { r } = await run(spec);
+    expect(dep(r, 'com.google.guava:guava')).toMatchObject({
+      resolution: 'resolved',
+      resolved: { version: '33.0.0-jre', source: 'lockfile' },
+    });
+    expect(r.dependency_intel.lockfiles.map((l) => l.format)).toContain('gradle.lockfile');
+  });
+});

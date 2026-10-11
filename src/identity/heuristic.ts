@@ -289,6 +289,7 @@ function detectEcosystem(s: RepoSnapshot): string[] {
     PyPI: 'PyPI',
     Go: 'Go modules',
     'crates.io': 'crates.io',
+    Maven: 'Maven/Gradle',
   };
   for (const m of s.manifests) {
     const l = label[m.ecosystem];

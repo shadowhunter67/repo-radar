@@ -19,7 +19,8 @@ export type LockFormat =
   | 'Cargo.lock'
   | 'poetry.lock'
   | 'uv.lock'
-  | 'go.sum';
+  | 'go.sum'
+  | 'gradle.lockfile';
 
 export interface LockedEntry {
   name: string;
@@ -70,6 +71,7 @@ export const LOCK_BASENAMES: readonly LockFormat[] = [
   'poetry.lock',
   'uv.lock',
   'go.sum',
+  'gradle.lockfile',
 ];
 export const isLockPath = (p: string): boolean =>
   (LOCK_BASENAMES as readonly string[]).includes(base(p)) || base(p) === 'npm-shrinkwrap.json';
@@ -119,6 +121,8 @@ export function parseLock(path: string, text: string): LockIndex | undefined {
         return parseTomlLock(path, dir, text, 'uv.lock', 'PyPI');
       case 'go.sum':
         return parseGoSum(path, dir, text);
+      case 'gradle.lockfile':
+        return parseGradleLock(path, dir, text);
       default:
         return undefined;
     }
@@ -410,6 +414,39 @@ function parseTomlLock(
         if (fit.length >= 1) return { versions: fit, via: `${path}#${name}` };
       }
       return { versions, via: `${path}#${name}` };
+    },
+  };
+}
+
+/* ---- gradle.lockfile ------------------------------------------------------------------------------------------- */
+
+function parseGradleLock(path: string, dir: string, text: string): LockIndex {
+  const entries: LockedEntry[] = [];
+  const seen = new Set<string>();
+  let truncated = false;
+  for (const raw of text.split('\n', 100_000)) {
+    const m = /^([\w.-]+):([\w.-]+):([^=\s]+)=/.exec(raw.trim());
+    if (!m) continue;
+    const name = `${m[1] as string}:${m[2] as string}`;
+    const k = `${name}@${m[3] as string}`;
+    if (seen.has(k)) continue;
+    seen.add(k);
+    if (entries.length >= MAX_LOCK_ENTRIES) truncated = true;
+    else entries.push({ name, version: m[3] as string, path: '' });
+  }
+  const idx = byNameIndex(entries);
+  return {
+    path,
+    dir,
+    importers: new Set<string>(),
+    localNames: new Set<string>(),
+    format: 'gradle.lockfile',
+    ecosystem: 'Maven',
+    entries,
+    truncated,
+    resolve(_importer, name) {
+      const all = uniq((idx.get(name) ?? []).map((e) => e.version));
+      return { versions: all, via: `${path}#${name}` };
     },
   };
 }

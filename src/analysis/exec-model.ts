@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CAPABILITY_RISK, maxRisk, type Capability, type RiskLevel } from './types.js';
 
 /**
  * Ecosystem-neutral execution model shared by npm, Python, Cargo and (Phase 6) Maven/Gradle.
@@ -109,3 +110,23 @@ export const BuildProjectSchema = z.object({
   notes: z.array(z.string()),
 });
 export type BuildProject = z.infer<typeof BuildProjectSchema>;
+
+/**
+ * Add capabilities known from outside the language detectors (a plugin catalog, a task type) to a hook and recompute its
+ * risk with the same rule `finishHook` uses: reading the environment, writing files and plain network use stay `low`,
+ * everything else takes the capability's own risk.
+ */
+export function addHookCapabilities(
+  h: { capabilities: Capability[]; risk: RiskLevel },
+  caps: Capability[],
+): void {
+  for (const c of caps) {
+    if (!h.capabilities.includes(c)) h.capabilities.push(c);
+    const r: RiskLevel =
+      c === 'ENVIRONMENT_READ' || c === 'FILESYSTEM_WRITE' || c === 'NETWORK_CLIENT'
+        ? 'low'
+        : CAPABILITY_RISK[c];
+    h.risk = maxRisk(h.risk, r);
+  }
+  h.capabilities.sort();
+}

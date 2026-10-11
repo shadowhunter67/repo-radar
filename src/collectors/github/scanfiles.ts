@@ -108,6 +108,34 @@ export function selectScanCandidates(
     }
   }
 
+  // JVM build path: wrappers (they download and run the build tool), Maven extensions, buildSrc and applied scripts.
+  let buildSrcCount = 0;
+  for (const e of blobs) {
+    const p = e.path;
+    const base = p.slice(p.lastIndexOf('/') + 1);
+    const depth = p.split('/').length - 1;
+    if (AUXILIARY_PATH.test(p)) continue;
+    if (depth <= 1 && (base === 'mvnw' || base === 'gradlew')) add(p, 'script', 1);
+    else if (
+      p.endsWith('.mvn/extensions.xml') ||
+      p.endsWith('.mvn/wrapper/maven-wrapper.properties')
+    )
+      add(p, 'build', 1);
+    else if (p.endsWith('gradle/wrapper/gradle-wrapper.properties')) add(p, 'build', 1);
+    else if (
+      /^(?:[^/]+\/)?buildSrc\/.+\.(?:kt|kts|groovy|java|gradle)$/.test(p) &&
+      buildSrcCount < 8
+    ) {
+      buildSrcCount++;
+      add(p, 'build', 1);
+    } else if (
+      depth <= 1 &&
+      /\.gradle(?:\.kts)?$/.test(base) &&
+      !/^(?:build|settings)\.gradle/.test(base)
+    )
+      add(p, 'build', 2);
+  }
+
   for (const m of manifests.filter((x) => x.ecosystem === 'npm')) {
     for (const hook of NPM_HOOK_NAMES) {
       const body = m.scripts?.[hook];

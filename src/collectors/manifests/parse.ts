@@ -1,7 +1,8 @@
 import { parse as parseToml } from 'smol-toml';
+import { parseGradle, parsePom, parseVersionCatalog, type JvmFacts } from './jvm.js';
 
 /** Static manifest parsing only. Nothing here runs a package manager or evaluates code. */
-export type Ecosystem = 'npm' | 'PyPI' | 'Go' | 'crates.io';
+export type Ecosystem = 'npm' | 'PyPI' | 'Go' | 'crates.io' | 'Maven';
 
 export interface Dependency {
   name: string;
@@ -58,6 +59,8 @@ export interface ParsedManifest {
   buildBackend?: string;
   /** Python packaging facts read from pyproject.toml (static; nothing is executed). */
   python?: PythonBuildFacts;
+  /** Maven POM / Gradle script facts (static text reading; Gradle scripts are never evaluated). */
+  jvm?: JvmFacts;
   /** npm `scripts` (name -> command), bounded in count and length; never executed. */
   scripts?: Record<string, string>;
   /** Files the manifest names as entry points (npm main/bin/exports string). */
@@ -114,6 +117,12 @@ export const MANIFEST_FILES = [
   'requirements.txt',
   'go.mod',
   'Cargo.toml',
+  'pom.xml',
+  'build.gradle',
+  'build.gradle.kts',
+  'settings.gradle',
+  'settings.gradle.kts',
+  'libs.versions.toml',
 ] as const;
 
 export const LOCK_FILES = [
@@ -166,6 +175,15 @@ export function parseManifest(file: string, text: string): ParsedManifest | unde
       return parseGoMod(file, text);
     case 'Cargo.toml':
       return parseCargoToml(file, text);
+    case 'pom.xml':
+      return parsePom(file, text);
+    case 'build.gradle':
+    case 'build.gradle.kts':
+    case 'settings.gradle':
+    case 'settings.gradle.kts':
+      return parseGradle(file, text);
+    case 'libs.versions.toml':
+      return parseVersionCatalog(file, text);
     default:
       return undefined;
   }

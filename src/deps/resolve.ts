@@ -244,7 +244,15 @@ export function resolveDependencies(input: ResolveInput): ResolveOutput {
               version: requested.exact_version,
               source: 'manifest_pin',
               file: m.file,
-              confidence: eco === 'Go' && listed === false ? 0.6 : eco === 'Go' ? 0.9 : 0.85,
+              // Maven/Gradle: a literal version is a soft requirement; parent POMs, BOMs and mediation can change it.
+              confidence:
+                eco === 'Maven'
+                  ? 0.6
+                  : eco === 'Go' && listed === false
+                    ? 0.6
+                    : eco === 'Go'
+                      ? 0.9
+                      : 0.85,
             };
             resolution = 'resolved';
           } else if (

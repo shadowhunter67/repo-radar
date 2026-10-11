@@ -26,7 +26,9 @@ export function fileKind(path: string): FileKind {
   if (/^(?:GNUmakefile|Makefile|makefile)$/.test(base) || /\.mk$/.test(base)) return 'make';
   if (
     /\.(?:sh|bash|zsh|ksh|command|ps1|bat|cmd)$/i.test(base) ||
-    /^(?:configure|install|setup|bootstrap)$/i.test(base)
+    /^(?:configure|install|setup|bootstrap|mvnw|gradlew)$/i.test(base) ||
+    // Command text lifted out of a build file (Maven plugin configuration, Gradle task body) is scanned as shell.
+    /#(?:plugin|task)\./.test(base)
   )
     return 'sh';
   if (/\.(?:[cm]?[jt]sx?)$/i.test(base)) return 'js';

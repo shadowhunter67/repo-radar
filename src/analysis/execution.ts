@@ -9,7 +9,9 @@ import {
   type BuildProject,
   type Entrypoint,
 } from './exec-model.js';
-import { analyzePython, type PythonExecApi } from './python.js';
+import type { ExecApi } from './exec-api.js';
+import { analyzeJvm } from './jvm.js';
+import { analyzePython } from './python.js';
 import { extractLocalRefs, resolveRef } from './refs.js';
 import { scanFile, type FileScan } from './scan.js';
 import {
@@ -165,6 +167,9 @@ function rootExecModel(
     case 'docker':
       return { stage: 'SOURCE_BUILD', trigger_kind: 'USER_INVOKED', environment: 'CONTAINER' };
     case 'make':
+      return { stage: 'SOURCE_BUILD', trigger_kind: 'USER_INVOKED', environment: 'HOST' };
+    case 'maven':
+    case 'gradle':
       return { stage: 'SOURCE_BUILD', trigger_kind: 'USER_INVOKED', environment: 'HOST' };
     case 'shell':
       return { stage: 'INSTALL_SCRIPT', trigger_kind: 'USER_INVOKED', environment: 'HOST' };
@@ -464,6 +469,15 @@ export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
         dependents: false,
         ctx: 'build',
       });
+    else if (/^(?:mvnw|gradlew)(?:\.cmd|\.bat)?$/.test(base))
+      roots.push({
+        path: f.path,
+        ecosystem: base.startsWith('mvnw') ? 'maven' : 'gradle',
+        name: base,
+        trigger: 'wrapper script: downloads the build tool (if missing) and then runs the build',
+        dependents: false,
+        ctx: 'build',
+      });
     else if (/^(?:install|setup|bootstrap)\.sh$/i.test(base) || base === 'configure')
       roots.push({
         path: f.path,
@@ -500,7 +514,7 @@ export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
 
   // ---- Python: build backends, setup.py, native builds, entry points -----------------------------
   const entrypoints: Entrypoint[] = [];
-  const pythonApi: PythonExecApi = {
+  const execApi: ExecApi = {
     addNode,
     addEdge,
     followFile,
@@ -514,10 +528,18 @@ export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
       for (const d of scanOf(f).detections) if (d.mode !== 'POSSIBLE') caps.add(d.capability);
       return [...caps].sort();
     },
+    scanPseudo: (path, content) => {
+      const pseudo: ScannedFile = { path, content, size: content.length, role: 'script' };
+      mark(path, 'build');
+      const caps = new Set<Capability>();
+      for (const d of scanOf(pseudo).detections) if (d.mode !== 'POSSIBLE') caps.add(d.capability);
+      return [...caps].sort();
+    },
     byPath,
     tree: input.tree,
   };
-  const py = analyzePython(pythonApi, input);
+  const py = analyzePython(execApi, input);
+  const jvm = analyzeJvm(execApi, input);
   for (const e of py.entrypoints)
     entrypoints.push({ id: `EP-${String(entrypoints.length + 1).padStart(3, '0')}`, ...e });
 
@@ -567,7 +589,7 @@ export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
   return {
     hooks,
     entrypoints,
-    projects: py.projects,
+    projects: [...py.projects, ...jvm.projects],
     nodes,
     edges,
     truncated,

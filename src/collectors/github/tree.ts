@@ -69,6 +69,12 @@ const MANIFEST_BASENAMES = new Set([
   'requirements.txt',
   'go.mod',
   'Cargo.toml',
+  'pom.xml',
+  'build.gradle',
+  'build.gradle.kts',
+  'settings.gradle',
+  'settings.gradle.kts',
+  'libs.versions.toml',
 ]);
 const LOCK_BASENAMES = new Set([
   'package-lock.json',
@@ -79,6 +85,7 @@ const LOCK_BASENAMES = new Set([
   'poetry.lock',
   'uv.lock',
   'go.sum',
+  'gradle.lockfile',
 ]);
 const ANY_LOCK =
   /(?:^|\/)(?:package-lock\.json|yarn\.lock|pnpm-lock\.yaml|bun\.lockb?|Cargo\.lock|poetry\.lock|uv\.lock|Pipfile\.lock|go\.sum|Gemfile\.lock|composer\.lock|pdm\.lock)$/;

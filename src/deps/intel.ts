@@ -1,3 +1,4 @@
+import { applyVersionCatalogs } from '../collectors/manifests/jvm.js';
 import type { ParsedManifest } from '../collectors/manifests/parse.js';
 import type { Conflict } from '../evidence/conflict.js';
 import type { Diagnostic } from '../evidence/types.js';
@@ -49,6 +50,7 @@ const diag = (level: Diagnostic['level'], code: string, message: string): Diagno
 
 /** Offline step: everything here works from repository files only. */
 export function analyzeDependencies(input: DepsInput): DepsStatic {
+  applyVersionCatalogs(input.manifests);
   const diagnostics: Diagnostic[] = [];
   const locks: LockIndex[] = [];
   for (const l of input.locks) {
@@ -104,6 +106,14 @@ export function analyzeDependencies(input: DepsInput): DepsStatic {
         'info',
         'sbom_comparison',
         `${sanitizeForTerminal(c.sbom_path, 120)} vs repository: ${c.state} (${c.matched}/${c.direct_runtime_dependencies} direct runtime dependencies found, ${c.version_mismatches.length} version mismatch(es), ${c.additional_sbom_components} additional components; confidence ${Math.round(c.confidence * 100)}%).`,
+      ),
+    );
+  if (input.manifests.some((m) => m.jvm && (m.jvm.tool === 'maven' || m.jvm.tool === 'gradle')))
+    diagnostics.push(
+      diag(
+        'info',
+        'jvm_partial_resolution',
+        'Maven/Gradle dependency versions come from the build file text only: parent POMs, BOM imports, dependency mediation, Gradle plugins and dynamic logic are not resolved (a gradle.lockfile, if present, is used). Exact versions are lower-confidence and transitive dependencies are unknown. Effect: the vulnerability result covers only the declared, literally versioned dependencies.',
       ),
     );
   for (const l of limitsHit) diagnostics.push(diag('info', 'deps_limit', l));

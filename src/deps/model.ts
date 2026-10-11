@@ -339,7 +339,7 @@ export function makePurl(
     // @scope/name -> namespace %40scope
     path = name.startsWith('@') ? `%40${enc(name.slice(1))}` : enc(name);
   } else if (ecosystem === 'PyPI') path = enc(normalizeName('PyPI', name));
-  else if (ecosystem === 'Maven') path = enc(name).replace(':', '/');
+  else if (ecosystem === 'Maven') path = name.split(':').map(enc).join('/');
   else path = enc(name);
   return `pkg:${type}/${path}${version ? `@${encodeURIComponent(version)}` : ''}`;
 }

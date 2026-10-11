@@ -20,6 +20,7 @@ const MAX_WORKFLOWS = 20;
 const MAX_MANIFESTS = 10;
 const MAX_LOCKS = 6;
 const MAX_SBOMS = 3;
+const TREE_MAX_BYTES = 8 * 1024 * 1024;
 /** Lockfiles and SBOMs are routinely larger than ordinary manifests. */
 const DEPFILE_MAX_BYTES = 5 * 1024 * 1024;
 const RAW_MAX_BYTES = 512 * 1024;
@@ -115,11 +116,15 @@ export async function collectGithub(
     label: string,
     path: string,
     affects: string[] = [],
+    maxBytes?: number,
   ): Promise<{ data: T; headers: Headers } | undefined> {
     return safe(
       label,
       async () => {
-        const r = await http.request(`${base}${path}`, { headers: jsonHeaders });
+        const r = await http.request(`${base}${path}`, {
+          headers: jsonHeaders,
+          ...(maxBytes ? { maxBytes } : {}),
+        });
         if (r.status === 204) return { data: [] as unknown as T, headers: r.headers };
         if (r.status !== 200) throw new HttpError(`HTTP ${r.status}`, r.status, `${base}${path}`);
         return { data: JSON.parse(r.body) as T, headers: r.headers };
@@ -153,6 +158,8 @@ export async function collectGithub(
         'heuristic.substance.',
         'osv.',
       ],
+      // GitHub caps a recursive tree at 100k entries / 7 MB; the default 2 MB cap made large repositories invisible.
+      TREE_MAX_BYTES,
     ),
     safe(
       'readme',

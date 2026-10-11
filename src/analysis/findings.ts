@@ -124,6 +124,26 @@ export function buildFindings(code: CodeAnalysis): Finding[] {
     });
   }
 
+  // Build files that resolve or download build tooling over plain HTTP can be tampered with in transit.
+  for (const p of code.execution.projects) {
+    const insecure = p.notes.filter((n) => /plain HTTP/.test(n));
+    if (insecure.length === 0) continue;
+    out.push({
+      id: next('EXEC'),
+      title: `${p.ecosystem} build of ${p.dir} resolves or downloads over plain HTTP`,
+      severity: 'medium',
+      confidence: 0.9,
+      dimension: 'supply-chain',
+      category: 'dependency',
+      evidence_ids: p.hook_ids,
+      rule_ids: [],
+      standards: [],
+      summary: `${insecure.slice(0, 3).join('; ')}. Content fetched over HTTP can be modified by anyone on the network path.`,
+      remediation: 'Use https URLs and, for wrappers, set a distributionSha256Sum checksum.',
+      intent: 'undetermined',
+    });
+  }
+
   if (code.persistence.observed) {
     const kinds = code.persistence.kinds.filter((k) =>
       (PERSISTENCE_KINDS as readonly string[]).includes(k),

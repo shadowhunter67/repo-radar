@@ -2,7 +2,8 @@ import { posix } from 'node:path';
 import type { ParsedManifest } from '../collectors/manifests/parse.js';
 import { AUXILIARY_DIR } from '../util/scope.js';
 import { sanitizeForTerminal } from '../util/text.js';
-import type { BuildProject, Entrypoint } from './exec-model.js';
+import type { ExecApi } from './exec-api.js';
+import { addHookCapabilities, type BuildProject, type Entrypoint } from './exec-model.js';
 import type { ExecEdge, ExecNode, Hook } from './execution.js';
 import { resolvePyModule } from './refs.js';
 import type { Capability, ExecContext, RiskLevel, ScannedFile } from './types.js';
@@ -22,30 +23,7 @@ import type { Capability, ExecContext, RiskLevel, ScannedFile } from './types.js
  *  - `console_scripts` / `gui_scripts` create launchers; the target runs when the USER invokes the command.
  */
 
-/** What the python module needs from the execution analysis (kept narrow so it stays testable). */
-export interface PythonExecApi {
-  addNode(n: Omit<ExecNode, 'id'>): string;
-  addEdge(e: ExecEdge): void;
-  followFile(
-    path: string,
-    from: string,
-    ctx: ExecContext,
-    visited: Set<string>,
-    depth: number,
-    edgeMeta?: Partial<ExecEdge>,
-  ): { unanalyzed: number; node?: string };
-  finishHook(
-    h: Omit<Hook, 'risk' | 'confidence' | 'capabilities' | 'chain_ids' | 'files' | 'analyzed'>,
-    paths: string[],
-    unanalyzed: number,
-    anyAnalyzed: boolean,
-  ): void;
-  hooks: Hook[];
-  nextHookId(): string;
-  scanCapabilities(path: string): Capability[];
-  byPath: ReadonlyMap<string, ScannedFile>;
-  tree: ReadonlySet<string>;
-}
+export type PythonExecApi = ExecApi;
 
 export interface PythonInput {
   manifests: ParsedManifest[];
@@ -424,9 +402,8 @@ export function analyzePython(api: PythonExecApi, input: PythonInput): PythonRes
           )
         )
           extra.add('REMOTE_DOWNLOAD');
-        for (const c of extra) if (!last.capabilities.includes(c)) last.capabilities.push(c);
-        last.capabilities.sort();
-        if (last.risk === 'none' || last.risk === 'low') last.risk = 'low' as RiskLevel;
+        addHookCapabilities(last, [...extra]);
+        if (last.risk === 'none') last.risk = 'low';
       }
     }
 

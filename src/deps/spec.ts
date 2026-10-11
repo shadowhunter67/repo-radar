@@ -33,6 +33,8 @@ export function classifySpec(ecosystem: DepEcosystem, rawSpec: string): Requeste
       return classifyPypi(s, out);
     case 'crates.io':
       return classifyCargo(s, out);
+    case 'Maven':
+      return classifyMaven(s, out);
     case 'Go':
       return /^v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.+-]+)?$/.test(s)
         ? out('exact', { exact_version: s })
@@ -102,6 +104,19 @@ function classifyCargo(
     /^[\^~<>=,.\s0-9*xX-]+$/.test(s)
     ? out('range')
     : out('unknown');
+}
+
+function classifyMaven(
+  s: string,
+  out: (k: Requested['kind'], e?: Partial<Requested>) => Requested,
+): Requested {
+  if (s === '') return out('range'); // version managed elsewhere (parent POM, BOM, platform)
+  if (s.includes('${')) return out('unknown'); // unresolved property
+  if (/^[[(]/.test(s)) return out('range'); // Maven version range [1.0,2.0)
+  if (/^(?:LATEST|RELEASE|latest\.(?:release|integration))$/i.test(s) || /-SNAPSHOT$/i.test(s))
+    return out('tag');
+  if (/\+$/.test(s)) return out('range'); // Gradle dynamic version 1.+
+  return /^\d[\w.-]{0,80}$/.test(s) ? out('exact', { exact_version: s }) : out('unknown');
 }
 
 /** Specification kinds that cannot be looked up in a registry (no vulnerability conclusion is possible by name). */
