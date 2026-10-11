@@ -133,3 +133,15 @@ All repository content (names, README, manifests, workflow YAML, tree paths) and
 - **Governance** (`src/governance/temporal.ts`): a pure function over small samples of commits, releases and contributors.
 - **Trust-graph readiness**: repository model 0.2 has Release, ReleaseAsset, ArtifactDigest, Signature, ProvenanceRecord, Commit and Maintainer entities and RELEASES, TAGGED_AT, HAS_DIGEST, SIGNS, ATTESTS, BUILT_FROM, RELEASED relations. `PUBLISHED_BY` (package to registry publisher) is reserved: no registry publisher data is collected yet.
 - **Policy** (`src/scoring/policy.ts`): `effectiveBlocks` (blocks plus compiled `require:`), `evaluateBlocks`, `evaluateHistoryBlocks`. Organization-level configuration can later supply the same objects.
+
+
+## 0.6: identity, retrieval, registry, trust, timeline, store, graph
+
+- `src/identity/signals.ts` + `v2.ts`: strong/weak structural evidence, status clear/ambiguous/unknown.
+- `src/collectors/github/retrieval.ts` + `hints.ts`: multi-pass walk with structural hints and wide-directory handling; `src/collectors/github/blobcache.ts`: run-local reuse of file contents and parses by blob SHA.
+- `src/registry` (model, parsers, signals, findings) + `src/collectors/registry.ts`: registry intelligence.
+- `src/trust` (vocabulary, Sigstore wrapper), `src/release/binding.ts` (source binding, SLSA observations), `verify-assets.ts`, `binmeta.ts`: cryptographic and bounded checks.
+- `src/events` (model, builder, correlation): unified timeline; `src/store/snapshots.ts`: immutable snapshots; `src/graph/trust.ts`: Software Trust Graph projection.
+- Policy: `require` keys, `history_block`, `temporal_block` in `src/scoring/policy.ts`.
+
+All new subsystems are pure functions over collected data with the network confined to collectors; the only network access outside `src/util/http.ts` is the Sigstore TUF client under `--verify-crypto`.

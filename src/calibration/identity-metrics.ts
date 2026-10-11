@@ -85,7 +85,10 @@ export function evaluateIdentityV2(cases: Case[]): IdentityV2Metrics | undefined
       itf.n++;
       const want = new Set<string>(label.interfaces);
       const got = new Set<string>(v2.interfaces);
-      for (const g of got) want.has(g) ? itf.tp++ : itf.fp++;
+      for (const g of got) {
+        if (want.has(g)) itf.tp++;
+        else itf.fp++;
+      }
       for (const w of want) if (!got.has(w)) itf.fn++;
     }
   }

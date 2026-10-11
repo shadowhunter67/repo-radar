@@ -54,3 +54,19 @@ See [SECURITY.md](../SECURITY.md).
 - Asset names, checksum names and archive entry names are data: control characters, bidi overrides, backslashes, absolute paths and `..` mark a name unsafe and it is never used as a path or printed raw.
 - Archive inspection reads headers only, with entry-count, size, ratio and gunzip limits; nothing is extracted or executed. Downloaded binaries are never run.
 - Targeted tree retrieval refuses traversal, backslash and control-character paths from the tree listing and is bounded in requests, nodes, bytes, time and depth.
+
+
+## Additions in 0.6 (threat model)
+
+| Threat | Defence |
+| ------ | ------- |
+| Malicious registry metadata (huge, malformed, wrong content type, prototype keys, control characters, look-alike names) | Size caps per response, JSON/content-type checks, bounded and sanitized fields, `__proto__` handled as data, non-ASCII names flagged and shown with escapes, failures become diagnostics and `unknown` facts |
+| Registry-provided URLs (redirects, repository URLs) | Registry URLs are never followed; the client allows only `registry.npmjs.org`, `pypi.org`, `crates.io` and refuses redirects elsewhere (localhost, private IPs, cloud metadata) |
+| Malicious provenance bundles / certificates / signatures | The maintained `sigstore` library verifies; bundles above 256 KiB are not parsed by it; 20 s timeout; the statement is parsed with size/subject caps; a verifier that cannot decide is `verification_failed`; identity strings are parsed as data with a strict pattern and sanitized |
+| Trust-root confusion | Every verification result names its trust root and who verified; GitHub's API assertion is kept separate from local verification; only the Sigstore public-good root is implemented |
+| Algorithm downgrade | MD5/SHA-1 digests are recorded but never used as the expected value or as integrity evidence |
+| Malicious release metadata (asset names, duplicate names, checksum files, redirects) | Control characters, bidi overrides, traversal and non-ASCII names are flagged and never echoed raw; conflicting digests are surfaced; only this repository's `releases/download/` URLs are fetched; downloads are capped by size, count and total bytes; archives are inspected as metadata only |
+| Malicious snapshot files | Strict key patterns, resolved-path containment, immutability (no overwrite), read-time size/schema/integrity checks, hostile index lines skipped |
+| Graph poisoning | Edges without evidence are never created; the graph is a derived view, not an input to any decision |
+| Token leakage | The GitHub token goes only to `api.github.com`; errors are redacted; regression tests check reports, diagnostics, snapshots and the graph |
+| Resource exhaustion | Every new subsystem has explicit limits (requests, bytes, nodes, time, search budget) reported in the output |

@@ -1,0 +1,82 @@
+=== pallets/flask 2.0.0 -> 2.3.0
+snapshot 2f0c62f5e6: stored
+snapshot 8728c3e4cd: stored
+repo-radar historical comparison: pallets/flask 2f0c62f5e6 -> 8728c3e4cd
+from 2021-05-11T21:43:42Z  to 2023-04-25T18:35:06Z   (97 requests, 3 files reused, 20 s)
+comparability: comparable
+
+IDENTITY (6)
+  primary_artifact: unknown -> cli
+  packaging: unknown -> single_package
+  secondary_roles: cli_interface, service_component -> (none)
+  interfaces: cli, http_server -> cli
+  deployment_form: unknown -> local_executable
+  ecosystem: Python -> Python, PyPI
+
+CAPABILITIES (1)
+  NETWORK_SERVER       REMOVED  risk none, no context
+
+EXECUTION PATHS (1)
+  REMOVED [runs for dependents] pypi setup.py -> setup.py
+
+DEPENDENCIES (17)
+
+FINDINGS (6)
+  ADDED [medium] Known advisories for flask@2.2.3 (4)
+  ADDED [medium] Known advisories for jinja2@3.1.2 (10)
+  ADDED [medium] Known advisories for redis@4.5.1 (4)
+  ADDED [medium] Known advisories for werkzeug@2.2.3 (15)
+  ADDED [info] 9 direct dependencies have no exact version in this revision
+  REMOVED [info] pypi hook "setup.py" runs code at install time, including for dependents
+
+RISK DELTA
+  overall 82.6 -> 85.1; code-quality 87.6 -> 100; community 93 -> 95; security 83.1 -> 71; semantic-clarity 93.3 -> 92.2; supply-chain 66.2 -> 82.6
+  + 8 new unpinned runtime dependencies (PyPI:Werkzeug, PyPI:Jinja2, PyPI:itsdangerous, ...)
+  - execution path removed: pypi setup.py -> setup.py
+  - capability NETWORK_SERVER no longer observed
+  + new medium finding: Known advisories for flask@2.2.3 (4)
+  + new medium finding: Known advisories for jinja2@3.1.2 (10)
+  + new medium finding: Known advisories for redis@4.5.1 (4)
+  + new medium finding: Known advisories for werkzeug@2.2.3 (15)
+
+=== BurntSushi/ripgrep 12.0.0 -> 14.0.0
+snapshot b9cd95faf1: stored
+snapshot 93429d0f85: stored
+repo-radar historical comparison: BurntSushi/ripgrep b9cd95faf1 -> 93429d0f85
+from 2020-03-16T01:54:11Z  to 2023-11-26T19:19:31Z   (182 requests, 0 files reused, 33 s)
+comparability: comparable
+
+CAPABILITIES (1)
+  FILESYSTEM_WRITE     CONTEXT_CHANGED  risk low, runtime
+
+DEPENDENCIES (42)
+  ... 2 more
+
+FINDINGS (9)
+  ADDED [medium] Known advisories for anyhow@1.0.75 (1)
+  REMOVED [medium] Known advisories for atty@0.2.14 (3)
+  REMOVED [medium] Known advisories for crossbeam-channel@0.4.2 (2)
+  ADDED [medium] Known advisories for crossbeam-epoch@0.9.15 (1)
+  REMOVED [medium] Known advisories for crossbeam-utils@0.7.2 (2)
+  ADDED [medium] Known advisories for memmap2@0.9.0 (1)
+  REMOVED [medium] Known advisories for memmap@0.7.0 (1)
+  REMOVED [medium] Known advisories for regex@1.3.5 (2)
+  REMOVED [medium] Known advisories for thread_local@1.0.1 (2)
+
+RISK DELTA
+  overall 74.1 -> 75.8; community 75 -> 73; security 58.9 -> 73.4; semantic-clarity 99.2 -> 98.4
+  + new vulnerability RUSTSEC-2026-0190 in crates.io:anyhow
+  + new vulnerability RUSTSEC-2026-0186 in crates.io:memmap2
+  + new vulnerability RUSTSEC-2026-0204 in crates.io:crossbeam-epoch
+  - vulnerability GHSA-9g55-pg62-m8hh no longer affects crates.io:crossbeam-channel
+  - vulnerability RUSTSEC-2022-0019 no longer affects crates.io:crossbeam-channel
+  - vulnerability GHSA-m5pq-gvj9-9vr8 no longer affects crates.io:regex
+  - vulnerability RUSTSEC-2022-0013 no longer affects crates.io:regex
+  + new medium finding: Known advisories for anyhow@1.0.75 (1)
+  - medium finding gone: Known advisories for atty@0.2.14 (3)
+  - medium finding gone: Known advisories for crossbeam-channel@0.4.2 (2)
+  + new medium finding: Known advisories for crossbeam-epoch@0.9.15 (1)
+  - medium finding gone: Known advisories for crossbeam-utils@0.7.2 (2)
+  + new medium finding: Known advisories for memmap2@0.9.0 (1)
+  - medium finding gone: Known advisories for memmap@0.7.0 (1)
+  - medium finding gone: Known advisories for regex@1.3.5 (2)

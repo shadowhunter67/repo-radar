@@ -1,5 +1,28 @@
 # Migration notes
 
+## 0.5 -> 0.6 (report schema 0.6, methodology 0.4)
+
+Additive except the items marked **changed**. 86 rules in total (unchanged).
+
+### Additive
+
+- Top level `registry_intel{}`, `timeline{}`; `release_intel.verification_run`; per release `slsa{}` and `asset_checks[]`; per provenance record `verification_detail`; `identity_v2.primary_artifact.status` / `evidence_strength`, `identity_v2.deployment_form.supported`; `retrieval.passes` / `hints` / `skipped_by_rule` / `wide_directories`.
+- Fact scope `registry`; facts `registry.*`, `release.provenance.verified`, `release.source_binding_verified`, `release.assets.checksum_verified`; finding category `registry`.
+- CLI: `--verify-crypto`, `--verify-assets`, `--no-registry`, `--snapshot-dir`, `--snapshot-revision`, `snapshots`, `graph`. Profile keys `temporal_block` and more `require` keys. Dependency `sigstore` 4.1.0 (loaded only with `--verify-crypto`).
+
+### Changed
+
+| What | Before | Now | Why |
+| ---- | ------ | --- | --- |
+| Signature `state` values | `signature_present`, `signature_verified`, `signature_invalid`, `verification_unavailable` | `not_present`, `present_unverified`, `verified`, `invalid`, `verification_failed`, `verification_unavailable` + `trust_root`, `verified_by`, `local_state` | Presence, GitHub's assertion and local verification are different facts. |
+| Provenance `verification` | `verification_unavailable` / `verified_by_github` | the same state vocabulary | Same reason. |
+| `release_intel.releases[].correspondence` | 5 classes | + `verified_source_binding`, `verified_build_provenance`, `source_binding_conflict`, `digest_verified_only` | Verified binding needs more than an attestation. |
+| Dormancy directories | read by the walk only when not on a deny-list | docs/tests/vendor rank low but are read when budget remains | Low priority must not mean never. |
+| Cargo `publish = false` | public | private | Never published, never installed by dependents. |
+| Package / engines | 0.5.0, Node >= 20 | 0.6.0, Node >= 20.17 | New report sections; `sigstore` requirement. |
+
+Methodology stays 0.4 (see docs/methodology.md section 16); schema `0.6` reports are not accepted by tools that only know 0.5.
+
 ## 0.4 -> 0.5 (report schema 0.5, methodology 0.4)
 
 Compatibility goal: additive. Methodology stays 0.4 because no rule, weight or score input changed (86 rules in total), so scores of 0.4 and 0.5 reports are comparable.

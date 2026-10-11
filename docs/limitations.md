@@ -91,3 +91,14 @@ See [bias](bias.md). In addition:
 - **Historical diff** compares two analyses: release assets, contributors and branch protection are current-state only; `setup.cfg` dependencies are not parsed; vulnerability severity is not available; removals in incomplete trees are inconclusive.
 - **Release intelligence** does not verify any signature or attestation; large attestation bundles are listed but not read; only GitHub releases are covered; no binary is downloaded or analyzed.
 - **Governance** uses a 100-commit window, 30 releases and the top 100 contributors; shared or renamed accounts, bots and organization changes are invisible; the takeover sequence is an indicator of a pattern that a legitimate hand-over also produces.
+
+
+## 0.6 additions
+
+- **Identity v2**: 67% overall / 75% when answered on a fresh 18-repository holdout (single AI-assisted reviewer); frameworks whose evidence is outside the scanned source sample, CLIs that contain a server helper, Go services whose only strong evidence is `package main`, and C projects without manifests are the known failure modes. Confidence is not calibrated (ECE 0.33).
+- **Very large repositories** remain partially read: manifests deeper than three path segments are not selected (kubernetes staging modules), source coverage is a small sample, and nothing is claimed absent from an unread directory.
+- **Registry**: only the packages this repository publishes; PyPI exposes no per-version publisher or maintainers; ownership history does not exist in any of the three registries; maintainers are current-state; npm provenance is "reported", not verified; crates.io and PyPI provenance are not read.
+- **Cryptographic verification**: Sigstore public-good root only; blob bundles, GPG/minisign/SSH signatures, local tag signature verification, certificate revocation, GitHub's private-instance trust root and large non-inlined bundles are not covered. `--verify-crypto` needs network access to the Sigstore TUF repository.
+- **Asset checks** download at most 3 assets (8 MiB each); everything else is "skipped for resource limit". Binary metadata is a header read, not analysis.
+- **Timeline**: no external-domain events, no maintainer or ownership history; correlations are indicators over small samples.
+- **Snapshots** are a local directory with an append-only index: no concurrent-writer protocol beyond atomic file creation, no remote store.

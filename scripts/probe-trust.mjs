@@ -23,17 +23,34 @@ for (const repo of repos) {
   try {
     const r = await analyzeRepository(repo, {
       ...(token ? { token } : {}),
-      scorecard: false, osv: false, depsDev: false, sbom: false, codeScan: false, registry: false,
-      verifyCrypto: true, verifyAssets: assets,
+      scorecard: false,
+      osv: false,
+      depsDev: false,
+      sbom: false,
+      codeScan: false,
+      registry: false,
+      verifyCrypto: true,
+      verifyAssets: assets,
     });
-    const rel = r.release_intel.releases.find((x) => x.provenance.length || x.attestations_listed || x.asset_checks.length) ?? r.release_intel.releases.find((x) => !x.prerelease) ?? r.release_intel.releases[0];
+    const rel =
+      r.release_intel.releases.find(
+        (x) => x.provenance.length || x.attestations_listed || x.asset_checks.length,
+      ) ??
+      r.release_intel.releases.find((x) => !x.prerelease) ??
+      r.release_intel.releases[0];
     md += `## ${repo} @ ${r.subject.ref}\n\n- ${Date.now() - t0} ms, release requests ${r.release_intel.requests}\n`;
     if (!rel) md += '- no release\n\n';
     else {
-      md += `- release ${rel.tag} (${rel.published_at?.slice(0, 10)}), tag ${rel.tag_kind} ${rel.tag_commit?.slice(0, 10) ?? ''}; tag signature: ${rel.signatures.filter((s) => s.subject === 'tag').map((s) => `${s.state} via ${s.trust_root} (local: ${s.local_state})`).join(', ') || 'none'}\n`;
+      md += `- release ${rel.tag} (${rel.published_at?.slice(0, 10)}), tag ${rel.tag_kind} ${rel.tag_commit?.slice(0, 10) ?? ''}; tag signature: ${
+        rel.signatures
+          .filter((s) => s.subject === 'tag')
+          .map((s) => `${s.state} via ${s.trust_root} (local: ${s.local_state})`)
+          .join(', ') || 'none'
+      }\n`;
       md += `- attestations listed ${rel.attestations_listed}, readable ${rel.provenance.length}: ${rel.provenance.map((p) => `${p.verification}${p.verification_detail ? ` [${p.verification_detail.trust_root}; ${p.verification_detail.identity?.source_repository ?? 'no identity'}; ${p.verification_detail.detail.slice(0, 70)}]` : ''}`).join(' | ') || 'none'}\n`;
       md += `- correspondence **${rel.correspondence}**; slsa observations ${JSON.stringify(rel.slsa)}\n`;
-      for (const c of rel.asset_checks) md += `- asset ${c.asset}: ${c.state} ${c.bytes ?? ''} ${c.inspection ? c.inspection.format + '/' + (c.inspection.architecture ?? '') : ''}\n`;
+      for (const c of rel.asset_checks)
+        md += `- asset ${c.asset}: ${c.state} ${c.bytes ?? ''} ${c.inspection ? c.inspection.format + '/' + (c.inspection.architecture ?? '') : ''}\n`;
       for (const l of r.release_intel.limits_hit) md += `- limit: ${l}\n`;
       md += '\n';
     }

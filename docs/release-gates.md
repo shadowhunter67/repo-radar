@@ -39,3 +39,8 @@ Gate 5 now requires a result with `fresh_holdout: true`, `for_methodology` equal
 ## 0.5 (2026-10-11)
 
 Methodology is unchanged (0.4), so the fresh holdout `fresh-holdout-0.4` still validates gate 5. A second fresh holdout, `identity-holdout-0.5`, evaluated Identity v2 once; gate 6 (identity quality audited) now includes its result, which is weaker than the tuned dev/validation numbers and is reported as such. Gate 14 remains manual: no human has reviewed any label.
+
+
+## 0.6 (2026-10-11)
+
+Methodology unchanged (0.4); the fresh holdout `fresh-holdout-0.4` still validates gate 5. Two further holdouts are on record for identity (0.5 observed in the previous cycle, 0.6 run once after the structural rules were frozen); both are weaker than the tuned dev/validation numbers and are reported as such. Gate 14 remains manual: nothing was human-reviewed.

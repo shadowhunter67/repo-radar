@@ -173,3 +173,8 @@ Identity v2 (`identity_v2`) is a multi-axis, structure-first description: primar
 Measured honestly: tuned on the dev and validation splits of the original corpus it reaches 90% / 100% (optimistic: those repositories shaped it); on the fresh identity holdout `calibration/identity-holdout-0.5` it reached **63% primary-artifact accuracy (the legacy single label: 67%)**, with the packaging axis at 92%. The packaging separation works; the primary artifact is not demonstrably better than the legacy label. The holdout was run once and not used for tuning.
 
 Profiles may carry `require:` (`sbom`, `signed_release`, `provenance`, `checksums`; `true` blocks on a negative observation, `strict` also on unknown) and `history_block:` rules over a revision diff. Unknown never blocks unless the policy says `strict` / `on_unknown: block`.
+
+
+## 16. Methodology version for 0.6 (decision)
+
+The methodology stays **0.4**. Nothing that changes how a score or a confidence is interpreted was added: identity v2, retrieval, registry, cryptographic verification, release binding, the timeline, snapshots and the trust graph are informational sections and new non-scoring facts. Two input corrections are recorded rather than hidden: a Cargo crate with `publish = false` is now private (it no longer counts as an install-time hook for dependents), and retrieval v2 reads more of very large repositories (their coverage, not the rules, changes). The fresh holdout of methodology 0.4 therefore remains valid for gate 5. A new methodology would be required if a rule or weight started to depend on the new facts.

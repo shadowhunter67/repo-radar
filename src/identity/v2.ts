@@ -225,7 +225,6 @@ export function classifyIdentityV2(input: IdentityV2Input): IdentityV2 {
 
   // ---- signals --------------------------------------------------------------------------------------------------
   const goMain = sig.executables.some((e) => e.kind.startsWith('go'));
-  const cargoBin = sig.executables.some((e) => e.kind.startsWith('cargo'));
   const nativeMain = sig.executables.some((e) => /^(?:native|cmake|meson)/.test(e.kind));
   const pyMain = sig.executables.some((e) => e.kind === 'python -m entry');
   const shCount = paths.filter((p) => /\.sh$/.test(p) && !isNoisePath(p)).length;

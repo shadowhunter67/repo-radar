@@ -76,3 +76,8 @@ Labels come from one AI-assisted reviewer, not a human. The blind-review workflo
 ## Identity holdout 0.5
 
 `calibration/identity-holdout-0.5/` (16 repositories, all pinned by commit) evaluates Identity v2, which was tuned only on the dev and validation splits above. Only identity fields (artifact type, packaging, domain) are labelled; everything else is `unknown`. It was run once (`--final`); the result is in `calibration/results/identity-holdout-0.5-methodology-0.4.md` and must not be used for tuning, so the next identity iteration needs a new corpus. Labels are AI-assisted single review; the blind packets in `calibration/review/` apply to this corpus too. The label schema now also supports `packaging`, `field_status` and per-reviewer `opinions`, so disagreement is stored instead of forced into consensus.
+
+
+## Identity holdout 0.6
+
+`calibration/identity-holdout-0.6/` (18 repositories, pinned by commit) was created after the structural Identity v2 rules of cycle 0.6 were frozen and run once (`--final`): `calibration/results/identity-holdout-0.6-methodology-0.4.md`. It must not be used for tuning. Labels cover artifact type, packaging, domain, interfaces and deployment form; everything else is `unknown`. Result: primary artifact 67% overall / 75% answered (legacy single label 50% / 56%), top-2 83%, packaging 80%, interfaces precision 63% / recall 81%, ECE 0.33. The single AI-assisted reviewer means these are upper bounds; the blind-review packets apply to this corpus too.

@@ -53,6 +53,10 @@ repo-radar diff old.json new.json                # what changed between two save
 repo-radar diff owner/repo --from v1.0 --to v1.1  # analyze two exact revisions and explain the change (docs/history.md)
 repo-radar analyze owner/repo --no-releases --no-targeted-tree   # skip release metadata / the large-tree walk
 repo-radar model report.json                     # unified repository model of a 0.4 report
+repo-radar analyze owner/repo --verify-crypto --verify-assets   # verify release attestations (Sigstore) and a few small assets (docs/trust.md)
+repo-radar analyze owner/repo --snapshot-dir ./snapshots       # immutable snapshot (docs/snapshots.md)
+repo-radar snapshots --snapshot-dir ./snapshots                # list stored snapshots
+repo-radar graph report.json                                    # Software Trust Graph projection (every edge has evidence)
 repo-radar profiles
 repo-radar rules security
 ```

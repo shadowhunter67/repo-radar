@@ -32,6 +32,11 @@ No asset binary is downloaded. Total release requests are capped at 24 and every
 ## Known limitations
 
 - GitHub returns large attestation bundles as a `bundle_url` on a storage host that is not allowlisted; such attestations are counted (`attestations_listed`) but their statement is not read (cli/cli is an example).
-- Attestation envelopes are not cryptographically verified, tag signatures are verified only by GitHub, and GPG / Sigstore / minisign signature assets are not verified.
+- Attestation envelopes are verified only with `--verify-crypto` (see trust.md); tag signatures are verified only by GitHub; GPG / Sigstore-blob / minisign signature assets are not verified.
 - `.intoto.jsonl` assets (SLSA generator output) are classified but not parsed.
 - Only GitHub releases are analyzed; tags without a release and registry publishers are future work.
+
+
+## Update (0.6): verification states and binding classes
+
+Signature and provenance states are now the shared trust vocabulary of [trust.md](trust.md): `not_present`, `present_unverified`, `verified`, `invalid`, `verification_failed`, `verification_unavailable`, each with its trust root. The earlier names (`signature_present`, `signature_verified`, `signature_invalid`) are retired. A tag signature GitHub verified is `verified` with `trust_root: github_api_assertion` and `local_state: verification_unavailable`. New correspondence classes: `verified_source_binding`, `verified_build_provenance`, `source_binding_conflict`, `digest_verified_only`. Each release also carries `slsa` (individual observations, never a level) and, with `--verify-assets`, `asset_checks` with bounded format/architecture metadata.

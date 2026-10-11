@@ -17,7 +17,8 @@ node dist/cli.js analyze owner/repo [--format json] [--profile enterprise] [--ve
 
 ## Invariants (tests enforce most of them)
 
-- Never execute or install anything from an analyzed repository; never fetch repository-controlled URLs. Only `src/util/http.ts` touches the network.
+- Never execute or install anything from an analyzed repository or release asset; never fetch repository-controlled URLs. Only `src/util/http.ts` touches the network (single exception: the `sigstore` library's TUF client under `--verify-crypto`).
+- Presence is not verification: a signature file, attestation or checksum line is `present_unverified` until a verifier with a named trust root accepted it (`src/trust`). A verifier that cannot decide is `verification_failed`, never a pass.
 - Missing evidence is not negative evidence: no `false` for things that could not be fetched; emit a diagnostic with `affects`.
 - Rules are data in `standards/`; the engine has no thresholds. Every scored rule must trace to evidence ids.
 - Repository-controlled strings are sanitized before reaching the terminal. Regexes over repository text must have bounded input and look-ahead.
@@ -30,6 +31,6 @@ node dist/cli.js analyze owner/repo [--format json] [--profile enterprise] [--ve
 
 ## Dependencies installed (keep this list current)
 
-Runtime: `zod` (schemas + JSON Schema generation), `yaml` (workflow/standards parsing, core schema), `smol-toml` (pyproject/Cargo parsing).
+Runtime: `zod` (schemas + JSON Schema generation), `yaml` (workflow/standards parsing, core schema), `smol-toml` (pyproject/Cargo parsing), `sigstore` 4.1.1 (exact; 4.1.0 and earlier had GHSA-52v5-jr5w-gjxr, constraints we never use; the maintained Sigstore client, used ONLY with `--verify-crypto` and loaded lazily: it replaces any hand-written certificate/signature code. Its TUF client reaches `tuf-repo-cdn.sigstore.dev`, the one network access outside `src/util/http.ts`; Node >= 20.17).
 Dev: `typescript`, `vitest`, `eslint` + `typescript-eslint` + `@eslint/js`, `prettier`, `esbuild`, `@types/node`.
 Adding a runtime dependency needs a justification in the PR.

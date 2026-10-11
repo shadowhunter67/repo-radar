@@ -3,6 +3,31 @@
 All notable changes are documented here. Versioning: the CLI follows semver; the report schema and the scoring
 methodology are versioned separately (`schema_version`, `methodology.version`) and are listed per release.
 
+## [0.6.0] - unreleased
+
+Report schema 0.6, methodology 0.4 (rules unchanged: 86 -> 86 rules; see [docs/methodology.md](docs/methodology.md) section 16 for why the methodology did not move). Migration notes: [docs/migration.md](docs/migration.md). Design: [identity](docs/identity.md), [retrieval](docs/retrieval.md), [registry](docs/registry.md), [trust](docs/trust.md), [governance](docs/governance.md), [snapshots and graph](docs/snapshots.md), [policy](docs/policy.md).
+
+### Added
+
+- **Identity v2 evidence hierarchy**: strong structural evidence (executable targets, server bootstrap, extension surface in a published package, container entrypoint of a program, native entry files) decides; weak evidence (bare Dockerfile, keyword hint) only breaks ties and is capped; status `clear | ambiguous | unknown`; a Dockerfile is a deployment form, not an identity; deployment `supported` forms. Metrics: overall/answered accuracy, top-2, packaging, interface precision/recall, deployment accuracy, ECE, abstentions.
+- **Retrieval v2**: multi-pass walk (root, CI/build, hinted, source roots, breadth), static structural hints (workspaces, Cargo members, go.work, Gradle includes, Maven modules, CMake add_subdirectory, Makefile.am, meson, Kbuild), wide-directory handling, low-but-not-never ranking of docs/tests/vendor, budgets for requests/nodes/bytes/time/depth/hint reads, run-local reuse of parses by blob SHA.
+- **Registry intelligence** (npm, PyPI, crates.io): package model, version/publisher history, repository correspondence (`confirmed | likely | conflicting | missing | unknown`), publisher/dormancy/cadence signals, findings, facts, `--no-registry`.
+- **Cryptographic verification** (`--verify-crypto`, `--verify-assets`): trust-root vocabulary and states, Sigstore bundle verification through the maintained `sigstore` library, GitHub tag assertion kept separate from local verification, verified source binding, SLSA-related observations (never a level), bounded asset downloads with digest comparison, ELF/PE/Mach-O header metadata.
+- **Timeline and temporal correlation**: unified events, built-in generic patterns, custom patterns as data, `temporal_block` policy.
+- **Immutable snapshot store** (`--snapshot-dir`, `snapshots`), **Software Trust Graph** (`graph`), new `require` keys (`verified_provenance`, `verified_source_binding`, `registry_repository_match`, `publisher_stability`).
+- Probes: `scripts/probe-registry.mjs`, `probe-trust.mjs`, `probe-retrieval.mjs` (v2); new identity holdout `calibration/identity-holdout-0.6` (run once).
+
+### Changed
+
+- A Cargo crate with `publish = false` is private (no install-time hook for dependents; not looked up in a registry).
+- Signature/provenance states use the shared verification vocabulary (retired: `signature_present`, `signature_verified`, `signature_invalid`).
+- `HttpClient` can return binary-safe bodies; the vitest default timeout is 20 s (retry back-off tests).
+- Node >= 20.17 (required by `sigstore`).
+
+### Fixed (found by real probes)
+
+- A registry lookup for `fuzz/Cargo.toml` (ripgrep) matched an unrelated crate; PyPI responses above 4 MiB were rejected; old dormancy gaps produced signals; goreleaser bundles that the Sigstore root cannot time-stamp were reported `invalid` instead of `verification_failed`; the `config_digest` no longer includes the pinned ref (previous cycle).
+
 ## [0.5.0] - unreleased
 
 Report schema 0.5, methodology 0.4 (rules unchanged: 86 -> 86 rules; scoring semantics are untouched, so the fresh holdout of methodology 0.4 stays valid). Migration notes: [docs/migration.md](docs/migration.md). Design: [docs/history.md](docs/history.md), [docs/releases.md](docs/releases.md).

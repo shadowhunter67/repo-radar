@@ -58,3 +58,12 @@ remediation, intent}`; `intent` is always `"undetermined"` (capability is not in
 | `registry.provenance_reported` | npm only: every package reports a provenance attestation for its latest version (not verified here). |
 | `registry.publisher_stable` | No recent version was published by an account new to the sampled history. Emitted only when all lookups worked; PyPI exposes no per-version publisher. |
 | `registry.dormancy_then_publish` | A recent publication ended a gap of a year or more. |
+
+
+## Release verification and governance facts (0.6)
+
+| Fact | Meaning |
+| ---- | ------- |
+| `release.provenance.verified` | A release attestation was cryptographically verified (emitted only when `--verify-crypto` ran; otherwise unknown). |
+| `release.source_binding_verified` | The correspondence class is `verified_source_binding` (same condition for emission). |
+| `release.assets.checksum_verified` | Downloaded asset bytes matched their published digest and none mismatched (emitted only when `--verify-assets` ran and checked something). |
