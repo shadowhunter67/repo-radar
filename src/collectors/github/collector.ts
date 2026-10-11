@@ -3,12 +3,7 @@ import { EvidenceBuilder, type Clock } from '../../evidence/builder.js';
 import { HttpClient, HttpError, RateLimitError, TooLargeError } from '../../util/http.js';
 import type { RepoRef } from '../../util/repo-ref.js';
 import { daysBetween, median, round } from '../../util/text.js';
-import {
-  parseLockedPackages,
-  parseManifest,
-  type LockedPackage,
-  type ParsedManifest,
-} from '../manifests/parse.js';
+import { parseManifest, type ParsedManifest } from '../manifests/parse.js';
 import type { GithubCollection } from '../types.js';
 import { analyzeReadme } from './readme.js';
 import { analyzeTree, isStaticallyTyped, type TreeEntry } from './tree.js';
@@ -23,7 +18,10 @@ const RAW = 'https://raw.githubusercontent.com';
 
 const MAX_WORKFLOWS = 20;
 const MAX_MANIFESTS = 10;
-const MAX_LOCKS = 4;
+const MAX_LOCKS = 6;
+const MAX_SBOMS = 3;
+/** Lockfiles and SBOMs are routinely larger than ordinary manifests. */
+const DEPFILE_MAX_BYTES = 5 * 1024 * 1024;
 const RAW_MAX_BYTES = 512 * 1024;
 const STALE_DAYS = 180;
 
@@ -57,7 +55,7 @@ export async function collectGithub(
   ref: RepoRef,
   http: HttpClient,
   clock: Clock,
-  options: { scan?: boolean; ref?: string } = {},
+  options: { scan?: boolean; ref?: string; sbom?: boolean } = {},
 ): Promise<GithubCollection & CollectorResult> {
   const b = new EvidenceBuilder('github', clock);
   const now = clock.now();
@@ -305,20 +303,30 @@ export async function collectGithub(
   }
 
   // ---- raw file fetches (never executed; parsed statically) ---------------------------------
-  const rawFetch = (path: string): Promise<string | undefined> =>
+  const rawFetchBytes = (path: string, maxBytes: number): Promise<string | undefined> =>
     safe(`raw ${path}`, async () => {
       const u = `${RAW}/${encodeURIComponent(ref.owner)}/${encodeURIComponent(ref.repo)}/${encodeURIComponent(refStr)}/${path.split('/').map(encodeURIComponent).join('/')}`;
-      const r = await http.request(u, { maxBytes: RAW_MAX_BYTES });
+      const r = await http.request(u, { maxBytes });
       return r.status === 200 ? r.body : undefined;
     });
+  const rawFetch = (path: string): Promise<string | undefined> =>
+    rawFetchBytes(path, RAW_MAX_BYTES);
+  const depFetch = (path: string): Promise<string | undefined> =>
+    rawFetchBytes(path, DEPFILE_MAX_BYTES);
 
   const wfPaths = tree.workflowPaths.slice(0, MAX_WORKFLOWS);
   const manifestPaths = pickManifests(tree.manifestPaths).slice(0, MAX_MANIFESTS);
   const lockPaths = tree.lockPaths.slice(0, MAX_LOCKS);
-  const [wfTexts, manifestTexts, lockTexts] = await Promise.all([
+  const sbomPaths = options.sbom === false ? [] : tree.sbomPaths.slice(0, MAX_SBOMS);
+  if (tree.sbomPaths.length > MAX_SBOMS && options.sbom !== false)
+    b.diag('info', 'sboms_capped', `read ${MAX_SBOMS} of ${tree.sbomPaths.length} SBOM-like files`);
+  if (tree.lockPaths.length > MAX_LOCKS)
+    b.diag('info', 'locks_capped', `read ${MAX_LOCKS} of ${tree.lockPaths.length} lockfiles`);
+  const [wfTexts, manifestTexts, lockTexts, sbomTexts] = await Promise.all([
     pool(wfPaths, 5, rawFetch),
     pool(manifestPaths, 5, rawFetch),
-    pool(lockPaths, 3, rawFetch),
+    pool(lockPaths, 3, depFetch),
+    pool(sbomPaths, 2, depFetch),
   ]);
 
   // workflows
@@ -437,17 +445,21 @@ export async function collectGithub(
       );
   }
 
-  const locked: LockedPackage[] = [];
-  lockPaths.forEach((p, i) => {
-    const text = lockTexts[i];
-    if (text) locked.push(...parseLockedPackages(p, text));
-  });
-  // Also derive exact pins from go.mod and requirements.txt.
-  manifestPaths.forEach((p, i) => {
-    const text = manifestTexts[i];
-    if (text && /(?:go\.mod|requirements\.txt)$/.test(p))
-      locked.push(...parseLockedPackages(p, text));
-  });
+  const depInputs: GithubCollection['depInputs'] = {
+    locks: lockPaths.flatMap((p, i) =>
+      lockTexts[i] ? [{ path: p, text: lockTexts[i] as string }] : [],
+    ),
+    sboms: sbomPaths.flatMap((p, i) =>
+      sbomTexts[i] ? [{ path: p, text: sbomTexts[i] as string }] : [],
+    ),
+  };
+  for (const [i, p] of lockPaths.entries())
+    if (lockTexts[i] === undefined)
+      b.diag(
+        'info',
+        'lockfile_unreadable',
+        `could not read ${p} (missing, too large or a network error); versions it would resolve stay unresolved`,
+      );
 
   // ---- readme -------------------------------------------------------------------------------
   if (readmeRes !== undefined || treeRes) {
@@ -722,8 +734,7 @@ export async function collectGithub(
     evidence: b.evidence,
     diagnostics: b.diagnostics,
     snapshot,
-    locked,
-    directDependencyCount: directDeps,
+    depInputs,
     files,
     allTreePaths: entries
       .filter((e) => e.type === 'blob')

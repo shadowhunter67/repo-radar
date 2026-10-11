@@ -125,6 +125,7 @@ export function renderText(r: Report, o: TextOptions = {}): string {
     }
   }
 
+  out.push(...renderDependencies(r, s));
   out.push(...renderCodeAnalysis(r, s, !!o.verbose));
 
   out.push('');
@@ -135,6 +136,83 @@ export function renderText(r: Report, o: TextOptions = {}): string {
     'Scores summarize observed indicators; they are not a statement that code is safe, secure or trustworthy.',
   );
   return out.join('\n') + '\n';
+}
+
+/** Dependency intelligence: counts that must be read together (a clean result means little at low coverage). */
+function renderDependencies(r: Report, s: (x: string, n?: number) => string): string[] {
+  const d = r.dependency_intel;
+  const m = d.summary;
+  if (m.discovered === 0 && d.sboms.length === 0) return [];
+  const row = (k: string, v: string | number): string => `  ${k.padEnd(31)}${v}`;
+  const out = ['', 'DEPENDENCY INTELLIGENCE'];
+  out.push(
+    row(
+      'Dependencies discovered:',
+      `${m.discovered} (${m.direct} direct, ${m.transitive} transitive)`,
+    ),
+  );
+  if (m.direct > 0) {
+    out.push(row('Direct, registry-resolvable:', m.direct_registry));
+    out.push(row('  exact version known:', m.direct_resolved_exact));
+    out.push(row('  unresolved / ambiguous:', `${m.direct_unresolved} / ${m.direct_ambiguous}`));
+    out.push(row('Direct, not from a registry:', m.direct_non_registry));
+    out.push(
+      row(
+        'Direct, vulnerability-checked:',
+        `${m.direct_vulnerability_checked} of ${m.direct_registry}`,
+      ),
+    );
+  }
+  out.push(
+    row(
+      'Packages checked / vulnerable:',
+      `${m.vulnerability_checked_total} / ${m.vulnerable_total}`,
+    ),
+  );
+  out.push(
+    row(
+      'Vulnerability lookup (OSV):',
+      `${d.vulnerability_lookup.state}${d.vulnerability_lookup.detail ? ` - ${s(d.vulnerability_lookup.detail, 80)}` : ''}`,
+    ),
+  );
+  out.push(
+    row(
+      'deps.dev:',
+      `${d.deps_dev.state} (${d.deps_dev.requests} requests, ${d.deps_dev.enriched} enriched, ${d.deps_dev.registry_candidates} current-version candidates)`,
+    ),
+  );
+  if (d.lockfiles.length > 0)
+    out.push(
+      row('Lockfiles read:', d.lockfiles.map((l) => `${s(l.path, 40)} (${l.packages})`).join(', ')),
+    );
+  const parsed = d.sboms.filter((x) => x.status === 'parsed');
+  out.push(
+    row(
+      'SBOM:',
+      d.sboms.length === 0
+        ? 'none found'
+        : d.sboms
+            .map(
+              (x) =>
+                `${s(x.path, 40)} ${x.format}${x.spec_version ? ` ${s(x.spec_version, 12)}` : ''} [${x.status}]`,
+            )
+            .join(', '),
+    ),
+  );
+  for (const c of d.sbom_comparisons)
+    out.push(
+      row(
+        'SBOM comparison:',
+        `${c.state.toUpperCase()} (${c.matched}/${c.direct_runtime_dependencies} direct runtime deps matched, ${c.version_mismatches.length} version mismatches, +${c.additional_sbom_components} extra components, confidence ${pct(c.confidence)})`,
+      ),
+    );
+  if (parsed.length > 0 && d.sbom_comparisons.length === 0)
+    out.push(row('SBOM comparison:', 'unable_to_compare'));
+  if (d.conflicts.length > 0) out.push(row('Source conflicts:', d.conflicts.length));
+  out.push(
+    '  (A versioned dependency without a lockfile, SBOM or exact pin is "unresolved", not "safe". A registry candidate is what the registry offers today, not what this revision used.)',
+  );
+  return out;
 }
 
 const RISK_LABEL = { none: 'NONE OBSERVED', low: 'LOW', medium: 'MEDIUM', high: 'HIGH' } as const;

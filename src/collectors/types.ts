@@ -1,5 +1,5 @@
 import type { ScannedFile } from '../analysis/types.js';
-import type { ParsedManifest, LockedPackage } from './manifests/parse.js';
+import type { ParsedManifest } from './manifests/parse.js';
 
 /** What the identity engine (and humans) can read about a repo, independent of scoring. */
 export interface RepoSnapshot {
@@ -22,9 +22,8 @@ export interface RepoSnapshot {
 
 export interface GithubCollection {
   snapshot: RepoSnapshot;
-  locked: LockedPackage[];
-  /** Total direct runtime dependencies across parsed manifests. */
-  directDependencyCount: number;
+  /** Raw lockfile and SBOM texts for the dependency subsystem (parsed statically, never executed). */
+  depInputs: { locks: { path: string; text: string }[]; sboms: { path: string; text: string }[] };
   /** Files fetched for static scanning (scripts, build files, workflows, manifests, source sample). */
   files: ScannedFile[];
   /** All blob paths of the git tree (bounded); used to resolve local references. */

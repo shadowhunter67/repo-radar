@@ -1,3 +1,5 @@
+import { isSbomPath } from '../../deps/sbom.js';
+
 export interface TreeEntry {
   path: string;
   type: string;
@@ -56,6 +58,8 @@ export interface TreeFacts {
   workflowPaths: string[];
   manifestPaths: string[];
   lockPaths: string[];
+  /** Files that look like an SBOM by name; the content is validated before it is believed. */
+  sbomPaths: string[];
   topLevelDirs: string[];
 }
 
@@ -68,6 +72,9 @@ const MANIFEST_BASENAMES = new Set([
 ]);
 const LOCK_BASENAMES = new Set([
   'package-lock.json',
+  'npm-shrinkwrap.json',
+  'yarn.lock',
+  'pnpm-lock.yaml',
   'Cargo.lock',
   'poetry.lock',
   'uv.lock',
@@ -129,6 +136,7 @@ export function analyzeTree(entries: TreeEntry[]): TreeFacts {
     workflowPaths: [],
     manifestPaths: [],
     lockPaths: [],
+    sbomPaths: [],
     topLevelDirs: [],
   };
   const dirs = new Set<string>();
@@ -148,6 +156,14 @@ export function analyzeTree(entries: TreeEntry[]): TreeFacts {
     if (depth <= 1 && LOCK_BASENAMES.has(base) && !VENDOR_DIR.test(path))
       facts.lockPaths.push(path);
 
+    if (
+      isSbomPath(path) &&
+      !VENDOR_DIR.test(path) &&
+      !TEST_PATH.test(path) &&
+      !/(?:^|\/)(?:testdata|fixtures?|examples?|samples?)\//i.test(path) &&
+      facts.sbomPaths.length < 20
+    )
+      facts.sbomPaths.push(path);
     if (ANY_LOCK.test(path) && depth <= 2) flags.lockfile = true;
     if (inRootOrGithub) {
       if (/^SECURITY(?:\.[a-z]+)?$/i.test(base)) flags.security_policy = true;

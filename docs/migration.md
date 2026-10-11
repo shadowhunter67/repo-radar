@@ -1,5 +1,25 @@
 # Migration notes
 
+## 0.2 -> 0.3 (report schema 0.3, methodology 0.3)
+
+Compatibility goal: consumers of 0.2 reports keep working; the changes are additive except the items marked **changed**. 86 rules in total (two new informational rules).
+
+### Additive
+
+- Top level `dependency_intel{}`; new fact family `deps.*` (fact `scope` may be `dependency`); finding `category` may be `dependency` or `sbom`.
+- CLI `--no-deps-dev` and `--no-sbom`; library options `depsDev`, `sbom`. New allow-listed host `api.deps.dev`.
+- `methodology.config_digest` also covers the deps.dev/SBOM switches and the dependency limits.
+
+### Changed
+
+| What | Before | Now | Why |
+| ---- | ------ | --- | --- |
+| `osv.coverage_ratio` | `min(1, queried packages / direct dependency count)`, transitive lockfile packages included | share of direct registry dependencies with an exact version and a successful lookup | The old value could be 100% while few direct dependencies were checked. |
+| `osv.vulnerable_ratio` | always emitted after a successful lookup | withheld when 0 vulnerabilities were found and the direct coverage is below 50% | "0 vulnerable among the 10% we could check" is not evidence about the rest; the rule is `not_observed` / `insufficient_coverage`. |
+| `schema_version`, `methodology.version` | `0.2` | `0.3` | New report section; scoring input semantics changed. Reports of different methodologies are not comparable. |
+
+Rule files must declare `methodology: '0.3'`. Holdout results recorded for methodology 0.2 do **not** validate 0.3 (release gate 5 fails until a fresh holdout exists).
+
 ## 0.1 -> 0.2 (report schema 0.2, methodology 0.2)
 
 Compatibility goal: consumers of 0.1 reports keep working; everything new is additive except the items marked **changed**.

@@ -1,7 +1,7 @@
 # Security standards, methodology 0.1.
 # Rules observe *indicators*. A high score is "no risk indicators observed by these checks", never "secure".
 # Rules sharing `group` split one weight budget (same underlying fact measured twice).
-methodology: '0.2'
+methodology: '0.3'
 rules:
   - id: security.branch-protected
     dimension: security

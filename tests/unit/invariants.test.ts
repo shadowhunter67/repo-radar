@@ -46,12 +46,14 @@ describe('security invariants of the source tree', () => {
       if (!f.endsWith('http.ts')) expect(calls.length, f).toBe(0);
     }
   });
-  it('hard-coded hosts in the source are limited to the four allowlisted services (plus github.com links)', () => {
+  it('hard-coded hosts in the source are limited to the five allowlisted services (plus github.com links)', () => {
     const allowed = new Set([
       'api.github.com',
       'raw.githubusercontent.com',
       'api.securityscorecards.dev',
       'api.osv.dev',
+      'api.deps.dev',
+      'deps.dev',
       'github.com',
       'osv.dev',
       'www.apache.org',

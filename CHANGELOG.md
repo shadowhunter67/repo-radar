@@ -3,6 +3,23 @@
 All notable changes are documented here. Versioning: the CLI follows semver; the report schema and the scoring
 methodology are versioned separately (`schema_version`, `methodology.version`) and are listed per release.
 
+## [0.3.0] - unreleased
+
+Report schema 0.3, methodology 0.3 (rules 84 -> 86 rules). Migration notes: [docs/migration.md](docs/migration.md). Design: [docs/dependencies.md](docs/dependencies.md).
+
+### Added
+
+- **Dependency intelligence** (`src/deps`): a normalized dependency model (structured package identity + purl, requested spec vs resolved version, relationship, direct/transitive, resolution state, vulnerability state, provenance), readers for `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Cargo.lock`, `poetry.lock`, `uv.lock` and `go.sum`, and explicit specification kinds (exact, range, tag, branch, commit, workspace, path, url).
+- **Vulnerability pipeline**: OSV is queried only for exact versions the repository evidences (lockfile > SBOM > manifest pin); every dependency ends in an explicit state (checked, unresolved_version, lookup_failed, ...); advisories keep their source, package, version, lookup URL and timestamp.
+- **deps.dev** (optional, `--no-deps-dev`): licenses, advisory keys and provenance listing for exact versions, and "current registry candidate" for unresolved ranges (never used for vulnerability conclusions).
+- **SBOM** (optional, `--no-sbom`): CycloneDX JSON 1.2-1.6 and SPDX JSON 2.2/2.3 ingestion with resource limits, comparison with manifests/lockfiles (consistent / partial / mismatch / unable_to_compare) and findings.
+- Report section `dependency_intel`, text section "DEPENDENCY INTELLIGENCE", facts `deps.*`, finding categories `dependency` and `sbom`, two informational rules (`supply-chain.dependency-resolution`, `supply-chain.sbom-validated`).
+
+### Changed
+
+- `osv.coverage_ratio` now means the share of DIRECT registry dependencies that were vulnerability-checked (it used to count transitive lockfile packages and could read 100% with 10% of direct dependencies checked). When no vulnerability is found and that share is below 50%, `osv.vulnerable_ratio` is withheld and `security.known-vulnerabilities` is left unobserved (`insufficient_coverage`) instead of scoring 10/10. Score weights are unchanged.
+- Lockfiles up to 5 MiB are read (was 512 KiB); up to 6 lockfiles; up to 10 manifests.
+
 ## [0.2.0] - unreleased
 
 Report schema 0.2, methodology 0.2, taxonomy 0.2, detector pack 0.1, facts 0.1. Migration notes: [docs/migration.md](docs/migration.md).

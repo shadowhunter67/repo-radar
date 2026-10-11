@@ -21,7 +21,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "0.2"
+      "const": "0.3"
     },
     "methodology": {
       "type": "object",
@@ -910,7 +910,8 @@
               "capability",
               "execution",
               "secret",
-              "scan"
+              "scan",
+              "dependency"
             ]
           },
           "derived_from": {
@@ -1611,7 +1612,9 @@
               "execution",
               "capability",
               "secrets",
-              "persistence"
+              "persistence",
+              "dependency",
+              "sbom"
             ]
           },
           "evidence_ids": {
@@ -1660,6 +1663,826 @@
         "additionalProperties": false
       }
     },
+    "dependency_intel": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "object",
+          "properties": {
+            "discovered": {
+              "type": "number"
+            },
+            "direct": {
+              "type": "number"
+            },
+            "transitive": {
+              "type": "number"
+            },
+            "direct_non_registry": {
+              "type": "number"
+            },
+            "direct_registry": {
+              "type": "number"
+            },
+            "direct_resolved_exact": {
+              "type": "number"
+            },
+            "direct_unresolved": {
+              "type": "number"
+            },
+            "direct_ambiguous": {
+              "type": "number"
+            },
+            "direct_vulnerability_checked": {
+              "type": "number"
+            },
+            "vulnerability_checked_total": {
+              "type": "number"
+            },
+            "vulnerable_total": {
+              "type": "number"
+            },
+            "unsupported_ecosystem": {
+              "type": "number"
+            },
+            "by_ecosystem": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "by_spec_kind": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "number"
+              }
+            }
+          },
+          "required": [
+            "discovered",
+            "direct",
+            "transitive",
+            "direct_non_registry",
+            "direct_registry",
+            "direct_resolved_exact",
+            "direct_unresolved",
+            "direct_ambiguous",
+            "direct_vulnerability_checked",
+            "vulnerability_checked_total",
+            "vulnerable_total",
+            "unsupported_ecosystem",
+            "by_ecosystem",
+            "by_spec_kind"
+          ],
+          "additionalProperties": false
+        },
+        "vulnerability_lookup": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string",
+              "const": "osv"
+            },
+            "performed": {
+              "type": "boolean"
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "checked",
+                "not_checked",
+                "unresolved_version",
+                "source_unavailable",
+                "unsupported_ecosystem",
+                "lookup_failed",
+                "partial"
+              ]
+            },
+            "detail": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "performed",
+            "state"
+          ],
+          "additionalProperties": false
+        },
+        "deps_dev": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "ok",
+                "partial",
+                "unavailable",
+                "disabled",
+                "not_needed"
+              ]
+            },
+            "requests": {
+              "type": "number"
+            },
+            "enriched": {
+              "type": "number"
+            },
+            "registry_candidates": {
+              "type": "number"
+            },
+            "detail": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "state",
+            "requests",
+            "enriched",
+            "registry_candidates"
+          ],
+          "additionalProperties": false
+        },
+        "lockfiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "format": {
+                "type": "string"
+              },
+              "packages": {
+                "type": "number"
+              },
+              "truncated": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "path",
+              "format",
+              "packages",
+              "truncated"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "package": {
+                "type": "object",
+                "properties": {
+                  "ecosystem": {
+                    "type": "string",
+                    "enum": [
+                      "npm",
+                      "PyPI",
+                      "crates.io",
+                      "Go",
+                      "Maven",
+                      "unknown"
+                    ]
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "purl": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "ecosystem",
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              "relationship": {
+                "type": "string",
+                "enum": [
+                  "runtime",
+                  "development",
+                  "build",
+                  "optional",
+                  "peer",
+                  "test",
+                  "unknown"
+                ]
+              },
+              "direct": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "string",
+                    "const": "unknown"
+                  }
+                ]
+              },
+              "requested": {
+                "type": "object",
+                "properties": {
+                  "spec": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "exact",
+                      "range",
+                      "tag",
+                      "branch",
+                      "commit",
+                      "git",
+                      "url",
+                      "workspace",
+                      "path",
+                      "unknown"
+                    ]
+                  },
+                  "exact_version": {
+                    "type": "string"
+                  },
+                  "alias_of": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "spec",
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              "resolution": {
+                "type": "string",
+                "enum": [
+                  "resolved",
+                  "ambiguous",
+                  "unresolved",
+                  "not_registry"
+                ]
+              },
+              "resolved": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "lockfile",
+                      "sbom",
+                      "manifest_pin"
+                    ]
+                  },
+                  "file": {
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "required": [
+                  "version",
+                  "source",
+                  "file",
+                  "confidence"
+                ],
+                "additionalProperties": false
+              },
+              "other_versions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "lockfile",
+                        "sbom",
+                        "manifest_pin"
+                      ]
+                    },
+                    "file": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "source",
+                    "file"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "registry_candidate": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string",
+                    "const": "deps.dev"
+                  },
+                  "observed_at": {
+                    "type": "string"
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "version",
+                  "source",
+                  "observed_at",
+                  "note"
+                ],
+                "additionalProperties": false
+              },
+              "package_info": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "const": "deps.dev"
+                  },
+                  "licenses": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "published_at": {
+                    "type": "string"
+                  },
+                  "deprecated": {
+                    "type": "boolean"
+                  },
+                  "source_repositories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "slsa_provenance_listed": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "source",
+                  "licenses",
+                  "source_repositories",
+                  "slsa_provenance_listed"
+                ],
+                "additionalProperties": false
+              },
+              "manifest_path": {
+                "type": "string"
+              },
+              "lockfile_path": {
+                "type": "string"
+              },
+              "vulnerability": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "checked",
+                      "not_checked",
+                      "unresolved_version",
+                      "source_unavailable",
+                      "unsupported_ecosystem",
+                      "lookup_failed",
+                      "partial"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "advisory_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "state",
+                  "advisory_ids"
+                ],
+                "additionalProperties": false
+              },
+              "derived_from": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "id",
+              "package",
+              "relationship",
+              "direct",
+              "resolution",
+              "other_versions",
+              "vulnerability",
+              "derived_from",
+              "confidence"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "omitted": {
+          "type": "number"
+        },
+        "advisories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "osv",
+                  "deps.dev"
+                ]
+              },
+              "package": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "lookup_url": {
+                "type": "string"
+              },
+              "looked_up_at": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "source",
+              "package",
+              "version",
+              "lookup_url",
+              "looked_up_at"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "sboms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "format": {
+                "type": "string",
+                "enum": [
+                  "CycloneDX",
+                  "SPDX",
+                  "unknown"
+                ]
+              },
+              "spec_version": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "parsed",
+                  "malformed",
+                  "unsupported",
+                  "too_large",
+                  "not_an_sbom"
+                ]
+              },
+              "detail": {
+                "type": "string"
+              },
+              "component_count": {
+                "type": "number"
+              },
+              "relationship_count": {
+                "type": "number"
+              },
+              "truncated": {
+                "type": "boolean"
+              },
+              "components": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "ref": {
+                      "type": "string"
+                    },
+                    "category": {
+                      "type": "string",
+                      "enum": [
+                        "library",
+                        "application",
+                        "framework",
+                        "container",
+                        "operating-system",
+                        "file",
+                        "device",
+                        "data",
+                        "other"
+                      ]
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "purl": {
+                      "type": "string"
+                    },
+                    "package": {
+                      "type": "object",
+                      "properties": {
+                        "ecosystem": {
+                          "type": "string",
+                          "enum": [
+                            "npm",
+                            "PyPI",
+                            "crates.io",
+                            "Go",
+                            "Maven",
+                            "unknown"
+                          ]
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "purl": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "ecosystem",
+                        "name"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "licenses": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "hash_count": {
+                      "type": "number"
+                    },
+                    "supplier": {
+                      "type": "string"
+                    },
+                    "author": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "ref",
+                    "category",
+                    "name",
+                    "licenses",
+                    "hash_count"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "path",
+              "format",
+              "status",
+              "component_count",
+              "relationship_count",
+              "truncated",
+              "components"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "sbom_comparisons": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sbom_path": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string",
+                "enum": [
+                  "consistent",
+                  "partial",
+                  "mismatch",
+                  "unable_to_compare"
+                ]
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "confidence_reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "direct_runtime_dependencies": {
+                "type": "number"
+              },
+              "matched": {
+                "type": "number"
+              },
+              "missing_from_sbom": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "version_mismatches": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "package": {
+                      "type": "string"
+                    },
+                    "sbom_version": {
+                      "type": "string"
+                    },
+                    "expected": {
+                      "type": "string"
+                    },
+                    "basis": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "package",
+                    "sbom_version",
+                    "expected",
+                    "basis"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "unverifiable_versions": {
+                "type": "number"
+              },
+              "additional_sbom_components": {
+                "type": "number"
+              },
+              "duplicate_components": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "invalid_versions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "library_components_without_purl": {
+                "type": "number"
+              },
+              "ecosystem_mismatch": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "notes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "sbom_path",
+              "state",
+              "confidence",
+              "confidence_reasons",
+              "direct_runtime_dependencies",
+              "matched",
+              "missing_from_sbom",
+              "version_mismatches",
+              "unverifiable_versions",
+              "additional_sbom_components",
+              "duplicate_components",
+              "invalid_versions",
+              "library_components_without_purl",
+              "ecosystem_mismatch",
+              "notes"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "package": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "manifest_vs_lockfile",
+                  "lockfile_vs_sbom",
+                  "multiple_locked_versions"
+                ]
+              },
+              "detail": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "package",
+              "kind",
+              "detail"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "limits_hit": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "version",
+        "summary",
+        "vulnerability_lookup",
+        "deps_dev",
+        "lockfiles",
+        "dependencies",
+        "omitted",
+        "advisories",
+        "sboms",
+        "sbom_comparisons",
+        "conflicts",
+        "limits_hit"
+      ],
+      "additionalProperties": false
+    },
     "integrity": {
       "type": "object",
       "properties": {
@@ -1691,6 +2514,7 @@
     "facts",
     "code_analysis",
     "findings",
+    "dependency_intel",
     "integrity"
   ],
   "additionalProperties": false,

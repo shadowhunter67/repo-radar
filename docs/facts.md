@@ -1,4 +1,4 @@
-# Normalized facts (schema 0.2)
+# Normalized facts (schema 0.3)
 
 Facts are the layer rules should prefer over raw evidence ([methodology section 9](methodology.md)). Schema:
 [`FactSchema`](../src/facts/index.ts); in the report they are `facts[]` with
@@ -17,6 +17,7 @@ When the static scan is disabled, scan-derived facts are **absent** (not false) 
 | `execution.*`         | `install_hooks.count`, `install_hooks.max_risk` (0 none, 1 low, 2 medium, 3 high; over hooks that run for dependents), `chain.any`, `chain.install_time` |
 | `persistence.*`       | `observed`, `install_time`, `kinds` |
 | `secret.*`            | `candidates.count` (high-precision DIRECT candidates outside tests and examples) |
+| `deps.*`              | `discovered`, `direct_count`, `resolution.exact_ratio` (direct registry dependencies with an exact version of this revision), `vulnerability.checked_ratio`, `unresolved_count`, `conflicts.count`, `sbom.present` (a structurally valid CycloneDX/SPDX document was parsed), `sbom.comparison` (consistent / partial / mismatch). See [dependencies.md](dependencies.md). |
 
 The confidence of a "not observed" fact is `0.3 + 0.5 x scan.source_coverage`; an observed fact carries the best detection
 confidence. Planned fact families (not implemented yet): `repo.*`, `language.*`, `framework.*`, `build.*`, `dependency.*`,

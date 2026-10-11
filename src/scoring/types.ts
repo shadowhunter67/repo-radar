@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { EvidenceIdSchema } from '../evidence/types.js';
 
-export const METHODOLOGY_VERSION = '0.2';
+export const METHODOLOGY_VERSION = '0.3';
 
 export const DIMENSIONS = [
   'security',

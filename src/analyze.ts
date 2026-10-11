@@ -5,7 +5,16 @@ import { buildFindings } from './analysis/findings.js';
 import { analyzeCode, emptyCodeAnalysis, type CodeAnalysis } from './analysis/index.js';
 import { DETECTOR_PACK_VERSION } from './analysis/detectors.js';
 import { collectGithub, GITHUB_HOSTS } from './collectors/github/collector.js';
-import { collectOsv, OSV_HOSTS } from './collectors/osv.js';
+import {
+  DEPSDEV_HOSTS,
+  DEPSDEV_LIMITS,
+  enrichWithDepsDev,
+  type DepsDevResult,
+} from './deps/depsdev.js';
+import { buildDependencyFindings, deriveDependencyFacts } from './deps/findings.js';
+import { analyzeDependencies, finalizeIntel } from './deps/intel.js';
+import { SBOM_LIMITS } from './deps/sbom.js';
+import { collectVulnerabilities, MIN_VULN_COVERAGE, OSV_HOSTS, OSV_LIMITS } from './deps/vulns.js';
 import { collectScorecard, SCORECARD_HOSTS } from './collectors/scorecard.js';
 import { systemClock, type Clock } from './evidence/builder.js';
 import { EvidenceStore } from './evidence/store.js';
@@ -36,6 +45,10 @@ export interface AnalyzeOptions {
   enforcePolicy?: boolean;
   scorecard?: boolean;
   osv?: boolean;
+  /** Query deps.dev for package metadata (default true). Network failures never mark a dependency safe. */
+  depsDev?: boolean;
+  /** Discover and ingest SBOM files (default true). */
+  sbom?: boolean;
   /** Static capability / execution / secret scan of fetched files (default on). */
   codeScan?: boolean;
   /** Read repository files at this commit/ref instead of the default branch head (reproducible runs). */
@@ -73,21 +86,39 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   });
   const sc = new HttpClient({ ...common, allowedHosts: SCORECARD_HOSTS });
   const osv = new HttpClient({ ...common, allowedHosts: OSV_HOSTS });
+  const depsDevHttp = new HttpClient({ ...common, allowedHosts: DEPSDEV_HOSTS });
   const scanEnabled = opts.codeScan !== false;
 
   const [github, scorecard] = await Promise.all([
     collectGithub(ref, gh, clock, {
       scan: scanEnabled,
+      sbom: opts.sbom !== false,
       ...(opts.ref ? { ref: parseGitRef(opts.ref) } : {}),
     }),
     opts.scorecard === false
       ? Promise.resolve({ evidence: [] as Evidence[], diagnostics: [] as Diagnostic[] })
       : collectScorecard(ref, sc, clock),
   ]);
-  const osvRes =
-    opts.osv === false
-      ? { evidence: [] as Evidence[], diagnostics: [] as Diagnostic[] }
-      : await collectOsv(github.locked, github.directDependencyCount, osv, clock);
+  // Dependency intelligence: offline resolution first, then optional network enrichment. Network failures only ever
+  // reduce coverage; they never turn an unchecked dependency into a safe one.
+  const depsStatic = analyzeDependencies({
+    manifests: github.snapshot.manifests,
+    locks: github.depInputs.locks,
+    sboms: github.depInputs.sboms,
+  });
+  const osvRes = await collectVulnerabilities(
+    depsStatic.deps,
+    opts.osv === false ? undefined : osv,
+    clock,
+  );
+  const depsDev: DepsDevResult | undefined =
+    opts.depsDev === false
+      ? undefined
+      : await enrichWithDepsDev(depsStatic.deps, depsDevHttp, clock);
+  const intel = finalizeIntel(depsStatic, osvRes, depsDev, {
+    osvEnabled: opts.osv !== false,
+    depsDevEnabled: opts.depsDev !== false,
+  });
 
   const identity = await classifier.classify(github.snapshot);
   const idEvidence = identityEvidence(identity, github.snapshot, clock);
@@ -111,6 +142,8 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...github.diagnostics,
     ...scorecard.diagnostics,
     ...osvRes.diagnostics,
+    ...depsStatic.diagnostics,
+    ...(depsDev?.diagnostics ?? []),
   ];
   for (const e of [...github.evidence, ...scorecard.evidence, ...osvRes.evidence, ...idEvidence]) {
     if (store.has(e.id))
@@ -153,11 +186,14 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
 
   // Normalized facts: rules consume these, not raw collector structures.
   // (Facts that say "nothing found" are withheld when the scan covered too little code; see ABSENCE_MIN_COVERAGE.)
-  const facts = deriveFacts({
-    store,
-    code,
-    artifact: { type: identity.artifact_type, confidence: identity.artifact_confidence },
-  });
+  const facts = [
+    ...deriveFacts({
+      store,
+      code,
+      artifact: { type: identity.artifact_type, confidence: identity.artifact_confidence },
+    }),
+    ...deriveDependencyFacts(intel, opts.sbom !== false),
+  ];
   if (
     code.scan.performed &&
     facts.some((f) => f.id === 'scan.absence_reliable' && f.value === false)
@@ -179,10 +215,12 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       ...(opts.osv === false ? ['osv.'] : []),
       ...(scanEnabled ? [] : SCAN_FACT_PREFIXES),
     ],
-    insufficientCoverage:
-      scanEnabled && facts.some((f) => f.id === 'scan.absence_reliable' && f.value === false)
+    insufficientCoverage: [
+      ...(osvRes.ratioWithheld ? ['osv.vulnerable_ratio'] : []),
+      ...(scanEnabled && facts.some((f) => f.id === 'scan.absence_reliable' && f.value === false)
         ? ['capability.', 'persistence.', 'secret.', 'execution.chain.']
-        : [],
+        : []),
+    ],
   });
   const cliMin = opts.minimums && Object.keys(opts.minimums).length > 0 ? opts.minimums : undefined;
   const minimums = cliMin ?? profile.minimums;
@@ -205,6 +243,14 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
           profile_version: profile.version,
           scorecard: opts.scorecard !== false,
           osv: opts.osv !== false,
+          deps_dev: opts.depsDev !== false,
+          sbom: opts.sbom !== false,
+          deps_limits: {
+            osv: OSV_LIMITS,
+            deps_dev: DEPSDEV_LIMITS,
+            sbom: SBOM_LIMITS,
+            min_vuln_coverage: MIN_VULN_COVERAGE,
+          },
           scan: scanEnabled,
           pinned_ref: opts.ref ?? null,
           limits: LIMITS,
@@ -233,13 +279,14 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     diagnostics: diagnostics.map((d) => ({ ...d, message: redactSecrets(d.message) })),
     stats: {
       evidence_count: store.size,
-      http_requests: gh.requests + sc.requests + osv.requests,
+      http_requests: gh.requests + sc.requests + osv.requests + depsDevHttp.requests,
       authenticated: gh.hasToken,
     },
     evidence: store.all(),
     facts,
     code_analysis: code,
-    findings: buildFindings(code),
+    findings: [...buildFindings(code), ...buildDependencyFindings(intel)],
+    dependency_intel: intel,
   };
   return { ...report, integrity: { report_sha256: sha256(JSON.stringify(report)) } };
 }

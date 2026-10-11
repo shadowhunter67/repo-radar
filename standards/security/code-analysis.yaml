@@ -3,7 +3,7 @@
 # files; "not observed" holds only inside that sample, which the facts' confidence reflects.
 # A capability is never evidence of intent: informational rules show context, scored rules cover risky
 # patterns where a clean result is the normal expectation.
-methodology: '0.2'
+methodology: '0.3'
 rules:
   - id: security.hardcoded-secrets
     dimension: security

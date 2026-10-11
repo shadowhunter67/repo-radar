@@ -1,5 +1,5 @@
 # Supply chain standards, methodology 0.1.
-methodology: '0.2'
+methodology: '0.3'
 rules:
   - id: supply-chain.lockfile
     dimension: supply-chain
@@ -100,9 +100,27 @@ rules:
       otherwise: 10
   - id: supply-chain.vulnerability-check-coverage
     dimension: supply-chain
-    title: 'Share of direct dependencies covered by the OSV check'
-    rationale: 'Context for interpreting the vulnerability result; low coverage means the vulnerability check saw little.'
+    title: 'Share of direct registry dependencies covered by the OSV check'
+    rationale: 'Context for interpreting the vulnerability result: the share of DIRECT registry dependencies that had an exact version and a successful lookup. Transitive lockfile packages do not raise it. Below 50%, a clean result is withheld instead of scored.'
     evidence: [osv.coverage_ratio]
     weight: 0
     informational: true
     scoring: { type: linear, min: 0, max: 1 }
+  - id: supply-chain.dependency-resolution
+    dimension: supply-chain
+    title: 'Share of direct registry dependencies with an exact version in this revision'
+    rationale: 'A lockfile or exact pin lets anyone (and every vulnerability tool) know which version this revision uses; a bare range cannot be checked. Informational: libraries often and reasonably ship ranges.'
+    evidence: [deps.resolution.exact_ratio]
+    weight: 0
+    informational: true
+    scoring: { type: linear, min: 0, max: 1 }
+    limitations: 'Exact versions come from lockfiles (strongest), a validated SBOM, or exact manifest pins. A current registry version is never counted as resolved.'
+  - id: supply-chain.sbom-validated
+    dimension: supply-chain
+    title: 'A parsable SBOM (CycloneDX or SPDX JSON) is committed'
+    rationale: 'Unlike the file-name check above, this requires the file to be a structurally valid, supported SBOM. It says nothing about the SBOM being accurate; see the SBOM comparison findings.'
+    evidence: [deps.sbom.present]
+    weight: 0
+    informational: true
+    scoring: { type: map, values: { 'true': 10, 'false': 5 } }
+    limitations: 'SBOMs published as release assets are not fetched. A valid SBOM is evidence, not ground truth.'

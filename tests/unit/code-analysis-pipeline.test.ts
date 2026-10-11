@@ -68,6 +68,9 @@ describe('installer-like repository (capabilities observed, intent undetermined)
       ...r.code_analysis.execution.hooks.map((h) => h.id),
       ...r.code_analysis.secrets.candidates.map((c) => c.id),
       ...r.code_analysis.capabilities.detections.map((d) => d.id),
+      ...r.dependency_intel.dependencies.map((d) => d.id),
+      ...r.dependency_intel.lockfiles.map((l) => l.path),
+      ...r.dependency_intel.sboms.map((d) => d.path),
     ]);
     for (const f of r.findings)
       for (const id of f.evidence_ids) expect(idsInReport.has(id), `${f.id} -> ${id}`).toBe(true);
@@ -99,6 +102,9 @@ describe('installer-like repository (capabilities observed, intent undetermined)
       ...r.code_analysis.execution.hooks.map((h) => h.id),
       ...r.code_analysis.secrets.candidates.map((c) => c.id),
       ...r.code_analysis.capabilities.detections.map((d) => d.id),
+      ...r.dependency_intel.dependencies.map((d) => d.id),
+      ...r.dependency_intel.lockfiles.map((l) => l.path),
+      ...r.dependency_intel.sboms.map((d) => d.path),
     ]);
     for (const f of r.facts)
       for (const id of f.derived_from) expect(known.has(id), `${f.id} <- ${id}`).toBe(true);
@@ -189,11 +195,12 @@ describe('scan switch, coverage and diagnostics', () => {
     expect(hook.analyzed).toBe(false);
   });
 
-  it('only the four allowlisted hosts are contacted while scanning', async () => {
+  it('only the five allowlisted hosts are contacted while scanning', async () => {
     const rec: Recorded[] = [];
     await run(installerRepo(), {}, rec);
     const hosts = new Set(rec.map((x) => new URL(x.url).host));
     expect([...hosts].sort()).toEqual([
+      'api.deps.dev',
       'api.github.com',
       'api.osv.dev',
       'api.securityscorecards.dev',
@@ -242,9 +249,9 @@ describe('artifact classification and identity layers', () => {
 describe('report versioning and integrity', () => {
   it('records every component version and a verifiable tamper-evidence digest', async () => {
     const r = await run(goodRepo());
-    expect(r.schema_version).toBe('0.2');
+    expect(r.schema_version).toBe('0.3');
     expect(r.methodology).toMatchObject({
-      version: '0.2',
+      version: '0.3',
       taxonomy_version: '0.2',
       detector_pack_version: '0.1',
       facts_version: '0.1',

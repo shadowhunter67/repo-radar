@@ -56,6 +56,8 @@ export interface FakeSpec {
   linkHeader: string | null;
   /** override the whole OSV querybatch response body */
   osvRaw: unknown;
+  /** deps.dev: URL substring -> JSON body (anything else answers 404) */
+  depsDev: Record<string, unknown>;
   /** files in the owner's `.github` repo (org-level defaults), keyed by path */
   orgFiles: Record<string, string>;
   /** GitHub community profile `files` object (inherited health files show up here) */
@@ -97,6 +99,7 @@ export function baseSpec(over: Partial<FakeSpec> = {}): FakeSpec {
     treeTruncated: false,
     linkHeader: null,
     osvRaw: null,
+    depsDev: {},
     orgFiles: {},
     community: null,
     ...over,
@@ -164,6 +167,10 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
           return ids ? { vulns: ids.map((id) => ({ id })) } : {};
         }),
       });
+    }
+    if (url.startsWith('https://api.deps.dev/')) {
+      const hit = Object.entries(spec.depsDev).find(([k]) => url.includes(k));
+      return hit ? json(hit[1]) : json({ error: 'not found' }, 404);
     }
     const orgRaw = `https://raw.githubusercontent.com/${spec.owner}/.github/HEAD/`;
     if (url.startsWith(orgRaw)) {

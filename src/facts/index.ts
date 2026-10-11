@@ -29,7 +29,16 @@ export const FactSchema = z.object({
   value: EvidenceValueSchema,
   /** How sure we are of the fact. "Not observed" facts carry reduced confidence, scaled by scan coverage. */
   confidence: z.number().min(0).max(1),
-  scope: z.enum(['repo', 'artifact', 'ci', 'capability', 'execution', 'secret', 'scan']),
+  scope: z.enum([
+    'repo',
+    'artifact',
+    'ci',
+    'capability',
+    'execution',
+    'secret',
+    'scan',
+    'dependency',
+  ]),
   derived_from: z.array(z.string()),
   derived_by: z.string(),
 });
