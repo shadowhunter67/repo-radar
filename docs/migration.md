@@ -1,5 +1,29 @@
 # Migration notes
 
+## 0.3 -> 0.4 (report schema 0.4, methodology 0.4)
+
+Compatibility goal: additive except the items marked **changed**. 86 rules in total (no rule added or removed).
+
+### Additive
+
+- Top level `regulatory{}` (applicability and readiness per pack, `legal_determination: "not_provided"`, disclaimer); `policy.blocks_evaluated` and `policy.block_violations`; `code_analysis.execution` hooks/edges carry `stage`, `trigger_kind`, `environment`, `details`; `entrypoints` and `projects` lists; graph node kinds `backend`/`entrypoint`/`extension`, relations `SELECTS_BACKEND`/`CONFIGURES`/`BUILDS`/`DEFINES`.
+- Dependencies carry `context: primary|auxiliary`; ecosystem `Maven`; `dependency_intel.conflicts` entries use the shared conflict model (observations, preferred source, reason).
+- New facts `execution.entrypoints.count`, `execution.build.repository_code`, `execution.native_build.present`, `osv.eligible_packages`, privacy/AI `privacy.<category>.observed` / `ai.<category>.observed`.
+- CLI `diff`, `model`, `--no-compliance`; profile key `block`; standards packs `standards/regulatory/*.yaml` (digest included in `config_digest`).
+
+### Changed
+
+| What | Before | Now | Why |
+| ---- | ------ | --- | --- |
+| `osv.vulnerable_ratio` | vulnerable / eligible | vulnerable / checked | Observed risk is separate from completeness. |
+| OSV evidence confidence | derived from checked share | `round(0.2 + 0.8 * coverage, 2)` | Completeness lowers confidence, not the ratio. |
+| Identity confidence | unlabelled | `confidence_semantics: heuristic_uncalibrated` | Holdout ECE about 0.33; not rescaled. |
+| Hook names | could carry an ecosystem prefix | no prefix; reports print `ecosystem:name` | Avoids double prefixes. |
+| Lockfile coverage | any lockfile in the tree | own directory, listed importers, workspaces | Root lockfile no longer covers `examples/`. |
+| `schema_version`, `methodology.version`, package | `0.3` | `0.4` | New sections; scoring input semantics changed. |
+
+Rule files must declare `methodology: '0.4'`. The 0.2 holdout and any 0.3 result do **not** validate 0.4: release gate 5 needs the fresh holdout `calibration/fresh-holdout-0.4`.
+
 ## 0.2 -> 0.3 (report schema 0.3, methodology 0.3)
 
 Compatibility goal: consumers of 0.2 reports keep working; the changes are additive except the items marked **changed**. 86 rules in total (two new informational rules).

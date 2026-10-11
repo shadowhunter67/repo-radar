@@ -72,3 +72,13 @@ See [bias](bias.md). In addition:
 - No historical tracking: reports are point-in-time.
 - Reports are reproducible only if the repository and the external services have not changed; evidence carries `observed_at` and the commit `ref`.
 - Rate limiting on optional endpoints produces a partial report with diagnostics rather than an error.
+
+## Python, JVM and large repositories (0.4)
+
+- Python and JVM analysis is static and heuristic. Gradle build scripts (Groovy/Kotlin) are not evaluated: tasks, plugins and `apply from` are found by pattern with brace tracking, so dynamically computed tasks are missed. Maven profile activation is not evaluated; plugins in profiles get lower confidence. Gradle/Maven dependency versions that need property or BOM resolution stay `unresolved` (reported as `jvm_partial_resolution`).
+- A custom in-tree Python backend that does not mention setuptools is not assumed to run `setup.py`; one that does is.
+- Very large trees are blind: the tree listing is capped at 8 MiB, so repositories such as flink, ruff or django are analysed from partial or no file lists and say so.
+- An entrypoint (console script, `bin`, plugin group) is not an automatic hook; it only runs when a user or a host invokes it.
+- Dependency names are checked for non-ASCII look-alikes only; typosquatting by ASCII edit distance is not claimed.
+- Regulatory output is readiness/applicability, not a legal verdict (see [compliance.md](compliance.md)).
+- Fresh-holdout labels come from one AI-assisted reviewer; they are not human-verified.

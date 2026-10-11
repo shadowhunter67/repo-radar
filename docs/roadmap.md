@@ -57,3 +57,7 @@ destroyed afterwards. Do not start before static capability and execution analys
 ## Explicit non-goals for the MVP
 
 Web dashboard, database, distributed services, executing repository code, or any claim of code authorship (human or AI).
+
+## After 0.4
+
+Done: dependency intelligence (0.3), Python and JVM execution models, regulatory readiness packs, policy blocks, report diff, repository model, fresh-holdout procedure. Next: historical analysis over commits and tags (using the repository model), release/binary and provenance analysis, human review of the fresh-holdout labels (gate 14), paging for very large trees, Go/.NET build analysis, legal review of the regulatory packs.

@@ -30,3 +30,7 @@ Notes
   `FAIL`; use `--strict` to also fail on `MANUAL`/`SKIP` (this is what a release must run).
 - Gates are intentionally conservative: a missing artifact is a `FAIL`, never a pass.
 - Passing the gates does not make scores correct; it only means the known evidence-quality prerequisites exist.
+
+## Methodology 0.4 (2026-10-11)
+
+Gate 5 now requires a result with `fresh_holdout: true`, `for_methodology` equal to the current methodology and `methodology_version` matching: `calibration/results/fresh-holdout-0.4-methodology-0.4.json`. It fails until that single run has been made and is never satisfied by an older methodology's holdout. Gate 14 (human label review) remains **manual**: the 0.4 labels were produced by one AI-assisted reviewer and a blind-review workflow exists (`calibration/review/README.md`) but no human has signed off, so the gate is not marked as passed.

@@ -3,6 +3,35 @@
 All notable changes are documented here. Versioning: the CLI follows semver; the report schema and the scoring
 methodology are versioned separately (`schema_version`, `methodology.version`) and are listed per release.
 
+## [0.4.0] - unreleased
+
+Report schema 0.4, methodology 0.4 (rules unchanged: 86 -> 86 rules). Migration notes: [docs/migration.md](docs/migration.md). Compliance design: [docs/compliance.md](docs/compliance.md).
+
+### Added
+
+- **Shared conflict model** (`src/evidence/conflict.ts`): sources with quality (provenance, temporal, mutability), observations, explicit precedence (lockfile > SBOM > manifest pin for exact versions) and conflicts that state the preferred source and why. `dependency_intel.conflicts` uses it.
+- **Execution model** (`src/analysis/exec-model.ts`): every hook/edge carries stage, trigger kind and environment; entrypoints are never "automatic"; build projects are listed.
+- **Python build analysis**: build backends (including in-tree `backend-path`), `setup.py` only when setuptools really runs it, hatch/poetry/pdm build scripts, native builds (rust, meson, cmake, C extensions, cython, cffi), console/gui scripts and plugin entry points, Python import following.
+- **JVM build analysis**: Maven and Gradle through a safe XML reader (DOCTYPE/ENTITY rejected), plugin catalog (exec, antrun, scripting, download, native, codegen, SCM), profile gating, Gradle config-time vs task execution, remote `apply from`, buildSrc, wrapper scripts, version catalogs, `gradle.lockfile`, Maven dependencies (pins with confidence 0.6).
+- **Regulatory readiness** (`src/compliance`): three-valued applicability engine, versioned packs for the EU Cyber Resilience Act and EU AI Act (status `indicative`), privacy and AI technical indicators, report section `regulatory`, `--no-compliance`. Output is readiness/applicability, never a legal determination.
+- **Policy blocks** in profiles (`block:` rules with `when` conditions and `on_unknown`), report fields `policy.blocks_evaluated` / `policy.block_violations`, exit code 2 under `--enforce-profile`; three blocks in the `enterprise` profile.
+- **`repo-radar diff <old> <new>`** (dependencies, capabilities, hooks, vulnerabilities, persistence, SBOM, findings, governance, scores) and **`repo-radar model <report>`** (unified repository model with placeholders for releases and maintainers).
+- Finding for non-ASCII (look-alike) dependency names.
+- **Fresh holdout** `calibration/fresh-holdout-0.4`, blind-review workflow (`scripts/make-review-packets.mjs`, `scripts/compare-reviews.mjs`), dependency/SBOM label schema and metrics, `scripts/calibrate.mjs --corpus`, one-shot `--final` per (corpus, methodology).
+- Adversarial and resource-limit tests (`tests/unit/adversarial.test.ts`).
+
+### Changed
+
+- `osv.vulnerable_ratio` is the observed-risk ratio (vulnerable / checked); completeness lowers the evidence confidence (`0.2 + 0.8 * coverage`) instead of the ratio. New fact `osv.eligible_packages`. The ratio is still withheld when nothing is vulnerable and direct coverage is below 50%.
+- Identity confidence is labelled `confidence_semantics: heuristic_uncalibrated`; it is not rescaled (holdout ECE about 0.33).
+- Lockfile applicability: a lockfile only covers manifests in its own directory, listed importers or workspaces; example/fixture manifests are `auxiliary` and no longer dilute coverage; pnpm multi-document lockfiles; Cargo nested locks only cover local names.
+- Release gate 5 requires a fresh holdout result for the current methodology. Gate 14 (human label review) stays manual.
+- Tree listing limit raised to 8 MiB; MAX_LOCKS 6, MAX_SBOMS 3.
+
+### Security
+
+- XML is parsed with a hand-written reader that forbids DTD and entities; regular expressions from standards packs are validated (`safeRegExp`) after a catastrophic-backtracking case was found; terminal output of names/specs is sanitized.
+
 ## [0.3.0] - unreleased
 
 Report schema 0.3, methodology 0.3 (rules 84 -> 86 rules). Migration notes: [docs/migration.md](docs/migration.md). Design: [docs/dependencies.md](docs/dependencies.md).

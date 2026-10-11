@@ -48,6 +48,9 @@ repo-radar analyze owner/repo --profile enterprise
 repo-radar analyze owner/repo --verbose           # per-rule evidence trace
 repo-radar analyze owner/repo --min security=70   # exit code 2 if below the floor
 repo-radar analyze owner/repo --no-scan           # skip the static capability / execution / secret scan
+repo-radar analyze owner/repo --no-deps-dev --no-sbom --no-compliance   # skip optional layers
+repo-radar diff old.json new.json                # what changed between two saved JSON reports
+repo-radar model report.json                     # unified repository model of a 0.4 report
 repo-radar profiles
 repo-radar rules security
 ```

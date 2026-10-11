@@ -133,3 +133,13 @@ See [standards/security/code-analysis.yaml](../standards/security/code-analysis.
 Limits and hostile-input behavior are in [security-model.md](security-model.md). Added for this subsystem: per-line and
 per-file caps, bounded graph size and script depth, resolution of references inside the git tree only (no path traversal),
 redacted secrets, tests with oversized lines and ReDoS-style input, and the same four-host network allowlist.
+
+## Execution model (0.4)
+
+Every execution hook has a **stage** (`INSTALL_SCRIPT`, `SOURCE_BUILD`, `BUILD_BACKEND`, `LEGACY_SETUP`, `NATIVE_BUILD`, `INSTALL_GENERATED_ENTRYPOINT`, `RUNTIME`, `TEST`, `CI`, `UNKNOWN`), a **trigger** (`AUTOMATIC`, `BUILD_TOOL_INVOKED`, `USER_INVOKED`, `CI_INVOKED`, `RUNTIME`, `UNKNOWN`) and an **environment** (`HOST`, `BUILD_ENVIRONMENT`, `VIRTUAL_ENV`, `CONTAINER`, `CI_RUNNER`, `UNKNOWN`). Entrypoints are listed separately and are never automatic. "Capability present" is not "capability runs at install".
+
+**Python**: backend selection from `[build-system]` (including `backend-path`); `setup.py` is a hook only when setuptools (or an undeclared backend, or an in-tree backend that delegates to it) runs it; hatch/poetry/pdm custom build scripts; native build detection (rust/maturin, meson, cmake/scikit-build, C extensions, cython, cffi); console/gui scripts and entry-point groups (plugin groups trigger at runtime); local imports followed.
+
+**JVM**: Maven (`exec`, `antrun`, scripting, download, native, codegen, SCM plugins; profile gating lowers confidence), Gradle (configuration-time code vs task actions, wired vs unwired tasks, remote `apply from`, buildSrc), `mvnw`/`gradlew` wrapper scripts. JVM hooks do not run for dependents (`runs_for_dependents: false`).
+
+Probe results on real repositories: `calibration/results/exec-probe-python.md`, `exec-probe-jvm.md`.

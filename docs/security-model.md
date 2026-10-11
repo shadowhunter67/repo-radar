@@ -38,3 +38,11 @@ Assumption: **the repository being analyzed is malicious input.** repo-radar onl
 ## Reporting
 
 See [SECURITY.md](../SECURITY.md).
+
+## Additions in 0.4
+
+- XML (POM, SBOM) is read by `src/util/xml.ts`: DOCTYPE and ENTITY declarations are rejected (no XXE, no billion-laughs), with limits on size, depth and node count. No external XML library or network access is involved.
+- Regular expressions that come from data (standards packs) go through `safeRegExp`: nested-quantifier patterns are refused at load time and inputs are truncated.
+- Lock/SBOM/TOML/YAML parsers fail closed on pathological nesting and alias bombs; package names such as `__proto__` are handled as plain strings.
+- Names and specs from dependencies are sanitized before they reach the terminal; non-ASCII names produce a finding with code points escaped.
+- Untrusted repository code is still never executed: no package manager, build tool, interpreter or container is started for the analysed repository.

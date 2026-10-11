@@ -113,3 +113,13 @@ capabilities / dependency graph / execution graph -> applicability engine -> rul
 ## Trust boundary
 
 All repository content (names, README, manifests, workflow YAML, tree paths) and all API responses are untrusted. See [security-model.md](security-model.md).
+
+## 0.4: execution model, repository model, history and policy
+
+- **Execution model** (`src/analysis/exec-model.ts`, `exec-api.ts`): language modules (`python.ts`, `jvm.ts`, the npm/cargo code in `execution.ts`) emit hooks/edges with a stage, a trigger and an environment; shared code recomputes risk (`addHookCapabilities`).
+- **Evidence conflicts** (`src/evidence/conflict.ts`): one model for disagreement between lockfile, SBOM, manifest and registry data, with explicit precedence.
+- **Repository model** (`src/model`): a graph projection of a report (Repository, Manifest, Package, Script, ExecutionNode, Capability, File, Finding, plus Release and Maintainer placeholders). It is derived data, bounded (5000 entities, 15000 relationships), and is the intended input for later historical, release/binary and governance analysis.
+- **Historical readiness**: `repo-radar diff` compares two saved reports by stable keys and states caveats when schema, methodology or rules differ. Current registry state is not historical truth; commit-by-commit history analysis is future work.
+- **Release/binary and governance readiness**: model entities exist as placeholders; no binary or release-asset analysis is performed yet.
+- **Policy**: profile `block:` rules reuse the compliance condition language and are evaluated in `src/scoring/policy.ts`.
+- **Compliance**: `src/compliance` (applicability engine, packs, indicators) is separate from scoring.

@@ -155,3 +155,12 @@ scan limits). `integrity.report_sha256` is the SHA-256 of the report without tha
 | Facts                        | `methodology.facts_version`                       | 0.1     |
 
 Any change to a rule, weight, threshold or formula changes the digest; a change in meaning bumps the methodology version.
+
+## 14. Methodology 0.4: observed risk vs completeness
+
+- `osv.vulnerable_ratio` = vulnerable / checked packages. It measures observed risk only.
+- Completeness (how many direct registry dependencies could be checked) lowers the **confidence** of the OSV evidence: `round(0.2 + 0.8 * coverage, 2)`. It does not distort the ratio.
+- With zero vulnerabilities and direct coverage below 50% the ratio is withheld (`insufficient_coverage`): "nothing found among the few we could check" is not a statement about the rest.
+- Identity confidence is a heuristic score (`confidence_semantics: heuristic_uncalibrated`). It is not a calibrated probability: on the 0.3 holdout the expected calibration error was about 0.33. Calibration metrics (reliability bins, ECE, abstention) are reported by `scripts/calibrate.mjs` but the score is not rescaled, because rescaling on observed data would be tuning on the holdout.
+- Low-coverage decision: coverage below 50% withholds a clean-bill ratio rather than scoring 10/10.
+- Holdout policy: a holdout is run once per (corpus, methodology) with `--final`; a second run is refused (exit 65). Changing the methodology requires a new fresh holdout. See [../calibration/README.md](../calibration/README.md).

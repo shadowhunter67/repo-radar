@@ -1,4 +1,4 @@
-# Dependency intelligence (schema 0.3)
+# Dependency intelligence (schema 0.4)
 
 repo-radar reads what a repository itself declares about its dependencies, resolves it statically, and (optionally) asks
 public databases about the exact versions it found. Nothing here runs a package manager or any repository code.
@@ -105,3 +105,12 @@ duplicate or invalid SBOM entries, ingestion failures, failed lookups. Severity 
 Package names, specs, SBOM fields and lockfile contents are attacker-controlled: they are length-bounded, stripped of terminal
 control sequences, URL-encoded into requests, and requests can only reach the allow-listed hosts. No package manager is run.
 Details: [security-model.md](security-model.md).
+
+## 0.4 additions
+
+- **Contexts**: `primary` vs `auxiliary` (examples, fixtures, docs, benchmarks; `AUXILIARY_DIR` in `src/util/scope.ts`). Auxiliary manifests do not dilute coverage.
+- **Lockfile coverage**: a lock covers manifests in its directory, listed importers or workspaces globs; names that are local inside the lock tree are the only ones a nested Cargo lock covers.
+- **Formats added**: Maven `pom.xml` (pins have confidence 0.6; ranges/properties stay unresolved), Gradle `build.gradle(.kts)`, `gradle/libs.versions.toml` catalogs, `gradle.lockfile`; multi-document `pnpm-lock.yaml`.
+- **Conflicts** use the shared model in `src/evidence/conflict.ts`: precedence for an exact version is lockfile > SBOM > manifest pin, and each conflict records the preferred source and the reason. Current registry candidates (deps.dev) never override evidence and are not historical truth.
+- **Observed risk vs completeness**: see [methodology.md](methodology.md) section 14.
+- A package name with non-ASCII characters yields a finding (look-alike risk) with escaped code points.
