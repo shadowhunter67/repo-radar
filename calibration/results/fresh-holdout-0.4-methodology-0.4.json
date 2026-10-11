@@ -1,0 +1,950 @@
+{
+  "corpus_id": "fresh-holdout-0.4",
+  "corpus_dir": "calibration/fresh-holdout-0.4",
+  "for_methodology": "0.4",
+  "dataset_version": "0.1.0",
+  "analyzer_version": "0.4.0",
+  "rules_digest": "9d4d2b08538b35e088411c9e4515a61d66294b21a47d74192fa1456f3cb0e83e",
+  "methodology_version": "0.4",
+  "evaluated_at": "2026-10-11T04:32:17.783Z",
+  "splits": [
+    "dev",
+    "validation",
+    "holdout"
+  ],
+  "holdout_evaluated": true,
+  "fresh_holdout": true,
+  "label_review_kind": "ai-assisted-single",
+  "deps_enabled": true,
+  "failures": [],
+  "by_split": {
+    "holdout": {
+      "repositories": 14,
+      "artifact": {
+        "n": 14,
+        "excluded": 0,
+        "correct": 5,
+        "abstained": 0,
+        "accuracy": 0.35714285714285715,
+        "accuracyOverall": 0.35714285714285715,
+        "topKCorrect": 10,
+        "confusion": {
+          "library": {
+            "sdk": 3,
+            "monorepo": 1,
+            "framework": 1,
+            "library": 2,
+            "tooling": 1
+          },
+          "application": {
+            "monorepo": 1,
+            "library": 1
+          },
+          "framework": {
+            "cli": 1
+          },
+          "service": {
+            "monorepo": 1
+          },
+          "cli": {
+            "sdk": 1,
+            "library": 1
+          }
+        },
+        "calibration": {
+          "n": 14,
+          "bins": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "n": 6,
+              "meanConfidence": 0.49500000000000005,
+              "accuracy": 0.3333333333333333
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "n": 8,
+              "meanConfidence": 0.6275,
+              "accuracy": 0.375
+            },
+            {
+              "range": [
+                0.8,
+                1
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            }
+          ],
+          "ece": 0.21357142857142855,
+          "brier": 0.2697785714285714
+        }
+      },
+      "domain": {
+        "n": 14,
+        "excluded": 0,
+        "correct": 6,
+        "abstained": 2,
+        "accuracy": 0.5,
+        "accuracyOverall": 0.42857142857142855,
+        "topKCorrect": 6,
+        "confusion": {
+          "networking": {
+            "networking": 3
+          },
+          "developer-tooling": {
+            "developer-tooling": 2,
+            "networking": 1,
+            "ai": 1
+          },
+          "web": {
+            "general": 1,
+            "database": 1
+          },
+          "database": {
+            "web": 1
+          },
+          "cloud": {
+            "developer-tooling": 1
+          },
+          "observability": {
+            "observability": 1
+          }
+        },
+        "calibration": {
+          "n": 12,
+          "bins": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "n": 1,
+              "meanConfidence": 0.14,
+              "accuracy": 0
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "n": 6,
+              "meanConfidence": 0.30000000000000004,
+              "accuracy": 0.3333333333333333
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "n": 2,
+              "meanConfidence": 0.445,
+              "accuracy": 0.5
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "n": 2,
+              "meanConfidence": 0.685,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.8,
+                1
+              ],
+              "n": 1,
+              "meanConfidence": 0.84,
+              "accuracy": 1
+            }
+          ],
+          "ece": 0.10333333333333329,
+          "brier": 0.16694999999999996
+        }
+      },
+      "capabilities": {
+        "PROCESS_EXEC": {
+          "tp": 1,
+          "fp": 2,
+          "fn": 3,
+          "tn": 5,
+          "n": 11,
+          "excluded": 3,
+          "precision": 0.3333333333333333,
+          "recall": 0.25,
+          "f1": 0.28571428571428575
+        },
+        "NETWORK_CLIENT": {
+          "tp": 3,
+          "fp": 4,
+          "fn": 1,
+          "tn": 3,
+          "n": 11,
+          "excluded": 3,
+          "precision": 0.42857142857142855,
+          "recall": 0.75,
+          "f1": 0.5454545454545454
+        },
+        "NETWORK_SERVER": {
+          "tp": 0,
+          "fp": 2,
+          "fn": 4,
+          "tn": 6,
+          "n": 12,
+          "excluded": 2,
+          "precision": 0,
+          "recall": 0,
+          "f1": null
+        },
+        "REMOTE_DOWNLOAD": {
+          "tp": 1,
+          "fp": 1,
+          "fn": 2,
+          "tn": 7,
+          "n": 11,
+          "excluded": 3,
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "f1": 0.4
+        },
+        "FILESYSTEM_WRITE": {
+          "tp": 4,
+          "fp": 1,
+          "fn": 2,
+          "tn": 4,
+          "n": 11,
+          "excluded": 3,
+          "precision": 0.8,
+          "recall": 0.6666666666666666,
+          "f1": 0.7272727272727272
+        },
+        "DYNAMIC_CODE_LOAD": {
+          "tp": 2,
+          "fp": 2,
+          "fn": 0,
+          "tn": 5,
+          "n": 9,
+          "excluded": 5,
+          "precision": 0.5,
+          "recall": 1,
+          "f1": 0.6666666666666666
+        },
+        "CREDENTIAL_ACCESS": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 2,
+          "tn": 7,
+          "n": 10,
+          "excluded": 4,
+          "precision": 0,
+          "recall": 0,
+          "f1": null
+        },
+        "ENVIRONMENT_READ": {
+          "tp": 7,
+          "fp": 3,
+          "fn": 2,
+          "tn": 1,
+          "n": 13,
+          "excluded": 1,
+          "precision": 0.7,
+          "recall": 0.7777777777777778,
+          "f1": 0.7368421052631577
+        },
+        "BACKGROUND_PROCESS": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 9,
+          "n": 9,
+          "excluded": 5,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        }
+      },
+      "capabilitiesByCoverage": {
+        "high": {
+          "tp": 7,
+          "fp": 6,
+          "fn": 4,
+          "tn": 25,
+          "n": 42,
+          "excluded": 3,
+          "precision": 0.5384615384615384,
+          "recall": 0.6363636363636364,
+          "f1": 0.5833333333333334
+        },
+        "low": {
+          "tp": 11,
+          "fp": 10,
+          "fn": 12,
+          "tn": 22,
+          "n": 55,
+          "excluded": 26,
+          "precision": 0.5238095238095238,
+          "recall": 0.4782608695652174,
+          "f1": 0.5
+        }
+      },
+      "capabilityConfidence": {
+        "n": 34,
+        "bins": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.2,
+              0.4
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.4,
+              0.6
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "n": 6,
+            "meanConfidence": 0.6699999999999999,
+            "accuracy": 0
+          },
+          {
+            "range": [
+              0.8,
+              1
+            ],
+            "n": 28,
+            "meanConfidence": 0.869642857142857,
+            "accuracy": 0.6428571428571429
+          }
+        ],
+        "ece": 0.3049999999999998,
+        "brier": 0.30958529411764707
+      },
+      "installHooks": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "tn": 12,
+        "n": 14,
+        "excluded": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "persistence": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 13,
+        "n": 13,
+        "excluded": 1,
+        "precision": null,
+        "recall": null,
+        "f1": null
+      },
+      "secrets": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 12,
+        "n": 12,
+        "excluded": 2,
+        "precision": null,
+        "recall": null,
+        "f1": null
+      }
+    }
+  },
+  "dependencies": {
+    "holdout": {
+      "repositories": 14,
+      "detectors": {
+        "has_lockfile": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "tn": 4,
+          "n": 14,
+          "excluded": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "has_sbom": {
+          "tp": 3,
+          "fp": 0,
+          "fn": 0,
+          "tn": 11,
+          "n": 14,
+          "excluded": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "exact_version_expected": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "tn": 4,
+          "n": 14,
+          "excluded": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "osv_checkable": {
+          "tp": 10,
+          "fp": 1,
+          "fn": 0,
+          "tn": 3,
+          "n": 14,
+          "excluded": 0,
+          "precision": 0.9090909090909091,
+          "recall": 1,
+          "f1": 0.9523809523809523
+        },
+        "auxiliary_dependency_presence": {
+          "tp": 4,
+          "fp": 0,
+          "fn": 2,
+          "tn": 8,
+          "n": 14,
+          "excluded": 0,
+          "precision": 1,
+          "recall": 0.6666666666666666,
+          "f1": 0.8
+        },
+        "osv_expected_known_vulnerabilities": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0,
+          "n": 0,
+          "excluded": 14,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "manifest_sbom_missing": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "tn": 2,
+          "n": 3,
+          "excluded": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "sbom_extra_components": {
+          "tp": 2,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0,
+          "n": 2,
+          "excluded": 1,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        }
+      },
+      "sbomFormat": {
+        "n": 14,
+        "correct": 14,
+        "excluded": 0
+      },
+      "sbomConsistency": {
+        "n": 2,
+        "correct": 1,
+        "excluded": 12,
+        "confusion": {
+          "consistent": {
+            "partial": 1
+          },
+          "mismatch": {
+            "mismatch": 1
+          }
+        }
+      },
+      "dependencyManifestCount": {
+        "n": 14,
+        "exact": 12,
+        "within10pct": 13
+      },
+      "directDependencyCount": {
+        "n": 6,
+        "exact": 4,
+        "within10pct": 4
+      },
+      "coverage": {
+        "exactRatioWhenExpected": 0.975561813914755,
+        "checkedRatioWhenExpected": 0.975561813914755,
+        "n": 10
+      }
+    }
+  },
+  "disagreements": {
+    "holdout": [
+      {
+        "repository": "axios/axios",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "axios/axios",
+        "field": "capability:NETWORK_CLIENT",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.8
+      },
+      {
+        "repository": "axios/axios",
+        "field": "capability:NETWORK_SERVER",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.6
+      },
+      {
+        "repository": "axios/axios",
+        "field": "capability:ENVIRONMENT_READ",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "clap-rs/clap",
+        "field": "artifact_type",
+        "predicted": "monorepo",
+        "label": "library",
+        "confidence": 0.65
+      },
+      {
+        "repository": "clap-rs/clap",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.9
+      },
+      {
+        "repository": "digitalfabrik/integreat-app",
+        "field": "artifact_type",
+        "predicted": "monorepo",
+        "label": "application",
+        "confidence": 0.65
+      },
+      {
+        "repository": "digitalfabrik/integreat-app",
+        "field": "domain",
+        "predicted": "general",
+        "label": "web",
+        "confidence": 0.4
+      },
+      {
+        "repository": "encode/httpx",
+        "field": "artifact_type",
+        "predicted": "sdk",
+        "label": "library",
+        "confidence": 0.6
+      },
+      {
+        "repository": "encode/httpx",
+        "field": "capability:CREDENTIAL_ACCESS",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.7
+      },
+      {
+        "repository": "miniflux/v2",
+        "field": "artifact_type",
+        "predicted": "library",
+        "label": "application",
+        "confidence": 0.6
+      },
+      {
+        "repository": "miniflux/v2",
+        "field": "domain",
+        "predicted": "database",
+        "label": "web",
+        "confidence": 0.33
+      },
+      {
+        "repository": "miniflux/v2",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.9
+      },
+      {
+        "repository": "miniflux/v2",
+        "field": "capability:NETWORK_SERVER",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "miniflux/v2",
+        "field": "capability:REMOTE_DOWNLOAD",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "miniflux/v2",
+        "field": "capability:FILESYSTEM_WRITE",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.85
+      },
+      {
+        "repository": "mongodb/django-mongodb-backend",
+        "field": "artifact_type",
+        "predicted": "framework",
+        "label": "library",
+        "confidence": 0.45
+      },
+      {
+        "repository": "mongodb/django-mongodb-backend",
+        "field": "domain",
+        "predicted": "web",
+        "label": "database",
+        "confidence": 0.21
+      },
+      {
+        "repository": "mongodb/django-mongodb-backend",
+        "field": "capability:REMOTE_DOWNLOAD",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.9
+      },
+      {
+        "repository": "mongodb/django-mongodb-backend",
+        "field": "capability:ENVIRONMENT_READ",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.9
+      },
+      {
+        "repository": "nodeshift/faas-js-runtime",
+        "field": "domain",
+        "predicted": "developer-tooling",
+        "label": "cloud",
+        "confidence": 0.14
+      },
+      {
+        "repository": "nodeshift/faas-js-runtime",
+        "field": "capability:NETWORK_CLIENT",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.8
+      },
+      {
+        "repository": "nodeshift/faas-js-runtime",
+        "field": "capability:NETWORK_SERVER",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "pallets/werkzeug",
+        "field": "domain",
+        "predicted": "unknown",
+        "label": "web",
+        "confidence": 0.1
+      },
+      {
+        "repository": "pallets/werkzeug",
+        "field": "capability:REMOTE_DOWNLOAD",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "pallets/werkzeug",
+        "field": "capability:CREDENTIAL_ACCESS",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "pallets/werkzeug",
+        "field": "capability:ENVIRONMENT_READ",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.9
+      },
+      {
+        "repository": "prometheus/prometheus",
+        "field": "artifact_type",
+        "predicted": "monorepo",
+        "label": "service",
+        "confidence": 0.5
+      },
+      {
+        "repository": "prometheus/prometheus",
+        "field": "capability:NETWORK_SERVER",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "prometheus/prometheus",
+        "field": "capability:ENVIRONMENT_READ",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "pydantic/pydantic-core",
+        "field": "capability:DYNAMIC_CODE_LOAD",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.7
+      },
+      {
+        "repository": "python-poetry/poetry",
+        "field": "artifact_type",
+        "predicted": "sdk",
+        "label": "cli",
+        "confidence": 0.49
+      },
+      {
+        "repository": "python-poetry/poetry",
+        "field": "domain",
+        "predicted": "networking",
+        "label": "developer-tooling",
+        "confidence": 0.28
+      },
+      {
+        "repository": "python-poetry/poetry",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "python-poetry/poetry",
+        "field": "capability:NETWORK_CLIENT",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "python-poetry/poetry",
+        "field": "capability:NETWORK_SERVER",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "python-poetry/poetry",
+        "field": "capability:FILESYSTEM_WRITE",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "python-poetry/poetry",
+        "field": "capability:CREDENTIAL_ACCESS",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "sindresorhus/got",
+        "field": "artifact_type",
+        "predicted": "sdk",
+        "label": "library",
+        "confidence": 0.52
+      },
+      {
+        "repository": "sindresorhus/got",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "sindresorhus/got",
+        "field": "capability:NETWORK_CLIENT",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.8
+      },
+      {
+        "repository": "sindresorhus/got",
+        "field": "capability:NETWORK_SERVER",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.6
+      },
+      {
+        "repository": "sindresorhus/got",
+        "field": "capability:ENVIRONMENT_READ",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.9
+      },
+      {
+        "repository": "sindresorhus/slugify",
+        "field": "domain",
+        "predicted": "unknown",
+        "label": "general",
+        "confidence": 0
+      },
+      {
+        "repository": "starship/starship",
+        "field": "artifact_type",
+        "predicted": "library",
+        "label": "cli",
+        "confidence": 0.6
+      },
+      {
+        "repository": "starship/starship",
+        "field": "domain",
+        "predicted": "ai",
+        "label": "developer-tooling",
+        "confidence": 0.37
+      },
+      {
+        "repository": "starship/starship",
+        "field": "capability:NETWORK_CLIENT",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.72
+      },
+      {
+        "repository": "starship/starship",
+        "field": "capability:FILESYSTEM_WRITE",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "starship/starship",
+        "field": "capability:DYNAMIC_CODE_LOAD",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.7
+      }
+    ]
+  },
+  "timings": [
+    {
+      "repository": "axios/axios",
+      "ms": 39703,
+      "requests": 66
+    },
+    {
+      "repository": "clap-rs/clap",
+      "ms": 9926,
+      "requests": 72
+    },
+    {
+      "repository": "digitalfabrik/integreat-app",
+      "ms": 8706,
+      "requests": 71
+    },
+    {
+      "repository": "encode/httpx",
+      "ms": 6652,
+      "requests": 41
+    },
+    {
+      "repository": "miniflux/v2",
+      "ms": 7294,
+      "requests": 64
+    },
+    {
+      "repository": "mongodb/django-mongodb-backend",
+      "ms": 7895,
+      "requests": 66
+    },
+    {
+      "repository": "nodeshift/faas-js-runtime",
+      "ms": 7381,
+      "requests": 34
+    },
+    {
+      "repository": "pallets/werkzeug",
+      "ms": 8017,
+      "requests": 61
+    },
+    {
+      "repository": "prometheus/prometheus",
+      "ms": 8747,
+      "requests": 74
+    },
+    {
+      "repository": "pydantic/pydantic-core",
+      "ms": 8603,
+      "requests": 61
+    },
+    {
+      "repository": "python-poetry/poetry",
+      "ms": 8505,
+      "requests": 63
+    },
+    {
+      "repository": "sindresorhus/got",
+      "ms": 6069,
+      "requests": 48
+    },
+    {
+      "repository": "sindresorhus/slugify",
+      "ms": 3171,
+      "requests": 18
+    },
+    {
+      "repository": "starship/starship",
+      "ms": 7443,
+      "requests": 65
+    }
+  ]
+}
