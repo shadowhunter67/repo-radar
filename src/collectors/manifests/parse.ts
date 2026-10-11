@@ -581,6 +581,9 @@ function parseCargoToml(file: string, text: string): ParsedManifest | undefined 
     devDependencyNames: isObj(t['dev-dependencies']) ? Object.keys(t['dev-dependencies']) : [],
     entrypoints: [],
   };
+  // `publish = false` (or an empty registry list) means the crate is never published.
+  const publish = pkg?.['publish'];
+  if (publish === false || (Array.isArray(publish) && publish.length === 0)) m.isPrivate = true;
   const name = str(pkg?.['name']);
   const description = str(pkg?.['description']);
   if (name) m.name = name;

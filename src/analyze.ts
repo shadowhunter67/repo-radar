@@ -11,6 +11,8 @@ import {
   enrichWithDepsDev,
   type DepsDevResult,
 } from './deps/depsdev.js';
+import type { AssetVerifyLimits } from './release/verify-assets.js';
+import type { BundleVerifier } from './trust/sigstore.js';
 import { collectRegistry, REGISTRY_HOSTS } from './collectors/registry.js';
 import { buildRegistryFindings, deriveRegistryFacts } from './registry/findings.js';
 import { EMPTY_REGISTRY_INTEL, type RegistryIntel } from './registry/model.js';
@@ -85,6 +87,13 @@ export interface AnalyzeOptions {
   ref?: string;
   /** Reuse unchanged files across revisions analyzed in one run (see src/history). */
   blobCache?: BlobCache;
+  /** Verify attestation bundles with the Sigstore public-good trust root (opt-in; contacts the Sigstore TUF repository). */
+  verifyCrypto?: boolean;
+  /** Alternative verifier (tests, other trust material). */
+  verifier?: BundleVerifier;
+  /** Download up to a few small release assets and compare their bytes with published digests (opt-in). */
+  verifyAssets?: boolean;
+  assetLimits?: Partial<AssetVerifyLimits>;
   /** Look up the packages this repository publishes in their registries (default true). */
   registry?: boolean;
   /** Collect release/provenance metadata (default true). */
@@ -136,6 +145,10 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       ...(opts.blobCache ? { blobCache: opts.blobCache } : {}),
       ...(opts.targetedTree === false ? { targetedTree: false } : {}),
       ...(opts.releases === false ? { releases: false } : {}),
+      ...(opts.verifyCrypto ? { verifyCrypto: true } : {}),
+      ...(opts.verifier ? { verifier: opts.verifier } : {}),
+      ...(opts.verifyAssets ? { verifyAssets: true } : {}),
+      ...(opts.assetLimits ? { assetLimits: opts.assetLimits } : {}),
       ...(opts.retrievalBudget ? { retrievalBudget: opts.retrievalBudget } : {}),
       ...(opts.ref ? { ref: parseGitRef(opts.ref) } : {}),
     }),
@@ -410,6 +423,8 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
           targeted_tree: opts.targetedTree !== false,
           releases: opts.releases !== false,
           registry: opts.registry !== false,
+          verify_crypto: opts.verifyCrypto === true,
+          verify_assets: opts.verifyAssets === true,
           limits: LIMITS,
         }),
       ),

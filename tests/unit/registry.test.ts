@@ -373,3 +373,40 @@ describe('registry intelligence end to end', () => {
     );
   });
 });
+
+describe('regressions found by real registry probes', () => {
+  it('a Cargo crate with publish = false is not a published package (ripgrep fuzz harness)', () => {
+    const fuzz = parseManifest(
+      'fuzz/Cargo.toml',
+      '[package]\nname = "fuzz"\nversion = "0.0.1"\npublish = false\n',
+    )!;
+    expect(fuzz.isPrivate).toBe(true);
+    const lib = parseManifest(
+      'crates/g/Cargo.toml',
+      '[package]\nname = "globset"\nversion = "1.0.0"\n',
+    )!;
+    expect(declaredPackages([fuzz, lib]).map((p) => p.name)).toEqual(['globset']);
+    const harness = parseManifest(
+      'fuzz/Cargo.toml',
+      '[package]\nname = "other"\nversion = "1.0.0"\n',
+    )!;
+    expect(declaredPackages([harness])).toEqual([]); // fuzz/ directories are never publication candidates
+  });
+
+  it('a dormancy that ended years ago is history, not a signal; a recent one is', () => {
+    const old = parseNpm(
+      npmDoc([
+        ...steady(6),
+        { v: '2.0.0', day: 5 * 20 + 500, user: 'alice' },
+        ...steady(6).map((x, i) => ({ v: `3.0.${i}`, day: 700 + i * 20, user: 'alice' })),
+      ]),
+      { ...C, observedAt: '2030-01-01T00:00:00Z' },
+    );
+    expect(registrySignals(old).map((s) => s.kind)).not.toContain('dormancy_then_publish');
+    const fresh = parseNpm(
+      npmDoc([...steady(6), { v: '2.0.0', day: 5 * 20 + 500, user: 'alice' }]),
+      { ...C, observedAt: iso(5 * 20 + 520) },
+    );
+    expect(registrySignals(fresh).map((s) => s.kind)).toContain('dormancy_then_publish');
+  });
+});

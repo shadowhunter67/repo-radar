@@ -266,6 +266,7 @@ describe('pipeline: failures and degradation', () => {
       'api.osv.dev',
       'api.securityscorecards.dev',
       'raw.githubusercontent.com',
+      'registry.npmjs.org',
     ]);
   });
 

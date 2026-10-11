@@ -104,7 +104,8 @@ export function parseStatement(
     source_repository: repo,
     source_revision: revision ? revision.toLowerCase() : null,
     invocation,
-    verification: 'verification_unavailable',
+    verification: 'present_unverified',
+    verification_detail: null,
     origin,
     problems,
   };
@@ -119,10 +120,13 @@ export function provenanceFromAttestationResponse(body: unknown): {
   unreadable: number;
   /** Attestations the API listed, whether or not their bundle could be read here. */
   listed: number;
+  /** The bundle objects of `records`, index-aligned, for an optional cryptographic verifier. */
+  bundles: unknown[];
   /** Listed attestations whose bundle was not inlined (large bundles come as a `bundle_url` on another host, which is never fetched). */
   not_inlined: number;
 } {
   const records: Provenance[] = [];
+  const bundles: unknown[] = [];
   let unreadable = 0;
   let notInlined = 0;
   const list = Array.isArray(obj(body)['attestations'])
@@ -141,11 +145,19 @@ export function provenanceFromAttestationResponse(body: unknown): {
     }
     try {
       const rec = parseStatement(JSON.parse(text) as unknown, 'github_attestation_api');
-      if (rec) records.push(rec);
-      else unreadable++;
+      if (rec) {
+        records.push(rec);
+        bundles.push(obj(a)['bundle']);
+      } else unreadable++;
     } catch {
       unreadable++;
     }
   }
-  return { records, unreadable, listed: Math.min(list.length, 10), not_inlined: notInlined };
+  return {
+    records,
+    bundles,
+    unreadable,
+    listed: Math.min(list.length, 10),
+    not_inlined: notInlined,
+  };
 }

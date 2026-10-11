@@ -97,7 +97,7 @@ describe('provenance parsing', () => {
       slsa: true,
       builder_id: 'https://github.com/actions/runner',
       source_revision: '1'.repeat(40),
-      verification: 'verification_unavailable',
+      verification: 'present_unverified',
     });
     expect(p.source_repository).toBe('https://github.com/o/r');
   });
@@ -377,10 +377,10 @@ describe('release intelligence end to end', () => {
     const rel = (await run(spec)).release_intel.releases[0]!;
     expect(rel.correspondence).toBe('attested_to_tag_commit');
     expect(rel.provenance[0]).toMatchObject({
-      verification: 'verification_unavailable',
+      verification: 'present_unverified',
       slsa: true,
     });
-    expect(rel.correspondence_reasons.join(' ')).toMatch(/not verified/);
+    expect(rel.correspondence_reasons.join(' ')).toMatch(/UNVERIFIED/);
   });
 
   it('an attestation for a different commit is reported as inconsistent', async () => {
@@ -408,12 +408,15 @@ describe('release intelligence end to end', () => {
     const ok = (await run(mk({ verified: true, reason: 'valid' }))).release_intel.releases[0]!;
     expect(ok.tag_kind).toBe('annotated');
     expect(ok.signatures.find((s) => s.subject === 'tag')).toMatchObject({
-      state: 'signature_verified',
+      state: 'verified',
+      trust_root: 'github_api_assertion',
       verified_by: 'github',
+      local_state: 'verification_unavailable', // GitHub's assertion is not a local check
     });
     expect(ok.signatures.find((s) => s.subject === 'tool.zip')).toMatchObject({
-      state: 'signature_present',
+      state: 'present_unverified',
       verified_by: 'none',
+      trust_root: 'none',
       kind: 'gpg',
     });
     const unknownKey = (await run(mk({ verified: false, reason: 'gpgverify_unavailable' })))
@@ -422,7 +425,7 @@ describe('release intelligence end to end', () => {
       'verification_unavailable',
     );
     const bad = (await run(mk({ verified: false, reason: 'invalid' }))).release_intel.releases[0]!;
-    expect(bad.signatures.find((s) => s.subject === 'tag')?.state).toBe('signature_invalid');
+    expect(bad.signatures.find((s) => s.subject === 'tag')?.state).toBe('invalid');
     const unsigned = (await run(mk({ verified: false, reason: 'unsigned' }))).release_intel
       .releases[0]!;
     expect(unsigned.signatures.find((s) => s.subject === 'tag')).toBeUndefined();

@@ -48,6 +48,8 @@ Options for analyze:
   --no-osv                   Skip the OSV vulnerability lookup
   --no-deps-dev              Skip deps.dev package metadata (licenses, current-version candidates)
   --no-compliance            Skip regulatory readiness packs and privacy/AI technical indicators
+  --verify-crypto            Cryptographically verify release attestations (Sigstore public-good root; contacts the Sigstore TUF repository)
+  --verify-assets            Download up to 3 small release assets (<= 8 MiB each) and compare their bytes with published digests
   --no-registry              Skip npm / PyPI / crates.io lookups for the packages this repository publishes
   --no-releases              Skip release asset / checksum / signature / provenance metadata
   --no-targeted-tree         Do not walk priority directories when the recursive git tree is truncated or too large
@@ -98,6 +100,8 @@ export async function main(
         'no-targeted-tree': { type: 'boolean', default: false },
         'no-releases': { type: 'boolean', default: false },
         'no-registry': { type: 'boolean', default: false },
+        'verify-crypto': { type: 'boolean', default: false },
+        'verify-assets': { type: 'boolean', default: false },
         'no-scan': { type: 'boolean', default: false },
         ref: { type: 'string' },
         from: { type: 'string' },
@@ -162,6 +166,8 @@ export async function main(
         targetedTree: !values['no-targeted-tree'],
         releases: !values['no-releases'],
         registry: !values['no-registry'],
+        verifyCrypto: values['verify-crypto'],
+        verifyAssets: values['verify-assets'],
         codeScan: !values['no-scan'],
       });
       const histProfile = loadProfile(values.profile);
@@ -251,6 +257,8 @@ export async function main(
       targetedTree: !values['no-targeted-tree'],
       releases: !values['no-releases'],
       registry: !values['no-registry'],
+      verifyCrypto: values['verify-crypto'],
+      verifyAssets: values['verify-assets'],
       codeScan: !values['no-scan'],
       ...(values.ref ? { ref: values.ref } : {}),
     });

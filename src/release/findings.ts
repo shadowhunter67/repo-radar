@@ -35,7 +35,7 @@ export function buildReleaseFindings(intel: ReleaseIntel): Finding[] {
       intent: 'undetermined',
     });
   const sigs = latest.signatures.filter((s) => s.subject === 'tag');
-  const badSig = sigs.find((s) => s.state === 'signature_invalid');
+  const badSig = sigs.find((s) => s.state === 'invalid');
   if (badSig)
     out.push({
       id: id(),
@@ -84,6 +84,57 @@ export function buildReleaseFindings(intel: ReleaseIntel): Finding[] {
       summary: `${odd.length} asset name(s) of the latest release contain non-ASCII or control characters, path separators or are duplicated (shown with escapes). Look-alike names can be used to pass off a different file.`,
       remediation:
         'Check each asset name character by character and prefer assets whose digest matches a published checksum.',
+      intent: 'undetermined',
+    });
+  if (latest.correspondence === 'source_binding_conflict')
+    out.push({
+      id: id(),
+      title: 'Verified attestation contradicts the release tag or repository',
+      severity: 'medium',
+      confidence: 0.85,
+      dimension: 'supply-chain',
+      category: 'release',
+      evidence_ids: trace(),
+      rule_ids: [],
+      standards: ['slsa:provenance'],
+      summary:
+        'A cryptographically verified attestation for an asset names a signer repository or a source revision that is not the release tag commit of this repository. The signature is genuine; what it says does not match the tag. The cause is undetermined.',
+      remediation:
+        'Do not rely on this release until the attested source revision and the signer repository are explained by the project.',
+      intent: 'undetermined',
+    });
+  const rejected = latest.provenance.filter((p) => p.verification === 'invalid');
+  if (rejected.length > 0)
+    out.push({
+      id: id(),
+      title: 'An attestation was rejected by the verifier',
+      severity: 'medium',
+      confidence: 0.85,
+      dimension: 'supply-chain',
+      category: 'release',
+      evidence_ids: trace(),
+      rule_ids: [],
+      standards: ['slsa:provenance'],
+      summary: `${rejected.length} attestation(s) for the latest release failed verification against ${rejected[0]?.verification_detail?.trust_root ?? 'the trust root'} (${(rejected[0]?.verification_detail?.detail ?? '').replace(/[^ -~]/g, '?').slice(0, 100)}).`,
+      remediation:
+        'Treat the attestation as untrustworthy and obtain the artifact from a source whose attestation verifies.',
+      intent: 'undetermined',
+    });
+  const mismatched = latest.asset_checks.filter((c) => c.state === 'checksum_mismatch');
+  if (mismatched.length > 0)
+    out.push({
+      id: id(),
+      title: 'Downloaded asset does not match its published digest',
+      severity: 'high',
+      confidence: 0.9,
+      dimension: 'supply-chain',
+      category: 'release',
+      evidence_ids: trace(),
+      rule_ids: [],
+      standards: [],
+      summary: `${mismatched.length} downloaded asset(s) (first: ${mismatched[0]?.asset.replace(/[^ -~]/g, '?').slice(0, 60)}) hashed to a different value than the published digest. This can be a corrupted download, a replaced asset or a stale checksum file; the cause is undetermined.`,
+      remediation:
+        'Do not use the asset; re-download it and compare with the published digest through an independent channel.',
       intent: 'undetermined',
     });
   const conflicts = latest.checksum_files.filter((c) => c.conflicts > 0);
@@ -156,7 +207,7 @@ export function deriveReleaseFacts(intel: ReleaseIntel, g: Governance): Fact[] {
       const tagSig = latest.signatures.find((s) => s.subject === 'tag');
       f(
         'release.tag.signature_verified',
-        tagSig?.state === 'signature_verified',
+        tagSig?.state === 'verified',
         from,
         'release',
         tagSig ? 0.9 : 0.7,
@@ -190,6 +241,23 @@ export function deriveReleaseFacts(intel: ReleaseIntel, g: Governance): Fact[] {
       0.8,
     );
     f('release.correspondence', latest.correspondence, from, 'release', 0.8);
+    f('release.provenance.verified', latest.slsa.provenance_verified, from, 'release', 0.9);
+    f(
+      'release.source_binding_verified',
+      latest.correspondence === 'verified_source_binding',
+      from,
+      'release',
+      0.9,
+    );
+    if (latest.asset_checks.length > 0)
+      f(
+        'release.assets.checksum_verified',
+        latest.asset_checks.some((c) => c.state === 'checksum_verified') &&
+          !latest.asset_checks.some((c) => c.state === 'checksum_mismatch'),
+        from,
+        'release',
+        0.9,
+      );
   }
   if (g.status === 'analyzed') {
     f(

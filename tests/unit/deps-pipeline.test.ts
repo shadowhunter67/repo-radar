@@ -326,6 +326,7 @@ describe('deps.dev is optional and never decides safety', () => {
         'api.securityscorecards.dev',
         'api.osv.dev',
         'api.deps.dev',
+        'registry.npmjs.org',
       ]).toContain(new URL(c.url).host);
   });
 });

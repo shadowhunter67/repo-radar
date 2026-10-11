@@ -69,6 +69,9 @@ describe('installer-like repository (capabilities observed, intent undetermined)
       ...r.code_analysis.secrets.candidates.map((c) => c.id),
       ...r.code_analysis.capabilities.detections.map((d) => d.id),
       ...r.dependency_intel.dependencies.map((d) => d.id),
+      ...r.registry_intel.packages.map((p) => `registry:${p.registry}:${p.name}`),
+      ...r.release_intel.releases.map((x) => `release:${x.tag}`),
+      ...r.governance.signals.map((x) => x.id),
       ...r.dependency_intel.lockfiles.map((l) => l.path),
       ...r.dependency_intel.sboms.map((d) => d.path),
     ]);
@@ -103,6 +106,9 @@ describe('installer-like repository (capabilities observed, intent undetermined)
       ...r.code_analysis.secrets.candidates.map((c) => c.id),
       ...r.code_analysis.capabilities.detections.map((d) => d.id),
       ...r.dependency_intel.dependencies.map((d) => d.id),
+      ...r.registry_intel.packages.map((p) => `registry:${p.registry}:${p.name}`),
+      ...r.release_intel.releases.map((x) => `release:${x.tag}`),
+      ...r.governance.signals.map((x) => x.id),
       ...r.dependency_intel.lockfiles.map((l) => l.path),
       ...r.dependency_intel.sboms.map((d) => d.path),
     ]);
@@ -205,6 +211,7 @@ describe('scan switch, coverage and diagnostics', () => {
       'api.osv.dev',
       'api.securityscorecards.dev',
       'raw.githubusercontent.com',
+      'registry.npmjs.org',
     ]);
   });
 });

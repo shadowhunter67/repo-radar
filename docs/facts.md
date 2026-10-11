@@ -47,3 +47,14 @@ remediation, intent}`; `intent` is always `"undetermined"` (capability is not in
 | `release.correspondence` | `attested_to_tag_commit`, `attestation_inconsistent`, `checksum_listed`, `tag_only` or `unlinked`. |
 | `governance.takeover_indicators` | Dormancy, a new account and a release soon after were all observed in the sampled window. Intent undetermined. |
 | `governance.signals.count` | Number of temporal signals. |
+
+## Registry facts (0.6)
+
+| Fact | Meaning |
+| ---- | ------- |
+| `registry.packages.count` | Packages this repository publishes that were looked up (npm, PyPI, crates.io). |
+| `registry.lookup_complete` | Every lookup succeeded. When `false`, the facts below are `unknown`/withheld, never "clean". |
+| `registry.repository_match` | Worst correspondence over all packages: `conflicting`, `unknown`, `missing`, `likely` or `confirmed`. A failed lookup is `unknown`. |
+| `registry.provenance_reported` | npm only: every package reports a provenance attestation for its latest version (not verified here). |
+| `registry.publisher_stable` | No recent version was published by an account new to the sampled history. Emitted only when all lookups worked; PyPI exposes no per-version publisher. |
+| `registry.dormancy_then_publish` | A recent publication ended a gap of a year or more. |

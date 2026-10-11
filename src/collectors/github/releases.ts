@@ -7,6 +7,9 @@ import {
 } from '../../release/analyze.js';
 import { parseDigestString } from '../../release/checksums.js';
 import type { Provenance, ReleaseIntel } from '../../release/model.js';
+import { verifyAssets, type AssetVerifyLimits } from '../../release/verify-assets.js';
+import { loadSigstoreVerifier, verifyBundle, type BundleVerifier } from '../../trust/sigstore.js';
+import type { Release } from '../../release/model.js';
 import { provenanceFromAttestationResponse } from '../../release/provenance.js';
 
 /**
@@ -56,6 +59,13 @@ export async function collectReleases(opts: {
   releases: RawRelease[] | undefined;
   analyzedCommit: string | null;
   note: (code: string, message: string) => void;
+  /** Cryptographically verify attestation bundles (opt-in; reaches the Sigstore TUF repository). */
+  verifyCrypto?: boolean;
+  /** Test seam / alternative trust material. Defaults to the Sigstore public-good verifier. */
+  verifier?: BundleVerifier | undefined;
+  /** Download a few small assets and compare their bytes with published digests (opt-in, bounded). */
+  verifyAssets?: boolean;
+  assetLimits?: Partial<AssetVerifyLimits>;
 }): Promise<ReleaseIntel> {
   const { http, base, headers } = opts;
   if (!opts.releases)
@@ -96,6 +106,9 @@ export async function collectReleases(opts: {
   const checksumTexts = new Map<string, Map<string, string>>();
   const provenance = new Map<string, Provenance[]>();
   const attestationsListed = new Map<string, number>();
+  const assetChecks = new Map<string, Release['asset_checks']>();
+  let verifier: BundleVerifier | undefined = opts.verifier;
+  let verifierLoaded = opts.verifier !== undefined;
 
   // Detail (checksums, attestations) goes to the newest STABLE release among those inspected; nightlies and pre-releases
   // would otherwise take the slot.
@@ -165,6 +178,7 @@ export async function collectReleases(opts: {
       .filter((x) => x.d?.algorithm === 'sha256')
       .slice(0, RELEASE_LIMITS.attestationsPerRelease);
     const recs: Provenance[] = [];
+    const recBundles: unknown[] = [];
     let unreadable = 0;
     let listed = 0;
     let notInlined = 0;
@@ -173,6 +187,7 @@ export async function collectReleases(opts: {
       if (body === undefined) continue;
       const p = provenanceFromAttestationResponse(body);
       recs.push(...p.records);
+      recBundles.push(...p.bundles);
       unreadable += p.unreadable;
       listed += p.listed;
       notInlined += p.not_inlined;
@@ -183,7 +198,39 @@ export async function collectReleases(opts: {
         `${notInlined} attestation bundle(s) not inlined by the API (large bundle URL on another host, not fetched)`,
       );
     if (unreadable > 0) limits.push(`${unreadable} attestation bundle(s) could not be parsed`);
+    if (opts.verifyCrypto && recs.length > 0) {
+      if (!verifierLoaded) {
+        verifier = await loadSigstoreVerifier();
+        verifierLoaded = true;
+        if (!verifier) limits.push('sigstore verifier unavailable: attestations were not verified');
+      }
+      for (const [i, rec] of recs.entries()) {
+        const v = await verifyBundle(verifier, recBundles[i]);
+        rec.verification = v.state;
+        rec.verification_detail = v;
+      }
+    }
     if (recs.length > 0) provenance.set(tag, recs);
+    if (opts.verifyAssets) {
+      const checks = await verifyAssets({
+        http,
+        assets: assets.map((a) => ({
+          name: typeof a.name === 'string' ? a.name : '',
+          size:
+            typeof (a as { size?: unknown }).size === 'number'
+              ? (a as { size: number }).size
+              : null,
+          url: typeof a.browser_download_url === 'string' ? a.browser_download_url : null,
+          apiDigest: parseDigestString(a.digest) ?? null,
+          kind: typeof a.name === 'string' ? classifyAsset(a.name) : 'other',
+        })),
+        checksumTexts: checksumTexts.get(tag) ?? new Map<string, string>(),
+        ...(opts.assetLimits ? { limits: opts.assetLimits } : {}),
+        isSafeUrl: (u) => isSafeAssetUrl(u, opts.owner, opts.repo),
+        budgetOk,
+      });
+      if (checks.length > 0) assetChecks.set(tag, checks.slice(0, 10));
+    }
   }
   if (published.length > RELEASE_LIMITS.tagReleases)
     limits.push(`tags resolved for ${RELEASE_LIMITS.tagReleases} of ${published.length} releases`);
@@ -195,6 +242,8 @@ export async function collectReleases(opts: {
       checksumTexts,
       provenance,
       attestationsListed,
+      assetChecks,
+      repository: `${opts.owner}/${opts.repo}`,
       requests,
       limits_hit: limits,
     },

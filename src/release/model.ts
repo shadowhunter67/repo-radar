@@ -1,4 +1,10 @@
 import { z } from 'zod';
+import {
+  SlsaPropertiesSchema,
+  TRUST_ROOTS,
+  VERIFICATION_STATES,
+  VerificationSchema,
+} from '../trust/model.js';
 
 /**
  * Release and provenance entities. Everything here describes what was OBSERVED about published artifacts; it never claims a
@@ -17,12 +23,6 @@ export const ASSET_KINDS = [
   'other',
 ] as const;
 
-export const SIGNATURE_STATES = [
-  'signature_present',
-  'signature_verified',
-  'signature_invalid',
-  'verification_unavailable',
-] as const;
 export const SIGNATURE_KINDS = [
   'gpg',
   'sigstore',
@@ -63,9 +63,17 @@ export const SignatureSchema = z.object({
   /** `tag` (git tag signature), or the name of the signature asset. */
   subject: z.string().max(300),
   kind: z.enum(SIGNATURE_KINDS),
-  state: z.enum(SIGNATURE_STATES),
-  /** Who established the state: nobody verified it (`none`), or GitHub did. */
-  verified_by: z.enum(['none', 'github']),
+  /** Verification state; `present_unverified` for a signature file nobody checked. */
+  state: z.enum(VERIFICATION_STATES),
+  /** The trust root the state relies on (`github_api_assertion` for GitHub's tag verification, `none` when unchecked). */
+  trust_root: z.enum(TRUST_ROOTS),
+  /** Who established the state: nobody (`none`), GitHub through its API (`github`), or repo-radar itself (`local`). */
+  verified_by: z.enum(['none', 'github', 'local']),
+  /**
+   * repo-radar's own cryptographic check of this signature. GitHub's assertion above is NOT a local verification;
+   * for a git tag there is no pinned public key here, so it stays `verification_unavailable`.
+   */
+  local_state: z.enum(VERIFICATION_STATES),
   reason: z.string().max(100),
 });
 export type Signature = z.infer<typeof SignatureSchema>;
@@ -93,7 +101,9 @@ export const ProvenanceSchema = z.object({
    * `verification_unavailable`: the statement was parsed, its signature was NOT checked. Existence of provenance is not
    * a SLSA level and not proof that the artifact was built as stated.
    */
-  verification: z.enum(['verification_unavailable', 'verified_by_github']),
+  verification: z.enum(VERIFICATION_STATES),
+  /** The verifier's full result (trust root, identity) when a verification was attempted. */
+  verification_detail: VerificationSchema.nullable(),
   /** The bundle came from GitHub's attestation API for the asset digest. */
   origin: z.enum(['github_attestation_api', 'release_asset']),
   problems: z.array(z.string().max(200)).max(10),
@@ -101,7 +111,15 @@ export const ProvenanceSchema = z.object({
 export type Provenance = z.infer<typeof ProvenanceSchema>;
 
 export const CORRESPONDENCE = [
-  /** Provenance names this repository and the tag's commit, and its subject digest equals the asset digest. */
+  /** VERIFIED provenance: signature accepted, subject digest equals an asset digest, signer is a workflow of this repository and the statement's source revision is the tag commit. */
+  'verified_source_binding',
+  /** VERIFIED provenance bound to an asset digest and this repository, but no source revision to compare with the tag. */
+  'verified_build_provenance',
+  /** VERIFIED provenance that contradicts the tag commit or names another repository. */
+  'source_binding_conflict',
+  /** An asset's downloaded bytes matched a published digest; nothing links it to source. */
+  'digest_verified_only',
+  /** UNVERIFIED attestation names this repository's tag commit and an asset digest (signature not checked). */
   'attested_to_tag_commit',
   /** An attestation exists for the asset but its source revision is not the tag's commit. */
   'attestation_inconsistent',
@@ -132,6 +150,37 @@ export const ReleaseSchema = z.object({
   provenance: z.array(ProvenanceSchema).max(20),
   /** Attestations GitHub lists for the release's assets, including ones whose statement could not be read here. */
   attestations_listed: z.number().int().min(0),
+  /** Individual SLSA-related observations. Never a level. */
+  slsa: SlsaPropertiesSchema,
+  /** Bounded downloads of assets to compare their bytes with a published digest (opt-in). */
+  asset_checks: z
+    .array(
+      z.object({
+        asset: z.string().max(300),
+        state: z.enum([
+          'checksum_verified',
+          'checksum_mismatch',
+          'checksum_present',
+          'verification_skipped_resource_limit',
+          'download_failed',
+        ]),
+        algorithm: z.string().max(20).nullable(),
+        expected: z.string().max(200).nullable(),
+        actual: z.string().max(200).nullable(),
+        bytes: z.number().int().min(0).nullable(),
+        /** Executable/archive format read from the first bytes and the archive directory. Never executed. */
+        inspection: z
+          .object({
+            format: z.string().max(40),
+            architecture: z.string().max(40).nullable(),
+            platform: z.string().max(40).nullable(),
+            archive_problems: z.array(z.string().max(40)).max(12),
+            entries: z.number().int().min(0).nullable(),
+          })
+          .nullable(),
+      }),
+    )
+    .max(10),
   correspondence: z.enum(CORRESPONDENCE),
   /** Short, factual reasons for the correspondence class. */
   correspondence_reasons: z.array(z.string().max(200)).max(10),

@@ -6,6 +6,7 @@ import {
   isWeak,
   type ChecksumFile,
 } from './checksums.js';
+import { evaluateBinding, tagSignature } from './binding.js';
 import type {
   ArtifactDigest,
   Provenance,
@@ -46,6 +47,10 @@ export interface ReleaseInputs {
   /** Provenance records by release tag. */
   provenance: Map<string, Provenance[]>;
   attestationsListed: Map<string, number>;
+  /** Bounded downloads that compared asset bytes with a published digest (opt-in), by release tag. */
+  assetChecks: Map<string, Release['asset_checks']>;
+  /** owner/repo of the analyzed repository. */
+  repository: string;
   requests: number;
   limits_hit: string[];
 }
@@ -172,29 +177,8 @@ function releaseOf(
 
   const signatures: Signature[] = [];
   const tagInfo = inputs.tags.get(tag);
-  if (tagInfo?.kind === 'annotated') {
-    const v = tagInfo.verification;
-    if (v && typeof v === 'object') {
-      const reason = str(v.reason, 60) ?? 'unknown';
-      const state: Signature['state'] =
-        v.verified === true
-          ? 'signature_verified'
-          : reason === 'unsigned'
-            ? 'signature_present' // placeholder replaced below
-            : [
-                  'invalid',
-                  'malformed_signature',
-                  'bad_email',
-                  'expired_key',
-                  'not_signing_key',
-                  'unverified_email',
-                ].includes(reason)
-              ? 'signature_invalid'
-              : 'verification_unavailable';
-      if (reason !== 'unsigned')
-        signatures.push({ subject: 'tag', kind: 'gpg', state, verified_by: 'github', reason });
-    }
-  }
+  const tagSig = tagSignature(tagInfo);
+  if (tagSig) signatures.push(tagSig);
   for (const a of assets) {
     if (a.kind !== 'signature') continue;
     const target = signedAsset(a.name, names);
@@ -202,8 +186,10 @@ function releaseOf(
       subject: target ?? a.name,
       kind: sigKind(a.name),
       // The signature file exists; repo-radar does not verify it.
-      state: 'signature_present',
+      state: 'present_unverified',
+      trust_root: 'none',
       verified_by: 'none',
+      local_state: 'present_unverified',
       reason: target
         ? 'signature asset next to its target'
         : 'signature asset without a matching target',
@@ -213,44 +199,21 @@ function releaseOf(
   const provenance = inputs.provenance.get(tag) ?? [];
   const tagCommit =
     tagInfo?.commit && /^[0-9a-f]{40}$/.test(tagInfo.commit) ? tagInfo.commit : null;
-  const reasons: string[] = [];
-  let correspondence: Release['correspondence'] = 'unlinked';
-  const digests = new Set(
-    assets
-      .filter((a) => a.digest && !a.digest.weak)
-      .map((a) => `${a.digest?.algorithm}:${a.digest?.value}`),
-  );
-  const matching = provenance.filter((p) =>
-    p.subject.some((s) => digests.has(`${s.algorithm}:${s.digest}`)),
-  );
-  if (matching.length > 0) {
-    const withRev = matching.filter((p) => p.source_revision);
-    if (tagCommit && withRev.some((p) => p.source_revision === tagCommit)) {
-      correspondence = 'attested_to_tag_commit';
-      reasons.push(
-        'an attestation for an asset digest names the tag commit as its source revision',
-      );
-      reasons.push('the attestation signature was not verified by repo-radar');
-    } else if (tagCommit && withRev.length > 0) {
-      correspondence = 'attestation_inconsistent';
-      reasons.push(
-        'an attestation exists for an asset but its source revision differs from the tag commit',
-      );
-    } else {
-      correspondence = tagCommit ? 'tag_only' : 'unlinked';
-      reasons.push('an attestation exists but does not name a source revision');
-    }
-    if ((inputs.attestationsListed.get(tag) ?? 0) > provenance.length)
-      reasons.push('more attestations are listed than could be read here');
-  } else if (fromChecksum.size > 0) {
-    correspondence = 'checksum_listed';
-    reasons.push(
-      'assets are listed in a published checksum file; this proves integrity of the download, not origin',
-    );
-  } else if (tagCommit) {
-    correspondence = 'tag_only';
-    reasons.push('only the release tag and its commit are known');
-  } else reasons.push('the tag could not be resolved to a commit');
+  const assetChecks = inputs.assetChecks.get(tag) ?? [];
+  const bound = evaluateBinding({
+    repository: inputs.repository,
+    tagCommit,
+    assetDigests: new Set(
+      assets
+        .filter((a) => a.digest && !a.digest.weak)
+        .map((a) => `${a.digest?.algorithm}:${a.digest?.value}`),
+    ),
+    provenance,
+    attestationsListed: inputs.attestationsListed.get(tag) ?? 0,
+    checksumListed: fromChecksum.size > 0,
+    digestVerified: assetChecks.some((c) => c.state === 'checksum_verified'),
+  });
+  const reasons = bound.reasons;
   if (tagCommit && analyzedCommit && tagCommit !== analyzedCommit)
     reasons.push('the tag commit is not the analyzed commit');
   if (tagCommit && analyzedCommit && tagCommit === analyzedCommit)
@@ -269,7 +232,9 @@ function releaseOf(
     signatures,
     provenance,
     attestations_listed: inputs.attestationsListed.get(tag) ?? provenance.length,
-    correspondence,
+    slsa: bound.slsa,
+    asset_checks: assetChecks,
+    correspondence: bound.correspondence,
     correspondence_reasons: reasons,
     checksum_files: checksumFiles,
   };

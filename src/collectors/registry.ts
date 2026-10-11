@@ -13,7 +13,7 @@ export const REGISTRY_LIMITS = {
   maxPackages: 4,
   maxRequests: 10,
   npmMaxBytes: 8 * 1024 * 1024,
-  jsonMaxBytes: 4 * 1024 * 1024,
+  jsonMaxBytes: 16 * 1024 * 1024,
 } as const;
 
 const NAME_RE: Record<RegistryId, RegExp> = {
@@ -39,7 +39,12 @@ export function declaredPackages(
             : undefined;
     if (!registry || !m.name || m.isPrivate) continue;
     if (!NAME_RE[registry].test(m.name)) continue;
-    if (/(?:^|\/)(?:examples?|tests?|docs?|fixtures?|benchmarks?)\//i.test(m.file)) continue;
+    if (
+      /(?:^|\/)(?:examples?|tests?|docs?|fixtures?|benchmarks?|benches|fuzz|xtask|testing|internal)\//i.test(
+        m.file,
+      )
+    )
+      continue;
     const key = `${registry}:${m.name.toLowerCase()}`;
     if (seen.has(key)) continue;
     seen.add(key);

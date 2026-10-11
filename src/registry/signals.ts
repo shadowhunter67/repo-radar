@@ -12,6 +12,8 @@ export const REGISTRY_THRESHOLDS = {
   cadenceMinDays: 90,
   /** Versions whose publishers are compared with the earlier history. */
   recentWindow: 3,
+  /** A dormancy or cadence break only counts when the publication that ended it is this recent. */
+  recentDays: 730,
 } as const;
 
 const DAY = 86_400_000;
@@ -117,7 +119,11 @@ export function registrySignals(pkg: RegistryPackage): RegistrySignal[] {
       version: v.version,
       days: (ts(v.published_at) - ts(dated[i + 1]!.published_at)) / DAY,
     }));
-    const big = gaps.find((g) => g.days >= REGISTRY_THRESHOLDS.dormancyDays);
+    // Only a gap that ended recently is relevant; an old one is history that every long-lived project has.
+    const observed = Date.parse(pkg.observed_at) || Date.now();
+    const recent = (at: string | null): boolean =>
+      observed - ts(at) <= REGISTRY_THRESHOLDS.recentDays * DAY;
+    const big = gaps.find((g) => g.days >= REGISTRY_THRESHOLDS.dormancyDays && recent(g.at));
     if (big)
       add({
         kind: 'dormancy_then_publish',
@@ -134,6 +140,7 @@ export function registrySignals(pkg: RegistryPackage): RegistrySignal[] {
     if (first && older.length >= 4) {
       const median = older[Math.floor(older.length / 2)]!;
       if (
+        recent(first.at) &&
         first.days >= REGISTRY_THRESHOLDS.cadenceMinDays &&
         first.days > REGISTRY_THRESHOLDS.cadenceFactor * Math.max(median, 1)
       )

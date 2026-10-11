@@ -53,6 +53,8 @@ export interface RequestInput {
   headers?: Record<string, string>;
   body?: string;
   maxBytes?: number;
+  /** Return the body as latin1 text (one char per byte) so `Buffer.from(body, 'latin1')` recovers the exact bytes. */
+  binary?: boolean;
 }
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
@@ -129,7 +131,7 @@ export class HttpClient {
           await sleep(this.retryDelayMs);
           continue;
         }
-        const body = await readCapped(res, maxBytes, url);
+        const body = await readCapped(res, maxBytes, url, init.binary === true);
         return { status: res.status, headers: res.headers, body };
       } catch (e) {
         if (e instanceof HttpError || e instanceof TooLargeError) throw e;
@@ -144,13 +146,23 @@ export class HttpClient {
   }
 }
 
-async function readCapped(res: Response, maxBytes: number, url: string): Promise<string> {
+async function readCapped(
+  res: Response,
+  maxBytes: number,
+  url: string,
+  binary = false,
+): Promise<string> {
   const declared = Number(res.headers.get('content-length') ?? '0');
   if (declared > maxBytes) throw new TooLargeError(url, maxBytes);
   if (!res.body) {
-    const text = await res.text();
-    if (Buffer.byteLength(text) > maxBytes) throw new TooLargeError(url, maxBytes);
-    return text;
+    if (!binary) {
+      const text = await res.text();
+      if (Buffer.byteLength(text) > maxBytes) throw new TooLargeError(url, maxBytes);
+      return text;
+    }
+    const buf = Buffer.from(await res.arrayBuffer());
+    if (buf.length > maxBytes) throw new TooLargeError(url, maxBytes);
+    return buf.toString('latin1');
   }
   const reader = res.body.getReader();
   const chunks: Uint8Array[] = [];
@@ -165,5 +177,6 @@ async function readCapped(res: Response, maxBytes: number, url: string): Promise
     }
     chunks.push(value);
   }
-  return new TextDecoder('utf-8').decode(Buffer.concat(chunks));
+  const all = Buffer.concat(chunks);
+  return binary ? all.toString('latin1') : new TextDecoder('utf-8').decode(all);
 }

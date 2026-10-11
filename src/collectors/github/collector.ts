@@ -9,6 +9,8 @@ import { analyzeReadme } from './readme.js';
 import { analyzeTree, isStaticallyTyped, type TreeEntry } from './tree.js';
 import type { BlobCache } from './blobcache.js';
 import { collectReleases } from './releases.js';
+import type { AssetVerifyLimits } from '../../release/verify-assets.js';
+import type { BundleVerifier } from '../../trust/sigstore.js';
 import type { GovernanceInput } from '../../governance/temporal.js';
 import type { RawRelease } from '../../release/analyze.js';
 import { EMPTY_RELEASE_INTEL, type ReleaseIntel } from '../../release/model.js';
@@ -89,6 +91,12 @@ export async function collectGithub(
     blobCache?: BlobCache;
     /** Collect release assets, checksums, signatures and attestations metadata (default true). */
     releases?: boolean;
+    /** Verify attestation bundles cryptographically (Sigstore public-good trust root). */
+    verifyCrypto?: boolean;
+    verifier?: BundleVerifier;
+    /** Download a few small assets and compare their bytes with published digests. */
+    verifyAssets?: boolean;
+    assetLimits?: Partial<AssetVerifyLimits>;
   } = {},
 ): Promise<GithubCollection & CollectorResult> {
   const b = new EvidenceBuilder('github', clock);
@@ -788,6 +796,10 @@ export async function collectGithub(
           headers: jsonHeaders,
           releases: releasesRes?.data as RawRelease[] | undefined,
           analyzedCommit: headSha ?? null,
+          ...(options.verifyCrypto ? { verifyCrypto: true } : {}),
+          ...(options.verifier ? { verifier: options.verifier } : {}),
+          ...(options.verifyAssets ? { verifyAssets: true } : {}),
+          ...(options.assetLimits ? { assetLimits: options.assetLimits } : {}),
           note: (code, message) => b.diag('info', code, message),
         });
 
