@@ -51,6 +51,7 @@ export interface ReleaseInputs {
   assetChecks: Map<string, Release['asset_checks']>;
   /** owner/repo of the analyzed repository. */
   repository: string;
+  verificationRun?: { attestations: boolean; assets: boolean };
   requests: number;
   limits_hit: string[];
 }
@@ -256,5 +257,6 @@ export function buildReleaseIntel(
     releases_total: published.length,
     requests: inputs.requests,
     limits_hit: inputs.limits_hit.slice(0, 10),
+    verification_run: inputs.verificationRun ?? { attestations: false, assets: false },
   };
 }

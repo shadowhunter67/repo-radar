@@ -13,6 +13,8 @@ import {
 } from './deps/depsdev.js';
 import type { AssetVerifyLimits } from './release/verify-assets.js';
 import type { BundleVerifier } from './trust/sigstore.js';
+import { buildTimeline } from './events/build.js';
+import { BUILTIN_PATTERNS } from './events/correlate.js';
 import { collectRegistry, REGISTRY_HOSTS } from './collectors/registry.js';
 import { buildRegistryFindings, deriveRegistryFacts } from './registry/findings.js';
 import { EMPTY_REGISTRY_INTEL, type RegistryIntel } from './registry/model.js';
@@ -56,7 +58,12 @@ import { LIMITS } from './limits.js';
 import { loadProfile, validateProfileAgainstRules } from './profiles/load.js';
 import { REPORT_SCHEMA_VERSION, type Report } from './report/schema.js';
 import { evaluate } from './scoring/engine.js';
-import { effectiveBlocks, evaluateBlocks, evaluatePolicy } from './scoring/policy.js';
+import {
+  effectiveBlocks,
+  evaluateBlocks,
+  evaluatePolicy,
+  evaluateTemporalBlocks,
+} from './scoring/policy.js';
 import { loadRuleSet } from './scoring/rules.js';
 import { HttpClient, HttpError, RateLimitError, type FetchLike } from './util/http.js';
 import { packageRoot } from './util/paths.js';
@@ -288,6 +295,12 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       })
     : [];
   const governance = analyzeGovernance(github.governanceInput);
+  const timeline = buildTimeline({
+    governance,
+    registry: registryIntel,
+    releases: github.releaseIntel,
+    patterns: BUILTIN_PATTERNS,
+  });
   const facts = [
     ...(complianceOn ? deriveIndicatorFacts(indicators, scanReliable, code) : []),
     ...deriveFacts({
@@ -361,35 +374,38 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...buildRegistryFindings(registryIntel),
     ...buildGovernanceFindings(governance),
   ];
-  const blockViolations = evaluateBlocks(
-    effectiveBlocks(profile),
-    buildComplianceContext(
-      {
-        packs: [],
-        identity: {
-          artifact_type: identity.artifact_type,
-          artifact_confidence: identity.artifact_confidence,
-          domain: identity.domain,
-          ecosystem: identity.ecosystem,
+  const blockViolations = [
+    ...evaluateTemporalBlocks(profile.temporal_block, timeline),
+    ...evaluateBlocks(
+      effectiveBlocks(profile),
+      buildComplianceContext(
+        {
+          packs: [],
+          identity: {
+            artifact_type: identity.artifact_type,
+            artifact_confidence: identity.artifact_confidence,
+            domain: identity.domain,
+            ecosystem: identity.ecosystem,
+          },
+          code,
+          intel,
+          allDependencies: depsStatic.deps,
+          manifests: github.snapshot.manifests,
+          files: github.files,
+          treePaths: github.allTreePaths,
+          scanReliable,
         },
-        code,
-        intel,
-        allDependencies: depsStatic.deps,
-        manifests: github.snapshot.manifests,
-        files: github.files,
-        treePaths: github.allTreePaths,
-        scanReliable,
-      },
-      indicators,
-      scoringStore,
-      findings.map((f) => ({
-        id: f.id,
-        category: f.category,
-        severity: f.severity,
-        rule_ids: f.rule_ids,
-      })),
+        indicators,
+        scoringStore,
+        findings.map((f) => ({
+          id: f.id,
+          category: f.category,
+          severity: f.severity,
+          rule_ids: f.rule_ids,
+        })),
+      ),
     ),
-  );
+  ];
 
   const report: Omit<Report, 'integrity'> = {
     tool: { name: 'repo-radar', version: toolVersion(root) },
@@ -443,6 +459,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     retrieval: github.treeRetrieval,
     release_intel: github.releaseIntel,
     registry_intel: registryIntel,
+    timeline,
     governance,
     coverage_map: coverageMap,
     overall: scoring.overall,
@@ -451,12 +468,13 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     policy: {
       source: cliMin
         ? 'cli'
-        : Object.keys(profile.minimums).length > 0 || effectiveBlocks(profile).length > 0
+        : Object.keys(profile.minimums).length > 0 ||
+            effectiveBlocks(profile).length + profile.temporal_block.length > 0
           ? 'profile'
           : 'none',
       enforced: !!opts.enforcePolicy || !!cliMin,
       minimums,
-      blocks_evaluated: effectiveBlocks(profile).length,
+      blocks_evaluated: effectiveBlocks(profile).length + profile.temporal_block.length,
       block_violations: blockViolations,
       violations,
     },

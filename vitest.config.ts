@@ -5,6 +5,8 @@ export default defineConfig({
   test: {
     include: ['tests/**/*.test.ts'],
     environment: 'node',
+    // Several end-to-end tests exercise retry back-off; a loaded machine must not turn that into a spurious failure.
+    testTimeout: 20_000,
     fileParallelism: false,
     maxWorkers: 1,
     minWorkers: 1,

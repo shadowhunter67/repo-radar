@@ -167,7 +167,7 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
   const base = `https://api.github.com/repos/${spec.owner}/${spec.repo}`;
   const raw = `https://raw.githubusercontent.com/${spec.owner}/${spec.repo}/`;
   const commits = spec.commitDaysAgo.map((d, i) => ({
-    sha: `sha${String(i).padStart(37, '0')}`,
+    sha: (i + 1).toString(16).padStart(40, '0'),
     author: { login: `dev${i % 3}` },
     commit: {
       author: { name: `Dev ${i % 3}`, email: `dev${i % 3}@example.com`, date: ago(d) },

@@ -207,6 +207,8 @@ export const ReleaseIntelSchema = z.object({
   releases_total: z.number().int().min(0),
   requests: z.number().int().min(0),
   limits_hit: z.array(z.string().max(200)).max(10),
+  /** Which opt-in verifications ran. Facts about verification are emitted only for those that did: not run is unknown. */
+  verification_run: z.object({ attestations: z.boolean(), assets: z.boolean() }),
 });
 export type ReleaseIntel = z.infer<typeof ReleaseIntelSchema>;
 
@@ -217,4 +219,5 @@ export const EMPTY_RELEASE_INTEL: ReleaseIntel = {
   releases_total: 0,
   requests: 0,
   limits_hit: [],
+  verification_run: { attestations: false, assets: false },
 };

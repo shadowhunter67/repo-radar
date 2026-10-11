@@ -241,15 +241,17 @@ export function deriveReleaseFacts(intel: ReleaseIntel, g: Governance): Fact[] {
       0.8,
     );
     f('release.correspondence', latest.correspondence, from, 'release', 0.8);
-    f('release.provenance.verified', latest.slsa.provenance_verified, from, 'release', 0.9);
-    f(
-      'release.source_binding_verified',
-      latest.correspondence === 'verified_source_binding',
-      from,
-      'release',
-      0.9,
-    );
-    if (latest.asset_checks.length > 0)
+    if (intel.verification_run.attestations) {
+      f('release.provenance.verified', latest.slsa.provenance_verified, from, 'release', 0.9);
+      f(
+        'release.source_binding_verified',
+        latest.correspondence === 'verified_source_binding',
+        from,
+        'release',
+        0.9,
+      );
+    }
+    if (intel.verification_run.assets && latest.asset_checks.length > 0)
       f(
         'release.assets.checksum_verified',
         latest.asset_checks.some((c) => c.state === 'checksum_verified') &&

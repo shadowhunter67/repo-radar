@@ -63,6 +63,7 @@ export async function compareRevisions(
   from: string,
   to: string | null,
   options: AnalyzeOptions = {},
+  onReports?: (from: Report, to: Report) => void,
 ): Promise<RevisionComparison> {
   const cache = new BlobCache();
   const t0 = Date.now();
@@ -76,6 +77,7 @@ export async function compareRevisions(
     blobCache: cache,
   });
   const msB = Date.now() - t1;
+  onReports?.(a, b);
   const fromInfo = snapshotInfo(a, from, msA, reusedA);
   const toInfo = snapshotInfo(b, to, msB, cache.hits - reusedA);
   return {

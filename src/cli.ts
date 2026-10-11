@@ -5,6 +5,8 @@ import { parseArgs } from 'node:util';
 import { analyzeRepository, toolVersion } from './analyze.js';
 import { RepoNotFoundError } from './collectors/github/collector.js';
 import { buildRepositoryModel, summarizeModel } from './model/index.js';
+import { buildTrustGraph, summarizeGraph } from './graph/trust.js';
+import { FsSnapshotStore, type PutResult } from './store/snapshots.js';
 import { evaluateHistoryBlocks } from './scoring/policy.js';
 import { listProfiles, loadProfile, UnknownProfileError } from './profiles/load.js';
 import { compareRevisions, compareSnapshots, renderHistoricalText } from './history/index.js';
@@ -33,6 +35,8 @@ Usage:
   repo-radar diff <owner/repo> --from <ref> [--to <ref>]       Analyze two exact revisions and explain what changed (capabilities, execution, dependencies, risk)
   repo-radar diff <old.json> <new.json> [--format text|json]   Compare two JSON reports (new/removed dependencies, capabilities, hooks, vulnerabilities, ...)
   repo-radar model <report.json> [--format text|json]          Project a 0.4 report onto the unified repository model
+  repo-radar graph <report.json> [--format text|json]          Project a report onto the Software Trust Graph (every edge carries evidence)
+  repo-radar snapshots --snapshot-dir <dir> [--repo owner/repo] List stored immutable snapshots
   repo-radar profiles                 List scoring profiles
   repo-radar rules [dimension]        List scoring rules (weights, evidence ids)
   repo-radar --version | --help
@@ -48,6 +52,8 @@ Options for analyze:
   --no-osv                   Skip the OSV vulnerability lookup
   --no-deps-dev              Skip deps.dev package metadata (licenses, current-version candidates)
   --no-compliance            Skip regulatory readiness packs and privacy/AI technical indicators
+  --snapshot-dir <dir>       Store the report as an immutable snapshot (keyed by repository, commit, schema, methodology, config digest)
+  --snapshot-revision        On a conflict with a stored snapshot, keep both: store a content-addressed revision
   --verify-crypto            Cryptographically verify release attestations (Sigstore public-good root; contacts the Sigstore TUF repository)
   --verify-assets            Download up to 3 small release assets (<= 8 MiB each) and compare their bytes with published digests
   --no-registry              Skip npm / PyPI / crates.io lookups for the packages this repository publishes
@@ -65,6 +71,14 @@ Environment:
 Exit codes:
   0 ok | 1 internal error | 2 policy failed | 3 repository not found | 4 service unavailable / rate limited | 64 usage error
 `;
+
+function storeSnapshot(
+  dir: string,
+  report: import('./report/schema.js').Report,
+  revision: boolean,
+): PutResult {
+  return new FsSnapshotStore(dir).putSnapshot(report, { allowRevision: revision });
+}
 
 function useAscii(flag: boolean): boolean {
   if (flag || process.env['NO_UNICODE'] || process.env['TERM'] === 'dumb') return true;
@@ -101,6 +115,9 @@ export async function main(
         'no-releases': { type: 'boolean', default: false },
         'no-registry': { type: 'boolean', default: false },
         'verify-crypto': { type: 'boolean', default: false },
+        'snapshot-dir': { type: 'string' },
+        'snapshot-revision': { type: 'boolean', default: false },
+        repo: { type: 'string' },
         'verify-assets': { type: 'boolean', default: false },
         'no-scan': { type: 'boolean', default: false },
         ref: { type: 'string' },
@@ -146,6 +163,47 @@ export async function main(
       );
       return EXIT.OK;
     }
+    if (cmd === 'graph') {
+      if (rest.length !== 1) {
+        stderr(
+          'error: graph needs exactly one report file (a JSON report of the current schema)\n',
+        );
+        return EXIT.USAGE;
+      }
+      if (statSync(rest[0] as string).size > 50 * 1024 * 1024)
+        throw new Error('report is larger than 50 MiB');
+      const parsedReport = ReportSchema.safeParse(
+        JSON.parse(readFileSync(rest[0] as string, 'utf8')),
+      );
+      if (!parsedReport.success) {
+        stderr('error: graph needs a report of the current schema version; re-run the analysis\n');
+        return EXIT.USAGE;
+      }
+      const g = buildTrustGraph(parsedReport.data);
+      stdout(values.format === 'json' ? JSON.stringify(g, null, 2) + '\n' : summarizeGraph(g));
+      return EXIT.OK;
+    }
+    if (cmd === 'snapshots') {
+      const dir = values['snapshot-dir'];
+      if (!dir) {
+        stderr('error: snapshots needs --snapshot-dir <dir> (list [--repo owner/repo])\n');
+        return EXIT.USAGE;
+      }
+      const store = new FsSnapshotStore(dir);
+      const rows = store.listSnapshots({
+        ...(values.repo ? { repository: values.repo } : {}),
+        limit: 100,
+      });
+      if (values.format === 'json') stdout(JSON.stringify(rows, null, 2) + '\n');
+      else {
+        stdout(`${rows.length} snapshot(s)\n`);
+        for (const e of rows)
+          stdout(
+            `  ${sanitizeForTerminal(e.repository, 60)} ${e.commit.slice(0, 10)} schema ${e.schema_version} methodology ${e.methodology} config ${e.config_digest.slice(0, 8)} sha256 ${e.report_sha256.slice(0, 12)} stored ${e.stored_at.slice(0, 19)}${e.revision_of ? ' (revision)' : ''}\n`,
+          );
+      }
+      return EXIT.OK;
+    }
     if (cmd === 'diff' && (values.from || values.to)) {
       // Revision mode: analyze two exact revisions of one repository (sequentially, sharing unchanged files) and compare.
       if (!values.from || rest.length !== 1) {
@@ -155,21 +213,34 @@ export async function main(
         return EXIT.USAGE;
       }
       const tokenR = process.env['GITHUB_TOKEN'] || undefined;
-      const cmp = await compareRevisions(rest[0] as string, values.from, values.to ?? null, {
-        profile: values.profile,
-        ...(tokenR ? { token: tokenR } : {}),
-        scorecard: !values['no-scorecard'],
-        osv: !values['no-osv'],
-        depsDev: !values['no-deps-dev'],
-        sbom: !values['no-sbom'],
-        compliance: !values['no-compliance'],
-        targetedTree: !values['no-targeted-tree'],
-        releases: !values['no-releases'],
-        registry: !values['no-registry'],
-        verifyCrypto: values['verify-crypto'],
-        verifyAssets: values['verify-assets'],
-        codeScan: !values['no-scan'],
-      });
+      const cmp = await compareRevisions(
+        rest[0] as string,
+        values.from,
+        values.to ?? null,
+        {
+          profile: values.profile,
+          ...(tokenR ? { token: tokenR } : {}),
+          scorecard: !values['no-scorecard'],
+          osv: !values['no-osv'],
+          depsDev: !values['no-deps-dev'],
+          sbom: !values['no-sbom'],
+          compliance: !values['no-compliance'],
+          targetedTree: !values['no-targeted-tree'],
+          releases: !values['no-releases'],
+          registry: !values['no-registry'],
+          verifyCrypto: values['verify-crypto'],
+          verifyAssets: values['verify-assets'],
+          codeScan: !values['no-scan'],
+        },
+        (a, b) => {
+          if (values['snapshot-dir']) {
+            for (const r of [a, b]) {
+              const res = storeSnapshot(values['snapshot-dir'], r, values['snapshot-revision']);
+              stderr(`snapshot ${r.subject.ref?.slice(0, 10) ?? '?'}: ${res.status}\n`);
+            }
+          }
+        },
+      );
       const histProfile = loadProfile(values.profile);
       const histViolations = evaluateHistoryBlocks(histProfile.history_block, cmp.diff);
       const histText =
@@ -219,7 +290,7 @@ export async function main(
         const parsed = ReportSchema.safeParse(readJson(rest[0] as string));
         if (!parsed.success) {
           stderr(
-            'error: model needs a report of the current schema version (0.5); re-run the analysis\n',
+            'error: model needs a report of the current schema version (0.6); re-run the analysis\n',
           );
           return EXIT.USAGE;
         }
@@ -262,6 +333,10 @@ export async function main(
       codeScan: !values['no-scan'],
       ...(values.ref ? { ref: values.ref } : {}),
     });
+    const snap = values['snapshot-dir']
+      ? storeSnapshot(values['snapshot-dir'], report, values['snapshot-revision'])
+      : undefined;
+    if (snap) stderr(`snapshot: ${snap.status} - ${snap.message}\n`);
     const body =
       format === 'json'
         ? JSON.stringify(report, null, 2) + '\n'

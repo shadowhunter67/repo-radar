@@ -1,3 +1,8 @@
+import { buildTimeline } from '../events/build.js';
+import type { Timeline, TimelineEvent } from '../events/model.js';
+import { EMPTY_GOVERNANCE, GovernanceSchema } from '../governance/temporal.js';
+import { EMPTY_REGISTRY_INTEL, RegistryIntelSchema } from '../registry/model.js';
+import { EMPTY_RELEASE_INTEL, ReleaseIntelSchema } from '../release/model.js';
 import { diffReports, type Change, type ReportDiff, type ReportKey } from '../report/diff.js';
 
 /**
@@ -133,6 +138,8 @@ export interface GovernanceDelta {
 
 export interface HistoricalDiff extends ReportDiff {
   governance: GovernanceDelta;
+  /** Timeline of the later revision plus events introduced by this change (install hooks, capabilities), correlated. */
+  timeline: Timeline;
   comparability: Comparability;
   identity: IdentityChange[];
   dependencies: DependencyDelta[];
@@ -759,6 +766,53 @@ function governanceDelta(a: Json, b: Json, exec: ExecutionDelta[]): GovernanceDe
   };
 }
 
+/** Events that a revision introduced, stamped with the later revision's commit date (the best known time of the change). */
+function diffTimeline(b: Json, exec: ExecutionDelta[], caps: CapabilityDelta[]): Timeline {
+  const headDate = (): string | null => {
+    const ev = arr(b['evidence']).find((e) => e['id'] === 'github.commits.head_date');
+    return typeof ev?.['value'] === 'string' ? (ev['value'] as string) : null;
+  };
+  const at = headDate();
+  const extra: TimelineEvent[] = [];
+  for (const e of exec)
+    if (e.change === 'new' && e.for_dependents && e.certainty === 'observed')
+      extra.push({
+        id: 'x',
+        type: 'install_hook_introduced',
+        at,
+        subject: e.hook,
+        source: 'analysis_diff',
+        detail: e.path.slice(0, 250),
+        confidence: 0.8,
+        evidence: e.evidence_ids.slice(0, 4),
+      });
+  for (const c of caps)
+    if (
+      c.change === 'new' &&
+      c.certainty === 'observed' &&
+      (c.after?.risk === 'medium' || c.after?.risk === 'high')
+    )
+      extra.push({
+        id: 'x',
+        type: 'capability_introduced',
+        at,
+        subject: c.capability,
+        source: 'analysis_diff',
+        detail: `capability ${c.capability} (${c.after.risk} risk) newly observed`,
+        confidence: 0.7,
+        evidence: [],
+      });
+  const gov = GovernanceSchema.safeParse(b['governance']);
+  const reg = RegistryIntelSchema.safeParse(b['registry_intel']);
+  const rel = ReleaseIntelSchema.safeParse(b['release_intel']);
+  return buildTimeline({
+    governance: gov.success ? gov.data : EMPTY_GOVERNANCE,
+    registry: reg.success ? reg.data : EMPTY_REGISTRY_INTEL,
+    releases: rel.success ? rel.data : EMPTY_RELEASE_INTEL,
+    extra,
+  });
+}
+
 export function compareSnapshots(oldReport: unknown, newReport: unknown): HistoricalDiff {
   const a = obj(oldReport);
   const b = obj(newReport);
@@ -796,5 +850,6 @@ export function compareSnapshots(oldReport: unknown, newReport: unknown): Histor
     compliance,
     risk,
     governance: governanceDelta(a, b, execution),
+    timeline: diffTimeline(b, execution, capabilities),
   };
 }

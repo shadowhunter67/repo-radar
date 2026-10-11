@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Only the latest released minor version of repo-radar receives security fixes (currently 0.5.x).
+Only the latest released minor version of repo-radar receives security fixes (currently 0.6.x).
 
 ## Reporting a vulnerability
 

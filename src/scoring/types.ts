@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TemporalPatternSchema } from '../events/model.js';
 import { EvidenceIdSchema } from '../evidence/types.js';
 import { ConditionSchema as PolicyConditionSchema } from '../compliance/applicability.js';
 
@@ -108,6 +109,16 @@ export const HISTORY_RULE_KINDS = [
   'new_git_or_path_dependency',
   'takeover_indicators_with_new_install_hook',
 ] as const;
+/** Blocks over the temporal event correlations of one analysis or of a revision diff. */
+export const TemporalBlockSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9-]{3,60}$/),
+    description: z.string().min(5).max(300),
+    /** A built-in pattern id (see docs/governance.md) or a custom pattern (ordered steps within a window). */
+    pattern: z.union([z.string().regex(/^[a-z0-9-]{3,60}$/), TemporalPatternSchema]),
+  })
+  .strict();
+
 export const HistoryBlockSchema = z
   .object({
     id: z.string().regex(/^[a-z0-9-]{3,60}$/),
@@ -155,10 +166,20 @@ export const ProfileSchema = z.object({
       signed_release: RequireValue.optional(),
       provenance: RequireValue.optional(),
       checksums: RequireValue.optional(),
+      /** A release attestation was cryptographically verified (needs --verify-crypto; unknown otherwise). */
+      verified_provenance: RequireValue.optional(),
+      /** Verified attestation binds an asset digest, this repository's CI workflow and the tag commit. */
+      verified_source_binding: RequireValue.optional(),
+      /** The registry package points back to this repository (blocks on conflicting or missing). */
+      registry_repository_match: RequireValue.optional(),
+      /** No recent version was published by an account new to the sampled history. */
+      publisher_stability: RequireValue.optional(),
     })
     .strict()
     .default({}),
   /** Rules over the difference between two revisions (`repo-radar diff owner/repo --from A --to B --profile P --enforce-profile`). */
   history_block: z.array(HistoryBlockSchema).default([]),
+  /** Event-pattern rules (for example a new publisher followed by a release within a week). Unknown never blocks. */
+  temporal_block: z.array(TemporalBlockSchema).default([]),
 });
 export type Profile = z.infer<typeof ProfileSchema>;

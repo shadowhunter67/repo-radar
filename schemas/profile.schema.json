@@ -142,6 +142,50 @@
               "const": "strict"
             }
           ]
+        },
+        "verified_provenance": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "verified_source_binding": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "registry_repository_match": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "publisher_stability": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -181,6 +225,105 @@
           "id",
           "description",
           "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "temporal_block": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]{3,60}$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 300
+          },
+          "pattern": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{3,60}$"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9-]{3,60}$"
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 5,
+                    "maxLength": 300
+                  },
+                  "steps": {
+                    "minItems": 2,
+                    "maxItems": 6,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "any_of": {
+                          "minItems": 1,
+                          "maxItems": 8,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "commit",
+                              "dormancy_end",
+                              "new_committer",
+                              "release",
+                              "new_release_author",
+                              "tag",
+                              "registry_publish",
+                              "new_publisher",
+                              "publisher_change",
+                              "maintainer_change",
+                              "ownership_change",
+                              "dependency_change",
+                              "install_hook_introduced",
+                              "capability_introduced",
+                              "external_domain_introduced",
+                              "provenance_change",
+                              "signature_change"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "any_of"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "within_days": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 3650
+                  }
+                },
+                "required": [
+                  "id",
+                  "description",
+                  "steps",
+                  "within_days"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "pattern"
         ],
         "additionalProperties": false
       }

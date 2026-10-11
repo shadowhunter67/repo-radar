@@ -76,6 +76,7 @@ export async function collectReleases(opts: {
       releases_total: 0,
       requests: 0,
       limits_hit: ['release list unavailable'],
+      verification_run: { attestations: false, assets: false },
     };
   const limits: string[] = [];
   let requests = 0;
@@ -244,6 +245,10 @@ export async function collectReleases(opts: {
       attestationsListed,
       assetChecks,
       repository: `${opts.owner}/${opts.repo}`,
+      verificationRun: {
+        attestations: opts.verifyCrypto === true,
+        assets: opts.verifyAssets === true,
+      },
       requests,
       limits_hit: limits,
     },

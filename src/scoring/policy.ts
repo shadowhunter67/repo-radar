@@ -1,4 +1,6 @@
 import { evaluateCondition, type ComplianceContext } from '../compliance/applicability.js';
+import { correlate } from '../events/correlate.js';
+import type { Timeline } from '../events/model.js';
 import type { Profile } from './types.js';
 import type { ScoringResult } from './engine.js';
 
@@ -87,7 +89,15 @@ export function effectiveBlocks(profile: Pick<Profile, 'block' | 'require'>): Bl
   const out: Block[] = [...profile.block];
   const r = profile.require;
   const mk = (
-    key: 'sbom' | 'signed_release' | 'provenance' | 'checksums',
+    key:
+      | 'sbom'
+      | 'signed_release'
+      | 'provenance'
+      | 'checksums'
+      | 'verified_provenance'
+      | 'verified_source_binding'
+      | 'registry_repository_match'
+      | 'publisher_stability',
     description: string,
     when: Block['when'],
   ): void => {
@@ -121,6 +131,57 @@ export function effectiveBlocks(profile: Pick<Profile, 'block' | 'require'>): Bl
     'Published checksums are required but the latest release has none covering its assets',
     { fact: { id: 'release.checksums.published', equals: false } },
   );
+  mk(
+    'verified_provenance',
+    'A cryptographically verified release attestation is required but none was verified',
+    {
+      fact: { id: 'release.provenance.verified', equals: false },
+    },
+  );
+  mk(
+    'verified_source_binding',
+    'A verified attestation binding the release artifact to this repository and tag commit is required',
+    {
+      fact: { id: 'release.source_binding_verified', equals: false },
+    },
+  );
+  mk('registry_repository_match', 'A published package does not point back to this repository', {
+    any: [
+      { fact: { id: 'registry.repository_match', equals: 'conflicting' } },
+      { fact: { id: 'registry.repository_match', equals: 'missing' } },
+    ],
+  } as Block['when']);
+  mk(
+    'publisher_stability',
+    'A recent version was published by an account new to the sampled publish history',
+    {
+      fact: { id: 'registry.publisher_stable', equals: false },
+    },
+  );
+  return out;
+}
+
+/** Evaluate `temporal_block` rules against a timeline. A pattern that cannot be evaluated never blocks. */
+export function evaluateTemporalBlocks(
+  blocks: Profile['temporal_block'],
+  timeline: Timeline,
+): BlockViolation[] {
+  const out: BlockViolation[] = [];
+  for (const b of blocks) {
+    const hits =
+      typeof b.pattern === 'string'
+        ? timeline.correlations.filter((c) => c.pattern_id === b.pattern)
+        : correlate(timeline.events, [b.pattern]);
+    const first = hits[0];
+    if (first)
+      out.push({
+        id: b.id,
+        description: b.description,
+        reason: 'condition_true',
+        evidence: first.event_ids,
+        missing: [],
+      });
+  }
   return out;
 }
 
