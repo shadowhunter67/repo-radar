@@ -24,6 +24,8 @@ issue; the script prints it as `MANUAL`, never as passed.
 
 Notes
 
+- **Methodology 0.3 (2026-10-11):** gate 5 is expected to FAIL until a fresh holdout is evaluated for methodology 0.3; the 0.2 holdout (`final-methodology-0.2`) was already observed once and does not validate 0.3. The gate is deliberately not relaxed.
+
 - The script reports `PASS`, `FAIL`, `MANUAL` and `SKIP` (online gates when offline). Exit code 0 only when no gate is
   `FAIL`; use `--strict` to also fail on `MANUAL`/`SKIP` (this is what a release must run).
 - Gates are intentionally conservative: a missing artifact is a `FAIL`, never a pass.

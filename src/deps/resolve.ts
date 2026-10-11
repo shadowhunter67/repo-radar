@@ -30,13 +30,55 @@ export interface ResolveOutput {
 }
 
 const MAX_CONFLICTS = 50;
+/** Same notion as manifest selection: these directories hold independent sample/tooling projects. */
+export const AUXILIARY_DIR =
+  /(?:^|\/)(?:examples?|docs?|website|tests?|tools|scripts|benchmarks?|e2e|fixtures?|testdata|samples?|demos?)\//i;
 const dirOf = (p: string): string => (p.includes('/') ? p.slice(0, p.lastIndexOf('/')) : '');
 const ECO_FLAVOR = (e: DepEcosystem): 'npm' | 'cargo' | undefined =>
   e === 'npm' ? 'npm' : e === 'crates.io' ? 'cargo' : undefined;
 
-/** Does this lockfile cover a manifest in `importerDir`? */
-const covers = (lock: LockIndex, importerDir: string): boolean =>
-  lock.dir === '' || importerDir === lock.dir || importerDir.startsWith(`${lock.dir}/`);
+/** Glob subset used by `workspaces`: a star stays inside one path segment, a double star crosses segments. */
+function globMatches(glob: string, path: string): boolean {
+  if (glob.startsWith('!') || glob.length > 200) return false;
+  const escaped = (s: string): string => s.replace(/[.+?^${}()|[\]\\]/g, (c) => `\\${c}`);
+  const re = glob
+    .replace(/^\.\//, '')
+    .replace(/\/+$/, '')
+    .split('**')
+    .map((part) => part.split('*').map(escaped).join('[^/]*'))
+    .join('(?:.*)');
+  return new RegExp(`^${re}$`).test(path);
+}
+
+/**
+ * Does this lockfile describe the manifest at `importerDir`?
+ * Only the lockfile's own directory, members the lockfile itself lists, or workspaces the root manifest declares.
+ * A manifest merely located below a root lockfile (examples/, docs/, tests/ fixtures) is an independent project and is
+ * NOT resolved against it - doing so would invent versions and false "stale lockfile" conflicts.
+ */
+function covers(
+  lock: LockIndex,
+  importerDir: string,
+  name: string | undefined,
+  manifests: ParsedManifest[],
+): boolean {
+  if (importerDir === lock.dir || lock.importers.has(importerDir)) return true;
+  // Local (workspace) package names only count for manifests inside the lockfile's own tree.
+  const inside = lock.dir === '' || importerDir.startsWith(`${lock.dir}/`);
+  if (inside && name && lock.localNames.has(normalizeName(lock.ecosystem, name))) return true;
+  if (lock.ecosystem !== 'npm') return false;
+  const root = manifests.find(
+    (m) => m.ecosystem === 'npm' && m.workspaces && dirOf(m.file) === lock.dir,
+  );
+  if (!root?.workspaces) return false;
+  const rel =
+    lock.dir === ''
+      ? importerDir
+      : importerDir.startsWith(`${lock.dir}/`)
+        ? importerDir.slice(lock.dir.length + 1)
+        : undefined;
+  return rel !== undefined && root.workspaces.some((g) => globMatches(g, rel));
+}
 
 /**
  * Map manifests + lockfiles + SBOMs onto the normalized dependency model.
@@ -83,6 +125,7 @@ export function resolveDependencies(input: ResolveInput): ResolveOutput {
       }));
     if (m.rawDepsTruncated) limitsHit.push(`${m.file}: dependency list capped`);
     const importerDir = dirOf(m.file);
+    const context: Dependency['context'] = AUXILIARY_DIR.test(m.file) ? 'auxiliary' : 'primary';
     const eco = m.ecosystem as DepEcosystem;
     const flavor = ECO_FLAVOR(eco);
 
@@ -99,7 +142,8 @@ export function resolveDependencies(input: ResolveInput): ResolveOutput {
         resolution = 'not_registry';
       } else {
         for (const lock of locksDeepestFirst) {
-          if (lock.ecosystem !== eco || !covers(lock, importerDir)) continue;
+          if (lock.ecosystem !== eco || !covers(lock, importerDir, m.name, input.manifests))
+            continue;
           const hit = lock.resolve(importerDir, r.name, r.spec);
           if (hit.versions.length === 0) continue;
           lockfilePath = lock.path;
@@ -184,6 +228,7 @@ export function resolveDependencies(input: ResolveInput): ResolveOutput {
         package: packageId(eco, r.name, resolved?.version),
         relationship,
         direct: r.direct,
+        context,
         requested,
         resolution,
         ...(resolved ? { resolved } : {}),
@@ -222,6 +267,7 @@ export function resolveDependencies(input: ResolveInput): ResolveOutput {
         package: packageId(lock.ecosystem, e.name, e.version),
         relationship: e.dev ? 'development' : e.optional ? 'optional' : 'runtime',
         direct: false,
+        context: 'primary',
         resolution: 'resolved',
         resolved: { version: e.version, source: 'lockfile', file: lock.path, confidence: 0.95 },
         other_versions: [],

@@ -1,5 +1,5 @@
 import { parse as parseToml } from 'smol-toml';
-import { parse as parseYaml } from 'yaml';
+import { parseAllDocuments } from 'yaml';
 import { sanitizeForTerminal } from '../util/text.js';
 import { type DepEcosystem, normalizeName } from './model.js';
 import { satisfies } from './semver.js';
@@ -47,6 +47,10 @@ export interface LockIndex {
   truncated: boolean;
   /** Directory the lockfile lives in ('' = repository root). */
   dir: string;
+  /** Directories (repository-relative) the lockfile itself lists as members/importers, besides its own directory. */
+  importers: Set<string>;
+  /** Cargo/uv/poetry: names of the local (workspace) packages the lockfile lists. */
+  localNames: Set<string>;
   resolve(importerDir: string, name: string, spec: string): LockResolution;
   /** go.sum: is `module@version` listed? undefined for other formats. */
   lists?(name: string, version: string): boolean;
@@ -81,6 +85,13 @@ function byNameIndex(entries: LockedEntry[]): Map<string, LockedEntry[]> {
 }
 
 const uniq = (a: string[]): string[] => [...new Set(a)];
+const joinDir = (a: string, b: string): string =>
+  [a, b]
+    .filter(Boolean)
+    .join('/')
+    .replace(/\/+/g, '/')
+    .replace(/\/\.$/, '')
+    .replace(/^\.\/?/, '');
 
 /** `importerDir` relative to the lockfile's directory, or undefined when the lockfile does not cover it. */
 function relTo(lockDir: string, importerDir: string): string | undefined {
@@ -163,9 +174,15 @@ function parsePackageLock(path: string, dir: string, text: string): LockIndex | 
     walk(j['dependencies'], '', 0);
   } else return undefined;
   const byPath = new Map(entries.map((e) => [e.path, e]));
+  const members = new Set<string>();
+  if (isObj(j['packages']))
+    for (const k of Object.keys(j['packages']))
+      if (k !== '' && !k.includes('node_modules/')) members.add(joinDir(dir, k));
   return {
     path,
     dir,
+    importers: members,
+    localNames: new Set<string>(),
     format: 'package-lock.json',
     ecosystem: 'npm',
     entries,
@@ -193,6 +210,7 @@ function parseYarnLock(path: string, dir: string, text: string): LockIndex {
   let truncated = false;
   let headers: string[] = [];
   const seenEntry = new Set<string>();
+  const yarnMembers = new Set<string>();
   for (const raw of text.split(/\r?\n/, 400_000)) {
     if (raw === '' || raw.startsWith('#')) continue;
     if (!raw.startsWith(' ') && raw.endsWith(':')) {
@@ -210,7 +228,13 @@ function parseYarnLock(path: string, dir: string, text: string): LockIndex {
         if (at <= 0) continue;
         const name = h.slice(0, at);
         const spec = h.slice(at + 1).replace(/^npm:/, '');
-        if (/^(?:workspace:|patch:|file:|link:|portal:|exec:)/.test(spec)) continue;
+        if (spec.startsWith('workspace:')) {
+          const wd = spec.slice('workspace:'.length);
+          if (wd && wd !== '.' && !wd.startsWith('^') && !wd.startsWith('~'))
+            yarnMembers.add(joinDir(dir, wd));
+          continue;
+        }
+        if (/^(?:patch:|file:|link:|portal:|exec:)/.test(spec)) continue;
         bySpec.set(`${name}@${spec}`, m[1]);
         if (entries.length >= MAX_LOCK_ENTRIES) truncated = true;
         else if (!seenEntry.has(`${name}@${m[1]}`)) {
@@ -225,6 +249,8 @@ function parseYarnLock(path: string, dir: string, text: string): LockIndex {
   return {
     path,
     dir,
+    importers: yarnMembers,
+    localNames: new Set<string>(),
     format: 'yarn.lock',
     ecosystem: 'npm',
     entries,
@@ -246,8 +272,19 @@ function parseYarnLock(path: string, dir: string, text: string): LockIndex {
 const stripPeers = (v: string): string => v.replace(/\(.*$/, '').replace(/_.*$/, '');
 
 function parsePnpmLock(path: string, dir: string, text: string): LockIndex | undefined {
-  const doc: unknown = parseYaml(text, { schema: 'core', maxAliasCount: 50, strict: false });
-  if (!isObj(doc)) return undefined;
+  // pnpm 9+ may prefix the lockfile with an environment document (`---`); the lock proper is the one with importers.
+  const docs = parseAllDocuments(text, { schema: 'core', strict: false })
+    .slice(0, 4)
+    .map((d) => d.toJS({ maxAliasCount: 50 }) as unknown)
+    .filter(isObj);
+  // The environment document is tiny; the lock proper has by far the most importers and packages.
+  const size = (d: Record<string, unknown>): number =>
+    ['importers', 'packages', 'snapshots'].reduce(
+      (n, k) => n + (isObj(d[k]) ? Object.keys(d[k]).length : 0),
+      0,
+    );
+  const doc = [...docs].sort((a, b) => size(b) - size(a))[0];
+  if (!doc) return undefined;
   const entries: LockedEntry[] = [];
   let truncated = false;
   const seen = new Set<string>();
@@ -293,6 +330,8 @@ function parsePnpmLock(path: string, dir: string, text: string): LockIndex | und
   return {
     path,
     dir,
+    importers: new Set([...importers.keys()].filter((k) => k !== '').map((k) => joinDir(dir, k))),
+    localNames: new Set<string>(),
     format: 'pnpm-lock.yaml',
     ecosystem: 'npm',
     entries,
@@ -323,6 +362,8 @@ function parseTomlLock(
   if (!Array.isArray(t['package'])) return undefined;
   const entries: LockedEntry[] = [];
   let truncated = false;
+  const localNames = new Set<string>();
+  const members = new Set<string>();
   for (const p of t['package']) {
     if (!isObj(p)) continue;
     const name = str(p['name']);
@@ -339,6 +380,13 @@ function parseTomlLock(
       break;
     }
     entries.push({ name, version, path: '', ...(local ? { local: true } : {}) });
+    if (local) {
+      localNames.add(normalizeName(ecosystem, name));
+      const sd = isObj(src)
+        ? (str(src['editable']) ?? str(src['virtual']) ?? str(src['directory']))
+        : undefined;
+      if (sd && sd !== '.') members.add(joinDir(dir, sd));
+    }
   }
   const idx = byNameIndex(entries);
   const key = (n: string): string => normalizeName(ecosystem, n);
@@ -347,6 +395,8 @@ function parseTomlLock(
   return {
     path,
     dir,
+    importers: members,
+    localNames,
     format,
     ecosystem,
     entries,
@@ -383,6 +433,8 @@ function parseGoSum(path: string, dir: string, text: string): LockIndex {
   return {
     path,
     dir,
+    importers: new Set<string>(),
+    localNames: new Set<string>(),
     format: 'go.sum',
     ecosystem: 'Go',
     entries,

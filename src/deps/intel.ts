@@ -121,7 +121,7 @@ export function finalizeIntel(
   flags: IntelFlags,
 ): DependencyIntel {
   const { deps } = st;
-  const direct = deps.filter((d) => d.direct === true);
+  const direct = deps.filter((d) => d.direct === true && d.context === 'primary');
   const registryDirect = direct.filter((d) => d.resolution !== 'not_registry');
   const checked = (d: Dependency): boolean =>
     d.vulnerability.state === 'checked' || d.vulnerability.state === 'partial';
@@ -142,6 +142,7 @@ export function finalizeIntel(
   // Representative view: direct dependencies first, then vulnerable transitive ones.
   const listed = [
     ...direct,
+    ...deps.filter((d) => d.context === 'auxiliary'),
     ...deps.filter((d) => d.direct !== true && d.vulnerability.advisory_ids.length > 0),
   ].slice(0, INTEL_REPORT_LIMITS.dependencies);
   const advisories: Advisory[] = [...(vuln?.advisories ?? []), ...(dd?.advisories ?? [])];
@@ -152,7 +153,8 @@ export function finalizeIntel(
     summary: {
       discovered: deps.length,
       direct: direct.length,
-      transitive: deps.length - direct.length,
+      transitive: deps.filter((d) => d.direct === false).length,
+      auxiliary: deps.filter((d) => d.context === 'auxiliary').length,
       direct_non_registry: direct.length - registryDirect.length,
       direct_registry: registryDirect.length,
       direct_resolved_exact: registryDirect.filter((d) => d.resolution === 'resolved').length,

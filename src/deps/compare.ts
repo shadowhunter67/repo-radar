@@ -46,6 +46,29 @@ export function compareSbom(doc: SbomDocument, deps: Dependency[]): SbomComparis
 
   const libs = doc.components.filter((c) => c.category === 'library' || c.category === 'framework');
   if (libs.length === 0) {
+    const names = new Set(
+      deps
+        .filter(
+          (d) =>
+            d.direct === true &&
+            d.context === 'primary' &&
+            d.relationship === 'runtime' &&
+            d.resolution !== 'not_registry',
+        )
+        .map((d) => `${d.package.ecosystem}:${d.package.name}`),
+    );
+    // A valid but completely empty SBOM next to real dependencies is an inconsistency, not "nothing to compare".
+    if (doc.component_count === 0 && names.size > 0) {
+      base.state = 'partial';
+      base.direct_runtime_dependencies = names.size;
+      base.missing_from_sbom = cap([...names]);
+      base.confidence = 0.8;
+      base.confidence_reasons.push('the SBOM is structurally valid but lists no components at all');
+      base.notes.push(
+        `the SBOM is empty although ${names.size} direct runtime dependencies are declared`,
+      );
+      return base;
+    }
     base.notes.push('the SBOM lists no library components to compare');
     return base;
   }
@@ -83,7 +106,12 @@ export function compareSbom(doc: SbomDocument, deps: Dependency[]): SbomComparis
   // Direct runtime dependencies of registry origin, one per package.
   const expectedMap = new Map<string, Dependency>();
   for (const d of deps) {
-    if (d.direct !== true || d.relationship !== 'runtime' || d.resolution === 'not_registry')
+    if (
+      d.direct !== true ||
+      d.context !== 'primary' ||
+      d.relationship !== 'runtime' ||
+      d.resolution === 'not_registry'
+    )
       continue;
     const k = packageKey(d.package.ecosystem, d.package.name);
     const prev = expectedMap.get(k);

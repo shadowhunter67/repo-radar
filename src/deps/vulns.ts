@@ -93,7 +93,7 @@ export async function collectVulnerabilities(
             : `requested ${d.requested?.spec ? `\`${d.requested.spec}\`` : 'specification'} could not be resolved to an exact version of this revision`,
         advisory_ids: [],
       };
-      if (d.direct === true) reasons.unresolved.push(d.package.name);
+      if (d.direct === true && d.context === 'primary') reasons.unresolved.push(d.package.name);
     } else if (!OSV_ECOSYSTEM[d.package.ecosystem]) {
       d.vulnerability = {
         state: 'unsupported_ecosystem',
@@ -104,7 +104,9 @@ export async function collectVulnerabilities(
     } else queryable.push(d);
   }
 
-  const directRegistry = deps.filter((d) => d.direct === true && d.resolution !== 'not_registry');
+  const directRegistry = deps.filter(
+    (d) => d.direct === true && d.context === 'primary' && d.resolution !== 'not_registry',
+  );
   out.directTotal = directRegistry.length;
 
   if (reasons.unresolved.length > 0) {

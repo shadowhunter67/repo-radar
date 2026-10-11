@@ -146,6 +146,11 @@ export const DependencySchema = z.object({
       slsa_provenance_listed: z.boolean(),
     })
     .optional(),
+  /**
+   * `auxiliary`: declared by a manifest under examples/, docs/, tests/, tools/, website/ ... - an independent project that
+   * is not what dependents install. Auxiliary dependencies are still looked up but never dilute the coverage numbers.
+   */
+  context: z.enum(['primary', 'auxiliary']),
   manifest_path: z.string().optional(),
   lockfile_path: z.string().optional(),
   vulnerability: VulnerabilitySchema,
@@ -243,6 +248,8 @@ export const DependencyIntelSchema = z.object({
     direct: z.number(),
     transitive: z.number(),
     /** Direct dependencies that are not looked up in a registry (workspace/path/git/url). */
+    /** Dependencies declared by auxiliary manifests (examples, tests, tools...); excluded from the direct_* numbers. */
+    auxiliary: z.number(),
     direct_non_registry: z.number(),
     direct_registry: z.number(),
     direct_resolved_exact: z.number(),

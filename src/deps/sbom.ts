@@ -8,7 +8,7 @@ import {
 } from './model.js';
 
 /**
- * SBOM ingestion (CycloneDX JSON 1.2-1.6, SPDX JSON 2.2/2.3). An SBOM is attacker-controlled input and is evidence,
+ * SBOM ingestion (CycloneDX JSON 1.2-1.7, SPDX JSON 2.2/2.3). An SBOM is attacker-controlled input and is evidence,
  * not ground truth: it is validated structurally, bounded, and later compared with what the repository itself shows.
  */
 export const SBOM_LIMITS = {
@@ -128,12 +128,12 @@ function licenseNames(v: unknown): string[] {
 
 function parseCycloneDx(path: string, j: Record<string, unknown>): SbomDocument {
   const spec = clip(j['specVersion']);
-  if (!spec || !/^1\.[2-6]$/.test(spec))
+  if (!spec || !/^1\.[2-7]$/.test(spec))
     return empty(path, {
       format: 'CycloneDX',
       status: 'unsupported',
       ...(spec ? { spec_version: spec } : {}),
-      detail: `CycloneDX specVersion ${spec ?? '(missing)'} is not supported (1.2-1.6)`,
+      detail: `CycloneDX specVersion ${spec ?? '(missing)'} is not supported (1.2-1.7)`,
     });
   const components: SbomComponent[] = [];
   let truncated = false;

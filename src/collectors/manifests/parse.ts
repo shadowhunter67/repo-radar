@@ -46,6 +46,8 @@ export interface ParsedManifest {
   /** Every declared dependency with its relationship (bounded by MAX_RAW_DEPS). */
   rawDeps?: RawDependency[];
   rawDepsTruncated?: boolean;
+  /** npm/yarn `workspaces` globs (package.json); used to decide which manifests a root lockfile covers. */
+  workspaces?: string[];
 }
 
 function finishRaw(m: ParsedManifest, raw: RawDependency[]): void {
@@ -200,6 +202,16 @@ function parsePackageJson(file: string, text: string): ParsedManifest | undefine
     for (const [n, v] of Object.entries(o))
       raw.push({ name: n, spec: typeof v === 'string' ? v : '', relationship, direct: true });
   };
+  const ws = j['workspaces'];
+  const wsList = Array.isArray(ws)
+    ? ws
+    : isObj(ws) && Array.isArray(ws['packages'])
+      ? ws['packages']
+      : [];
+  const globs = wsList
+    .filter((x): x is string => typeof x === 'string' && x.length < 200)
+    .slice(0, 50);
+  if (globs.length > 0) m.workspaces = globs;
   add('dependencies', 'runtime');
   add('optionalDependencies', 'optional');
   add('peerDependencies', 'peer');
@@ -454,7 +466,7 @@ function parseCargoToml(file: string, text: string): ParsedManifest | undefined 
 
 const MAX_LOCKED = 1000;
 
-/** Extract exact (name, version) pairs suitable for OSV lookups. */
+/** Legacy helper (library API, tested): exact (name, version) pairs. The pipeline now uses src/deps (lock.ts, resolve.ts). */
 export function parseLockedPackages(file: string, text: string): LockedPackage[] {
   const base = file.split('/').pop() ?? file;
   const out: LockedPackage[] = [];

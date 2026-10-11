@@ -12,7 +12,7 @@ Report schema 0.3, methodology 0.3 (rules 84 -> 86 rules). Migration notes: [doc
 - **Dependency intelligence** (`src/deps`): a normalized dependency model (structured package identity + purl, requested spec vs resolved version, relationship, direct/transitive, resolution state, vulnerability state, provenance), readers for `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Cargo.lock`, `poetry.lock`, `uv.lock` and `go.sum`, and explicit specification kinds (exact, range, tag, branch, commit, workspace, path, url).
 - **Vulnerability pipeline**: OSV is queried only for exact versions the repository evidences (lockfile > SBOM > manifest pin); every dependency ends in an explicit state (checked, unresolved_version, lookup_failed, ...); advisories keep their source, package, version, lookup URL and timestamp.
 - **deps.dev** (optional, `--no-deps-dev`): licenses, advisory keys and provenance listing for exact versions, and "current registry candidate" for unresolved ranges (never used for vulnerability conclusions).
-- **SBOM** (optional, `--no-sbom`): CycloneDX JSON 1.2-1.6 and SPDX JSON 2.2/2.3 ingestion with resource limits, comparison with manifests/lockfiles (consistent / partial / mismatch / unable_to_compare) and findings.
+- **SBOM** (optional, `--no-sbom`): CycloneDX JSON 1.2-1.7 and SPDX JSON 2.2/2.3 ingestion with resource limits, comparison with manifests/lockfiles (consistent / partial / mismatch / unable_to_compare) and findings.
 - Report section `dependency_intel`, text section "DEPENDENCY INTELLIGENCE", facts `deps.*`, finding categories `dependency` and `sbom`, two informational rules (`supply-chain.dependency-resolution`, `supply-chain.sbom-validated`).
 
 ### Changed

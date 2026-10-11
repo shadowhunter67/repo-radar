@@ -306,3 +306,134 @@ describe('resolution precedence and honesty', () => {
     ]);
   });
 });
+
+describe('which manifests a lockfile covers (found by real-repository probes)', () => {
+  const rootLock = parseLock(
+    'package-lock.json',
+    JSON.stringify({
+      lockfileVersion: 3,
+      packages: {
+        '': { name: 'root', workspaces: ['packages/*'] },
+        'packages/a': { name: 'a', version: '1.0.0' },
+        'node_modules/dep': { version: '2.0.0' },
+      },
+    }),
+  )!;
+  const m = (file: string, deps: Record<string, string>, extra: Record<string, unknown> = {}) =>
+    parseManifest(file, JSON.stringify({ name: file, dependencies: deps, ...extra }))!;
+
+  it('an examples/ project below a root lockfile is NOT resolved against it (no invented versions or fake stale-lock conflicts)', () => {
+    const { deps, conflicts } = resolveDependencies({
+      manifests: [
+        m('package.json', { dep: '^2.0.0' }),
+        m('examples/demo/package.json', { dep: '^1.0.0' }),
+      ],
+      locks: [rootLock],
+      sboms: [],
+    });
+    const example = deps.find((d) => d.manifest_path === 'examples/demo/package.json')!;
+    expect(example.resolution).toBe('unresolved');
+    expect(example.resolved).toBeUndefined();
+    expect(conflicts).toEqual([]);
+    expect(deps.find((d) => d.manifest_path === 'package.json')?.resolved?.version).toBe('2.0.0');
+  });
+
+  it('members the lockfile lists, and workspaces the root manifest declares, are covered', () => {
+    const { deps } = resolveDependencies({
+      manifests: [
+        m('package.json', {}, { workspaces: ['packages/*'] }),
+        m('packages/a/package.json', { dep: '^2.0.0' }),
+        m('packages/b/package.json', { dep: '^2.0.0' }),
+        m('tools/c/package.json', { dep: '^2.0.0' }),
+      ],
+      locks: [rootLock],
+      sboms: [],
+    });
+    const by = Object.fromEntries(deps.map((d) => [d.manifest_path, d.resolution]));
+    expect(by['packages/a/package.json']).toBe('resolved'); // listed in the lockfile
+    expect(by['packages/b/package.json']).toBe('resolved'); // matches the workspaces glob
+    expect(by['tools/c/package.json']).toBe('unresolved'); // neither
+  });
+
+  it('a Python requirements.txt in a subdirectory does not conflict with the root uv.lock', () => {
+    const uv = parseLock(
+      'uv.lock',
+      '[[package]]\nname="click"\nversion="8.4.2"\nsource={registry="https://pypi.org/simple"}\n',
+    )!;
+    const req = parseManifest('examples/celery/requirements.txt', 'click==8.1.3\n')!;
+    const { deps, conflicts } = resolveDependencies({ manifests: [req], locks: [uv], sboms: [] });
+    expect(conflicts).toEqual([]);
+    expect(deps[0]?.resolved).toMatchObject({ version: '8.1.3', source: 'manifest_pin' });
+  });
+
+  it('a Cargo workspace member is covered because the root Cargo.lock lists it as a local package', () => {
+    const lock = parseLock(
+      'Cargo.lock',
+      '[[package]]\nname="member"\nversion="0.1.0"\n[[package]]\nname="serde"\nversion="1.0.100"\nsource="registry+x"\n',
+    )!;
+    const cargo = parseManifest(
+      'crates/member/Cargo.toml',
+      '[package]\nname="member"\n[dependencies]\nserde="1"\n',
+    )!;
+    const stranger = parseManifest(
+      'fuzz/Cargo.toml',
+      '[package]\nname="fuzz"\n[dependencies]\nserde="1"\n',
+    )!;
+    const { deps } = resolveDependencies({
+      manifests: [cargo, stranger],
+      locks: [lock],
+      sboms: [],
+    });
+    expect(deps.find((d) => d.manifest_path === 'crates/member/Cargo.toml')?.resolution).toBe(
+      'resolved',
+    );
+    expect(deps.find((d) => d.manifest_path === 'fuzz/Cargo.toml')?.resolution).toBe('unresolved');
+  });
+
+  it('pnpm-lock.yaml with a leading environment document (pnpm 9+) still parses', () => {
+    const text =
+      "---\nlockfileVersion: '9.0'\n\nimporters:\n\n  .:\n    packageManagerDependencies:\n      pnpm:\n        specifier: 12.4.1\n        version: 12.4.1\n\npackages:\n\n  'pnpm@12.4.1': {}\n\n---\nlockfileVersion: '9.0'\nimporters:\n  .:\n    dependencies:\n      react:\n        specifier: ^18.0.0\n        version: 18.2.0\n  packages/a:\n    dependencies:\n      react:\n        specifier: ^18.0.0\n        version: 18.2.0\npackages:\n  react@18.2.0: {}\n";
+    const lock = parseLock('pnpm-lock.yaml', text)!;
+    expect(lock).toBeDefined();
+    expect(lock.resolve('', 'react', '^18.0.0').versions).toEqual(['18.2.0']);
+    expect(lock.importers.has('packages/a')).toBe(true);
+  });
+});
+
+describe('auxiliary projects and nested lockfiles (found by real-repository probes)', () => {
+  it('a nested Cargo.lock does not cover a crate elsewhere just because it lists a same-named path crate', () => {
+    const fuzzLock = parseLock(
+      'fuzz/Cargo.lock',
+      '[[package]]\nname="globset"\nversion="0.4.0"\n[[package]]\nname="regex"\nversion="1.0.0"\nsource="registry+x"\n',
+    )!;
+    const crate = parseManifest(
+      'crates/globset/Cargo.toml',
+      '[package]\nname="globset"\n[dependencies]\nregex="1.5"\n',
+    )!;
+    const { deps, conflicts } = resolveDependencies({
+      manifests: [crate],
+      locks: [fuzzLock],
+      sboms: [],
+    });
+    expect(deps[0]?.resolution).toBe('unresolved');
+    expect(conflicts).toEqual([]);
+  });
+
+  it('dependencies of examples/ and tests/ manifests are auxiliary: kept, but they do not dilute coverage', () => {
+    const { deps } = resolveDependencies({
+      manifests: [
+        parseManifest('package.json', JSON.stringify({ name: 'r', dependencies: { a: '1.0.0' } }))!,
+        parseManifest(
+          'examples/x/package.json',
+          JSON.stringify({ name: 'x', dependencies: { b: '^1.0.0' } }),
+        )!,
+      ],
+      locks: [],
+      sboms: [],
+    });
+    expect(deps.map((d) => [d.package.name, d.context])).toEqual([
+      ['a', 'primary'],
+      ['b', 'auxiliary'],
+    ]);
+  });
+});

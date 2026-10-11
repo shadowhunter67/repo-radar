@@ -1681,6 +1681,9 @@
             "transitive": {
               "type": "number"
             },
+            "auxiliary": {
+              "type": "number"
+            },
             "direct_non_registry": {
               "type": "number"
             },
@@ -1731,6 +1734,7 @@
             "discovered",
             "direct",
             "transitive",
+            "auxiliary",
             "direct_non_registry",
             "direct_registry",
             "direct_resolved_exact",
@@ -2065,6 +2069,13 @@
                 ],
                 "additionalProperties": false
               },
+              "context": {
+                "type": "string",
+                "enum": [
+                  "primary",
+                  "auxiliary"
+                ]
+              },
               "manifest_path": {
                 "type": "string"
               },
@@ -2121,6 +2132,7 @@
               "direct",
               "resolution",
               "other_versions",
+              "context",
               "vulnerability",
               "derived_from",
               "confidence"

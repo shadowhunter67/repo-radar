@@ -7,7 +7,7 @@ repo-radar is a **stateless, read-only** pipeline. Nothing from an analyzed repo
                  |  GitHub API / raw files     OpenSSF Scorecard API        OSV API         |
                  +-----------+-------------------------+-------------------------+---------+
                              v                         v                         v
- Collectors      src/collectors/github/*        src/collectors/scorecard.ts   src/collectors/osv.ts
+ Collectors      src/collectors/github/*        src/collectors/scorecard.ts   src/deps/vulns.ts
                  (tree, workflows, README, manifests)   (host-allowlisted, size-capped HttpClient)
                              |  Evidence[] + Diagnostics[]  (+ RepoSnapshot for identity)
                              v
@@ -62,7 +62,7 @@ capabilities / dependency graph / execution graph -> applicability engine -> rul
 | Identity layers | Artifact type, domain, alternatives, capabilities and a deterministic purpose sentence (heuristic) |
 | Capabilities | 14 capabilities, line-oriented detectors, contexts (install, build, runtime), persistence kinds, secret candidates |
 | Execution graph | npm lifecycle traced in depth; other ecosystems list build roots; compound download-and-execute chains |
-| Dependency graph | Not built (exact-version OSV lookups only; deps.dev and transitive resolution are planned) |
+| Dependency model | Built in 0.3 (`src/deps`): normalized packages, lockfile resolution, OSV on exact versions, optional deps.dev, SBOM ingest/compare ([dependencies.md](dependencies.md)). No transitive resolution without a lockfile; no Maven/Gradle yet. |
 | Applicability engine | Minimal: `applies_when` conditions on rules. Artifact-type-driven applicability (library vs service) is planned |
 | Rule packs | One YAML pack per dimension, loaded by directory; versioned by digest. Versioned third-party standard packs (`slsa@x`, `nist-ssdf@x`) are planned |
 | Dynamic analysis / sandbox | Not built, deliberately: see the isolation requirements in [roadmap.md](roadmap.md) |

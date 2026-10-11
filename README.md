@@ -137,7 +137,7 @@ capabilities)](examples/nvm.report.txt), [Hello-World JSON](examples/hello-world
 Collectors -> Normalized Evidence -> Semantic Identity -> Rules (YAML) -> Dimension scores -> Profile -> CLI / JSON / Action
 ```
 
-- **Collectors** (GitHub REST + raw files, OpenSSF Scorecard, OSV) produce typed, timestamped, provenance-carrying **evidence** with a confidence value.
+- **Collectors** (GitHub REST + raw files, OpenSSF Scorecard, OSV, optional deps.dev) and the dependency subsystem ([docs/dependencies.md](docs/dependencies.md)) produce typed, timestamped, provenance-carrying **evidence** with a confidence value.
 - **Semantic Identity** classifies what the repository does from description, topics, manifests, README, dependencies and layout. The default classifier is a transparent keyword/structure heuristic that needs no API key; it sits behind an `IdentityClassifier` interface so an LLM classifier can be plugged in.
 - **Rules** live in [standards/](standards) as YAML, one namespace per dimension, reviewable by pull request. Each rule names the evidence ids it reads, a weight and a scoring function. The engine contains no thresholds.
 - **Scores** come with **coverage**, **confidence**, a **score range** and an **evidence trace**. Missing evidence never lowers a score; it lowers confidence. Correlated signals share one weight budget.
@@ -174,7 +174,7 @@ Tests never touch the network: GitHub, Scorecard and OSV are replaced by determi
 
 ## Data sources and attribution
 
-GitHub REST API · [OpenSSF Scorecard](https://github.com/ossf/scorecard) public API (Apache-2.0 project; only its published results are read) · [OSV](https://osv.dev) (advisory data under the licenses of each source database). Rule ideas draw on public work from OpenSSF (Scorecard, Best Practices, SLSA) and CHAOSS; no code or text from those projects is copied. Not yet integrated: deps.dev, OpenSSF Best Practices badge API (see roadmap).
+GitHub REST API · [OpenSSF Scorecard](https://github.com/ossf/scorecard) public API (Apache-2.0 project; only its published results are read) · [OSV](https://osv.dev) (advisory data under the licenses of each source database). Rule ideas draw on public work from OpenSSF (Scorecard, Best Practices, SLSA) and CHAOSS; no code or text from those projects is copied. [deps.dev](https://deps.dev) (optional; data under CC-BY-4.0). Not yet integrated: OpenSSF Best Practices badge API (see roadmap).
 
 ## License
 

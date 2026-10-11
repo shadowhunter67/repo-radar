@@ -76,11 +76,13 @@ export async function enrichWithDepsDev(
         d.resolved &&
         SYSTEM[d.package.ecosystem],
     )
+    .sort((a, b) => Number(b.context === 'primary') - Number(a.context === 'primary'))
     .slice(0, DEPSDEV_LIMITS.maxVersionLookups);
   const candidateTargets = deps
     .filter(
       (d) =>
         d.direct === true &&
+        d.context === 'primary' &&
         d.resolution === 'unresolved' &&
         (d.package.ecosystem === 'npm' || d.package.ecosystem === 'crates.io') &&
         (d.requested?.kind === 'range' || d.requested?.kind === 'tag'),

@@ -65,6 +65,8 @@ async function worker() {
           ...(token ? { token } : {}),
           scorecard: false,
           osv: false,
+          depsDev: false,
+          sbom: false,
         });
         writeFileSync(file, JSON.stringify(report));
       }
@@ -76,7 +78,7 @@ async function worker() {
     }
   }
 }
-await Promise.all(Array.from({ length: Number(opt('--concurrency', '3')) }, worker));
+await Promise.all(Array.from({ length: Number(opt('--concurrency', '1')) }, worker));
 
 const result = {
   dataset_version: corpus.dataset.version,

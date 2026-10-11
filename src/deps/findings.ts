@@ -40,7 +40,11 @@ export function buildDependencyFindings(intel: DependencyIntel): Finding[] {
   // Unresolved direct registry dependencies (aggregate).
   const s = intel.summary;
   const unresolved = deps.filter(
-    (d) => d.direct === true && d.resolution !== 'resolved' && d.resolution !== 'not_registry',
+    (d) =>
+      d.direct === true &&
+      d.context === 'primary' &&
+      d.resolution !== 'resolved' &&
+      d.resolution !== 'not_registry',
   );
   if (unresolved.length > 0 || s.direct_unresolved + s.direct_ambiguous > 0) {
     const total = s.direct_unresolved + s.direct_ambiguous;
@@ -165,7 +169,7 @@ export function buildDependencyFindings(intel: DependencyIntel): Finding[] {
       rule_ids: [],
       ...base,
       summary: `${name(d.detail ?? d.status)}. It was ignored; no SBOM-based statement is made about this repository.`,
-      remediation: 'Publish a valid CycloneDX (1.2-1.6) or SPDX (2.2/2.3) JSON document.',
+      remediation: 'Publish a valid CycloneDX (1.2-1.7) or SPDX (2.2/2.3) JSON document.',
     });
 
   // Lookup that could not be done.

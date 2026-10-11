@@ -320,3 +320,14 @@ describe('source precedence and conflicts across lockfile, SBOM and manifest', (
     expect(deps[0]?.resolved).toBeUndefined();
   });
 });
+
+describe('empty SBOM (found on mongodb/mongo-go-driver)', () => {
+  it('a valid SBOM with zero components next to declared dependencies is partial, not "unable to compare"', () => {
+    const empty = parseSbom('sbom.json', cdx([]));
+    const c = compareSbom(empty, depsFor({ a: '^1.0.0' }, { a: '1.0.0' }));
+    expect(c.state).toBe('partial');
+    expect(c.missing_from_sbom).toEqual(['npm:a']);
+    expect(c.notes[0]).toMatch(/empty/);
+    expect(compareSbom(empty, []).state).toBe('unable_to_compare');
+  });
+});

@@ -330,6 +330,26 @@ describe('deps.dev is optional and never decides safety', () => {
   });
 });
 
+describe('auxiliary manifests do not dilute coverage', () => {
+  it('example projects are listed but excluded from the direct_* numbers and the OSV coverage ratio', async () => {
+    const spec = withFiles({
+      'package.json': pkg({ a: '^1.0.0' }),
+      'package-lock.json': lockOf({ a: '1.2.0' }),
+      'examples/demo/package.json': pkg({ x: '^1.0.0', y: '^1.0.0', z: '^1.0.0' }),
+    });
+    const { r } = await run(spec);
+    expect(r.dependency_intel.summary).toMatchObject({
+      direct: 1,
+      direct_registry: 1,
+      direct_resolved_exact: 1,
+      direct_unresolved: 0,
+      auxiliary: 3,
+    });
+    expect(r.evidence.find((e) => e.id === 'osv.coverage_ratio')?.value).toBe(1);
+    expect(dep(r, 'x')).toMatchObject({ context: 'auxiliary', resolution: 'unresolved' });
+  });
+});
+
 describe('SBOM in the repository', () => {
   const sbom = (components: unknown[]) =>
     JSON.stringify({ bomFormat: 'CycloneDX', specVersion: '1.5', components });

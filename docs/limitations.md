@@ -19,10 +19,14 @@ Plain statements of what repo-radar v0.2 cannot do or does badly.
   Branch-Protection check helps only when Scorecard has data).
 - A SECURITY policy is also looked for in the owner's `.github` repository; other organization-level settings are not seen.
 - Scorecard data is whatever the public API last published (often weeks old; stale data lowers confidence). Many repositories have none.
-- OSV: only exact versions are queried (lockfiles, `go.mod`, pinned `requirements.txt`). npm projects without a committed lockfile are
+- OSV: only exact versions of the analyzed revision are queried (lockfile > SBOM > exact manifest pin; see [dependencies.md](dependencies.md)). npm projects without a committed lockfile are
   **not checked**, which is reported as a diagnostic, not as "clean". OSV batch results carry no severity and no reachability, so
-  "has an advisory" does not mean "exploitable". Result pagination (`next_page_token`) is not followed.
-- deps.dev, OpenSSF Best Practices badge API, SLSA verification, signature verification, SBOM parsing, license compatibility and
+  "has an advisory" does not mean "exploitable". Result pagination (`next_page_token`) is not followed (such packages are marked `partial`).
+- Dependency intelligence (0.3): transitive dependencies are known only from lockfiles; Maven/Gradle, Pipfile.lock and bun are not read;
+  Python ranges are never evaluated (only `==` pins are exact); a Go `go.mod` is the main module's requirement set, not a computed build list;
+  deps.dev metadata covers at most 40 exact and 30 candidate lookups; SBOMs published only as release assets are not fetched; an SBOM
+  comparison is evidence about SBOM/repository consistency, not about the SBOM's correctness. Every limit is a diagnostic when hit.
+- OpenSSF Best Practices badge API, SLSA verification, signature verification, license compatibility and
   secret scanning are **not** implemented. "Secret exposure indicators" are not covered.
 - Package manifests: `package.json`, `pyproject.toml`, `requirements.txt`, `go.mod`, `Cargo.toml` (root and up to depth 2, at most 6 files).
   Workspaces/monorepos are sampled, not traversed.
