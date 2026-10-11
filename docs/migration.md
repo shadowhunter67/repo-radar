@@ -1,5 +1,26 @@
 # Migration notes
 
+## 0.4 -> 0.5 (report schema 0.5, methodology 0.4)
+
+Compatibility goal: additive. Methodology stays 0.4 because no rule, weight or score input changed (86 rules in total), so scores of 0.4 and 0.5 reports are comparable.
+
+### Additive
+
+- Top level `identity_v2{}`, `retrieval{}`, `coverage_map{}`, `release_intel{}`, `governance{}`.
+- Fact scopes `release` and `governance` (`release.count`, `release.assets.count`, `release.tag.signature_verified`, `release.signature_assets.present`, `release.checksums.published`, `release.provenance.present`, `release.provenance.consistent_with_tag`, `release.correspondence`, `governance.takeover_indicators`, `governance.signals.count`); finding categories `release` and `governance`; evidence `github.commits.head_date`.
+- CLI: `diff <owner/repo> --from <ref> [--to <ref>]`, `--no-releases`, `--no-targeted-tree`; `diff <old.json> <new.json>` returns the structured historical delta (`--format json` has more fields; the old `changes` list is still there).
+- Profile keys `require` and `history_block`; the `enterprise` profile requires published checksums and blocks new install-time remote execution, new vulnerabilities and a new install hook alongside takeover indicators in a revision diff.
+- Repository model 0.2.
+
+### Changed
+
+| What | Before | Now | Why |
+| ---- | ------ | --- | --- |
+| `methodology.config_digest` | included the pinned ref | excludes it, includes the release and targeted-tree switches | Two revisions of one repository can be compared; the ref is in `subject.ref`. |
+| `enterprise` profile blocks | 3 | 4 (adds `require-checksums`) | `require:` compiles into a block; unknown does not block. |
+| Release list byte cap | 2 MB | 8 MB | Projects with many assets lost their release evidence. |
+| `schema_version`, package | `0.4`, `0.4.0` | `0.5`, `0.5.0` | New report sections. |
+
 ## 0.3 -> 0.4 (report schema 0.4, methodology 0.4)
 
 Compatibility goal: additive except the items marked **changed**. 86 rules in total (no rule added or removed).

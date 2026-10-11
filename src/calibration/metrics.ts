@@ -112,7 +112,13 @@ type CapabilityName = (typeof CAPABILITIES)[number];
 export interface Prediction {
   artifact: { value: string; confidence: number; alternatives: string[] };
   /** Identity v2 primary artifact; packaging is a separate axis (a `monorepo` label is a packaging fact). */
-  artifactV2?: { value: string; confidence: number; alternatives: string[]; multiPackage: boolean };
+  artifactV2?: {
+    value: string;
+    confidence: number;
+    alternatives: string[];
+    multiPackage: boolean;
+    packaging: string;
+  };
   domain: { value: string; confidence: number; alternatives: string[] };
   capabilities: Partial<Record<CapabilityName, { predicted: boolean; confidence: number }>>;
   automaticHooks: boolean;
@@ -139,6 +145,7 @@ export function predictionFrom(r: Report): Prediction {
           value: r.identity_v2.primary_artifact.value,
           confidence: r.identity_v2.primary_artifact.confidence,
           alternatives: r.identity_v2.primary_artifact.alternatives.map((a) => a.value),
+          packaging: r.identity_v2.packaging.value,
           multiPackage: [
             'workspace',
             'multi_package',
@@ -239,6 +246,8 @@ export interface Evaluation {
   artifact: CategoricalResult;
   /** Identity v2 primary artifact; truth `monorepo` is judged on the packaging axis. Absent for older predictions. */
   artifactV2?: CategoricalResult;
+  /** Packaging axis accuracy over repositories whose packaging was labelled. */
+  packaging?: CategoricalResult;
   domain: CategoricalResult;
   capabilities: Record<string, Prf>;
   /** Capability recall/precision restricted to repositories whose source was mostly scanned (>= 50%) vs not. */
@@ -291,6 +300,18 @@ export function evaluate(cases: Case[]): Evaluation {
           };
         })
       : undefined,
+    packaging: cases.some((c) => c.label.packaging && c.prediction.artifactV2)
+      ? categorical(
+          cases.filter((c) => c.label.packaging && c.prediction.artifactV2),
+          ({ label, prediction }) => ({
+            truth: contested(label, 'packaging') ? 'disputed' : (label.packaging as string),
+            acceptable: label.packaging_also_acceptable,
+            predicted: prediction.artifactV2?.packaging ?? 'unknown',
+            confidence: prediction.artifactV2?.confidence ?? 0,
+            alternatives: [],
+          }),
+        )
+      : undefined,
     domain: categorical(cases, ({ label, prediction }) => ({
       truth: contested(label, 'domain') ? 'disputed' : label.domain,
       acceptable: label.domain_also_acceptable,
@@ -335,6 +356,7 @@ export function renderMarkdown(title: string, e: Evaluation): string {
     '| --- | --- | --- | --- | --- | --- | --- | --- |',
     cat('artifact type', e.artifact),
     ...(e.artifactV2 ? [cat('primary artifact (identity v2)', e.artifactV2)] : []),
+    ...(e.packaging ? [cat('packaging (identity v2)', e.packaging)] : []),
     cat('domain', e.domain),
     '',
     '| Detector | n | TP | FP | FN | TN | excluded | precision | recall |',

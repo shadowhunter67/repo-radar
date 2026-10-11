@@ -123,3 +123,13 @@ All repository content (names, README, manifests, workflow YAML, tree paths) and
 - **Release/binary and governance readiness**: model entities exist as placeholders; no binary or release-asset analysis is performed yet.
 - **Policy**: profile `block:` rules reuse the compliance condition language and are evaluated in `src/scoring/policy.ts`.
 - **Compliance**: `src/compliance` (applicability engine, packs, indicators) is separate from scoring.
+
+
+## 0.5: retrieval, history, release and governance
+
+- **Retrieval** (`src/collectors/github/retrieval.ts`): one recursive tree request first; if it is truncated or too large a budgeted breadth-first walk (a `TreeFetcher` abstraction, so tests need no network) lists priority directories. The report carries `retrieval` (method, completeness, requests, nodes, bytes, listed and unread directories, `stopped_by`) and a `coverage_map` per evidence class.
+- **History** (`src/history`): `compareSnapshots(reportA, reportB)` is a pure function over two report JSONs; `compareRevisions` runs two sequential analyses with a shared `BlobCache`. Storage readiness: snapshots are plain report JSON with a stable key (repository, commit, tool/schema/methodology/rules/config digests), so a store can index them later.
+- **Release and provenance** (`src/release`, `src/collectors/github/releases.ts`): the model, checksum parser, in-toto parser, archive inspector and correspondence logic are pure and tested offline; only the collector performs requests.
+- **Governance** (`src/governance/temporal.ts`): a pure function over small samples of commits, releases and contributors.
+- **Trust-graph readiness**: repository model 0.2 has Release, ReleaseAsset, ArtifactDigest, Signature, ProvenanceRecord, Commit and Maintainer entities and RELEASES, TAGGED_AT, HAS_DIGEST, SIGNS, ATTESTS, BUILT_FROM, RELEASED relations. `PUBLISHED_BY` (package to registry publisher) is reserved: no registry publisher data is collected yet.
+- **Policy** (`src/scoring/policy.ts`): `effectiveBlocks` (blocks plus compiled `require:`), `evaluateBlocks`, `evaluateHistoryBlocks`. Organization-level configuration can later supply the same objects.

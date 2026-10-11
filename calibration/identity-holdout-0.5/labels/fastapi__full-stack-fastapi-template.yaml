@@ -1,0 +1,24 @@
+repository: fastapi/full-stack-fastapi-template
+commit: 7257e606cb94eada1dca40173e2b7f99dd549bc6
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: >-
+    Read the pinned repository's manifests, entry points and layout (git ls-tree/show on a bare clone) before the
+    analyzer was run. Only identity fields are labelled; everything else is unknown.
+  reviewers: [claude-ai-assisted]
+artifact_type: template
+artifact_also_acceptable: [application]
+domain: web
+domain_also_acceptable: []
+packaging: multi_package
+packaging_also_acceptable: [monorepo, workspace, mixed]
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

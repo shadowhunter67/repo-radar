@@ -164,3 +164,12 @@ Any change to a rule, weight, threshold or formula changes the digest; a change 
 - Identity confidence is a heuristic score (`confidence_semantics: heuristic_uncalibrated`). It is not a calibrated probability: on the 0.3 holdout the expected calibration error was about 0.33. Calibration metrics (reliability bins, ECE, abstention) are reported by `scripts/calibrate.mjs` but the score is not rescaled, because rescaling on observed data would be tuning on the holdout.
 - Low-coverage decision: coverage below 50% withholds a clean-bill ratio rather than scoring 10/10.
 - Holdout policy: a holdout is run once per (corpus, methodology) with `--final`; a second run is refused (exit 65). Changing the methodology requires a new fresh holdout. See [../calibration/README.md](../calibration/README.md).
+
+
+## 15. Identity v2 and policy (0.5)
+
+Identity v2 (`identity_v2`) is a multi-axis, structure-first description: primary artifact (with ranked alternatives), secondary roles, packaging, interfaces and deployment form. The repository name, README prose and topics are never inputs; the taxonomy keyword hint is used only for kinds that structure cannot reveal (framework, SDK, driver, tooling) and with a small weight. Every confidence stays `heuristic_uncalibrated`: it is an evidence weight, not a probability. Scores and rules are unchanged, so the methodology version stays 0.4.
+
+Measured honestly: tuned on the dev and validation splits of the original corpus it reaches 90% / 100% (optimistic: those repositories shaped it); on the fresh identity holdout `calibration/identity-holdout-0.5` it reached **63% primary-artifact accuracy (the legacy single label: 67%)**, with the packaging axis at 92%. The packaging separation works; the primary artifact is not demonstrably better than the legacy label. The holdout was run once and not used for tuning.
+
+Profiles may carry `require:` (`sbom`, `signed_release`, `provenance`, `checksums`; `true` blocks on a negative observation, `strict` also on unknown) and `history_block:` rules over a revision diff. Unknown never blocks unless the policy says `strict` / `on_unknown: block`.

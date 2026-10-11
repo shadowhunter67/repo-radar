@@ -82,3 +82,12 @@ See [bias](bias.md). In addition:
 - Dependency names are checked for non-ASCII look-alikes only; typosquatting by ASCII edit distance is not claimed.
 - Regulatory output is readiness/applicability, not a legal verdict (see [compliance.md](compliance.md)).
 - Fresh-holdout labels come from one AI-assisted reviewer; they are not human-verified.
+
+
+## Identity v2, large repositories, history, releases (0.5)
+
+- **Identity v2 is not yet more accurate than the legacy label** on an independent holdout (63% vs 67%, 16 repositories, single AI-assisted reviewer). Known failures: frameworks without a framework-specific manifest signal (fastify, gin) read as libraries; a C CLI with a Dockerfile (jq) reads as a container; C services without manifests (redis) are wrong; a CLI with a library API (bat) reads as a library; a root console script makes a framework read as a CLI (flask). Confidence values are not calibrated.
+- **Targeted retrieval is bounded, not complete.** For flink-sized repositories the walk reads about 70 directories (breadth first, CI and build directories first) and reports the rest as unread; deep module trees (kubernetes, linux, nixpkgs) are still mostly unread and the coverage map says so. Absence in such a tree proves nothing.
+- **Historical diff** compares two analyses: release assets, contributors and branch protection are current-state only; `setup.cfg` dependencies are not parsed; vulnerability severity is not available; removals in incomplete trees are inconclusive.
+- **Release intelligence** does not verify any signature or attestation; large attestation bundles are listed but not read; only GitHub releases are covered; no binary is downloaded or analyzed.
+- **Governance** uses a 100-commit window, 30 releases and the top 100 contributors; shared or renamed accounts, bots and organization changes are invisible; the takeover sequence is an indicator of a pattern that a legitimate hand-over also produces.

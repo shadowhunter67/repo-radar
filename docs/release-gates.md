@@ -34,3 +34,8 @@ Notes
 ## Methodology 0.4 (2026-10-11)
 
 Gate 5 now requires a result with `fresh_holdout: true`, `for_methodology` equal to the current methodology and `methodology_version` matching: `calibration/results/fresh-holdout-0.4-methodology-0.4.json`. It fails until that single run has been made and is never satisfied by an older methodology's holdout. Gate 14 (human label review) remains **manual**: the 0.4 labels were produced by one AI-assisted reviewer and a blind-review workflow exists (`calibration/review/README.md`) but no human has signed off, so the gate is not marked as passed.
+
+
+## 0.5 (2026-10-11)
+
+Methodology is unchanged (0.4), so the fresh holdout `fresh-holdout-0.4` still validates gate 5. A second fresh holdout, `identity-holdout-0.5`, evaluated Identity v2 once; gate 6 (identity quality audited) now includes its result, which is weaker than the tuned dev/validation numbers and is reported as such. Gate 14 remains manual: no human has reviewed any label.

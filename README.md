@@ -50,6 +50,8 @@ repo-radar analyze owner/repo --min security=70   # exit code 2 if below the flo
 repo-radar analyze owner/repo --no-scan           # skip the static capability / execution / secret scan
 repo-radar analyze owner/repo --no-deps-dev --no-sbom --no-compliance   # skip optional layers
 repo-radar diff old.json new.json                # what changed between two saved JSON reports
+repo-radar diff owner/repo --from v1.0 --to v1.1  # analyze two exact revisions and explain the change (docs/history.md)
+repo-radar analyze owner/repo --no-releases --no-targeted-tree   # skip release metadata / the large-tree walk
 repo-radar model report.json                     # unified repository model of a 0.4 report
 repo-radar profiles
 repo-radar rules security

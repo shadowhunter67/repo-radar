@@ -1,0 +1,85 @@
+{
+  "dataset_version": "0.1.0",
+  "repos": {
+    "fastify/fastify": {
+      "commit": "86368086171305df4e235f6d6bec892c67ec2ae2",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "jqlang/jq": {
+      "commit": "b904884b94ca48e025a12697ab172711e6c134d8",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "sharkdp/bat": {
+      "commit": "d9559c69f541873f8c47ac8ad81d985f4441edf6",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "gin-gonic/gin": {
+      "commit": "0f09c3a9b4626d9fe9979cf4d0521d6ae32ab646",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "pallets/jinja": {
+      "commit": "5ef70112a1ff19c05324ff889dd30405b1002044",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "grafana/k6": {
+      "commit": "b408672aacb99a48d1a62a81f40083a9067fd55e",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "etcd-io/etcd": {
+      "commit": "f061acd0902d489041448cdd19d71a345d27b9f5",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "redis/redis": {
+      "commit": "558ef8fafb508adb276fb838442f7f202fc1d7e6",
+      "branch": "unstable",
+      "pinned_on": "2026-10-11"
+    },
+    "actions/checkout": {
+      "commit": "f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "terraform-aws-modules/terraform-aws-vpc": {
+      "commit": "b3abd6df2ecf052451a361ed55b8f06f8742a795",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "fastapi/full-stack-fastapi-template": {
+      "commit": "7257e606cb94eada1dca40173e2b7f99dd549bc6",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "mozilla/pdf.js": {
+      "commit": "24176a9460ca69f4d2ea5df4577f5ac2302b6cc1",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "spring-projects/spring-petclinic": {
+      "commit": "500158f732419217507c7656904b8e6aa1bcc0d6",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "mybatis/mybatis-3": {
+      "commit": "34147d0bd2f5ed0016ef367c92b25e174149326b",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "gohugoio/hugo": {
+      "commit": "0732eadd5aead94d4bd4674d87e9bfc79aaf10a7",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "nodejs/undici": {
+      "commit": "8d2bd41e58711af0ca85053b3510218ece7632be",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    }
+  }
+}

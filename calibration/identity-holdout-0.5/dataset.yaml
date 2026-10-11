@@ -1,0 +1,40 @@
+version: '0.1.0'
+corpus_id: identity-holdout-0.5
+for_methodology: '0.4'
+fixed_split: holdout
+selection_notes: >-
+  Fresh holdout for Identity v2 (created 2026-10-11). Identity v2 (src/identity/v2.ts) was tuned ONLY on the dev and
+  validation splits of calibration/dataset.yaml. Rules: (1) none of these repositories appears in any earlier corpus or
+  was analyzed/probed by repo-radar (they are named in no calibration/results file); (2) every repository is pinned to an
+  exact commit in pins.json at fetch time and never re-pinned; (3) labels are written from the pinned source (manifests,
+  entry points, directory layout) BEFORE the analyzer is run, never from analyzer output; (4) the analyzer is run on this
+  corpus ONCE (scripts/calibrate.mjs --corpus calibration/identity-holdout-0.5 --final) and the result is frozen: no
+  tuning on it this cycle. Only the identity fields are labelled (artifact_type, packaging, domain); every other label is
+  `unknown` so it is excluded from the other metrics.
+  Coverage: framework (fastify, gin), library (jinja, undici, mybatis-3), CLI (jq, bat, k6, hugo), service (etcd, redis),
+  application (pdf.js, spring-petclinic), CI action (checkout), infrastructure (terraform-aws-vpc), template
+  (full-stack-fastapi-template), multi-module/workspace layouts (etcd, pdf.js, fastify), no-manifest C projects (jq, redis).
+review_defaults:
+  kind: ai-assisted-single
+  method: >-
+    One AI-assisted reviewer read the pinned repository's manifests, entry points and top-level layout (git ls-tree and
+    git show on a bare clone). NOT independent human review; see calibration/review/ for the blind-review workflow.
+  reviewers: [claude-ai-assisted]
+  labelled_on: '2026-10-11'
+repositories:
+  - { repo: fastify/fastify, categories: [framework, npm] }
+  - { repo: jqlang/jq, categories: [cli, c] }
+  - { repo: sharkdp/bat, categories: [cli, rust] }
+  - { repo: gin-gonic/gin, categories: [framework, go] }
+  - { repo: pallets/jinja, categories: [library, python] }
+  - { repo: grafana/k6, categories: [cli, go] }
+  - { repo: etcd-io/etcd, categories: [service, go, multi-module] }
+  - { repo: redis/redis, categories: [service, c] }
+  - { repo: actions/checkout, categories: [action, npm] }
+  - { repo: terraform-aws-modules/terraform-aws-vpc, categories: [infrastructure] }
+  - { repo: fastapi/full-stack-fastapi-template, categories: [template] }
+  - { repo: mozilla/pdf.js, categories: [application, library, npm] }
+  - { repo: spring-projects/spring-petclinic, categories: [application, jvm] }
+  - { repo: mybatis/mybatis-3, categories: [library, jvm] }
+  - { repo: gohugoio/hugo, categories: [cli, go] }
+  - { repo: nodejs/undici, categories: [library, npm] }

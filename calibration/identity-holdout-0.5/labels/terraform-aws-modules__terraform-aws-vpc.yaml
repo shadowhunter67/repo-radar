@@ -1,0 +1,22 @@
+repository: terraform-aws-modules/terraform-aws-vpc
+commit: b3abd6df2ecf052451a361ed55b8f06f8742a795
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: >-
+    Read the pinned repository's manifests, entry points and layout (git ls-tree/show on a bare clone) before the
+    analyzer was run. Only identity fields are labelled; everything else is unknown.
+  reviewers: [claude-ai-assisted]
+artifact_type: infrastructure
+artifact_also_acceptable: [template, library]
+domain: cloud
+domain_also_acceptable: []
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

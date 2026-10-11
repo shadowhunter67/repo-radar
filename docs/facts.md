@@ -32,3 +32,18 @@ confidence. Planned fact families (not implemented yet): `repo.*`, `language.*`,
 hooks (`HOOK-*`), the execution graph, the persistence summary, redacted secret candidates (`SEC-*`) and scan coverage and
 limits. `findings[]` uses `{id, title, severity, confidence, dimension, category, evidence_ids, rule_ids, standards, summary,
 remediation, intent}`; `intent` is always `"undetermined"` (capability is not intent).
+
+
+## Release and governance facts (0.5)
+
+| Fact | Meaning |
+| ---- | ------- |
+| `release.count`, `release.assets.count` | Non-draft releases listed; assets of the inspected release. |
+| `release.tag.signature_verified` | GitHub verified the annotated tag signature. Emitted only when the tag could be resolved; a failed lookup leaves it unobserved, never `false`. |
+| `release.signature_assets.present` | A signature file (.asc, .sig, .sigstore, .minisig, ...) is published next to assets. Presence only; nothing is verified. |
+| `release.checksums.published` | A non-weak checksum file covers at least one asset. |
+| `release.provenance.present` | An attestation is listed for an asset (even when its statement could not be read). |
+| `release.provenance.consistent_with_tag` | An attestation for an asset digest names the tag commit (signature not verified). |
+| `release.correspondence` | `attested_to_tag_commit`, `attestation_inconsistent`, `checksum_listed`, `tag_only` or `unlinked`. |
+| `governance.takeover_indicators` | Dormancy, a new account and a release soon after were all observed in the sampled window. Intent undetermined. |
+| `governance.signals.count` | Number of temporal signals. |

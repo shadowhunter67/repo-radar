@@ -1,0 +1,24 @@
+repository: mybatis/mybatis-3
+commit: 34147d0bd2f5ed0016ef367c92b25e174149326b
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: >-
+    Read the pinned repository's manifests, entry points and layout (git ls-tree/show on a bare clone) before the
+    analyzer was run. Only identity fields are labelled; everything else is unknown.
+  reviewers: [claude-ai-assisted]
+artifact_type: library
+artifact_also_acceptable: [framework]
+domain: database
+domain_also_acceptable: []
+packaging: single_package
+packaging_also_acceptable: []
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

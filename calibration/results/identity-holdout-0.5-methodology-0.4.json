@@ -1,0 +1,647 @@
+{
+  "corpus_id": "identity-holdout-0.5",
+  "corpus_dir": "calibration/identity-holdout-0.5",
+  "for_methodology": "0.4",
+  "dataset_version": "0.1.0",
+  "analyzer_version": "0.5.0",
+  "rules_digest": "9d4d2b08538b35e088411c9e4515a61d66294b21a47d74192fa1456f3cb0e83e",
+  "methodology_version": "0.4",
+  "evaluated_at": "2026-10-11T06:28:10.070Z",
+  "splits": [
+    "dev",
+    "validation",
+    "holdout"
+  ],
+  "holdout_evaluated": true,
+  "fresh_holdout": true,
+  "label_review_kind": "ai-assisted-single",
+  "deps_enabled": false,
+  "failures": [],
+  "by_split": {
+    "holdout": {
+      "repositories": 16,
+      "artifact": {
+        "n": 16,
+        "excluded": 0,
+        "correct": 10,
+        "abstained": 1,
+        "accuracy": 0.6666666666666666,
+        "accuracyOverall": 0.625,
+        "topKCorrect": 10,
+        "confusion": {
+          "plugin": {
+            "plugin": 1
+          },
+          "service": {
+            "monorepo": 1
+          },
+          "template": {
+            "monorepo": 1
+          },
+          "framework": {
+            "framework": 2
+          },
+          "cli": {
+            "tooling": 1,
+            "library": 1,
+            "cli": 2
+          },
+          "library": {
+            "library": 3,
+            "sdk": 1
+          },
+          "application": {
+            "library": 1
+          },
+          "infrastructure": {
+            "infrastructure": 1
+          }
+        },
+        "calibration": {
+          "n": 15,
+          "bins": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "n": 3,
+              "meanConfidence": 0.5166666666666666,
+              "accuracy": 0.3333333333333333
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "n": 10,
+              "meanConfidence": 0.6519999999999999,
+              "accuracy": 0.7
+            },
+            {
+              "range": [
+                0.8,
+                1
+              ],
+              "n": 2,
+              "meanConfidence": 0.855,
+              "accuracy": 1
+            }
+          ],
+          "ece": 0.08800000000000002,
+          "brier": 0.19907999999999998
+        }
+      },
+      "artifactV2": {
+        "n": 16,
+        "excluded": 0,
+        "correct": 10,
+        "abstained": 0,
+        "accuracy": 0.625,
+        "accuracyOverall": 0.625,
+        "topKCorrect": 13,
+        "confusion": {
+          "plugin": {
+            "plugin": 1
+          },
+          "service": {
+            "library": 2
+          },
+          "template": {
+            "library": 1
+          },
+          "framework": {
+            "library": 2
+          },
+          "cli": {
+            "cli": 2,
+            "container": 1,
+            "library": 1
+          },
+          "library": {
+            "library": 3,
+            "cli": 1
+          },
+          "application": {
+            "application": 1
+          },
+          "infrastructure": {
+            "infrastructure": 1
+          }
+        },
+        "calibration": {
+          "n": 16,
+          "bins": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "n": 6,
+              "meanConfidence": 0.32833333333333337,
+              "accuracy": 0.5
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "n": 7,
+              "meanConfidence": 0.5200000000000001,
+              "accuracy": 0.5714285714285714
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "n": 3,
+              "meanConfidence": 0.66,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.8,
+                1
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            }
+          ],
+          "ece": 0.15062499999999993,
+          "brier": 0.23604374999999997
+        }
+      },
+      "packaging": {
+        "n": 13,
+        "excluded": 0,
+        "correct": 12,
+        "abstained": 0,
+        "accuracy": 0.9230769230769231,
+        "accuracyOverall": 0.9230769230769231,
+        "topKCorrect": 12,
+        "confusion": {
+          "single_package": {
+            "single_package": 10,
+            "multi_module": 1
+          },
+          "multi_package": {
+            "monorepo": 1,
+            "mixed": 1
+          }
+        },
+        "calibration": {
+          "n": 13,
+          "bins": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "n": 6,
+              "meanConfidence": 0.32833333333333337,
+              "accuracy": 0.8333333333333334
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "n": 5,
+              "meanConfidence": 0.516,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "n": 2,
+              "meanConfidence": 0.615,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.8,
+                1
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            }
+          ],
+          "ece": 0.47846153846153855,
+          "brier": 0.30403076923076916
+        }
+      },
+      "domain": {
+        "n": 16,
+        "excluded": 0,
+        "correct": 11,
+        "abstained": 3,
+        "accuracy": 0.8461538461538461,
+        "accuracyOverall": 0.6875,
+        "topKCorrect": 11,
+        "confusion": {
+          "automation": {
+            "automation": 1
+          },
+          "database": {
+            "database": 3
+          },
+          "web": {
+            "database": 1,
+            "web": 3,
+            "developer-tooling": 1
+          },
+          "data": {
+            "developer-tooling": 1
+          },
+          "networking": {
+            "networking": 1
+          },
+          "developer-tooling": {
+            "developer-tooling": 1
+          },
+          "cloud": {
+            "cloud": 1
+          }
+        },
+        "calibration": {
+          "n": 13,
+          "bins": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "n": 2,
+              "meanConfidence": 0.29,
+              "accuracy": 0
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "n": 1,
+              "meanConfidence": 0.44,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "n": 8,
+              "meanConfidence": 0.66625,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.8,
+                1
+              ],
+              "n": 2,
+              "meanConfidence": 0.835,
+              "accuracy": 1
+            }
+          ],
+          "ece": 0.31846153846153846,
+          "brier": 0.11236923076923078
+        }
+      },
+      "capabilities": {},
+      "capabilitiesByCoverage": {
+        "high": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0,
+          "n": 0,
+          "excluded": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "low": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0,
+          "n": 0,
+          "excluded": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        }
+      },
+      "capabilityConfidence": {
+        "n": 0,
+        "bins": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.2,
+              0.4
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.4,
+              0.6
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.8,
+              1
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          }
+        ],
+        "ece": null,
+        "brier": null
+      },
+      "installHooks": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "n": 0,
+        "excluded": 16,
+        "precision": null,
+        "recall": null,
+        "f1": null
+      },
+      "persistence": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "n": 0,
+        "excluded": 16,
+        "precision": null,
+        "recall": null,
+        "f1": null
+      },
+      "secrets": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "n": 0,
+        "excluded": 16,
+        "precision": null,
+        "recall": null,
+        "f1": null
+      }
+    }
+  },
+  "dependencies": {},
+  "disagreements": {
+    "holdout": [
+      {
+        "repository": "etcd-io/etcd",
+        "field": "artifact_type",
+        "predicted": "monorepo",
+        "label": "service",
+        "confidence": 0.65,
+        "cause": "model_wrong"
+      },
+      {
+        "repository": "fastapi/full-stack-fastapi-template",
+        "field": "artifact_type",
+        "predicted": "monorepo",
+        "label": "template",
+        "confidence": 0.5,
+        "cause": "model_wrong"
+      },
+      {
+        "repository": "fastapi/full-stack-fastapi-template",
+        "field": "domain",
+        "predicted": "database",
+        "label": "web",
+        "confidence": 0.37,
+        "cause": "model_wrong"
+      },
+      {
+        "repository": "gohugoio/hugo",
+        "field": "artifact_type",
+        "predicted": "tooling",
+        "label": "cli",
+        "confidence": 0.77,
+        "cause": "model_wrong"
+      },
+      {
+        "repository": "grafana/k6",
+        "field": "artifact_type",
+        "predicted": "library",
+        "label": "cli",
+        "confidence": 0.6,
+        "cause": "model_wrong"
+      },
+      {
+        "repository": "grafana/k6",
+        "field": "domain",
+        "predicted": "unknown",
+        "label": "developer-tooling",
+        "confidence": 0.1,
+        "cause": "model_wrong"
+      },
+      {
+        "repository": "mozilla/pdf.js",
+        "field": "domain",
+        "predicted": "unknown",
+        "label": "general",
+        "confidence": 0,
+        "cause": "model_wrong"
+      },
+      {
+        "repository": "pallets/jinja",
+        "field": "domain",
+        "predicted": "unknown",
+        "label": "web",
+        "confidence": 0,
+        "cause": "model_wrong"
+      },
+      {
+        "repository": "redis/redis",
+        "field": "artifact_type",
+        "predicted": "unknown",
+        "label": "service",
+        "confidence": 0.2,
+        "cause": "model_wrong"
+      },
+      {
+        "repository": "spring-projects/spring-petclinic",
+        "field": "artifact_type",
+        "predicted": "library",
+        "label": "application",
+        "confidence": 0.48,
+        "cause": "model_wrong"
+      },
+      {
+        "repository": "spring-projects/spring-petclinic",
+        "field": "domain",
+        "predicted": "developer-tooling",
+        "label": "web",
+        "confidence": 0.21,
+        "cause": "model_wrong"
+      }
+    ]
+  },
+  "timings": [
+    {
+      "repository": "actions/checkout",
+      "ms": 8244,
+      "requests": 64
+    },
+    {
+      "repository": "etcd-io/etcd",
+      "ms": 12575,
+      "requests": 90
+    },
+    {
+      "repository": "fastapi/full-stack-fastapi-template",
+      "ms": 9529,
+      "requests": 77
+    },
+    {
+      "repository": "fastify/fastify",
+      "ms": 10078,
+      "requests": 77
+    },
+    {
+      "repository": "gin-gonic/gin",
+      "ms": 7974,
+      "requests": 63
+    },
+    {
+      "repository": "gohugoio/hugo",
+      "ms": 9615,
+      "requests": 67
+    },
+    {
+      "repository": "grafana/k6",
+      "ms": 13209,
+      "requests": 84
+    },
+    {
+      "repository": "jqlang/jq",
+      "ms": 11214,
+      "requests": 68
+    },
+    {
+      "repository": "mozilla/pdf.js",
+      "ms": 9419,
+      "requests": 81
+    },
+    {
+      "repository": "mybatis/mybatis-3",
+      "ms": 9585,
+      "requests": 68
+    },
+    {
+      "repository": "nodejs/undici",
+      "ms": 8319,
+      "requests": 71
+    },
+    {
+      "repository": "pallets/jinja",
+      "ms": 7721,
+      "requests": 53
+    },
+    {
+      "repository": "redis/redis",
+      "ms": 8318,
+      "requests": 67
+    },
+    {
+      "repository": "sharkdp/bat",
+      "ms": 8873,
+      "requests": 63
+    },
+    {
+      "repository": "spring-projects/spring-petclinic",
+      "ms": 6538,
+      "requests": 57
+    },
+    {
+      "repository": "terraform-aws-modules/terraform-aws-vpc",
+      "ms": 6100,
+      "requests": 21
+    }
+  ]
+}

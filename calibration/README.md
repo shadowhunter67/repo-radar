@@ -71,3 +71,8 @@ See also [docs/limitations.md](../docs/limitations.md) and [docs/roadmap.md](../
 `calibration/fresh-holdout-0.4/` (14 repositories, none from the earlier corpora, pinned commits in `pins.json`) is the holdout for methodology 0.4. Repositories whose analyzer output had been inspected during development were excluded. Run it once: `node scripts/calibrate.mjs --corpus calibration/fresh-holdout-0.4 --final`; a second final run of the same (corpus, methodology) is refused, and a corpus whose `for_methodology` differs from the analyzer is refused. No tuning on its result in this cycle.
 
 Labels come from one AI-assisted reviewer, not a human. The blind-review workflow (`scripts/make-review-packets.mjs`, `scripts/compare-reviews.mjs`, `calibration/review/README.md`) lets independent reviewers label packets without seeing analyzer output and reports disagreements; release gate 14 stays manual until that has been done by people.
+
+
+## Identity holdout 0.5
+
+`calibration/identity-holdout-0.5/` (16 repositories, all pinned by commit) evaluates Identity v2, which was tuned only on the dev and validation splits above. Only identity fields (artifact type, packaging, domain) are labelled; everything else is `unknown`. It was run once (`--final`); the result is in `calibration/results/identity-holdout-0.5-methodology-0.4.md` and must not be used for tuning, so the next identity iteration needs a new corpus. Labels are AI-assisted single review; the blind packets in `calibration/review/` apply to this corpus too. The label schema now also supports `packaging`, `field_status` and per-reviewer `opinions`, so disagreement is stored instead of forced into consensus.

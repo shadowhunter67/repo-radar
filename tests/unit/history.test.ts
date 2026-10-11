@@ -4,7 +4,7 @@ import { BlobCache } from '../../src/collectors/github/blobcache.js';
 import { compareSnapshots, renderHistoricalText } from '../../src/history/index.js';
 import type { Report } from '../../src/report/schema.js';
 import { installerRepo } from '../helpers/code-scenarios.js';
-import { fakeFetch, fixedClock, blobSha, type FakeSpec } from '../helpers/fake-github.js';
+import { fakeFetch, fixedClock, blobSha, sha256, type FakeSpec } from '../helpers/fake-github.js';
 import { goodRepo } from '../helpers/scenarios.js';
 
 const run = (
@@ -141,5 +141,82 @@ describe('within-run blob reuse', () => {
     c.set('o/r', blobSha('c'), 'c');
     expect(c.size).toBe(2);
     expect(c.get('o/r', undefined)).toBeUndefined();
+  });
+});
+
+describe('CLI revision mode and report text', () => {
+  it('diff <repo> --from <ref> analyzes both revisions sequentially, reuses files and prints the historical report', async () => {
+    const { main, EXIT } = await import('../../src/cli.js');
+    const { vi } = await import('vitest');
+    const spec = installerRepo();
+    vi.stubGlobal('fetch', fakeFetch(spec));
+    let out = '';
+    const code = await main(
+      [
+        'diff',
+        'acme/widget',
+        '--from',
+        'main',
+        '--to',
+        'main',
+        '--profile',
+        'enterprise',
+        '--enforce-profile',
+        '--no-scorecard',
+      ],
+      (s) => (out += s),
+      () => undefined,
+    );
+    vi.unstubAllGlobals();
+    expect(code).toBe(EXIT.OK); // identical revisions: nothing was introduced
+    expect(out).toMatch(/repo-radar historical comparison/);
+    expect(out).toMatch(/files reused/);
+    expect(out).toMatch(/comparability: comparable/);
+  });
+
+  it('usage errors: --from without exactly one repository', async () => {
+    const { main, EXIT } = await import('../../src/cli.js');
+    const code = await main(
+      ['diff', '--from', 'v1'],
+      () => undefined,
+      () => undefined,
+    );
+    expect(code).toBe(EXIT.USAGE);
+  });
+
+  it('the text report shows an EVIDENCE COVERAGE section when the tree was read only partially', async () => {
+    const { renderText } = await import('../../src/report/text.js');
+    const partial = goodRepo({ treeTooLarge: true });
+    const r = await run(partial);
+    const t = renderText(r, { ascii: true });
+    expect(t).toMatch(/EVIDENCE COVERAGE/);
+    expect(t).toMatch(/Targeted retrieval/);
+    expect(renderText(await run(goodRepo()), { ascii: true })).not.toMatch(/EVIDENCE COVERAGE/);
+  });
+
+  it('the newest STABLE release gets the detailed lookups, not a nightly pre-release', async () => {
+    const spec = goodRepo();
+    spec.releases = [
+      {
+        daysAgo: 1,
+        detail: { tag: 'nightly', commit: 'a'.repeat(40), assets: { 'n.zip': 'n' } },
+        prerelease: true,
+      },
+      {
+        daysAgo: 20,
+        detail: {
+          tag: 'v1.0.0',
+          commit: 'b'.repeat(40),
+          assets: { 'v.zip': 'v', SHA256SUMS: `${sha256('v')}  v.zip\n` },
+        },
+      },
+    ];
+    const r = await run(spec);
+    const stable = r.release_intel.releases.find((x) => x.tag === 'v1.0.0')!;
+    expect(stable.checksum_files).toHaveLength(1);
+    expect(r.release_intel.releases.find((x) => x.tag === 'nightly')!.checksum_files).toHaveLength(
+      0,
+    );
+    expect(r.facts.find((f) => f.id === 'release.checksums.published')?.value).toBe(true);
   });
 });

@@ -75,3 +75,8 @@ penalized. Do not guess to avoid `unknown`.
 - [ ] I did not open or copy any `.env` or credential file.
 - [ ] Every `unknown` is a real "could not determine"; I did not guess.
 - [ ] Notes explain every `disputed`, every ambiguous artifact type and every `sbom_consistency` verdict.
+
+
+## Review submission fields (packet version 2)
+
+Besides the label form a submission carries provenance, never personal data: a pseudonymous `reviewer.id` (an e-mail address is rejected), `reviewed_at` (ISO 8601), `label_version`, `repo_sha` (the commit you read; a submission for another commit than the pin is rejected, not compared), `independent` (you saw neither repo-radar output nor the existing labels), `decision_confidence` and per-field `field_confidence`, plus an optional `identity_v2` opinion (primary artifact, secondary roles, packaging, interfaces, deployment form). Several reviewers may submit for the same repository; their opinions are kept side by side. The comparison reports each field as `agreed`, `disagreed` (humans differ from each other), `needs_adjudication` (humans agree with each other but not with the existing label) or `uncertain` (undecided or low confidence). Contested fields are excluded from accuracy, and disagreements between analyzer and label are tagged `model_wrong`, `label_ambiguous` or `reviewers_disagree`: these are different problems and are never merged into one error rate. Nobody can mark gate 14 as satisfied by running these scripts.

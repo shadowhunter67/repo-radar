@@ -61,3 +61,8 @@ Web dashboard, database, distributed services, executing repository code, or any
 ## After 0.4
 
 Done: dependency intelligence (0.3), Python and JVM execution models, regulatory readiness packs, policy blocks, report diff, repository model, fresh-holdout procedure. Next: historical analysis over commits and tags (using the repository model), release/binary and provenance analysis, human review of the fresh-holdout labels (gate 14), paging for very large trees, Go/.NET build analysis, legal review of the regulatory packs.
+
+
+## After 0.5
+
+Done: Identity v2 representation, targeted retrieval and coverage map, historical comparison, release / provenance / governance foundations, `require` and `history_block` policy. Next: (1) human review of labels (gate 14) and a second reviewer on the identity holdout; (2) better Identity v2 structure rules for frameworks, C / Rust CLIs with libraries and services without manifests, measured on a NEW holdout; (3) registry publisher data (npm, PyPI, crates.io) for `PUBLISHED_BY` and package-publisher change signals; (4) verification of Sigstore bundles and tag signatures with a pinned trust root; (5) deeper retrieval for kubernetes-sized trees; (6) a persistent snapshot store for history over many tags.

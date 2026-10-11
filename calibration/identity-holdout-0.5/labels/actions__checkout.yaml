@@ -1,0 +1,24 @@
+repository: actions/checkout
+commit: f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: >-
+    Read the pinned repository's manifests, entry points and layout (git ls-tree/show on a bare clone) before the
+    analyzer was run. Only identity fields are labelled; everything else is unknown.
+  reviewers: [claude-ai-assisted]
+artifact_type: plugin
+artifact_also_acceptable: [extension]
+domain: automation
+domain_also_acceptable: [developer-tooling]
+packaging: single_package
+packaging_also_acceptable: []
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

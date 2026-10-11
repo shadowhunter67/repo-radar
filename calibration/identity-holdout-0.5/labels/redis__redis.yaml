@@ -1,0 +1,22 @@
+repository: redis/redis
+commit: 558ef8fafb508adb276fb838442f7f202fc1d7e6
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: >-
+    Read the pinned repository's manifests, entry points and layout (git ls-tree/show on a bare clone) before the
+    analyzer was run. Only identity fields are labelled; everything else is unknown.
+  reviewers: [claude-ai-assisted]
+artifact_type: service
+artifact_also_acceptable: []
+domain: database
+domain_also_acceptable: []
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

@@ -35,6 +35,7 @@ export interface FakeRelease {
   assets?: string[];
   draft?: boolean;
   noDate?: boolean;
+  prerelease?: boolean;
 }
 
 export interface FakeSpec {
@@ -353,6 +354,7 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
             ? {
                 tag_name: r.detail.tag,
                 name: r.detail.tag,
+                prerelease: !!r.prerelease,
                 author: { login: r.detail.publishedBy ?? 'releaser' },
                 assets: Object.entries(r.detail.assets).map(([name, content]) => ({
                   name,

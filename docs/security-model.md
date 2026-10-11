@@ -46,3 +46,11 @@ See [SECURITY.md](../SECURITY.md).
 - Lock/SBOM/TOML/YAML parsers fail closed on pathological nesting and alias bombs; package names such as `__proto__` are handled as plain strings.
 - Names and specs from dependencies are sanitized before they reach the terminal; non-ASCII names produce a finding with code points escaped.
 - Untrusted repository code is still never executed: no package manager, build tool, interpreter or container is started for the analysed repository.
+
+
+## Additions in 0.5
+
+- Release asset URLs are fetched only when they are `https://github.com/<owner>/<repo>/releases/download/...` of the analyzed repository (no userinfo, port or traversal); redirects may only go to GitHub's own asset hosts; the token is sent to `api.github.com` only. Checksum files are capped at 256 KiB, attestation JSON at 1 MiB, and base64 payloads are decoded under a size cap.
+- Asset names, checksum names and archive entry names are data: control characters, bidi overrides, backslashes, absolute paths and `..` mark a name unsafe and it is never used as a path or printed raw.
+- Archive inspection reads headers only, with entry-count, size, ratio and gunzip limits; nothing is extracted or executed. Downloaded binaries are never run.
+- Targeted tree retrieval refuses traversal, backslash and control-character paths from the tree listing and is bounded in requests, nodes, bytes, time and depth.

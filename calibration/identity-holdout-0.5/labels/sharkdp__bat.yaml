@@ -1,0 +1,24 @@
+repository: sharkdp/bat
+commit: d9559c69f541873f8c47ac8ad81d985f4441edf6
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: >-
+    Read the pinned repository's manifests, entry points and layout (git ls-tree/show on a bare clone) before the
+    analyzer was run. Only identity fields are labelled; everything else is unknown.
+  reviewers: [claude-ai-assisted]
+artifact_type: cli
+artifact_also_acceptable: [library]
+domain: developer-tooling
+domain_also_acceptable: [filesystem]
+packaging: single_package
+packaging_also_acceptable: []
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

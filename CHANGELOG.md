@@ -3,6 +3,29 @@
 All notable changes are documented here. Versioning: the CLI follows semver; the report schema and the scoring
 methodology are versioned separately (`schema_version`, `methodology.version`) and are listed per release.
 
+## [0.5.0] - unreleased
+
+Report schema 0.5, methodology 0.4 (rules unchanged: 86 -> 86 rules; scoring semantics are untouched, so the fresh holdout of methodology 0.4 stays valid). Migration notes: [docs/migration.md](docs/migration.md). Design: [docs/history.md](docs/history.md), [docs/releases.md](docs/releases.md).
+
+### Added
+
+- **Identity v2** (`identity_v2`): primary artifact, secondary roles, packaging structure, interfaces, deployment form, each with its own confidence and ranked alternatives, from structural evidence only (manifests, entry points, build files, layout, observed capabilities). A workspace is a packaging fact, never an identity. The flat `identity` is kept for compatibility. Confidence stays `heuristic_uncalibrated`.
+- **Targeted tree retrieval** (`retrieval`): when GitHub truncates the recursive tree or the response is too large, a bounded, prioritised, breadth-first walk lists CI/build directories first, then package and source roots, under explicit request/node/byte/time/depth budgets (`stopped_by` says which one ended it). The result is never presented as complete. `--no-targeted-tree` disables it.
+- **Coverage map** (`coverage_map`): per evidence class (manifest, lockfile, SBOM, CI, build config, source, documentation, release metadata) with state `complete | targeted | sampled | partial | none`; text section EVIDENCE COVERAGE.
+- **Historical comparison**: `repo-radar diff <owner/repo> --from <ref> [--to <ref>]` analyzes two exact revisions sequentially (unchanged files are reused through a within-run blob cache), and `diff <old.json> <new.json>` now produces the same structured delta: identity, dependencies (added / removed / version / exact / unresolved / source / new vulnerability / resolved / git or path / unpinned), capabilities (new / removed / risk / context), execution paths, findings, policy, compliance indicators, governance, and an interpretable risk delta whose reasons are traceable. Comparability levels (`comparable | reduced | not_directly_comparable`) withhold numeric score deltas across different methodologies; removals in an incomplete tree are `inconclusive`.
+- **Release intelligence** (`release_intel`, `--no-releases`): releases, assets (kind, digest, suspicious or duplicate names), checksum files (SHA-256/512 and weak MD5/SHA-1, BSD and GNU formats, bare per-asset digests, conflicts, traversal names), tag signature state as reported by GitHub, signature assets (present, never verified by repo-radar), GitHub artifact attestations parsed as in-toto/SLSA provenance (verification always `verification_unavailable`), and a source correspondence class. No binary is downloaded; only small checksum files from this repository's own release URLs.
+- **Archive safety** (`src/release/archive.ts`): metadata-only inspection of zip/tar/tar.gz (zip slip, absolute paths, control characters, symlinks, duplicate entries, declared-size and ratio bombs, nested archives, entry-count and gunzip limits). Nothing is extracted or executed.
+- **Governance** (`governance`): dormancy gaps, new committers and release authors after a gap, releases soon after resumed activity, release cadence, concentration; roles (contributor, committer, release author, package publisher, organization owner) kept apart; a sequence is reported as takeover risk *indicators*, intent undetermined.
+- **Policy**: `require:` (`sbom`, `signed_release`, `provenance`, `checksums`; `true` or `strict`) compiles into blocks; `history_block:` rules over a revision diff (`new_vulnerability`, `new_install_hook`, `new_install_time_remote_execution`, `new_capability`, `new_git_or_path_dependency`, `takeover_indicators_with_new_install_hook`), enforced with `--enforce-profile` on `diff --from`.
+- Facts `release.*` and `governance.*`; finding categories `release` and `governance`; repository model 0.2 with Release, ReleaseAsset, ArtifactDigest, Signature, ProvenanceRecord and Commit entities and trust-graph relations (RELEASES, TAGGED_AT, HAS_DIGEST, SIGNS, ATTESTS, BUILT_FROM, RELEASED).
+- Human-review workflow: pseudonymous reviewer ids (e-mail rejected), review timestamp, label version, reviewed commit (must equal the pin), per-field and overall confidence, independence attestation, identity v2 opinions, several reviewers per repository, field status `agreed | disagreed | uncertain | needs_adjudication`, and calibration causes `model_wrong | label_ambiguous | reviewers_disagree`. Release gate 14 is still manual.
+- New identity holdout `calibration/identity-holdout-0.5` (16 repositories, pinned), run once.
+
+### Changed
+
+- `methodology.config_digest` no longer contains the pinned ref (it is in `subject.ref`), so two revisions analyzed with the same options are comparable; it now covers the release and targeted-tree switches.
+- Release list requests may be up to 8 MiB (large projects exceeded the previous cap and lost all release evidence).
+
 ## [0.4.0] - unreleased
 
 Report schema 0.4, methodology 0.4 (rules unchanged: 86 -> 86 rules). Migration notes: [docs/migration.md](docs/migration.md). Compliance design: [docs/compliance.md](docs/compliance.md).
