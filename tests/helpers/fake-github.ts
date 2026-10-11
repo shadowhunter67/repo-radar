@@ -52,6 +52,12 @@ export interface FakeSpec {
   /** URL substrings that should answer 500 */
   failing: string[];
   treeTruncated: boolean;
+  /** The recursive tree answers with an oversized body (as for very large repositories). */
+  treeTooLarge: boolean;
+  /** With treeTruncated: how many entries the truncated recursive answer still contains. */
+  treeKeep: number;
+  /** Tree request URLs (relative to the repo) in the order they were made; filled by the fake. */
+  treeRequests: string[];
   /** override the Link header of the commit-count request (null = use a realistic one) */
   linkHeader: string | null;
   /** override the whole OSV querybatch response body */
@@ -97,6 +103,9 @@ export function baseSpec(over: Partial<FakeSpec> = {}): FakeSpec {
     rateLimited: [],
     failing: [],
     treeTruncated: false,
+    treeTooLarge: false,
+    treeKeep: -1,
+    treeRequests: [],
     linkHeader: null,
     osvRaw: null,
     depsDev: {},
@@ -214,6 +223,44 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
       });
     }
     if (path.startsWith('/git/trees/')) {
+      spec.treeRequests.push(path);
+      const m = /^\/git\/trees\/([^?]+)(\?recursive=1)?$/.exec(path);
+      const ref = decodeURIComponent(m?.[1] ?? '');
+      const recursive = !!m?.[2];
+      const isDir = ref.startsWith('tree:');
+      if (spec.treeTooLarge && recursive && !isDir)
+        return new Response('{}', { status: 200, headers: { 'content-length': '99999999' } });
+      if (isDir || spec.treeTooLarge || (spec.treeTruncated && !recursive)) {
+        const dir = isDir ? ref.slice(5) : '';
+        const prefix = dir ? dir + '/' : '';
+        const rel = Object.entries(spec.files).filter(([p]) => p.startsWith(prefix));
+        const out = new Map<string, { path: string; type: string; sha?: string; size?: number }>();
+        for (const [p, c] of rel) {
+          const sub = p.slice(prefix.length);
+          const slash = sub.indexOf('/');
+          if (recursive) {
+            const parts = sub.split('/');
+            for (let i = 1; i < parts.length; i++) {
+              const dp = parts.slice(0, i).join('/');
+              out.set(dp, { path: dp, type: 'tree', sha: 'tree:' + prefix + dp });
+            }
+            out.set(sub, { path: sub, type: 'blob', size: c.length });
+          } else if (slash < 0) out.set(sub, { path: sub, type: 'blob', size: c.length });
+          else {
+            const d = sub.slice(0, slash);
+            out.set(d, { path: d, type: 'tree', sha: 'tree:' + prefix + d });
+          }
+        }
+        return json({ tree: [...out.values()], truncated: false });
+      }
+      if (spec.treeTruncated && recursive) {
+        return json({
+          tree: Object.entries(spec.files)
+            .slice(0, spec.treeKeep < 0 ? undefined : spec.treeKeep)
+            .map(([p, c]) => ({ path: p, type: 'blob', size: c.length })),
+          truncated: true,
+        });
+      }
       return json({
         tree: Object.entries(spec.files).map(([p, c]) => ({
           path: p,

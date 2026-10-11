@@ -111,6 +111,8 @@ type CapabilityName = (typeof CAPABILITIES)[number];
 
 export interface Prediction {
   artifact: { value: string; confidence: number; alternatives: string[] };
+  /** Identity v2 primary artifact; packaging is a separate axis (a `monorepo` label is a packaging fact). */
+  artifactV2?: { value: string; confidence: number; alternatives: string[]; multiPackage: boolean };
   domain: { value: string; confidence: number; alternatives: string[] };
   capabilities: Partial<Record<CapabilityName, { predicted: boolean; confidence: number }>>;
   automaticHooks: boolean;
@@ -132,6 +134,20 @@ export function predictionFrom(r: Report): Prediction {
       confidence: r.identity.artifact_confidence,
       alternatives: r.identity.artifact_alternatives,
     },
+    artifactV2: r.identity_v2
+      ? {
+          value: r.identity_v2.primary_artifact.value,
+          confidence: r.identity_v2.primary_artifact.confidence,
+          alternatives: r.identity_v2.primary_artifact.alternatives.map((a) => a.value),
+          multiPackage: [
+            'workspace',
+            'multi_package',
+            'monorepo',
+            'multi_module',
+            'mixed',
+          ].includes(r.identity_v2.packaging.value),
+        }
+      : undefined,
     domain: {
       value: r.identity.domain,
       confidence: r.identity.confidence,
@@ -144,6 +160,10 @@ export function predictionFrom(r: Report): Prediction {
     sourceCoverage: r.code_analysis.scan.source_coverage,
   };
 }
+
+/** A field whose human reviewers disagree (or still await adjudication) is excluded from metrics, like `disputed`. */
+export const contested = (l: Label, field: string): boolean =>
+  l.field_status[field] === 'disagreed' || l.field_status[field] === 'needs_adjudication';
 
 export interface Case {
   label: Label;
@@ -217,6 +237,8 @@ function categorical(
 export interface Evaluation {
   repositories: number;
   artifact: CategoricalResult;
+  /** Identity v2 primary artifact; truth `monorepo` is judged on the packaging axis. Absent for older predictions. */
+  artifactV2?: CategoricalResult;
   domain: CategoricalResult;
   capabilities: Record<string, Prf>;
   /** Capability recall/precision restricted to repositories whose source was mostly scanned (>= 50%) vs not. */
@@ -250,14 +272,27 @@ export function evaluate(cases: Case[]): Evaluation {
   return {
     repositories: cases.length,
     artifact: categorical(cases, ({ label, prediction }) => ({
-      truth: label.artifact_type,
+      truth: contested(label, 'artifact_type') ? 'disputed' : label.artifact_type,
       acceptable: label.artifact_also_acceptable,
       predicted: prediction.artifact.value,
       confidence: prediction.artifact.confidence,
       alternatives: prediction.artifact.alternatives,
     })),
+    artifactV2: cases.every((c) => c.prediction.artifactV2)
+      ? categorical(cases, ({ label, prediction }) => {
+          const v2 = prediction.artifactV2!;
+          const monorepoTruth = label.artifact_type === 'monorepo';
+          return {
+            truth: contested(label, 'artifact_type') ? 'disputed' : label.artifact_type,
+            acceptable: label.artifact_also_acceptable,
+            predicted: monorepoTruth && v2.multiPackage ? 'monorepo' : v2.value,
+            confidence: v2.confidence,
+            alternatives: v2.alternatives,
+          };
+        })
+      : undefined,
     domain: categorical(cases, ({ label, prediction }) => ({
-      truth: label.domain,
+      truth: contested(label, 'domain') ? 'disputed' : label.domain,
       acceptable: label.domain_also_acceptable,
       predicted: prediction.domain.value,
       confidence: prediction.domain.confidence,
@@ -299,6 +334,7 @@ export function renderMarkdown(title: string, e: Evaluation): string {
     '| Identity | n | excluded | abstained | accuracy (answered) | accuracy (overall) | correct incl. alternatives | ECE |',
     '| --- | --- | --- | --- | --- | --- | --- | --- |',
     cat('artifact type', e.artifact),
+    ...(e.artifactV2 ? [cat('primary artifact (identity v2)', e.artifactV2)] : []),
     cat('domain', e.domain),
     '',
     '| Detector | n | TP | FP | FN | TN | excluded | precision | recall |',
@@ -313,6 +349,9 @@ export function renderMarkdown(title: string, e: Evaluation): string {
     row('(all capabilities) scan coverage < 50%', e.capabilitiesByCoverage.low),
     '',
     ...reliabilityLines('Artifact-type confidence', e.artifact.calibration),
+    ...(e.artifactV2
+      ? reliabilityLines('Primary-artifact (v2) confidence', e.artifactV2.calibration)
+      : []),
     ...reliabilityLines('Domain confidence', e.domain.calibration),
     `Capability confidence calibration: n=${e.capabilityConfidence.n}, ECE=${e.capabilityConfidence.ece === null ? 'n/a' : e.capabilityConfidence.ece.toFixed(2)}, Brier=${e.capabilityConfidence.brier === null ? 'n/a' : e.capabilityConfidence.brier.toFixed(2)}`,
     ...e.capabilityConfidence.bins.map(
@@ -330,6 +369,18 @@ export interface Disagreement {
   predicted: string;
   label: string;
   confidence: number | null;
+  /**
+   * Why they differ: `model_wrong` (the label is settled), `label_ambiguous` (reviewers are unsure) or `reviewers_disagree`.
+   * These are not equivalent and must not be averaged into one error rate.
+   */
+  cause: 'model_wrong' | 'label_ambiguous' | 'reviewers_disagree';
+}
+
+export function causeOf(l: Label, field: string): Disagreement['cause'] {
+  const st = l.field_status[field];
+  if (st === 'disagreed' || st === 'needs_adjudication') return 'reviewers_disagree';
+  if (st === 'uncertain') return 'label_ambiguous';
+  return 'model_wrong';
 }
 
 /** Every place where a decided label and the analyzer disagree: the reading list for fixing the model. */
@@ -350,6 +401,7 @@ export function disagreements(cases: Case[]): Disagreement[] {
         predicted: prediction.artifact.value,
         label: art,
         confidence: prediction.artifact.confidence,
+        cause: causeOf(label, 'artifact_type'),
       });
     }
     if (
@@ -364,6 +416,7 @@ export function disagreements(cases: Case[]): Disagreement[] {
         predicted: prediction.domain.value,
         label: label.domain,
         confidence: prediction.domain.confidence,
+        cause: causeOf(label, 'domain'),
       });
     }
     for (const [name, lab] of Object.entries(label.capabilities)) {
@@ -376,6 +429,7 @@ export function disagreements(cases: Case[]): Disagreement[] {
           predicted: pred.predicted ? 'observed' : 'not observed',
           label: lab,
           confidence: pred.predicted ? pred.confidence : null,
+          cause: causeOf(label, `capability:${name}`),
         });
     }
     const bin = (field: string, predicted: boolean, lab: Tri): void => {
@@ -386,6 +440,7 @@ export function disagreements(cases: Case[]): Disagreement[] {
           predicted: String(predicted),
           label: lab,
           confidence: null,
+          cause: causeOf(label, field),
         });
     };
     bin('automatic_install_hooks', prediction.automaticHooks, label.install_hooks.automatic);

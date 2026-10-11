@@ -1,5 +1,6 @@
 import type { ScannedFile } from '../analysis/types.js';
 import type { ParsedManifest } from './manifests/parse.js';
+import type { TreeRetrieval } from './github/retrieval.js';
 
 /** What the identity engine (and humans) can read about a repo, independent of scoring. */
 export interface RepoSnapshot {
@@ -32,4 +33,6 @@ export interface GithubCollection {
   fetchStats: { skippedTooLarge: number; skippedOverBudget: number };
   /** False when scanning was disabled by the caller. */
   scanned: boolean;
+  /** How the repository tree was obtained and how much of it was read. */
+  treeRetrieval: TreeRetrieval;
 }

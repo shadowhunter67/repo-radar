@@ -139,6 +139,7 @@ export function renderText(r: Report, o: TextOptions = {}): string {
   }
 
   out.push(...renderDependencies(r, s));
+  out.push(...renderCoverage(r, s, !!o.verbose));
   out.push(...renderRegulatory(r, s, !!o.verbose));
   out.push(...renderCodeAnalysis(r, s, !!o.verbose));
 
@@ -153,6 +154,38 @@ export function renderText(r: Report, o: TextOptions = {}): string {
 }
 
 /** Regulatory readiness: technical indicators and applicability; always with the legal disclaimer. */
+/** Coverage by evidence class; always shown when the tree was not read completely. */
+function renderCoverage(
+  r: Report,
+  s: (x: string, n?: number) => string,
+  verbose: boolean,
+): string[] {
+  const t = r.retrieval;
+  const incomplete = !t.complete;
+  if (!incomplete && !verbose) return [];
+  const out = ['', 'EVIDENCE COVERAGE'];
+  if (t.method === 'none')
+    out.push('  Repository tree unavailable: file-based evidence was not read.');
+  else if (t.method === 'targeted')
+    out.push(
+      `  Repository tree incomplete (${t.reason === 'github_truncated' ? 'GitHub truncated the recursive tree' : 'recursive tree too large'}). Targeted retrieval: ${t.explored.length} directories listed in ${t.requests} requests, ${t.unexplored_count} known directories unread, stopped by ${t.stopped_by}.`,
+    );
+  else if (t.github_truncated)
+    out.push('  GitHub truncated the recursive tree; file-based signals are partial.');
+  for (const [k, v] of Object.entries(r.coverage_map))
+    out.push(
+      `  ${k.padEnd(17)} ${v.state.padEnd(9)} ${v.ratio === null ? '' : pct(v.ratio) + ' '}${s(v.note, 110)}`,
+    );
+  if (t.unexplored.length > 0)
+    out.push(
+      `  unread (first): ${t.unexplored
+        .slice(0, 8)
+        .map((d) => s(d, 40))
+        .join(', ')}`,
+    );
+  return out;
+}
+
 function renderRegulatory(
   r: Report,
   s: (x: string, n?: number) => string,

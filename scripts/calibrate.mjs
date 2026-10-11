@@ -141,9 +141,9 @@ for (const s of ['dev', 'validation', 'holdout']) {
     result.dependencies[s] = de;
     md += renderDependencyMarkdown(de) + '\n';
   }
-  md += `Disagreements (${s}):\n\n| repository | field | analyzer | label | confidence |\n| --- | --- | --- | --- | --- |\n`;
+  md += `Disagreements (${s}):\n\n| repository | field | analyzer | label | confidence | cause |\n| --- | --- | --- | --- | --- | --- |\n`;
   for (const d of result.disagreements[s])
-    md += `| ${d.repository} | ${d.field} | ${d.predicted} | ${d.label} | ${d.confidence === null ? '' : Math.round(d.confidence * 100) + '%'} |\n`;
+    md += `| ${d.repository} | ${d.field} | ${d.predicted} | ${d.label} | ${d.confidence === null ? '' : Math.round(d.confidence * 100) + '%'} | ${d.cause} |\n`;
   md += '\n';
 }
 if (timings.length)

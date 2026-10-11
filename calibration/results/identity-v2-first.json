@@ -1,0 +1,1655 @@
+{
+  "corpus_id": "calibration-v0",
+  "corpus_dir": "calibration",
+  "for_methodology": null,
+  "dataset_version": "0.1.0",
+  "analyzer_version": "0.4.0",
+  "rules_digest": "9d4d2b08538b35e088411c9e4515a61d66294b21a47d74192fa1456f3cb0e83e",
+  "methodology_version": "0.4",
+  "evaluated_at": "2026-10-11T04:52:53.819Z",
+  "splits": [
+    "dev",
+    "validation"
+  ],
+  "holdout_evaluated": false,
+  "fresh_holdout": false,
+  "label_review_kind": "ai-assisted-single",
+  "deps_enabled": false,
+  "failures": [],
+  "by_split": {
+    "dev": {
+      "repositories": 22,
+      "artifact": {
+        "n": 21,
+        "excluded": 1,
+        "correct": 12,
+        "abstained": 1,
+        "accuracy": 0.6,
+        "accuracyOverall": 0.5714285714285714,
+        "topKCorrect": 15,
+        "confusion": {
+          "cli": {
+            "cli": 3,
+            "library": 3,
+            "tooling": 2
+          },
+          "application": {
+            "service": 1,
+            "library": 1,
+            "container": 1,
+            "monorepo": 1
+          },
+          "library": {
+            "library": 3,
+            "sdk": 1
+          },
+          "tooling": {
+            "monorepo": 1
+          },
+          "template": {
+            "documentation": 1
+          },
+          "framework": {
+            "framework": 1
+          },
+          "service": {
+            "library": 1
+          }
+        },
+        "calibration": {
+          "n": 20,
+          "bins": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "n": 9,
+              "meanConfidence": 0.5022222222222222,
+              "accuracy": 0.5555555555555556
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "n": 10,
+              "meanConfidence": 0.6299999999999999,
+              "accuracy": 0.6
+            },
+            {
+              "range": [
+                0.8,
+                1
+              ],
+              "n": 1,
+              "meanConfidence": 0.89,
+              "accuracy": 1
+            }
+          ],
+          "ece": 0.04449999999999996,
+          "brier": 0.223265
+        }
+      },
+      "artifactV2": {
+        "n": 21,
+        "excluded": 1,
+        "correct": 12,
+        "abstained": 1,
+        "accuracy": 0.6,
+        "accuracyOverall": 0.5714285714285714,
+        "topKCorrect": 14,
+        "confusion": {
+          "cli": {
+            "cli": 5,
+            "service": 2,
+            "library": 1
+          },
+          "application": {
+            "service": 2,
+            "library": 1,
+            "container": 1
+          },
+          "library": {
+            "library": 4
+          },
+          "tooling": {
+            "cli": 1
+          },
+          "template": {
+            "documentation": 1
+          },
+          "framework": {
+            "cli": 1
+          },
+          "service": {
+            "library": 1
+          }
+        },
+        "calibration": {
+          "n": 20,
+          "bins": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "n": 5,
+              "meanConfidence": 0.316,
+              "accuracy": 0.6
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "n": 8,
+              "meanConfidence": 0.47750000000000004,
+              "accuracy": 0.875
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "n": 7,
+              "meanConfidence": 0.6628571428571428,
+              "accuracy": 0.2857142857142857
+            },
+            {
+              "range": [
+                0.8,
+                1
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            }
+          ],
+          "ece": 0.362,
+          "brier": 0.29905999999999994
+        }
+      },
+      "domain": {
+        "n": 22,
+        "excluded": 0,
+        "correct": 15,
+        "abstained": 5,
+        "accuracy": 0.8823529411764706,
+        "accuracyOverall": 0.6818181818181818,
+        "topKCorrect": 15,
+        "confusion": {
+          "developer-tooling": {
+            "developer-tooling": 8,
+            "general": 1
+          },
+          "security": {
+            "database": 1,
+            "security": 2,
+            "developer-tooling": 1
+          },
+          "observability": {
+            "observability": 2
+          },
+          "web": {
+            "web": 1
+          },
+          "networking": {
+            "networking": 1
+          }
+        },
+        "calibration": {
+          "n": 17,
+          "bins": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "n": 7,
+              "meanConfidence": 0.26571428571428574,
+              "accuracy": 0.7142857142857143
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "n": 4,
+              "meanConfidence": 0.5149999999999999,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "n": 3,
+              "meanConfidence": 0.6766666666666666,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.8,
+                1
+              ],
+              "n": 3,
+              "meanConfidence": 0.8433333333333333,
+              "accuracy": 1
+            }
+          ],
+          "ece": 0.3835294117647059,
+          "brier": 0.23222352941176472
+        }
+      },
+      "capabilities": {
+        "PROCESS_EXEC": {
+          "tp": 8,
+          "fp": 1,
+          "fn": 4,
+          "tn": 6,
+          "n": 19,
+          "excluded": 3,
+          "precision": 0.8888888888888888,
+          "recall": 0.6666666666666666,
+          "f1": 0.761904761904762
+        },
+        "NETWORK_CLIENT": {
+          "tp": 8,
+          "fp": 0,
+          "fn": 1,
+          "tn": 8,
+          "n": 17,
+          "excluded": 5,
+          "precision": 1,
+          "recall": 0.8888888888888888,
+          "f1": 0.9411764705882353
+        },
+        "NETWORK_SERVER": {
+          "tp": 5,
+          "fp": 0,
+          "fn": 3,
+          "tn": 13,
+          "n": 21,
+          "excluded": 1,
+          "precision": 1,
+          "recall": 0.625,
+          "f1": 0.7692307692307693
+        },
+        "REMOTE_DOWNLOAD": {
+          "tp": 2,
+          "fp": 3,
+          "fn": 3,
+          "tn": 10,
+          "n": 18,
+          "excluded": 4,
+          "precision": 0.4,
+          "recall": 0.4,
+          "f1": 0.4000000000000001
+        },
+        "FILESYSTEM_WRITE": {
+          "tp": 8,
+          "fp": 0,
+          "fn": 4,
+          "tn": 6,
+          "n": 18,
+          "excluded": 4,
+          "precision": 1,
+          "recall": 0.6666666666666666,
+          "f1": 0.8
+        },
+        "DYNAMIC_CODE_LOAD": {
+          "tp": 4,
+          "fp": 3,
+          "fn": 1,
+          "tn": 9,
+          "n": 17,
+          "excluded": 5,
+          "precision": 0.5714285714285714,
+          "recall": 0.8,
+          "f1": 0.6666666666666666
+        },
+        "CREDENTIAL_ACCESS": {
+          "tp": 1,
+          "fp": 1,
+          "fn": 0,
+          "tn": 12,
+          "n": 14,
+          "excluded": 8,
+          "precision": 0.5,
+          "recall": 1,
+          "f1": 0.6666666666666666
+        },
+        "ENVIRONMENT_READ": {
+          "tp": 14,
+          "fp": 0,
+          "fn": 1,
+          "tn": 3,
+          "n": 18,
+          "excluded": 4,
+          "precision": 1,
+          "recall": 0.9333333333333333,
+          "f1": 0.9655172413793104
+        },
+        "BACKGROUND_PROCESS": {
+          "tp": 0,
+          "fp": 3,
+          "fn": 0,
+          "tn": 17,
+          "n": 20,
+          "excluded": 2,
+          "precision": 0,
+          "recall": null,
+          "f1": null
+        }
+      },
+      "capabilitiesByCoverage": {
+        "high": {
+          "tp": 20,
+          "fp": 6,
+          "fn": 3,
+          "tn": 35,
+          "n": 64,
+          "excluded": 8,
+          "precision": 0.7692307692307693,
+          "recall": 0.8695652173913043,
+          "f1": 0.8163265306122449
+        },
+        "low": {
+          "tp": 30,
+          "fp": 5,
+          "fn": 14,
+          "tn": 49,
+          "n": 98,
+          "excluded": 28,
+          "precision": 0.8571428571428571,
+          "recall": 0.6818181818181818,
+          "f1": 0.759493670886076
+        }
+      },
+      "capabilityConfidence": {
+        "n": 61,
+        "bins": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.2,
+              0.4
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.4,
+              0.6
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "n": 12,
+            "meanConfidence": 0.6841666666666666,
+            "accuracy": 0.5833333333333334
+          },
+          {
+            "range": [
+              0.8,
+              1
+            ],
+            "n": 49,
+            "meanConfidence": 0.8673469387755102,
+            "accuracy": 0.8775510204081632
+          }
+        ],
+        "ece": 0.028032786885245888,
+        "brier": 0.14192950819672132
+      },
+      "installHooks": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "tn": 17,
+        "n": 22,
+        "excluded": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "persistence": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 2,
+        "tn": 20,
+        "n": 22,
+        "excluded": 0,
+        "precision": null,
+        "recall": 0,
+        "f1": null
+      },
+      "secrets": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "tn": 19,
+        "n": 20,
+        "excluded": 2,
+        "precision": null,
+        "recall": 0,
+        "f1": null
+      }
+    },
+    "validation": {
+      "repositories": 14,
+      "artifact": {
+        "n": 14,
+        "excluded": 0,
+        "correct": 11,
+        "abstained": 0,
+        "accuracy": 0.7857142857142857,
+        "accuracyOverall": 0.7857142857142857,
+        "topKCorrect": 13,
+        "confusion": {
+          "library": {
+            "library": 5,
+            "cli": 1,
+            "monorepo": 1
+          },
+          "service": {
+            "library": 1
+          },
+          "monorepo": {
+            "monorepo": 3
+          },
+          "framework": {
+            "framework": 1
+          },
+          "application": {
+            "service": 1
+          },
+          "cli": {
+            "library": 1
+          }
+        },
+        "calibration": {
+          "n": 14,
+          "bins": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "n": 1,
+              "meanConfidence": 0.5,
+              "accuracy": 0
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "n": 13,
+              "meanConfidence": 0.6499999999999999,
+              "accuracy": 0.8461538461538461
+            },
+            {
+              "range": [
+                0.8,
+                1
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            }
+          ],
+          "ece": 0.21785714285714292,
+          "brier": 0.17609285714285713
+        }
+      },
+      "artifactV2": {
+        "n": 14,
+        "excluded": 0,
+        "correct": 14,
+        "abstained": 0,
+        "accuracy": 1,
+        "accuracyOverall": 1,
+        "topKCorrect": 14,
+        "confusion": {
+          "library": {
+            "library": 7
+          },
+          "service": {
+            "service": 1
+          },
+          "monorepo": {
+            "monorepo": 3
+          },
+          "framework": {
+            "library": 1
+          },
+          "application": {
+            "service": 1
+          },
+          "cli": {
+            "cli": 1
+          }
+        },
+        "calibration": {
+          "n": 14,
+          "bins": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "n": 6,
+              "meanConfidence": 0.32166666666666666,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "n": 3,
+              "meanConfidence": 0.4666666666666666,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "n": 5,
+              "meanConfidence": 0.63,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.8,
+                1
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            }
+          ],
+          "ece": 0.5371428571428571,
+          "brier": 0.30847142857142856
+        }
+      },
+      "domain": {
+        "n": 14,
+        "excluded": 0,
+        "correct": 9,
+        "abstained": 2,
+        "accuracy": 0.75,
+        "accuracyOverall": 0.6428571428571429,
+        "topKCorrect": 9,
+        "confusion": {
+          "developer-tooling": {
+            "developer-tooling": 5,
+            "web": 1
+          },
+          "web": {
+            "security": 1,
+            "web": 2
+          },
+          "security": {
+            "security": 1,
+            "observability": 1
+          },
+          "automation": {
+            "web": 1
+          }
+        },
+        "calibration": {
+          "n": 12,
+          "bins": [
+            {
+              "range": [
+                0,
+                0.2
+              ],
+              "n": 0,
+              "meanConfidence": null,
+              "accuracy": null
+            },
+            {
+              "range": [
+                0.2,
+                0.4
+              ],
+              "n": 5,
+              "meanConfidence": 0.28200000000000003,
+              "accuracy": 0.4
+            },
+            {
+              "range": [
+                0.4,
+                0.6
+              ],
+              "n": 3,
+              "meanConfidence": 0.49999999999999994,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.6,
+                0.8
+              ],
+              "n": 3,
+              "meanConfidence": 0.7266666666666666,
+              "accuracy": 1
+            },
+            {
+              "range": [
+                0.8,
+                1
+              ],
+              "n": 1,
+              "meanConfidence": 0.83,
+              "accuracy": 1
+            }
+          ],
+          "ece": 0.2566666666666667,
+          "brier": 0.16511666666666666
+        }
+      },
+      "capabilities": {
+        "PROCESS_EXEC": {
+          "tp": 2,
+          "fp": 3,
+          "fn": 2,
+          "tn": 5,
+          "n": 12,
+          "excluded": 2,
+          "precision": 0.4,
+          "recall": 0.5,
+          "f1": 0.4444444444444445
+        },
+        "NETWORK_CLIENT": {
+          "tp": 6,
+          "fp": 1,
+          "fn": 1,
+          "tn": 6,
+          "n": 14,
+          "excluded": 0,
+          "precision": 0.8571428571428571,
+          "recall": 0.8571428571428571,
+          "f1": 0.8571428571428571
+        },
+        "NETWORK_SERVER": {
+          "tp": 3,
+          "fp": 0,
+          "fn": 2,
+          "tn": 9,
+          "n": 14,
+          "excluded": 0,
+          "precision": 1,
+          "recall": 0.6,
+          "f1": 0.7499999999999999
+        },
+        "REMOTE_DOWNLOAD": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 1,
+          "tn": 10,
+          "n": 12,
+          "excluded": 2,
+          "precision": 1,
+          "recall": 0.5,
+          "f1": 0.6666666666666666
+        },
+        "FILESYSTEM_WRITE": {
+          "tp": 5,
+          "fp": 1,
+          "fn": 1,
+          "tn": 5,
+          "n": 12,
+          "excluded": 2,
+          "precision": 0.8333333333333334,
+          "recall": 0.8333333333333334,
+          "f1": 0.8333333333333334
+        },
+        "DYNAMIC_CODE_LOAD": {
+          "tp": 1,
+          "fp": 2,
+          "fn": 1,
+          "tn": 4,
+          "n": 8,
+          "excluded": 6,
+          "precision": 0.3333333333333333,
+          "recall": 0.5,
+          "f1": 0.4
+        },
+        "CREDENTIAL_ACCESS": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 11,
+          "n": 11,
+          "excluded": 3,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "ENVIRONMENT_READ": {
+          "tp": 11,
+          "fp": 0,
+          "fn": 1,
+          "tn": 1,
+          "n": 13,
+          "excluded": 1,
+          "precision": 1,
+          "recall": 0.9166666666666666,
+          "f1": 0.9565217391304348
+        },
+        "BACKGROUND_PROCESS": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 1,
+          "tn": 11,
+          "n": 13,
+          "excluded": 1,
+          "precision": 0,
+          "recall": 0,
+          "f1": null
+        }
+      },
+      "capabilitiesByCoverage": {
+        "high": {
+          "tp": 5,
+          "fp": 0,
+          "fn": 2,
+          "tn": 36,
+          "n": 43,
+          "excluded": 2,
+          "precision": 1,
+          "recall": 0.7142857142857143,
+          "f1": 0.8333333333333333
+        },
+        "low": {
+          "tp": 24,
+          "fp": 8,
+          "fn": 8,
+          "tn": 26,
+          "n": 66,
+          "excluded": 15,
+          "precision": 0.75,
+          "recall": 0.75,
+          "f1": 0.75
+        }
+      },
+      "capabilityConfidence": {
+        "n": 37,
+        "bins": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.2,
+              0.4
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.4,
+              0.6
+            ],
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "n": 5,
+            "meanConfidence": 0.664,
+            "accuracy": 0.8
+          },
+          {
+            "range": [
+              0.8,
+              1
+            ],
+            "n": 32,
+            "meanConfidence": 0.8625,
+            "accuracy": 0.78125
+          }
+        ],
+        "ece": 0.0886486486486487,
+        "brier": 0.17644324324324323
+      },
+      "installHooks": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "tn": 12,
+        "n": 14,
+        "excluded": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "persistence": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 14,
+        "n": 14,
+        "excluded": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null
+      },
+      "secrets": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "tn": 13,
+        "n": 14,
+        "excluded": 0,
+        "precision": null,
+        "recall": 0,
+        "f1": null
+      }
+    }
+  },
+  "dependencies": {},
+  "disagreements": {
+    "dev": [
+      {
+        "repository": "OWASP/NodeGoat",
+        "field": "artifact_type",
+        "predicted": "service",
+        "label": "application",
+        "confidence": 0.6
+      },
+      {
+        "repository": "OWASP/NodeGoat",
+        "field": "domain",
+        "predicted": "database",
+        "label": "security",
+        "confidence": 0.2
+      },
+      {
+        "repository": "OWASP/NodeGoat",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.85
+      },
+      {
+        "repository": "WebGoat/WebGoat",
+        "field": "artifact_type",
+        "predicted": "library",
+        "label": "application",
+        "confidence": 0.6
+      },
+      {
+        "repository": "WebGoat/WebGoat",
+        "field": "domain",
+        "predicted": "unknown",
+        "label": "security",
+        "confidence": 0.1
+      },
+      {
+        "repository": "WebGoat/WebGoat",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "WebGoat/WebGoat",
+        "field": "capability:NETWORK_SERVER",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "WebGoat/WebGoat",
+        "field": "capability:FILESYSTEM_WRITE",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "WebGoat/WebGoat",
+        "field": "hard_coded_secrets",
+        "predicted": "false",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "anchore/syft",
+        "field": "capability:BACKGROUND_PROCESS",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.85
+      },
+      {
+        "repository": "bower/bower",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "bower/bower",
+        "field": "capability:REMOTE_DOWNLOAD",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "digininja/DVWA",
+        "field": "artifact_type",
+        "predicted": "container",
+        "label": "application",
+        "confidence": 0.5
+      },
+      {
+        "repository": "digininja/DVWA",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "digininja/DVWA",
+        "field": "capability:DYNAMIC_CODE_LOAD",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "dtolnay/anyhow",
+        "field": "domain",
+        "predicted": "unknown",
+        "label": "developer-tooling",
+        "confidence": 0
+      },
+      {
+        "repository": "evanw/esbuild",
+        "field": "artifact_type",
+        "predicted": "monorepo",
+        "label": "tooling",
+        "confidence": 0.65
+      },
+      {
+        "repository": "evanw/esbuild",
+        "field": "capability:NETWORK_SERVER",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "gitleaks/gitleaks",
+        "field": "artifact_type",
+        "predicted": "library",
+        "label": "cli",
+        "confidence": 0.48
+      },
+      {
+        "repository": "gitleaks/gitleaks",
+        "field": "domain",
+        "predicted": "developer-tooling",
+        "label": "security",
+        "confidence": 0.2
+      },
+      {
+        "repository": "gitleaks/gitleaks",
+        "field": "capability:REMOTE_DOWNLOAD",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.75
+      },
+      {
+        "repository": "junegunn/fzf",
+        "field": "capability:REMOTE_DOWNLOAD",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.9
+      },
+      {
+        "repository": "junegunn/fzf",
+        "field": "capability:DYNAMIC_CODE_LOAD",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.7
+      },
+      {
+        "repository": "junegunn/fzf",
+        "field": "capability:CREDENTIAL_ACCESS",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.7
+      },
+      {
+        "repository": "junegunn/fzf",
+        "field": "persistence",
+        "predicted": "false",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "louislam/uptime-kuma",
+        "field": "artifact_type",
+        "predicted": "monorepo",
+        "label": "application",
+        "confidence": 0.5
+      },
+      {
+        "repository": "nodejs/node-gyp",
+        "field": "capability:NETWORK_CLIENT",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "nodejs/node-gyp",
+        "field": "capability:REMOTE_DOWNLOAD",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "nvm-sh/nvm",
+        "field": "artifact_type",
+        "predicted": "library",
+        "label": "cli",
+        "confidence": 0.48
+      },
+      {
+        "repository": "nvm-sh/nvm",
+        "field": "capability:FILESYSTEM_WRITE",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "nvm-sh/nvm",
+        "field": "capability:ENVIRONMENT_READ",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "nvm-sh/nvm",
+        "field": "capability:BACKGROUND_PROCESS",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.85
+      },
+      {
+        "repository": "nvm-sh/nvm",
+        "field": "persistence",
+        "predicted": "false",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "octocat/Hello-World",
+        "field": "domain",
+        "predicted": "unknown",
+        "label": "general",
+        "confidence": 0
+      },
+      {
+        "repository": "octocat/Spoon-Knife",
+        "field": "artifact_type",
+        "predicted": "unknown",
+        "label": "template",
+        "confidence": 0.2
+      },
+      {
+        "repository": "octocat/Spoon-Knife",
+        "field": "domain",
+        "predicted": "unknown",
+        "label": "general",
+        "confidence": 0
+      },
+      {
+        "repository": "prometheus/node_exporter",
+        "field": "artifact_type",
+        "predicted": "library",
+        "label": "service",
+        "confidence": 0.6
+      },
+      {
+        "repository": "prometheus/node_exporter",
+        "field": "capability:NETWORK_SERVER",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "prometheus/node_exporter",
+        "field": "capability:REMOTE_DOWNLOAD",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.9
+      },
+      {
+        "repository": "prometheus/node_exporter",
+        "field": "capability:DYNAMIC_CODE_LOAD",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.7
+      },
+      {
+        "repository": "prometheus/node_exporter",
+        "field": "capability:BACKGROUND_PROCESS",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.85
+      },
+      {
+        "repository": "psf/requests",
+        "field": "capability:FILESYSTEM_WRITE",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "sass/node-sass",
+        "field": "domain",
+        "predicted": "unknown",
+        "label": "developer-tooling",
+        "confidence": 0.1
+      },
+      {
+        "repository": "sass/node-sass",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "sass/node-sass",
+        "field": "capability:REMOTE_DOWNLOAD",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "sharkdp/fd",
+        "field": "capability:DYNAMIC_CODE_LOAD",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.7
+      },
+      {
+        "repository": "sindresorhus/execa",
+        "field": "capability:FILESYSTEM_WRITE",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      }
+    ],
+    "validation": [
+      {
+        "repository": "Textualize/rich",
+        "field": "artifact_type",
+        "predicted": "cli",
+        "label": "library",
+        "confidence": 0.7
+      },
+      {
+        "repository": "Textualize/rich",
+        "field": "capability:FILESYSTEM_WRITE",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "caddyserver/caddy",
+        "field": "artifact_type",
+        "predicted": "library",
+        "label": "service",
+        "confidence": 0.5
+      },
+      {
+        "repository": "caddyserver/caddy",
+        "field": "domain",
+        "predicted": "security",
+        "label": "web",
+        "confidence": 0.2
+      },
+      {
+        "repository": "caddyserver/caddy",
+        "field": "capability:DYNAMIC_CODE_LOAD",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "caddyserver/caddy",
+        "field": "capability:BACKGROUND_PROCESS",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "changesets/changesets",
+        "field": "domain",
+        "predicted": "web",
+        "label": "developer-tooling",
+        "confidence": 0.28
+      },
+      {
+        "repository": "changesets/changesets",
+        "field": "capability:NETWORK_CLIENT",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "juice-shop/juice-shop",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.85
+      },
+      {
+        "repository": "juice-shop/juice-shop",
+        "field": "hard_coded_secrets",
+        "predicted": "false",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "moment/moment",
+        "field": "domain",
+        "predicted": "unknown",
+        "label": "general",
+        "confidence": 0.1
+      },
+      {
+        "repository": "moment/moment",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.85
+      },
+      {
+        "repository": "moment/moment",
+        "field": "capability:NETWORK_CLIENT",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.8
+      },
+      {
+        "repository": "moment/moment",
+        "field": "capability:FILESYSTEM_WRITE",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.85
+      },
+      {
+        "repository": "moment/moment",
+        "field": "capability:DYNAMIC_CODE_LOAD",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.9
+      },
+      {
+        "repository": "ossf/scorecard",
+        "field": "artifact_type",
+        "predicted": "library",
+        "label": "cli",
+        "confidence": 0.6
+      },
+      {
+        "repository": "ossf/scorecard",
+        "field": "domain",
+        "predicted": "observability",
+        "label": "security",
+        "confidence": 0.2
+      },
+      {
+        "repository": "ossf/scorecard",
+        "field": "capability:NETWORK_SERVER",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "ossf/scorecard",
+        "field": "capability:DYNAMIC_CODE_LOAD",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.7
+      },
+      {
+        "repository": "puppeteer/puppeteer",
+        "field": "capability:REMOTE_DOWNLOAD",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "request/request",
+        "field": "domain",
+        "predicted": "unknown",
+        "label": "networking",
+        "confidence": 0.1
+      },
+      {
+        "repository": "tj/commander.js",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "tj/commander.js",
+        "field": "capability:ENVIRONMENT_READ",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "trpc/trpc",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "trpc/trpc",
+        "field": "capability:NETWORK_SERVER",
+        "predicted": "not observed",
+        "label": "yes",
+        "confidence": null
+      },
+      {
+        "repository": "zloirock/core-js",
+        "field": "capability:PROCESS_EXEC",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.85
+      },
+      {
+        "repository": "zloirock/core-js",
+        "field": "capability:BACKGROUND_PROCESS",
+        "predicted": "observed",
+        "label": "no",
+        "confidence": 0.85
+      }
+    ]
+  },
+  "timings": [
+    {
+      "repository": "BurntSushi/ripgrep",
+      "ms": 7107,
+      "requests": 68
+    },
+    {
+      "repository": "Marak/colors.js",
+      "ms": 4466,
+      "requests": 33
+    },
+    {
+      "repository": "OWASP/NodeGoat",
+      "ms": 5434,
+      "requests": 47
+    },
+    {
+      "repository": "Textualize/rich",
+      "ms": 5624,
+      "requests": 61
+    },
+    {
+      "repository": "WebGoat/WebGoat",
+      "ms": 6119,
+      "requests": 59
+    },
+    {
+      "repository": "anchore/syft",
+      "ms": 6082,
+      "requests": 60
+    },
+    {
+      "repository": "bower/bower",
+      "ms": 6067,
+      "requests": 60
+    },
+    {
+      "repository": "caddyserver/caddy",
+      "ms": 7865,
+      "requests": 62
+    },
+    {
+      "repository": "chalk/chalk",
+      "ms": 4108,
+      "requests": 18
+    },
+    {
+      "repository": "changesets/changesets",
+      "ms": 7100,
+      "requests": 67
+    },
+    {
+      "repository": "digininja/DVWA",
+      "ms": 5467,
+      "requests": 57
+    },
+    {
+      "repository": "dtolnay/anyhow",
+      "ms": 3658,
+      "requests": 29
+    },
+    {
+      "repository": "evanw/esbuild",
+      "ms": 7015,
+      "requests": 72
+    },
+    {
+      "repository": "expressjs/express",
+      "ms": 4617,
+      "requests": 27
+    },
+    {
+      "repository": "github/gitignore",
+      "ms": 3178,
+      "requests": 13
+    },
+    {
+      "repository": "gitleaks/gitleaks",
+      "ms": 6482,
+      "requests": 57
+    },
+    {
+      "repository": "juice-shop/juice-shop",
+      "ms": 7233,
+      "requests": 70
+    },
+    {
+      "repository": "junegunn/fzf",
+      "ms": 5798,
+      "requests": 62
+    },
+    {
+      "repository": "louislam/uptime-kuma",
+      "ms": 6176,
+      "requests": 77
+    },
+    {
+      "repository": "moment/moment",
+      "ms": 6210,
+      "requests": 61
+    },
+    {
+      "repository": "nodejs/node-gyp",
+      "ms": 5688,
+      "requests": 59
+    },
+    {
+      "repository": "nvm-sh/nvm",
+      "ms": 4774,
+      "requests": 39
+    },
+    {
+      "repository": "octocat/Hello-World",
+      "ms": 2523,
+      "requests": 14
+    },
+    {
+      "repository": "octocat/Spoon-Knife",
+      "ms": 3327,
+      "requests": 14
+    },
+    {
+      "repository": "ossf/scorecard",
+      "ms": 7480,
+      "requests": 71
+    },
+    {
+      "repository": "pallets/flask",
+      "ms": 7671,
+      "requests": 51
+    },
+    {
+      "repository": "prometheus/node_exporter",
+      "ms": 6349,
+      "requests": 60
+    },
+    {
+      "repository": "psf/requests",
+      "ms": 5523,
+      "requests": 45
+    },
+    {
+      "repository": "puppeteer/puppeteer",
+      "ms": 6158,
+      "requests": 78
+    },
+    {
+      "repository": "request/request",
+      "ms": 4753,
+      "requests": 29
+    },
+    {
+      "repository": "sass/node-sass",
+      "ms": 6526,
+      "requests": 61
+    },
+    {
+      "repository": "sharkdp/fd",
+      "ms": 4919,
+      "requests": 43
+    },
+    {
+      "repository": "sindresorhus/execa",
+      "ms": 4979,
+      "requests": 54
+    },
+    {
+      "repository": "tj/commander.js",
+      "ms": 3674,
+      "requests": 26
+    },
+    {
+      "repository": "trpc/trpc",
+      "ms": 7503,
+      "requests": 75
+    },
+    {
+      "repository": "zloirock/core-js",
+      "ms": 6292,
+      "requests": 69
+    }
+  ]
+}

@@ -43,7 +43,31 @@ const CAPABILITIES = [
   'BACKGROUND_PROCESS',
 ];
 const form = {
-  reviewer: { id: '<your id>', kind: 'human-single', labelled_on: '<YYYY-MM-DD>' },
+  reviewer: {
+    id: '<pseudonymous handle, never an e-mail address>',
+    kind: 'human-single',
+    labelled_on: '<YYYY-MM-DD>',
+  },
+  reviewed_at: '<ISO 8601 timestamp, e.g. 2026-10-12T09:30:00+07:00>',
+  label_version: '<the packet_version of this packet>',
+  repo_sha: '<the commit you read; it must equal `commit` of this packet>',
+  independent: '<true only if you saw neither repo-radar output nor the existing labels>',
+  decision_confidence: '<high | medium | low>',
+  field_confidence: { '<field name, e.g. artifact_type>': '<high | medium | low>' },
+  identity_v2: {
+    primary_artifact:
+      '<library | cli | application | service | framework | plugin | extension | sdk | driver | infrastructure | dataset | model | documentation | template | tooling | container | unknown>',
+    secondary_roles: [
+      '<library_api | cli_interface | service_component | plugin_host | plugin | workspace_root | developer_tool | build_tool | test_tool | code_generator>',
+    ],
+    packaging:
+      '<single_package | workspace | multi_package | monorepo | multi_module | mixed | unknown>',
+    interfaces: [
+      '<cli | library_api | http_server | rpc | gui | plugin_interface | build_interface | package_manager_hook | container_entrypoint | background_service>',
+    ],
+    deployment_form:
+      '<local_executable | library_dependency | server_service | container | browser_extension | mobile_app | desktop_app | build_plugin | ci_action | package | unknown>',
+  },
   artifact_type:
     '<library | application | cli | service | framework | plugin | extension | sdk | tooling | monorepo | ...>',
   artifact_also_acceptable: [],
@@ -92,7 +116,7 @@ for (const { repo } of dataset.repositories) {
   const pick = (re, max = 40) => files.filter((f) => re.test(f)).slice(0, max);
   const topLevel = [...new Set(files.map((f) => f.split('/')[0]))].slice(0, 60);
   const packet = {
-    packet_version: 1,
+    packet_version: 2,
     corpus: corpusId,
     repository: repo,
     commit,

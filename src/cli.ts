@@ -45,6 +45,7 @@ Options for analyze:
   --no-osv                   Skip the OSV vulnerability lookup
   --no-deps-dev              Skip deps.dev package metadata (licenses, current-version candidates)
   --no-compliance            Skip regulatory readiness packs and privacy/AI technical indicators
+  --no-targeted-tree         Do not walk priority directories when the recursive git tree is truncated or too large
   --no-sbom                  Do not discover or ingest SBOM files in the repository
   --ref <sha|tag|branch>     Read repository files at this revision (reproducible runs; API metadata stays current)
   --no-scan                  Skip the static capability / execution / secret scan of repository files
@@ -89,6 +90,7 @@ export async function main(
         'no-deps-dev': { type: 'boolean', default: false },
         'no-sbom': { type: 'boolean', default: false },
         'no-compliance': { type: 'boolean', default: false },
+        'no-targeted-tree': { type: 'boolean', default: false },
         'no-scan': { type: 'boolean', default: false },
         ref: { type: 'string' },
         verbose: { type: 'boolean', default: false },
@@ -185,6 +187,7 @@ export async function main(
       depsDev: !values['no-deps-dev'],
       sbom: !values['no-sbom'],
       compliance: !values['no-compliance'],
+      targetedTree: !values['no-targeted-tree'],
       codeScan: !values['no-scan'],
       ...(values.ref ? { ref: values.ref } : {}),
     });

@@ -320,6 +320,222 @@
       ],
       "additionalProperties": false
     },
+    "identity_v2": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "2"
+        },
+        "primary_artifact": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string",
+              "enum": [
+                "library",
+                "cli",
+                "application",
+                "service",
+                "framework",
+                "plugin",
+                "extension",
+                "sdk",
+                "driver",
+                "infrastructure",
+                "dataset",
+                "model",
+                "documentation",
+                "template",
+                "tooling",
+                "container",
+                "unknown"
+              ]
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "alternatives": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string",
+                    "enum": [
+                      "library",
+                      "cli",
+                      "application",
+                      "service",
+                      "framework",
+                      "plugin",
+                      "extension",
+                      "sdk",
+                      "driver",
+                      "infrastructure",
+                      "dataset",
+                      "model",
+                      "documentation",
+                      "template",
+                      "tooling",
+                      "container",
+                      "unknown"
+                    ]
+                  },
+                  "confidence": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "required": [
+                  "value",
+                  "confidence"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "value",
+            "confidence",
+            "alternatives"
+          ],
+          "additionalProperties": false
+        },
+        "secondary_roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "library_api",
+              "cli_interface",
+              "service_component",
+              "plugin_host",
+              "plugin",
+              "workspace_root",
+              "developer_tool",
+              "build_tool",
+              "test_tool",
+              "code_generator"
+            ]
+          }
+        },
+        "packaging": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string",
+              "enum": [
+                "single_package",
+                "workspace",
+                "multi_package",
+                "monorepo",
+                "multi_module",
+                "mixed",
+                "unknown"
+              ]
+            },
+            "package_count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "published_packages": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "value",
+            "package_count",
+            "published_packages"
+          ],
+          "additionalProperties": false
+        },
+        "interfaces": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "cli",
+              "library_api",
+              "http_server",
+              "rpc",
+              "gui",
+              "plugin_interface",
+              "build_interface",
+              "package_manager_hook",
+              "container_entrypoint",
+              "background_service"
+            ]
+          }
+        },
+        "deployment_form": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string",
+              "enum": [
+                "local_executable",
+                "library_dependency",
+                "server_service",
+                "container",
+                "browser_extension",
+                "mobile_app",
+                "desktop_app",
+                "build_plugin",
+                "ci_action",
+                "package",
+                "unknown"
+              ]
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "value",
+            "confidence"
+          ],
+          "additionalProperties": false
+        },
+        "domain": {
+          "type": "string"
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "confidence_semantics": {
+          "type": "string",
+          "const": "heuristic_uncalibrated"
+        }
+      },
+      "required": [
+        "version",
+        "primary_artifact",
+        "secondary_roles",
+        "packaging",
+        "interfaces",
+        "deployment_form",
+        "domain",
+        "purpose",
+        "evidence",
+        "confidence_semantics"
+      ],
+      "additionalProperties": false
+    },
     "overall": {
       "type": "object",
       "properties": {
@@ -1998,6 +2214,405 @@
         "additionalProperties": false
       }
     },
+    "retrieval": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "recursive",
+            "targeted",
+            "none"
+          ]
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "none",
+            "github_truncated",
+            "response_too_large",
+            "fetch_failed",
+            "disabled"
+          ]
+        },
+        "requests": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "nodes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "explored": {
+          "maxItems": 200,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 400
+          }
+        },
+        "unexplored": {
+          "maxItems": 25,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 400
+          }
+        },
+        "unexplored_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "stopped_by": {
+          "type": "string",
+          "enum": [
+            "complete",
+            "request_budget",
+            "node_budget",
+            "byte_budget",
+            "time_budget"
+          ]
+        },
+        "github_truncated": {
+          "type": "boolean"
+        },
+        "failed_requests": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "method",
+        "complete",
+        "reason",
+        "requests",
+        "nodes",
+        "bytes",
+        "explored",
+        "unexplored",
+        "unexplored_count",
+        "stopped_by",
+        "github_truncated",
+        "failed_requests"
+      ],
+      "additionalProperties": false
+    },
+    "coverage_map": {
+      "type": "object",
+      "properties": {
+        "manifest": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "targeted",
+                "sampled",
+                "partial",
+                "none"
+              ]
+            },
+            "ratio": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "ratio",
+            "note"
+          ],
+          "additionalProperties": false
+        },
+        "lockfile": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "targeted",
+                "sampled",
+                "partial",
+                "none"
+              ]
+            },
+            "ratio": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "ratio",
+            "note"
+          ],
+          "additionalProperties": false
+        },
+        "sbom": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "targeted",
+                "sampled",
+                "partial",
+                "none"
+              ]
+            },
+            "ratio": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "ratio",
+            "note"
+          ],
+          "additionalProperties": false
+        },
+        "ci": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "targeted",
+                "sampled",
+                "partial",
+                "none"
+              ]
+            },
+            "ratio": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "ratio",
+            "note"
+          ],
+          "additionalProperties": false
+        },
+        "build_config": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "targeted",
+                "sampled",
+                "partial",
+                "none"
+              ]
+            },
+            "ratio": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "ratio",
+            "note"
+          ],
+          "additionalProperties": false
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "targeted",
+                "sampled",
+                "partial",
+                "none"
+              ]
+            },
+            "ratio": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "ratio",
+            "note"
+          ],
+          "additionalProperties": false
+        },
+        "documentation": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "targeted",
+                "sampled",
+                "partial",
+                "none"
+              ]
+            },
+            "ratio": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "ratio",
+            "note"
+          ],
+          "additionalProperties": false
+        },
+        "release_metadata": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "targeted",
+                "sampled",
+                "partial",
+                "none"
+              ]
+            },
+            "ratio": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "ratio",
+            "note"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "manifest",
+        "lockfile",
+        "sbom",
+        "ci",
+        "build_config",
+        "source",
+        "documentation",
+        "release_metadata"
+      ],
+      "additionalProperties": false
+    },
     "dependency_intel": {
       "type": "object",
       "properties": {
@@ -3218,6 +3833,7 @@
     "generated_at",
     "subject",
     "identity",
+    "identity_v2",
     "overall",
     "dimensions",
     "warnings",
@@ -3228,6 +3844,8 @@
     "facts",
     "code_analysis",
     "findings",
+    "retrieval",
+    "coverage_map",
     "dependency_intel",
     "regulatory",
     "integrity"

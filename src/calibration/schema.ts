@@ -7,6 +7,10 @@ import { ARTIFACT_TYPES } from '../identity/taxonomy.js';
 export const TriSchema = z.enum(['yes', 'no', 'unknown', 'disputed']);
 export type Tri = z.infer<typeof TriSchema>;
 
+/** Where a field stands after human review. Never forced into consensus. */
+export const FIELD_STATUSES = ['agreed', 'disagreed', 'uncertain', 'needs_adjudication'] as const;
+export type FieldStatus = (typeof FIELD_STATUSES)[number];
+
 export const SPLITS = ['dev', 'validation', 'holdout'] as const;
 export type Split = (typeof SPLITS)[number];
 
@@ -83,6 +87,19 @@ export const LabelSchema = z.object({
   /** Optional: labels of the dependency/SBOM family. Absent for corpora labelled before Phase 4. */
   dependencies: DependencyLabelSchema.optional(),
   ambiguity_notes: z.string().default(''),
+  /** Review state per field (field names as in the adjudication worksheet). Absent field = not human-reviewed. */
+  field_status: z.record(z.string(), z.enum(FIELD_STATUSES)).default({}),
+  /** Individual reviewer opinions kept side by side instead of a forced consensus. */
+  opinions: z
+    .array(
+      z.object({
+        field: z.string(),
+        reviewer: z.string().max(64),
+        value: z.string().max(200),
+        confidence: z.enum(['high', 'medium', 'low']).optional(),
+      }),
+    )
+    .default([]),
 });
 export type Label = z.infer<typeof LabelSchema>;
 

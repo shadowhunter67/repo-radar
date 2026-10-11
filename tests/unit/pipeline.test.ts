@@ -190,7 +190,16 @@ describe('pipeline: weak and edge-case repositories', () => {
     const r2 = await run(missing);
     expect(ev(r2, 'github.file.security_policy')?.value).toBe(false);
     expect(ev(r2, 'github.file.security_policy')?.confidence).toBe(0.5);
-    expect(r2.diagnostics.some((d) => d.code === 'tree_truncated')).toBe(true);
+    // the targeted walk replaces the generic truncation notice with a precise one
+    expect(r2.diagnostics.some((d) => d.code === 'tree_incomplete')).toBe(true);
+    expect(r2.retrieval).toMatchObject({
+      method: 'targeted',
+      complete: false,
+      github_truncated: true,
+    });
+    const plain = await run(missing, { targetedTree: false });
+    expect(plain.diagnostics.some((d) => d.code === 'tree_truncated')).toBe(true);
+    expect(plain.retrieval).toMatchObject({ method: 'recursive', complete: false });
   });
 });
 

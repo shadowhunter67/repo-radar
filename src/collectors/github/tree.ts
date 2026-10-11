@@ -4,6 +4,8 @@ export interface TreeEntry {
   path: string;
   type: string;
   size?: number;
+  /** Git object id; present on trees so a targeted walk can list one directory without re-reading the root. */
+  sha?: string;
 }
 
 const SOURCE_EXT =

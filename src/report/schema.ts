@@ -6,6 +6,8 @@ import { FindingSchema } from '../analysis/findings.js';
 import { EvidenceSchema } from '../evidence/types.js';
 import { FactSchema } from '../facts/index.js';
 import { SemanticIdentitySchema } from '../identity/types.js';
+import { IdentityV2Schema } from '../identity/v2.js';
+import { CoverageMapSchema, TreeRetrievalSchema } from './coverage.js';
 import { DIMENSIONS } from '../scoring/types.js';
 
 export const REPORT_SCHEMA_VERSION = '0.4';
@@ -80,6 +82,8 @@ export const ReportSchema = z.object({
     ref: z.string().nullable(),
   }),
   identity: SemanticIdentitySchema,
+  /** Multi-axis identity (primary artifact, secondary roles, packaging, interfaces, deployment). The flat `identity` is kept for compatibility. */
+  identity_v2: IdentityV2Schema,
   overall: z.object({
     score: z.number().nullable(),
     grade: z.string(),
@@ -143,6 +147,10 @@ export const ReportSchema = z.object({
   code_analysis: CodeAnalysisSchema,
   findings: z.array(FindingSchema),
   /** Dependency model, resolution state, vulnerability coverage, deps.dev status and SBOM comparison (schema 0.3). */
+  /** How the repository tree was obtained (full recursive tree, or a bounded targeted walk) and what was left unread. */
+  retrieval: TreeRetrievalSchema,
+  /** Coverage by evidence class instead of one generic percentage. */
+  coverage_map: CoverageMapSchema,
   dependency_intel: DependencyIntelSchema,
   /** Regulatory readiness packs and the technical indicators they read. Never a legal determination. */
   regulatory: RegulatorySchema,

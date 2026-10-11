@@ -37,6 +37,9 @@ import {
 } from './facts/index.js';
 import { HeuristicClassifier, identityEvidence, loadDefaultTaxonomy } from './identity/index.js';
 import type { IdentityClassifier } from './identity/types.js';
+import { classifyIdentityV2 } from './identity/v2.js';
+import { buildCoverageMap } from './report/coverage.js';
+import type { RetrievalBudget } from './collectors/github/retrieval.js';
 import { LIMITS } from './limits.js';
 import { loadProfile, validateProfileAgainstRules } from './profiles/load.js';
 import { REPORT_SCHEMA_VERSION, type Report } from './report/schema.js';
@@ -70,6 +73,10 @@ export interface AnalyzeOptions {
   codeScan?: boolean;
   /** Read repository files at this commit/ref instead of the default branch head (reproducible runs). */
   ref?: string;
+  /** Walk priority directories when the recursive tree is truncated or too large (default true). */
+  targetedTree?: boolean;
+  /** Override the targeted-retrieval budget (requests, nodes, bytes, time, depth). */
+  retrievalBudget?: RetrievalBudget;
   root?: string;
 }
 
@@ -110,6 +117,8 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     collectGithub(ref, gh, clock, {
       scan: scanEnabled,
       sbom: opts.sbom !== false,
+      ...(opts.targetedTree === false ? { targetedTree: false } : {}),
+      ...(opts.retrievalBudget ? { retrievalBudget: opts.retrievalBudget } : {}),
       ...(opts.ref ? { ref: parseGitRef(opts.ref) } : {}),
     }),
     opts.scorecard === false
@@ -154,6 +163,26 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   identity.capabilities = code.capabilities.summary
     .filter((c) => c.observed && c.mode !== 'POSSIBLE')
     .map((c) => c.capability);
+  const coverageMap = buildCoverageMap({
+    retrieval: github.treeRetrieval,
+    sourceScanRatio:
+      code.scan.performed && code.scan.source_files_total > 0 ? code.scan.source_coverage : null,
+    scanned: code.scan.performed,
+    releasesRead: github.evidence.some((e) => e.id === 'github.releases.has_any'),
+    workflowsSeen: github.evidence.some((e) => e.id === 'github.workflows.count' && e.value !== 0),
+  });
+  const identityV2 = classifyIdentityV2({
+    snapshot: github.snapshot,
+    legacy: identity,
+    observedCapabilities: identity.capabilities,
+    entrypointCount: code.execution.entrypoints.length,
+    goPackageMain: github.files.some(
+      (f) =>
+        f.path.endsWith('.go') &&
+        !f.path.endsWith('_test.go') &&
+        /^package main(?:\s|$)/m.test(f.content),
+    ),
+  });
 
   const store = new EvidenceStore();
   const diagnostics: Diagnostic[] = [
@@ -356,6 +385,9 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       ref: github.snapshot.ref ?? null,
     },
     identity,
+    identity_v2: identityV2,
+    retrieval: github.treeRetrieval,
+    coverage_map: coverageMap,
     overall: scoring.overall,
     dimensions: scoring.dimensions,
     warnings: scoring.warnings,

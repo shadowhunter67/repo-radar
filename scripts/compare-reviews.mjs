@@ -36,13 +36,14 @@ for (const f of readdirSync(reviewsDir).filter((x) => /\.(?:ya?ml|json)$/.test(x
     problems.push(
       `${f}: ${r.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')}`,
     );
-  else submissions.set(repo, r.data);
+  else submissions.set(repo, [...(submissions.get(repo) ?? []), r.data]);
 }
 if (problems.length) {
   process.stderr.write(`invalid submissions:\n${problems.join('\n')}\n`);
   process.exit(1);
 }
-const reviewers = [...new Set([...submissions.values()].map((s) => s.reviewer.id))];
+// Every reviewer's submission is compared on its own; opinions are never averaged into a fake consensus.
+const reviewers = [...new Set([...submissions.values()].flat().map((s) => s.reviewer.id))].sort();
 const cmp = compareReviews(corpus.labels, submissions);
 const out = join(
   root,

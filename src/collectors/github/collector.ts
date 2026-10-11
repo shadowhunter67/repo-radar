@@ -7,6 +7,13 @@ import { parseManifest, type ParsedManifest } from '../manifests/parse.js';
 import type { GithubCollection } from '../types.js';
 import { analyzeReadme } from './readme.js';
 import { analyzeTree, isStaticallyTyped, type TreeEntry } from './tree.js';
+import {
+  DEFAULT_RETRIEVAL_BUDGET,
+  retrieveTargeted,
+  type RetrievalBudget,
+  type TreeFetcher,
+  type TreeRetrieval,
+} from './retrieval.js';
 import { analyzeWorkflow, type WorkflowFacts } from './workflows.js';
 import { nextRefCandidates, selectScanCandidates } from './scanfiles.js';
 import type { FileRole, ScannedFile } from '../../analysis/types.js';
@@ -21,6 +28,7 @@ const MAX_MANIFESTS = 10;
 const MAX_LOCKS = 6;
 const MAX_SBOMS = 3;
 const TREE_MAX_BYTES = 8 * 1024 * 1024;
+const SUBTREE_MAX_BYTES = 4 * 1024 * 1024;
 /** Lockfiles and SBOMs are routinely larger than ordinary manifests. */
 const DEPFILE_MAX_BYTES = 5 * 1024 * 1024;
 const RAW_MAX_BYTES = 512 * 1024;
@@ -56,7 +64,14 @@ export async function collectGithub(
   ref: RepoRef,
   http: HttpClient,
   clock: Clock,
-  options: { scan?: boolean; ref?: string; sbom?: boolean } = {},
+  options: {
+    scan?: boolean;
+    ref?: string;
+    sbom?: boolean;
+    /** false disables the targeted walk used when the recursive tree is truncated or too large. */
+    targetedTree?: boolean;
+    retrievalBudget?: RetrievalBudget;
+  } = {},
 ): Promise<GithubCollection & CollectorResult> {
   const b = new EvidenceBuilder('github', clock);
   const now = clock.now();
@@ -135,7 +150,7 @@ export async function collectGithub(
 
   // ---- group 1: independent API calls -------------------------------------------------------
   const [
-    treeRes,
+    treeResRecursive,
     readmeRes,
     contribRes,
     releasesRes,
@@ -247,6 +262,76 @@ export async function collectGithub(
     }
     return false;
   }
+  // ---- tree completeness: a truncated or oversized recursive tree triggers a bounded, targeted walk ---------------
+  let treeRes = treeResRecursive;
+  const tooLarge = b.diagnostics.some(
+    (d) => d.code === 'too_large' && d.message.startsWith('git tree'),
+  );
+  const treeRateLimited = b.diagnostics.some(
+    (d) => d.code === 'rate_limited' && d.message.startsWith('git tree'),
+  );
+  let treeRetrieval: TreeRetrieval = {
+    method: treeResRecursive ? 'recursive' : 'none',
+    complete: !!treeResRecursive && treeResRecursive.data.truncated !== true,
+    reason: treeResRecursive ? 'none' : tooLarge ? 'response_too_large' : 'fetch_failed',
+    requests: 1,
+    nodes: treeResRecursive?.data.tree?.length ?? 0,
+    bytes: 0,
+    explored: [],
+    unexplored: [],
+    unexplored_count: 0,
+    stopped_by: 'complete',
+    github_truncated: treeResRecursive?.data.truncated === true,
+    failed_requests: 0,
+  };
+  const needTargeted =
+    options.targetedTree !== false &&
+    !treeRateLimited &&
+    ((!treeResRecursive && tooLarge) || treeResRecursive?.data.truncated === true);
+  if (needTargeted) {
+    const fetchTree: TreeFetcher = async (shaOrRef, recursive) => {
+      try {
+        const r = await http.request(
+          `${base}/git/trees/${encodeURIComponent(shaOrRef)}${recursive ? '?recursive=1' : ''}`,
+          { headers: jsonHeaders, maxBytes: recursive ? SUBTREE_MAX_BYTES : SUBTREE_MAX_BYTES / 2 },
+        );
+        if (r.status !== 200) return undefined;
+        const j = JSON.parse(r.body) as { tree?: TreeEntry[]; truncated?: boolean };
+        return { tree: j.tree ?? [], truncated: j.truncated === true, bytes: r.body.length };
+      } catch {
+        return undefined;
+      }
+    };
+    const res = await retrieveTargeted(
+      fetchTree,
+      readRef,
+      options.retrievalBudget ?? DEFAULT_RETRIEVAL_BUDGET,
+      {
+        ...(treeResRecursive?.data.tree ? { initial: treeResRecursive.data.tree } : {}),
+        reason: treeResRecursive ? 'github_truncated' : 'response_too_large',
+        githubTruncated: treeResRecursive?.data.truncated === true,
+      },
+    );
+    treeRetrieval = res.report;
+    if (res.entries.length > 0)
+      treeRes = {
+        data: { tree: res.entries, truncated: true },
+        headers: treeResRecursive?.headers ?? new Headers(),
+      };
+    b.diag(
+      'warn',
+      'tree_incomplete',
+      `repository tree incomplete (${treeRetrieval.reason === 'github_truncated' ? 'GitHub truncated the recursive tree' : 'recursive tree response too large'}); targeted retrieval read ${treeRetrieval.explored.length} director${treeRetrieval.explored.length === 1 ? 'y' : 'ies'} in ${treeRetrieval.requests} request(s), ${treeRetrieval.unexplored_count} known director${treeRetrieval.unexplored_count === 1 ? 'y' : 'ies'} unread (stopped by: ${treeRetrieval.stopped_by})`,
+      ['github.tree.', 'github.file.', 'manifest.'],
+    );
+  } else if (!treeResRecursive) {
+    b.diag(
+      'warn',
+      'tree_unavailable',
+      `repository tree unavailable (${treeRetrieval.reason}); file-based signals are not observed`,
+      ['github.tree.', 'github.file.', 'manifest.'],
+    );
+  }
   const orgSecurity =
     treeRes && !analyzeTree(treeRes.data.tree ?? []).flags.security_policy
       ? await orgSecurityPolicy()
@@ -258,7 +343,7 @@ export async function collectGithub(
   const tree = analyzeTree(entries);
   if (treeRes) {
     const t = { url: url(`/git/trees/${branch}`), ...cap, confidence: truncated ? 0.6 : 1 };
-    if (truncated)
+    if (truncated && treeRetrieval.method !== 'targeted')
       b.diag(
         'warn',
         'tree_truncated',
@@ -750,6 +835,7 @@ export async function collectGithub(
     sourceFileCount: tree.sourceFileCount,
     fetchStats,
     scanned: doScan,
+    treeRetrieval,
   };
 }
 

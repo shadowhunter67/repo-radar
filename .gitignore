@@ -4,3 +4,4 @@ coverage
 *.log
 report.json
 calibration/runs/
+.tmp/
