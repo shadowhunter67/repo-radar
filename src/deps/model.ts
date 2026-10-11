@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ConflictSchema } from '../evidence/conflict.js';
 
 /**
  * Normalized dependency model (Phase 4).
@@ -290,17 +291,12 @@ export const DependencyIntelSchema = z.object({
   advisories: z.array(AdvisorySchema),
   sboms: z.array(SbomDocumentSchema),
   sbom_comparisons: z.array(SbomComparisonSchema),
-  conflicts: z.array(
-    z.object({
-      package: z.string(),
-      kind: z.enum(['manifest_vs_lockfile', 'lockfile_vs_sbom', 'multiple_locked_versions']),
-      detail: z.string(),
-    }),
-  ),
+  /** Disagreeing sources for the same fact; every observation is kept (see src/evidence/conflict.ts). */
+  conflicts: z.array(ConflictSchema),
   limits_hit: z.array(z.string()),
 });
 export type DependencyIntel = z.infer<typeof DependencyIntelSchema>;
-export const DEPENDENCY_INTEL_VERSION = '0.1';
+export const DEPENDENCY_INTEL_VERSION = '0.2';
 
 /** ---- helpers -------------------------------------------------------------------------------------------------- */
 

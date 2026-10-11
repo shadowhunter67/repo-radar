@@ -254,7 +254,9 @@ export async function collectVulnerabilities(
     const opt = {
       url,
       http_status: 200,
-      confidence: round(0.5 + 0.5 * coverage, 2),
+      // Confidence tracks COMPLETENESS (how much of the dependency set was seen), separately from the observed risk below:
+      // a high observed ratio over 3% of the dependencies is a real finding, but it must not read as a confident verdict.
+      confidence: round(0.2 + 0.8 * coverage, 2),
       metadata: {
         truncated_at: overBudget > 0 ? OSV_LIMITS.maxQueries : null,
         ecosystems: [...new Set(groups.map((g) => (g[0] as Dependency).package.ecosystem))],
@@ -266,6 +268,13 @@ export async function collectVulnerabilities(
     b.add('osv.vulnerable_packages', vulnerable, opt);
     b.add('osv.vulnerability_ids', [...allIds].sort().slice(0, 25), opt);
     b.add('osv.coverage_ratio', round(coverage, 3), opt);
+    // Known packages a lookup could in principle cover: the ones checked plus direct registry dependencies left unresolved.
+    const unresolvedDirect = new Set(
+      directRegistry
+        .filter((d) => d.resolution === 'unresolved' || d.resolution === 'ambiguous')
+        .map((d) => `${d.package.ecosystem}:${d.package.name}`),
+    );
+    b.add('osv.eligible_packages', groups.length + unresolvedDirect.size, opt);
     if (vulnerable > 0 || coverage >= MIN_VULN_COVERAGE) {
       b.add('osv.vulnerable_ratio', round(vulnerable / groups.length, 4), opt);
     } else {

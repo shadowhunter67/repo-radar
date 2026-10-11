@@ -144,6 +144,37 @@ export function deriveFacts(input: FactInput): Fact[] {
     derived_from: dependentHooks.map((h) => h.id),
     derived_by: 'execution-graph@0.1',
   });
+  const ex = code.execution;
+  push({
+    id: 'execution.entrypoints.count',
+    value: ex.entrypoints.length,
+    confidence: 0.9,
+    scope: 'execution',
+    derived_from: ex.entrypoints.map((e) => e.id).slice(0, 10),
+    derived_by: 'execution-graph@0.2',
+  });
+  push({
+    id: 'execution.build.repository_code',
+    value: ex.projects.some((p) => p.repository_code_runs),
+    confidence: 0.85,
+    scope: 'execution',
+    derived_from: ex.projects
+      .filter((p) => p.repository_code_runs)
+      .flatMap((p) => p.hook_ids)
+      .slice(0, 10),
+    derived_by: 'execution-graph@0.2',
+  });
+  push({
+    id: 'execution.native_build.present',
+    value: ex.projects.some((p) => p.native_build_systems.length > 0),
+    confidence: 0.8,
+    scope: 'execution',
+    derived_from: ex.hooks
+      .filter((h) => h.stage === 'NATIVE_BUILD')
+      .map((h) => h.id)
+      .slice(0, 10),
+    derived_by: 'execution-graph@0.2',
+  });
   const chains = code.execution.chains;
   const installChains = chains.filter((c) => c.contexts.includes('install'));
   gated(

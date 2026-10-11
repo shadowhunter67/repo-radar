@@ -1,8 +1,14 @@
 import type { ParsedManifest, RawDependency } from '../collectors/manifests/parse.js';
+import { AUXILIARY_DIR } from '../util/scope.js';
+import {
+  observation,
+  resolveConflict,
+  type Conflict,
+  type Observation,
+} from '../evidence/conflict.js';
 import type { LockIndex } from './lock.js';
 import {
   type Dependency,
-  type DependencyIntel,
   type DepEcosystem,
   type Relationship,
   type Resolved,
@@ -13,8 +19,6 @@ import {
 } from './model.js';
 import { satisfies } from './semver.js';
 import { classifySpec, NON_REGISTRY_KINDS } from './spec.js';
-
-type Conflict = DependencyIntel['conflicts'][number];
 
 export interface ResolveInput {
   manifests: ParsedManifest[];
@@ -30,9 +34,7 @@ export interface ResolveOutput {
 }
 
 const MAX_CONFLICTS = 50;
-/** Same notion as manifest selection: these directories hold independent sample/tooling projects. */
-export const AUXILIARY_DIR =
-  /(?:^|\/)(?:examples?|docs?|website|tests?|tools|scripts|benchmarks?|e2e|fixtures?|testdata|samples?|demos?)\//i;
+export { AUXILIARY_DIR };
 const dirOf = (p: string): string => (p.includes('/') ? p.slice(0, p.lastIndexOf('/')) : '');
 const ECO_FLAVOR = (e: DepEcosystem): 'npm' | 'cargo' | undefined =>
   e === 'npm' ? 'npm' : e === 'crates.io' ? 'cargo' : undefined;
@@ -93,8 +95,28 @@ export function resolveDependencies(input: ResolveInput): ResolveOutput {
   const conflicts: Conflict[] = [];
   const limitsHit: string[] = [];
   let n = 0;
-  const addConflict = (c: Conflict): void => {
-    if (conflicts.length < MAX_CONFLICTS) conflicts.push(c);
+  const addConflict = (
+    subject: string,
+    field: string,
+    question: string,
+    observations: Observation[],
+    confidence: number,
+    severity: Conflict['severity'],
+    depNumber: number,
+  ): void => {
+    if (conflicts.length >= MAX_CONFLICTS || observations.length < 2) return;
+    conflicts.push(
+      resolveConflict({
+        id: `CONF-${String(conflicts.length + 1).padStart(3, '0')}`,
+        subject,
+        field,
+        question,
+        observations,
+        confidence,
+        severity,
+        evidenceIds: [`DEP-${String(depNumber).padStart(4, '0')}`],
+      }),
+    );
   };
 
   // SBOM versions by package, for the second-strongest source.
@@ -158,20 +180,31 @@ export function resolveDependencies(input: ResolveInput): ResolveOutput {
               requested.kind === 'range' &&
               satisfies(r.spec, version, flavor) === false
             )
-              addConflict({
-                package: `${eco}:${r.name}`,
-                kind: 'manifest_vs_lockfile',
-                detail: `${m.file} requests ${requested.spec} but ${lock.path} locks ${version} (outside the range; lockfile may be stale)`,
-              });
+              addConflict(
+                `${eco}:${r.name}`,
+                'locked_version_vs_requested_range',
+                'exact_version',
+                [
+                  observation('manifest_range', m.file, requested.spec),
+                  observation('lockfile', lock.path, version),
+                ],
+                0.85,
+                'low',
+                n + 1,
+              );
           } else {
             resolution = 'ambiguous';
             for (const v of hit.versions)
               other.push({ version: v, source: 'lockfile', file: lock.path });
-            addConflict({
-              package: `${eco}:${r.name}`,
-              kind: 'multiple_locked_versions',
-              detail: `${lock.path} records ${hit.versions.length} versions (${hit.versions.slice(0, 4).join(', ')}) and the request does not single one out`,
-            });
+            addConflict(
+              `${eco}:${r.name}`,
+              'multiple_locked_versions',
+              'exact_version',
+              hit.versions.slice(0, 6).map((v) => observation('lockfile', lock.path, v)),
+              0.9,
+              'info',
+              n + 1,
+            );
           }
           break;
         }
@@ -187,11 +220,18 @@ export function resolveDependencies(input: ResolveInput): ResolveOutput {
           for (const v of sb.versions) other.push({ version: v, source: 'sbom', file: sb.file });
           derived.push(`sbom:${sb.file}`);
         } else if (resolved?.source === 'lockfile' && sb && !sb.versions.has(resolved.version)) {
-          addConflict({
-            package: `${eco}:${r.name}`,
-            kind: 'lockfile_vs_sbom',
-            detail: `${resolved.file} locks ${resolved.version} but ${sb.file} lists ${[...sb.versions].slice(0, 3).join(', ')}`,
-          });
+          addConflict(
+            `${eco}:${r.name}`,
+            'lockfile_vs_sbom_version',
+            'exact_version',
+            [
+              observation('lockfile', resolved.file, resolved.version),
+              ...[...sb.versions].slice(0, 3).map((v) => observation('sbom', sb.file, v)),
+            ],
+            0.9,
+            'low',
+            n + 1,
+          );
           for (const v of sb.versions) other.push({ version: v, source: 'sbom', file: sb.file });
         }
 
@@ -213,11 +253,22 @@ export function resolveDependencies(input: ResolveInput): ResolveOutput {
             resolved.source !== 'manifest_pin'
           ) {
             other.push({ version: requested.exact_version, source: 'manifest_pin', file: m.file });
-            addConflict({
-              package: `${eco}:${r.name}`,
-              kind: 'manifest_vs_lockfile',
-              detail: `${m.file} pins ${requested.exact_version} but ${resolved.file} resolves ${resolved.version}`,
-            });
+            addConflict(
+              `${eco}:${r.name}`,
+              'manifest_pin_vs_lockfile',
+              'exact_version',
+              [
+                observation('manifest_pin', m.file, requested.exact_version),
+                observation(
+                  resolved.source === 'sbom' ? 'sbom' : 'lockfile',
+                  resolved.file,
+                  resolved.version,
+                ),
+              ],
+              0.95,
+              'low',
+              n + 1,
+            );
           }
         }
       }
@@ -256,7 +307,7 @@ export function resolveDependencies(input: ResolveInput): ResolveOutput {
     for (const e of lock.entries) {
       if (e.local) continue;
       const k = `${lock.ecosystem}:${normalizeName(lock.ecosystem, e.name)}@${e.version}`;
-      if (consumed.has(`${lock.path} ${e.name}@${e.version}`)) continue;
+      if (consumed.has(`${lock.path}\0${e.name}@${e.version}`)) continue;
       if (seenTransitive.has(k)) continue;
       seenTransitive.add(k);
       // The same package locked at a version a direct dependency already uses is not a second dependency.

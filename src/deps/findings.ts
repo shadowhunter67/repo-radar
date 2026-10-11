@@ -108,20 +108,22 @@ export function buildDependencyFindings(intel: DependencyIntel): Finding[] {
     });
 
   // Manifest/lockfile and lockfile/SBOM disagreements.
-  for (const c of intel.conflicts.filter((x) => x.kind !== 'multiple_locked_versions').slice(0, 10))
+  for (const c of intel.conflicts.filter((x) => x.severity !== 'info').slice(0, 10)) {
+    const sbomInvolved = c.observations.some((o) => o.source === 'sbom');
     out.push({
       id: id(),
-      title: `${c.kind === 'manifest_vs_lockfile' ? 'Manifest and lockfile disagree' : 'Lockfile and SBOM disagree'} for ${name(c.package)}`,
-      severity: 'low',
-      confidence: 0.75,
+      title: `${sbomInvolved ? 'Lockfile and SBOM' : c.field === 'locked_version_vs_requested_range' ? 'Lockfile and manifest range' : 'Manifest and lockfile'} disagree for ${name(c.subject)}`,
+      severity: c.severity,
+      confidence: c.confidence,
       dimension: 'supply-chain',
-      category: c.kind === 'lockfile_vs_sbom' ? 'sbom' : 'dependency',
-      evidence_ids: [],
+      category: sbomInvolved ? 'sbom' : 'dependency',
+      evidence_ids: c.evidence_ids,
       rule_ids: [],
       ...base,
-      summary: `${name(c.detail)}. The lockfile value was used (lockfile > SBOM > manifest pin); the other value is kept in the dependency record.`,
+      summary: `${c.observations.map((o) => `${o.source} (${name(o.origin)}): ${name(o.value)}`).join('; ')}. ${name(c.resolution_reason ?? 'No preference applies.')}`,
       remediation: 'Regenerate the lockfile or SBOM so they describe the same dependency set.',
     });
+  }
 
   // SBOM comparison and validity.
   for (const c of intel.sbom_comparisons) {

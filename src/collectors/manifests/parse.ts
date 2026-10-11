@@ -24,6 +24,23 @@ export interface RawDependency {
 
 export const MAX_RAW_DEPS = 2000;
 
+export interface PythonBuildFacts {
+  /** `[build-system] requires` entries as written. */
+  requires: string[];
+  backend?: string;
+  /** `[build-system] backend-path`: directories (relative to the project) holding an in-tree backend. */
+  backendPath: string[];
+  /** `project.scripts` / `tool.poetry.scripts`: name -> `package.module:callable`. */
+  scripts: Record<string, string>;
+  guiScripts: Record<string, string>;
+  /** `project.entry-points`: group -> name -> target. */
+  entryPointGroups: Record<string, Record<string, string>>;
+  /** Packaging features seen in `tool.*` tables and requirements (maturin, scikit-build, hatch-custom-hook, ...). */
+  hints: string[];
+  /** Repository file a build hook/script points at (hatch custom hook, poetry build script, pdm setup script). */
+  buildScripts: string[];
+}
+
 export interface ParsedManifest {
   file: string;
   ecosystem: Ecosystem;
@@ -39,6 +56,8 @@ export interface ParsedManifest {
   isPrivate?: boolean;
   /** PEP 517 `[build-system] build-backend` (pyproject.toml), when declared. */
   buildBackend?: string;
+  /** Python packaging facts read from pyproject.toml (static; nothing is executed). */
+  python?: PythonBuildFacts;
   /** npm `scripts` (name -> command), bounded in count and length; never executed. */
   scripts?: Record<string, string>;
   /** Files the manifest names as entry points (npm main/bin/exports string). */
@@ -46,6 +65,8 @@ export interface ParsedManifest {
   /** Every declared dependency with its relationship (bounded by MAX_RAW_DEPS). */
   rawDeps?: RawDependency[];
   rawDepsTruncated?: boolean;
+  /** npm `bin` entries: command name -> file (package.json). */
+  bins?: Record<string, string>;
   /** npm/yarn `workspaces` globs (package.json); used to decide which manifests a root lockfile covers. */
   workspaces?: string[];
 }
@@ -202,6 +223,13 @@ function parsePackageJson(file: string, text: string): ParsedManifest | undefine
     for (const [n, v] of Object.entries(o))
       raw.push({ name: n, spec: typeof v === 'string' ? v : '', relationship, direct: true });
   };
+  const binField = j['bin'];
+  const bins: Record<string, string> = Object.create(null) as Record<string, string>;
+  if (typeof binField === 'string') bins[str(j['name']) ?? 'bin'] = binField;
+  else if (isObj(binField))
+    for (const [k, v] of Object.entries(binField).slice(0, 50))
+      if (typeof v === 'string' && k.length < 100) bins[k] = v;
+  if (Object.keys(bins).length > 0) m.bins = bins;
   const ws = j['workspaces'];
   const wsList = Array.isArray(ws)
     ? ws
@@ -265,9 +293,11 @@ function parsePyproject(file: string, text: string): ParsedManifest | undefined 
     }
     if (isObj(poetry['scripts'])) m.entrypoints.push(...Object.keys(poetry['scripts']));
   }
-  if (!project && !poetry) return undefined;
-  const backend = isObj(t['build-system']) ? str(t['build-system']['build-backend']) : undefined;
+  const buildSystem = isObj(t['build-system']) ? t['build-system'] : undefined;
+  if (!project && !poetry && !buildSystem) return undefined;
+  const backend = buildSystem ? str(buildSystem['build-backend']) : undefined;
   if (backend) m.buildBackend = backend;
+  m.python = readPythonFacts(t, buildSystem, project, poetry, tool);
   const raw: RawDependency[] = [];
   const addPep = (list: unknown, relationship: RawRelationship): void => {
     for (const e of strArr(list)) {
@@ -304,6 +334,105 @@ function parsePyproject(file: string, text: string): ParsedManifest | undefined 
   }
   finishRaw(m, raw);
   return m;
+}
+
+const stringMap = (v: unknown, max = 200): Record<string, string> => {
+  const out: Record<string, string> = Object.create(null) as Record<string, string>;
+  if (!isObj(v)) return out;
+  let n = 0;
+  for (const [k, val] of Object.entries(v)) {
+    if (n >= max) break;
+    const target = typeof val === 'string' ? val : isObj(val) ? str(val['reference']) : undefined;
+    if (target && k.length <= 100 && target.length <= 300) {
+      out[k] = target;
+      n++;
+    }
+  }
+  return out;
+};
+
+function readPythonFacts(
+  t: Record<string, unknown>,
+  buildSystem: Record<string, unknown> | undefined,
+  project: Record<string, unknown> | undefined,
+  poetry: Record<string, unknown> | undefined,
+  tool: Record<string, unknown> | undefined,
+): PythonBuildFacts {
+  const hints = new Set<string>();
+  const buildScripts: string[] = [];
+  const requires = strArr(buildSystem?.['requires']).slice(0, 50);
+  for (const r of requires) {
+    const n = (pep508Name(r)?.name ?? '').toLowerCase().replace(/[_.]/g, '-');
+    if (n === 'cython') hints.add('cython');
+    if (n === 'cffi') hints.add('cffi');
+    if (n === 'setuptools-rust') hints.add('setuptools-rust');
+    if (n === 'maturin') hints.add('maturin');
+    if (n === 'scikit-build-core' || n === 'scikit-build') hints.add('scikit-build');
+    if (n === 'meson-python') hints.add('meson-python');
+    if (n === 'cmake' || n === 'ninja') hints.add('cmake');
+  }
+  if (tool) {
+    if (isObj(tool['maturin'])) hints.add('maturin');
+    if (isObj(tool['scikit-build'])) hints.add('scikit-build');
+    if (isObj(tool['meson-python'])) hints.add('meson-python');
+    if (isObj(tool['setuptools-rust']) || isObj(tool['setuptools_rust']))
+      hints.add('setuptools-rust');
+    const st = isObj(tool['setuptools']) ? tool['setuptools'] : undefined;
+    if (st && (Array.isArray(st['ext-modules']) || isObj(st['ext-modules'])))
+      hints.add('setuptools-ext-modules');
+    const hatch = isObj(tool['hatch']) ? tool['hatch'] : undefined;
+    const hBuild = hatch && isObj(hatch['build']) ? hatch['build'] : undefined;
+    const customHook = (o: unknown): void => {
+      if (!isObj(o)) return;
+      const hooks = isObj(o['hooks']) ? o['hooks'] : undefined;
+      const custom = hooks && isObj(hooks['custom']) ? hooks['custom'] : undefined;
+      if (custom) {
+        hints.add('hatch-custom-hook');
+        buildScripts.push(str(custom['path']) ?? 'hatch_build.py');
+      }
+    };
+    customHook(hBuild);
+    if (hBuild && isObj(hBuild['targets']))
+      for (const tg of Object.values(hBuild['targets'])) customHook(tg);
+    const pdm = isObj(tool['pdm']) ? tool['pdm'] : undefined;
+    const pdmBuild = pdm && isObj(pdm['build']) ? pdm['build'] : undefined;
+    if (pdmBuild) {
+      const ss = str(pdmBuild['setup-script']);
+      if (ss) {
+        hints.add('pdm-build-script');
+        buildScripts.push(ss);
+      }
+      if (pdmBuild['run-setuptools'] === true) hints.add('pdm-run-setuptools');
+    }
+  }
+  if (poetry) {
+    const b = poetry['build'];
+    const script = typeof b === 'string' ? b : isObj(b) ? str(b['script']) : undefined;
+    if (script) {
+      hints.add('poetry-build-script');
+      buildScripts.push(script);
+    }
+  }
+  const groups: Record<string, Record<string, string>> = Object.create(null) as Record<
+    string,
+    Record<string, string>
+  >;
+  if (project && isObj(project['entry-points']))
+    for (const [g, v] of Object.entries(project['entry-points']).slice(0, 30))
+      groups[g] = stringMap(v, 100);
+  void t;
+  return {
+    requires,
+    ...(buildSystem && str(buildSystem['build-backend'])
+      ? { backend: str(buildSystem['build-backend']) as string }
+      : {}),
+    backendPath: strArr(buildSystem?.['backend-path']).slice(0, 10),
+    scripts: { ...stringMap(project?.['scripts']), ...stringMap(poetry?.['scripts']) },
+    guiScripts: stringMap(project?.['gui-scripts']),
+    entryPointGroups: groups,
+    hints: [...hints].sort(),
+    buildScripts: buildScripts.slice(0, 5),
+  };
 }
 
 function parseRequirements(file: string, text: string): ParsedManifest {

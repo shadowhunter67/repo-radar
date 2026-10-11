@@ -2,6 +2,14 @@ import { z } from 'zod';
 import type { ParsedManifest } from '../collectors/manifests/parse.js';
 import { LIMITS } from '../limits.js';
 import { sanitizeForTerminal } from '../util/text.js';
+import {
+  ExecEnvironmentSchema,
+  ExecStageSchema,
+  ExecTriggerSchema,
+  type BuildProject,
+  type Entrypoint,
+} from './exec-model.js';
+import { analyzePython, type PythonExecApi } from './python.js';
 import { extractLocalRefs, resolveRef } from './refs.js';
 import { scanFile, type FileScan } from './scan.js';
 import {
@@ -17,7 +25,16 @@ import {
 
 export const ExecNodeSchema = z.object({
   id: z.string(),
-  kind: z.enum(['hook', 'script', 'command', 'file', 'implicit']),
+  kind: z.enum([
+    'hook',
+    'script',
+    'command',
+    'file',
+    'implicit',
+    'backend',
+    'entrypoint',
+    'extension',
+  ]),
   label: z.string(),
   file: z.string().optional(),
   analyzed: z.boolean(),
@@ -25,17 +42,37 @@ export const ExecNodeSchema = z.object({
 export const ExecEdgeSchema = z.object({
   from: z.string(),
   to: z.string(),
-  relation: z.enum(['RUNS', 'EXECUTES', 'REFERENCES', 'DOWNLOADS']),
+  relation: z.enum([
+    'RUNS',
+    'EXECUTES',
+    'REFERENCES',
+    'DOWNLOADS',
+    'SELECTS_BACKEND',
+    'CONFIGURES',
+    'BUILDS',
+    'DEFINES',
+  ]),
+  /** Where in the lifecycle, what triggers it, how sure we are and which files support it (set by the Python model). */
+  stage: ExecStageSchema.optional(),
+  trigger_kind: ExecTriggerSchema.optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  evidence: z.array(z.string()).optional(),
 });
 export const HookSchema = z.object({
   id: z.string(),
-  ecosystem: z.enum(['npm', 'pypi', 'cargo', 'docker', 'make', 'shell']),
+  ecosystem: z.enum(['npm', 'pypi', 'cargo', 'docker', 'make', 'shell', 'maven', 'gradle']),
   name: z.string(),
   /** When the hook runs, in plain words. */
   trigger: z.string(),
   /** Runs when this package is installed as a dependency of someone else. */
   runs_for_dependents: z.boolean(),
   context: z.enum(['install', 'build']),
+  /** Lifecycle stage, trigger and environment (see exec-model.ts); `trigger` above is the plain-words description. */
+  stage: ExecStageSchema.optional(),
+  trigger_kind: ExecTriggerSchema.optional(),
+  environment: ExecEnvironmentSchema.optional(),
+  /** Extra facts, e.g. backend, backend_kind, build_requires, custom_commands. Values are sanitized strings. */
+  details: z.record(z.string(), z.string()).optional(),
   script: z.string().optional(),
   risk: z.enum(['none', 'low', 'medium', 'high']),
   /** Risk is capability-based, never an intent judgement. */
@@ -93,6 +130,8 @@ export const chainKey = (file: string, kind: string, lines: number[]): string =>
 
 export interface ExecutionAnalysis {
   hooks: Hook[];
+  entrypoints: Entrypoint[];
+  projects: BuildProject[];
   nodes: ExecNode[];
   edges: ExecEdge[];
   truncated: boolean;
@@ -111,6 +150,28 @@ export interface ExecutionInput {
 const REMOTE_EXEC = /(?:^|[\s;&|(])(?:npx|npm\s+exec|pnpm\s+dlx|yarn\s+dlx|bunx)\s/;
 const NPM_RUN = /^(?:npm|pnpm|yarn|bun)\s+(?:run-script\s+|run\s+)?([\w:.-]{1,100})(?:\s|$)/;
 const SPLIT = /\s*(?:&&|\|\||;)\s*/;
+
+/** Stage/trigger/environment for the root-level build and install files (npm and Python are modelled separately). */
+function rootExecModel(
+  ecosystem: Hook['ecosystem'],
+): Pick<Hook, 'stage' | 'trigger_kind' | 'environment'> {
+  switch (ecosystem) {
+    case 'cargo':
+      return {
+        stage: 'SOURCE_BUILD',
+        trigger_kind: 'BUILD_TOOL_INVOKED',
+        environment: 'BUILD_ENVIRONMENT',
+      };
+    case 'docker':
+      return { stage: 'SOURCE_BUILD', trigger_kind: 'USER_INVOKED', environment: 'CONTAINER' };
+    case 'make':
+      return { stage: 'SOURCE_BUILD', trigger_kind: 'USER_INVOKED', environment: 'HOST' };
+    case 'shell':
+      return { stage: 'INSTALL_SCRIPT', trigger_kind: 'USER_INVOKED', environment: 'HOST' };
+    default:
+      return { stage: 'UNKNOWN', trigger_kind: 'UNKNOWN', environment: 'UNKNOWN' };
+  }
+}
 
 export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
   const nodes: ExecNode[] = [];
@@ -155,21 +216,22 @@ export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
     ctx: ExecContext,
     visited: Set<string>,
     depth: number,
-  ): { unanalyzed: number } {
+    edgeMeta: Partial<ExecEdge> = {},
+  ): { unanalyzed: number; node?: string } {
     let unanalyzed = 0;
     if (visited.has(path) || depth > LIMITS.maxScriptDepth) return { unanalyzed };
     visited.add(path);
     const f = byPath.get(path);
     const node = addNode({ kind: 'file', label: path, file: path, analyzed: !!f });
-    addEdge({ from, to: node, relation: 'EXECUTES' });
+    addEdge({ from, to: node, relation: 'EXECUTES', ...edgeMeta });
     mark(path, ctx);
-    if (!f) return { unanalyzed: 1 };
+    if (!f) return { unanalyzed: 1, node };
     scanOf(f);
     for (const ref of extractLocalRefs(f.content, path, input.tree)) {
       const r = followFile(ref, node, ctx, visited, depth + 1);
       unanalyzed += r.unanalyzed;
     }
-    return { unanalyzed };
+    return { unanalyzed, node };
   }
 
   /** Resolve one npm script (and the scripts it calls) into nodes. */
@@ -317,6 +379,9 @@ export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
           // A private package is never published, so nobody installs it as a dependency.
           runs_for_dependents: spec.dependents && !m.isPrivate,
           context: 'install',
+          stage: 'INSTALL_SCRIPT',
+          trigger_kind: 'AUTOMATIC',
+          environment: 'HOST',
           script: sanitizeForTerminal(scripts[spec.name] as string, 200),
           unanalyzed_commands: 0,
           node_ids: [hookNode],
@@ -344,6 +409,9 @@ export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
           'npm install: a native addon is compiled when binding.gyp exists and no install script is set',
         runs_for_dependents: true,
         context: 'install',
+        stage: 'NATIVE_BUILD',
+        trigger_kind: 'BUILD_TOOL_INVOKED',
+        environment: 'BUILD_ENVIRONMENT',
         risk: 'medium',
         confidence: 0.7,
         analyzed: true,
@@ -369,22 +437,7 @@ export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
     const base = f.path.slice(f.path.lastIndexOf('/') + 1);
     const depth = f.path.split('/').length - 1;
     if (depth > 1) continue;
-    if (base === 'setup.py') {
-      // pip only runs setup.py when the PEP 517 backend is setuptools (or none is declared).
-      const dir = f.path.includes('/') ? f.path.slice(0, f.path.lastIndexOf('/') + 1) : '';
-      const backend = input.manifests.find((x) => x.file === `${dir}pyproject.toml`)?.buildBackend;
-      const runs = backend === undefined || /^setuptools(?:\.|:|$)/.test(backend);
-      roots.push({
-        path: f.path,
-        ecosystem: 'pypi',
-        name: 'setup.py',
-        trigger: runs
-          ? 'pip install of a source distribution or `pip install .` (runs setup.py)'
-          : `legacy setup.py; the declared build backend (${sanitizeForTerminal(backend, 60)}) does not run it`,
-        dependents: runs,
-        ctx: runs ? 'install' : 'build',
-      });
-    } else if (base === 'build.rs')
+    if (base === 'build.rs')
       roots.push({
         path: f.path,
         ecosystem: 'cargo',
@@ -435,6 +488,7 @@ export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
         trigger: r.trigger,
         runs_for_dependents: r.dependents,
         context: r.ctx,
+        ...rootExecModel(r.ecosystem),
         unanalyzed_commands: 0,
         node_ids: [hookNode],
       },
@@ -444,5 +498,80 @@ export function analyzeExecution(input: ExecutionInput): ExecutionAnalysis {
     );
   }
 
-  return { hooks, nodes, edges, truncated, fileContexts, scans };
+  // ---- Python: build backends, setup.py, native builds, entry points -----------------------------
+  const entrypoints: Entrypoint[] = [];
+  const pythonApi: PythonExecApi = {
+    addNode,
+    addEdge,
+    followFile,
+    finishHook,
+    hooks,
+    nextHookId: () => `HOOK-${hooks.length + 1}`,
+    scanCapabilities: (path) => {
+      const f = byPath.get(path);
+      if (!f) return [];
+      const caps = new Set<Capability>();
+      for (const d of scanOf(f).detections) if (d.mode !== 'POSSIBLE') caps.add(d.capability);
+      return [...caps].sort();
+    },
+    byPath,
+    tree: input.tree,
+  };
+  const py = analyzePython(pythonApi, input);
+  for (const e of py.entrypoints)
+    entrypoints.push({ id: `EP-${String(entrypoints.length + 1).padStart(3, '0')}`, ...e });
+
+  // npm `bin` and Cargo binaries are the same idea: launchers the user runs, not install-time execution.
+  for (const m of input.manifests) {
+    const dir = m.file.includes('/') ? m.file.slice(0, m.file.lastIndexOf('/')) : '';
+    if (m.ecosystem === 'npm' && m.bins) {
+      for (const [name, target] of Object.entries(m.bins).slice(0, 20)) {
+        const resolved = resolveRef(target, dir, input.tree);
+        const f = resolved ? byPath.get(resolved) : undefined;
+        const caps = new Set<Capability>();
+        if (f)
+          for (const d of scanOf(f).detections) if (d.mode !== 'POSSIBLE') caps.add(d.capability);
+        entrypoints.push({
+          id: `EP-${String(entrypoints.length + 1).padStart(3, '0')}`,
+          ecosystem: 'npm',
+          name: sanitizeForTerminal(name, 60),
+          kind: 'bin',
+          target: sanitizeForTerminal(target, 120),
+          ...(resolved ? { file: resolved } : {}),
+          stage: 'INSTALL_GENERATED_ENTRYPOINT',
+          trigger_kind: 'USER_INVOKED',
+          environment: 'HOST',
+          automatic: false,
+          manifest: m.file,
+          capabilities: [...caps].sort(),
+        });
+      }
+    }
+    if (m.ecosystem === 'crates.io')
+      for (const name of m.entrypoints.slice(0, 20))
+        entrypoints.push({
+          id: `EP-${String(entrypoints.length + 1).padStart(3, '0')}`,
+          ecosystem: 'cargo',
+          name: sanitizeForTerminal(name, 60),
+          kind: 'bin',
+          target: sanitizeForTerminal(name, 60),
+          stage: 'INSTALL_GENERATED_ENTRYPOINT',
+          trigger_kind: 'USER_INVOKED',
+          environment: 'HOST',
+          automatic: false,
+          manifest: m.file,
+          capabilities: [],
+        });
+  }
+
+  return {
+    hooks,
+    entrypoints,
+    projects: py.projects,
+    nodes,
+    edges,
+    truncated,
+    fileContexts,
+    scans,
+  };
 }

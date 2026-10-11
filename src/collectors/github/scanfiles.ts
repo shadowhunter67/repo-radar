@@ -3,6 +3,7 @@ import { extractLocalRefs } from '../../analysis/refs.js';
 import type { FileRole } from '../../analysis/types.js';
 import { LIMITS } from '../../limits.js';
 import type { ParsedManifest } from '../manifests/parse.js';
+import { AUXILIARY_DIR as AUXILIARY_PATH } from '../../util/scope.js';
 import { isSafeTreePath, isSourcePath, type TreeEntry } from './tree.js';
 
 export interface Candidate {
@@ -69,6 +70,42 @@ export function selectScanCandidates(
       add(e.path, 'build', 0);
     else if (/^(?:install|setup|bootstrap)\.(?:sh|ps1|bat)$/i.test(base) || base === 'configure')
       add(e.path, 'script', 0);
+  }
+
+  // Python build path: setup.cfg and native build descriptions, in-tree backends, custom build hooks, entry-point modules.
+  for (const e of blobs) {
+    const base = e.path.slice(e.path.lastIndexOf('/') + 1);
+    const depth = e.path.split('/').length - 1;
+    if (depth > 2 || AUXILIARY_PATH.test(e.path)) continue;
+    if (base === 'setup.py' || base === 'setup.cfg') add(e.path, 'build', 0);
+    else if (base === 'meson.build' || base === 'CMakeLists.txt') add(e.path, 'build', 1);
+  }
+  for (const m of manifests.filter((x) => x.ecosystem === 'PyPI' && x.python)) {
+    const dir = posix.dirname(m.file) === '.' ? '' : posix.dirname(m.file);
+    const join = (f: string): string => posix.normalize(dir ? `${dir}/${f}` : f);
+    for (const bp of m.python?.backendPath ?? []) {
+      const prefix = `${join(bp)}/`;
+      let n = 0;
+      for (const e of blobs)
+        if (e.path.startsWith(prefix) && e.path.endsWith('.py') && n++ < 8) add(e.path, 'build', 0);
+    }
+    for (const s of m.python?.buildScripts ?? []) add(join(s), 'build', 0);
+    // Modules that console/gui scripts point at (scanned for capabilities; they run when the user invokes the command).
+    const targets = [
+      ...Object.values(m.python?.scripts ?? {}),
+      ...Object.values(m.python?.guiScripts ?? {}),
+    ];
+    for (const t of targets.slice(0, 10)) {
+      const mod = (t.split(':')[0] ?? '').split('.').join('/');
+      if (!mod || !/^[\w/]+$/.test(mod)) continue;
+      for (const c of [
+        `${mod}.py`,
+        `${mod}/__init__.py`,
+        `src/${mod}.py`,
+        `src/${mod}/__init__.py`,
+      ])
+        add(join(c), 'source', 2);
+    }
   }
 
   for (const m of manifests.filter((x) => x.ecosystem === 'npm')) {

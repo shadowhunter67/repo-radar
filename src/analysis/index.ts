@@ -8,6 +8,7 @@ import {
   analyzeExecution,
   chainKey,
 } from './execution.js';
+import { BuildProjectSchema, EntrypointSchema } from './exec-model.js';
 import { fileKind } from './detectors.js';
 import { scanFile, type FileScan } from './scan.js';
 import { scanSecretsInFile, secretFilenameCandidates } from './secrets.js';
@@ -65,6 +66,10 @@ export const CodeAnalysisSchema = z.object({
   }),
   execution: z.object({
     hooks: z.array(HookSchema),
+    /** Commands/modules the installer exposes; they are NOT executed by installation (see exec-model.ts). */
+    entrypoints: z.array(EntrypointSchema),
+    /** Build projects (directories with a build system) and what their build system can run. */
+    projects: z.array(BuildProjectSchema),
     chains: z.array(ChainSchema),
     graph: z.object({
       nodes: z.array(ExecNodeSchema),
@@ -123,7 +128,13 @@ export function emptyCodeAnalysis(): CodeAnalysis {
       detections_total: 0,
     },
     persistence: { observed: false, kinds: [], install_time: false },
-    execution: { hooks: [], chains: [], graph: { nodes: [], edges: [], truncated: false } },
+    execution: {
+      hooks: [],
+      entrypoints: [],
+      projects: [],
+      chains: [],
+      graph: { nodes: [], edges: [], truncated: false },
+    },
     secrets: { candidates: [], scored_count: 0, files_scanned: 0 },
   };
 }
@@ -297,6 +308,8 @@ export function analyzeCode(input: CodeAnalysisInput): CodeAnalysis {
     persistence,
     execution: {
       hooks: exec.hooks,
+      entrypoints: exec.entrypoints,
+      projects: exec.projects,
       chains,
       graph: { nodes: exec.nodes, edges: exec.edges, truncated: exec.truncated },
     },

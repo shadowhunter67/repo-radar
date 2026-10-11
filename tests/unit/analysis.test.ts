@@ -342,11 +342,11 @@ describe('npm install-time execution graph', () => {
       run([setupPy], [py(backend)]).execution.hooks.find((h) => h.name === 'setup.py')!;
     expect(hook(undefined)).toMatchObject({ runs_for_dependents: true, context: 'install' });
     expect(hook('setuptools.build_meta')).toMatchObject({ runs_for_dependents: true });
-    expect(hook('poetry.core.masonry.api')).toMatchObject({
-      runs_for_dependents: false,
-      context: 'build',
-    });
-    expect(hook('hatchling.build')).toMatchObject({ runs_for_dependents: false });
+    // Another backend bypasses setup.py: no hook is reported, and the bypass is recorded on the project.
+    expect(hook('poetry.core.masonry.api')).toBeUndefined();
+    expect(hook('hatchling.build')).toBeUndefined();
+    const bypassed = run([setupPy], [py('hatchling.build')]).execution.projects[0]?.bypassed ?? [];
+    expect(bypassed.join(' ')).toMatch(/setup\.py is not run/);
   });
 
   it('caps the graph size and reports it', () => {

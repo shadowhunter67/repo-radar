@@ -279,6 +279,13 @@
         "classifier": {
           "type": "string"
         },
+        "confidence_semantics": {
+          "type": "string",
+          "enum": [
+            "heuristic_uncalibrated",
+            "calibrated"
+          ]
+        },
         "evidence": {
           "type": "array",
           "items": {
@@ -1238,7 +1245,9 @@
                       "cargo",
                       "docker",
                       "make",
-                      "shell"
+                      "shell",
+                      "maven",
+                      "gradle"
                     ]
                   },
                   "name": {
@@ -1256,6 +1265,52 @@
                       "install",
                       "build"
                     ]
+                  },
+                  "stage": {
+                    "type": "string",
+                    "enum": [
+                      "INSTALL_SCRIPT",
+                      "SOURCE_BUILD",
+                      "BUILD_BACKEND",
+                      "LEGACY_SETUP",
+                      "NATIVE_BUILD",
+                      "INSTALL_GENERATED_ENTRYPOINT",
+                      "RUNTIME",
+                      "TEST",
+                      "CI",
+                      "UNKNOWN"
+                    ]
+                  },
+                  "trigger_kind": {
+                    "type": "string",
+                    "enum": [
+                      "AUTOMATIC",
+                      "BUILD_TOOL_INVOKED",
+                      "USER_INVOKED",
+                      "CI_INVOKED",
+                      "RUNTIME",
+                      "UNKNOWN"
+                    ]
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "HOST",
+                      "BUILD_ENVIRONMENT",
+                      "VIRTUAL_ENV",
+                      "CONTAINER",
+                      "CI_RUNNER",
+                      "UNKNOWN"
+                    ]
+                  },
+                  "details": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
+                      "type": "string"
+                    }
                   },
                   "script": {
                     "type": "string"
@@ -1336,6 +1391,194 @@
                   "files",
                   "unanalyzed_commands",
                   "node_ids"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "entrypoints": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "ecosystem": {
+                    "type": "string",
+                    "enum": [
+                      "npm",
+                      "pypi",
+                      "cargo"
+                    ]
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "console_script",
+                      "gui_script",
+                      "bin",
+                      "plugin_group"
+                    ]
+                  },
+                  "target": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string"
+                  },
+                  "callable_found": {
+                    "type": "boolean"
+                  },
+                  "stage": {
+                    "type": "string",
+                    "enum": [
+                      "INSTALL_SCRIPT",
+                      "SOURCE_BUILD",
+                      "BUILD_BACKEND",
+                      "LEGACY_SETUP",
+                      "NATIVE_BUILD",
+                      "INSTALL_GENERATED_ENTRYPOINT",
+                      "RUNTIME",
+                      "TEST",
+                      "CI",
+                      "UNKNOWN"
+                    ]
+                  },
+                  "trigger_kind": {
+                    "type": "string",
+                    "enum": [
+                      "AUTOMATIC",
+                      "BUILD_TOOL_INVOKED",
+                      "USER_INVOKED",
+                      "CI_INVOKED",
+                      "RUNTIME",
+                      "UNKNOWN"
+                    ]
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "HOST",
+                      "BUILD_ENVIRONMENT",
+                      "VIRTUAL_ENV",
+                      "CONTAINER",
+                      "CI_RUNNER",
+                      "UNKNOWN"
+                    ]
+                  },
+                  "automatic": {
+                    "type": "boolean",
+                    "const": false
+                  },
+                  "manifest": {
+                    "type": "string"
+                  },
+                  "capabilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "ecosystem",
+                  "name",
+                  "kind",
+                  "target",
+                  "stage",
+                  "trigger_kind",
+                  "environment",
+                  "automatic",
+                  "manifest",
+                  "capabilities"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "projects": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "ecosystem": {
+                    "type": "string",
+                    "enum": [
+                      "pypi",
+                      "cargo",
+                      "npm",
+                      "maven",
+                      "gradle"
+                    ]
+                  },
+                  "dir": {
+                    "type": "string"
+                  },
+                  "build_system": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "known_declarative",
+                      "known_with_repository_code",
+                      "in_tree_custom",
+                      "external_custom",
+                      "legacy_default",
+                      "unknown"
+                    ]
+                  },
+                  "repository_code_runs": {
+                    "type": "boolean"
+                  },
+                  "native_build_systems": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "bypassed": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "requires": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "hook_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "notes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "ecosystem",
+                  "dir",
+                  "kind",
+                  "repository_code_runs",
+                  "native_build_systems",
+                  "bypassed",
+                  "requires",
+                  "hook_ids",
+                  "notes"
                 ],
                 "additionalProperties": false
               }
@@ -1428,7 +1671,10 @@
                           "script",
                           "command",
                           "file",
-                          "implicit"
+                          "implicit",
+                          "backend",
+                          "entrypoint",
+                          "extension"
                         ]
                       },
                       "label": {
@@ -1467,8 +1713,49 @@
                           "RUNS",
                           "EXECUTES",
                           "REFERENCES",
-                          "DOWNLOADS"
+                          "DOWNLOADS",
+                          "SELECTS_BACKEND",
+                          "CONFIGURES",
+                          "BUILDS",
+                          "DEFINES"
                         ]
+                      },
+                      "stage": {
+                        "type": "string",
+                        "enum": [
+                          "INSTALL_SCRIPT",
+                          "SOURCE_BUILD",
+                          "BUILD_BACKEND",
+                          "LEGACY_SETUP",
+                          "NATIVE_BUILD",
+                          "INSTALL_GENERATED_ENTRYPOINT",
+                          "RUNTIME",
+                          "TEST",
+                          "CI",
+                          "UNKNOWN"
+                        ]
+                      },
+                      "trigger_kind": {
+                        "type": "string",
+                        "enum": [
+                          "AUTOMATIC",
+                          "BUILD_TOOL_INVOKED",
+                          "USER_INVOKED",
+                          "CI_INVOKED",
+                          "RUNTIME",
+                          "UNKNOWN"
+                        ]
+                      },
+                      "confidence": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "evidence": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
                       }
                     },
                     "required": [
@@ -1493,6 +1780,8 @@
           },
           "required": [
             "hooks",
+            "entrypoints",
+            "projects",
             "chains",
             "graph"
           ],
@@ -2449,25 +2738,129 @@
           "items": {
             "type": "object",
             "properties": {
-              "package": {
+              "id": {
                 "type": "string"
               },
-              "kind": {
+              "subject": {
+                "type": "string"
+              },
+              "field": {
+                "type": "string"
+              },
+              "observations": {
+                "minItems": 2,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "lockfile",
+                        "manifest_pin",
+                        "manifest_range",
+                        "sbom",
+                        "registry",
+                        "advisory_db",
+                        "build_graph",
+                        "release_artifact"
+                      ]
+                    },
+                    "origin": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "quality": {
+                      "type": "object",
+                      "properties": {
+                        "provenance": {
+                          "type": "string",
+                          "enum": [
+                            "first_party",
+                            "derived",
+                            "third_party"
+                          ]
+                        },
+                        "temporal": {
+                          "type": "string",
+                          "enum": [
+                            "revision_bound",
+                            "current",
+                            "historical"
+                          ]
+                        },
+                        "mutability": {
+                          "type": "string",
+                          "enum": [
+                            "immutable_for_revision",
+                            "mutable"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "provenance",
+                        "temporal",
+                        "mutability"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "source",
+                    "origin",
+                    "value",
+                    "quality"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "preferred": {
                 "type": "string",
                 "enum": [
-                  "manifest_vs_lockfile",
-                  "lockfile_vs_sbom",
-                  "multiple_locked_versions"
+                  "lockfile",
+                  "manifest_pin",
+                  "manifest_range",
+                  "sbom",
+                  "registry",
+                  "advisory_db",
+                  "build_graph",
+                  "release_artifact"
                 ]
               },
-              "detail": {
+              "resolution_reason": {
                 "type": "string"
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "info",
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             },
             "required": [
-              "package",
-              "kind",
-              "detail"
+              "id",
+              "subject",
+              "field",
+              "observations",
+              "confidence",
+              "severity",
+              "evidence_ids"
             ],
             "additionalProperties": false
           }

@@ -1,4 +1,5 @@
 import type { ParsedManifest } from '../collectors/manifests/parse.js';
+import type { Conflict } from '../evidence/conflict.js';
 import type { Diagnostic } from '../evidence/types.js';
 import { sanitizeForTerminal } from '../util/text.js';
 import { compareSbom } from './compare.js';
@@ -31,7 +32,7 @@ export interface DepsInput {
 
 export interface DepsStatic {
   deps: Dependency[];
-  conflicts: DependencyIntel['conflicts'];
+  conflicts: Conflict[];
   limitsHit: string[];
   locks: LockIndex[];
   sboms: SbomDocument[];

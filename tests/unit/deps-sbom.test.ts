@@ -297,7 +297,7 @@ describe('source precedence and conflicts across lockfile, SBOM and manifest', (
     expect(deps[0]?.other_versions).toEqual([
       { version: '2.3.8', source: 'sbom', file: 'sbom.json' },
     ]);
-    expect(conflicts.map((c) => c.kind)).toContain('lockfile_vs_sbom');
+    expect(conflicts.map((c) => c.field)).toContain('lockfile_vs_sbom_version');
   });
   it('an SBOM resolves a range only when no lockfile exists, with lower confidence', () => {
     const d = parseSbom('sbom.json', cdx([comp('a', '2.3.8')]));

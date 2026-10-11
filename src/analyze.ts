@@ -121,6 +121,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   });
 
   const identity = await classifier.classify(github.snapshot);
+  identity.confidence_semantics ??= 'heuristic_uncalibrated';
   const idEvidence = identityEvidence(identity, github.snapshot, clock);
 
   // Static analysis of fetched text. Nothing from the repository is executed.

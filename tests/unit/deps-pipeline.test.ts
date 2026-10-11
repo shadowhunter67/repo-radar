@@ -462,3 +462,27 @@ describe('report integrity and configuration', () => {
     );
   });
 });
+
+describe('observed risk and completeness are reported separately', () => {
+  it('3 vulnerable of 6 checked among 175 known dependencies: high observed risk, very low confidence', async () => {
+    const declared: Record<string, string> = {};
+    for (let i = 0; i < 175; i++) declared[`d${i}`] = i < 6 ? '1.0.0' : '^1.0.0';
+    const spec = withFiles(
+      { 'package.json': pkg(declared) },
+      { osvVulns: { d0: ['GHSA-a'], d1: ['GHSA-b'], d2: ['GHSA-c'] } },
+    );
+    delete spec.files['package-lock.json'];
+    const { r } = await run(spec);
+    const ev = (id: string) => r.evidence.find((e) => e.id === id);
+    expect(ev('osv.checked_packages')?.value).toBe(6);
+    expect(ev('osv.vulnerable_packages')?.value).toBe(3);
+    expect(ev('osv.eligible_packages')?.value).toBe(175);
+    expect(ev('osv.vulnerable_ratio')?.value).toBe(0.5); // observed risk, not diluted by what could not be checked
+    expect(Number(ev('osv.coverage_ratio')?.value)).toBeLessThan(0.05); // completeness
+    expect(ev('osv.vulnerable_ratio')?.confidence).toBeLessThan(0.25); // ...and it lowers the confidence instead
+    const rule = ruleOf(r, 'security.known-vulnerabilities');
+    expect(rule.score).toBe(0);
+    expect(rule.confidence).toBeLessThan(0.3);
+    expect(r.identity.confidence_semantics).toBe('heuristic_uncalibrated');
+  });
+});

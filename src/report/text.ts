@@ -31,7 +31,9 @@ export function renderText(r: Report, o: TextOptions = {}): string {
     out.push(`  Purpose not determined from available metadata (confidence ${pct(id.confidence)})`);
   } else {
     out.push(`  ${s(id.primary_function)} - detected type: ${s(id.canonical_type)}`);
-    out.push(`  Confidence: ${pct(id.confidence)} (heuristic classifier ${s(id.classifier)})`);
+    out.push(
+      `  Confidence: ${pct(id.confidence)} (heuristic classifier ${s(id.classifier)}; a heuristic score, not a calibrated probability)`,
+    );
   }
   if (id.declared_summary) out.push(`  Declared: "${s(id.declared_summary, 160)}"`);
   if (id.interfaces.length > 0)
@@ -265,6 +267,10 @@ function renderCodeAnalysis(
       `  ${h.ecosystem}:${s(h.name)}  risk ${RISK_LABEL[h.risk]}  confidence ${pct(h.confidence)}${h.runs_for_dependents ? '  (runs for dependents)' : ''}${h.analyzed ? '' : '  (not fully analyzed)'}`,
     );
     out.push(`    trigger: ${s(h.trigger, 100)}`);
+    if (h.stage)
+      out.push(
+        `    stage ${h.stage} | trigger kind ${h.trigger_kind ?? 'UNKNOWN'} | environment ${h.environment ?? 'UNKNOWN'}`,
+      );
     if (h.capabilities.length > 0) out.push(`    capabilities: ${h.capabilities.join(', ')}`);
     if (h.chain_ids.length > 0) out.push(`    chains: ${h.chain_ids.join(', ')}`);
     if (verbose && h.files.length > 0)
@@ -274,6 +280,24 @@ function renderCodeAnalysis(
           .map((f) => s(f, 60))
           .join(', ')}`,
       );
+  }
+  for (const p of c.execution.projects)
+    out.push(
+      `  project ${s(p.dir, 40)} [${p.ecosystem}] build system ${s(p.build_system ?? '?', 50)}: ${p.kind}${p.repository_code_runs ? ', repository code runs on a source build' : ''}${p.native_build_systems.length > 0 ? `, native: ${p.native_build_systems.join(', ')}` : ''}`,
+    );
+  for (const p of c.execution.projects)
+    for (const b of p.bypassed) out.push(`    note: ${s(b, 140)}`);
+  if (c.execution.entrypoints.length > 0) {
+    out.push(
+      '',
+      'ENTRY POINTS (installed launchers; they run when a user invokes them, NOT during installation)',
+    );
+    for (const e of c.execution.entrypoints.slice(0, verbose ? 40 : 10))
+      out.push(
+        `  ${e.ecosystem}:${s(e.name, 40)} -> ${s(e.target, 60)}${e.file ? ` (${s(e.file, 50)})` : ''}  [${e.trigger_kind}]${e.capabilities.length > 0 ? `  capabilities: ${e.capabilities.join(', ')}` : ''}`,
+      );
+    if (c.execution.entrypoints.length > (verbose ? 40 : 10))
+      out.push(`  ... ${c.execution.entrypoints.length - (verbose ? 40 : 10)} more`);
   }
   for (const ch of c.execution.chains) {
     out.push(

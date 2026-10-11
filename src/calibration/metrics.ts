@@ -274,6 +274,20 @@ export function evaluate(cases: Case[]): Evaluation {
 
 const pct = (x: number | null): string => (x === null ? 'n/a' : `${Math.round(x * 100)}%`);
 
+function reliabilityLines(title: string, c: CalibrationSummary): string[] {
+  if (c.n === 0) return [];
+  return [
+    `${title} reliability (answered only): n=${c.n}, ECE=${c.ece === null ? 'n/a' : c.ece.toFixed(2)}, Brier=${c.brier === null ? 'n/a' : c.brier.toFixed(2)}`,
+    ...c.bins
+      .filter((b) => b.n > 0)
+      .map(
+        (b) =>
+          `- confidence ${b.range[0].toFixed(1)}-${b.range[1].toFixed(1)}: n=${b.n}, mean confidence ${pct(b.meanConfidence)}, actually correct ${pct(b.accuracy)}`,
+      ),
+    '',
+  ];
+}
+
 export function renderMarkdown(title: string, e: Evaluation): string {
   const row = (name: string, r: Prf): string =>
     `| ${name} | ${r.n} | ${r.tp} | ${r.fp} | ${r.fn} | ${r.tn} | ${r.excluded} | ${pct(r.precision)} | ${pct(r.recall)} |`;
@@ -298,6 +312,8 @@ export function renderMarkdown(title: string, e: Evaluation): string {
     row('(all capabilities) scan coverage >= 50%', e.capabilitiesByCoverage.high),
     row('(all capabilities) scan coverage < 50%', e.capabilitiesByCoverage.low),
     '',
+    ...reliabilityLines('Artifact-type confidence', e.artifact.calibration),
+    ...reliabilityLines('Domain confidence', e.domain.calibration),
     `Capability confidence calibration: n=${e.capabilityConfidence.n}, ECE=${e.capabilityConfidence.ece === null ? 'n/a' : e.capabilityConfidence.ece.toFixed(2)}, Brier=${e.capabilityConfidence.brier === null ? 'n/a' : e.capabilityConfidence.brier.toFixed(2)}`,
     ...e.capabilityConfidence.bins.map(
       (b) =>

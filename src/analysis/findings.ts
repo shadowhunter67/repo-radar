@@ -93,9 +93,33 @@ export function buildFindings(code: CodeAnalysis): Finding[] {
       evidence_ids: [h.id, ...h.chain_ids],
       rule_ids: ['supply-chain.install-hooks'],
       standards: ['mitre-attack:T1195.002'],
-      summary: `Trigger: ${h.trigger}. Observed capabilities: ${h.capabilities.length > 0 ? h.capabilities.join(', ') : 'none detected'}${h.analyzed ? '' : ` (not fully analyzed: ${h.unanalyzed_commands} command(s)/file(s) could not be read)`}.`,
+      summary: `${h.stage ? `Stage ${h.stage}, trigger ${h.trigger_kind ?? 'UNKNOWN'}, environment ${h.environment ?? 'UNKNOWN'}. ` : ''}Trigger: ${h.trigger}. Observed capabilities: ${h.capabilities.length > 0 ? h.capabilities.join(', ') : 'none detected'}${h.analyzed ? '' : ` (not fully analyzed: ${h.unanalyzed_commands} command(s)/file(s) could not be read)`}.`,
       remediation:
-        'Review the hook and the files it runs before installing; consider installing with lifecycle scripts disabled (for npm: --ignore-scripts) where the package allows it.',
+        h.ecosystem === 'pypi'
+          ? 'Prefer installing a published wheel (pip install --only-binary :all:) so no build code runs; otherwise review the build backend and the files it runs before building from source.'
+          : 'Review the hook and the files it runs before installing; consider installing with lifecycle scripts disabled (for npm: --ignore-scripts) where the package allows it.',
+      intent: 'undetermined',
+    });
+  }
+
+  // A repository-controlled build backend is worth stating even when no risky capability was observed in it:
+  // it is code from the repository that runs in the installer's build environment.
+  for (const p of code.execution.projects) {
+    if (p.kind !== 'in_tree_custom' || !p.repository_code_runs) continue;
+    if (out.some((f) => f.evidence_ids.some((id) => p.hook_ids.includes(id)))) continue;
+    out.push({
+      id: next('EXEC'),
+      title: `Repository-controlled ${p.ecosystem} build backend runs when building ${p.dir} from source`,
+      severity: 'low',
+      confidence: 0.85,
+      dimension: 'supply-chain',
+      category: 'execution',
+      evidence_ids: p.hook_ids,
+      rule_ids: ['supply-chain.install-hooks'],
+      standards: [],
+      summary: `The declared build backend (${p.build_system ?? 'unknown'}) is loaded from the repository itself (backend-path), so building from source executes repository code in the build environment. No risky capability was observed in the analyzed files; this is a statement about where the code comes from, not a finding of misbehaviour.`,
+      remediation:
+        'Prefer a published wheel (pip install --only-binary :all:) or review the in-tree backend before building from source.',
       intent: 'undetermined',
     });
   }

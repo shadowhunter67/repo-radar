@@ -94,7 +94,7 @@ describe('pipeline: healthy repository', () => {
     expect(dim(vuln, 'security').score!).toBeLessThan(dim(clean, 'security').score!);
     expect(vuln.warnings.some((w) => /known OSV advisories/.test(w.message))).toBe(true);
     expect(vuln.warnings.find((w) => /known OSV/.test(w.message))!.message).toMatch(
-      /^1 of 3 pinned/,
+      /^Observed: 1 of 3 checked/,
     );
   });
 });

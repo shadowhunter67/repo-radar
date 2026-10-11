@@ -33,6 +33,11 @@ export const SemanticIdentitySchema = z.object({
   purpose_summary: z.string(),
   taxonomy_version: z.string(),
   classifier: z.string(),
+  /**
+   * What the confidence numbers mean. `heuristic_uncalibrated`: a score in [0,1] built from evidence counts, NOT a probability
+   * (measured calibration error on independent data is large; see docs/methodology.md). Never silently rescaled.
+   */
+  confidence_semantics: z.enum(['heuristic_uncalibrated', 'calibrated']).optional(),
   /** Human-readable reasons that produced the classification. */
   evidence: z.array(z.string()),
 });

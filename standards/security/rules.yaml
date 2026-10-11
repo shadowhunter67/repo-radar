@@ -92,7 +92,7 @@ rules:
   - id: security.known-vulnerabilities
     dimension: security
     title: 'Pinned dependencies with known vulnerabilities (OSV)'
-    rationale: 'Share of exactly-versioned dependencies that OSV lists with at least one advisory. Presence of an advisory does not mean it is exploitable in this project.'
+    rationale: 'Observed risk: share of the exactly-versioned dependencies that were checked and that OSV lists with at least one advisory. Completeness (how much of the dependency set could be checked) is a separate quantity: it lowers the evidence confidence instead of diluting the ratio. Presence of an advisory does not mean it is exploitable in this project.'
     evidence: [osv.vulnerable_ratio]
     weight: 8
     group: vulnerabilities
@@ -109,7 +109,7 @@ rules:
     warn:
       {
         below: 7,
-        message: '{osv.vulnerable_packages} of {osv.checked_packages} pinned dependencies have known OSV advisories.',
+        message: 'Observed: {osv.vulnerable_packages} of {osv.checked_packages} checked dependencies have known OSV advisories ({osv.eligible_packages} packages known in total; direct-dependency check coverage {osv.coverage_ratio}). The score reflects what was observed; the confidence reflects how complete the observation is.',
       }
     limitations: 'OSV batch results carry no severity. Version ranges are never guessed, so unpinned dependencies are not checked.'
   - id: security.scorecard-vulnerabilities

@@ -259,7 +259,12 @@ describe('resolution precedence and honesty', () => {
     expect(deps[0]?.other_versions).toEqual([
       { version: '1.0.0', source: 'manifest_pin', file: 'package.json' },
     ]);
-    expect(conflicts[0]).toMatchObject({ kind: 'manifest_vs_lockfile' });
+    expect(conflicts[0]).toMatchObject({
+      field: 'manifest_pin_vs_lockfile',
+      preferred: 'lockfile',
+    });
+    expect(conflicts[0]?.observations.map((o) => o.source)).toEqual(['manifest_pin', 'lockfile']);
+    expect(conflicts[0]?.resolution_reason).toContain('is preferred over manifest_pin');
   });
 
   it('a stale lockfile (locked version outside the requested range) is a conflict', () => {
@@ -270,7 +275,9 @@ describe('resolution precedence and honesty', () => {
     });
     expect(
       conflicts.some(
-        (c) => c.kind === 'manifest_vs_lockfile' && /outside the range/.test(c.detail),
+        (c) =>
+          c.field === 'locked_version_vs_requested_range' &&
+          c.observations.some((o) => o.source === 'manifest_range'),
       ),
     ).toBe(true);
   });
