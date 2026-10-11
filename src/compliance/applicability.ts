@@ -49,6 +49,7 @@ export type Condition =
       };
     }
   | { path: string }
+  | { finding: { category?: string; min_severity?: string; rule_id?: string } }
   | { context: string };
 
 export const ConditionSchema: z.ZodType<Condition> = z.lazy(() =>
@@ -97,6 +98,17 @@ export const ConditionSchema: z.ZodType<Condition> = z.lazy(() =>
       })
       .strict(),
     z.object({ path: z.string().max(300) }).strict(),
+    z
+      .object({
+        finding: z
+          .object({
+            category: z.string().optional(),
+            min_severity: z.enum(['info', 'low', 'medium', 'high']).optional(),
+            rule_id: z.string().optional(),
+          })
+          .strict(),
+      })
+      .strict(),
     z.object({ context: z.string().max(100) }).strict(),
   ]),
 ) as z.ZodType<Condition>;
@@ -130,6 +142,8 @@ export interface ComplianceContext {
   /** Look up an evidence or fact value by id. */
   fact(id: string): { value: unknown; confidence: number } | undefined;
   hasPrivateOnlyManifests: boolean;
+  /** Findings of this report (used by policy blocks). */
+  findings?: { id: string; category: string; severity: string; rule_ids: string[] }[];
   releasesPresent: boolean | undefined;
   dockerfilePresent: boolean | undefined;
 }
@@ -374,6 +388,26 @@ function evalLeaf(c: Condition, ctx: ComplianceContext): Tri {
     );
     if (hit) return t(true, 0.9, `file present: ${hit.slice(0, 80)}`, [hit]);
     return t(false, 0.7, `no file matches ${c.path}`);
+  }
+  if ('finding' in c) {
+    const order = ['info', 'low', 'medium', 'high'];
+    const min = c.finding.min_severity ? order.indexOf(c.finding.min_severity) : 0;
+    const hits = (ctx.findings ?? []).filter(
+      (f) =>
+        (!c.finding.category || f.category === c.finding.category) &&
+        order.indexOf(f.severity) >= min &&
+        (!c.finding.rule_id || f.rule_ids.includes(c.finding.rule_id)),
+    );
+    if (ctx.findings === undefined)
+      return t(null, 0, 'findings are not available', [], ['findings']);
+    return hits.length > 0
+      ? t(
+          true,
+          0.9,
+          `${hits.length} matching finding(s)`,
+          hits.slice(0, 5).map((h) => h.id),
+        )
+      : t(false, 0.8, 'no matching finding');
   }
   if ('context' in c)
     return t(null, 0, `needs context the repository cannot show: ${c.context}`, [], [c.context]);

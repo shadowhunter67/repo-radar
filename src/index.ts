@@ -1,4 +1,8 @@
 export { analyzeRepository, toolVersion, type AnalyzeOptions } from './analyze.js';
+export { diffReports, renderDiffText, type ReportDiff } from './report/diff.js';
+export { buildRepositoryModel, type RepositoryModel } from './model/index.js';
+export { evaluateApplicability, type Applicability } from './compliance/applicability.js';
+export { loadPacks, type Regulatory } from './compliance/index.js';
 export { ReportSchema, REPORT_SCHEMA_VERSION, type Report } from './report/schema.js';
 export { renderText } from './report/text.js';
 export { EvidenceSchema, EVIDENCE_SCHEMA_VERSION, type Evidence } from './evidence/types.js';

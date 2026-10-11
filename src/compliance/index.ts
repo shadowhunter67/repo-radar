@@ -95,13 +95,15 @@ export function deriveIndicatorFacts(
   return facts;
 }
 
-/** Step 2 (after scoring): applicability and indicator status for every pack. */
-export function evaluateCompliance(
+/** The evaluation context shared by regulatory packs and policy blocks. */
+export function buildComplianceContext(
   input: ComplianceInput,
   indicators: TechnicalIndicator[],
   store: EvidenceStore,
-): Regulatory {
-  const ctx: ComplianceContext = {
+  findings?: ComplianceContext['findings'],
+): ComplianceContext {
+  return {
+    ...(findings ? { findings } : {}),
     identity: input.identity,
     code: input.code,
     intel: input.intel,
@@ -123,5 +125,13 @@ export function evaluateCompliance(
       return typeof v === 'boolean' ? v : undefined;
     })(),
   };
-  return evaluateRegulatory(input.packs, ctx);
+}
+
+/** Step 2 (after scoring): applicability and indicator status for every pack. */
+export function evaluateCompliance(
+  input: ComplianceInput,
+  indicators: TechnicalIndicator[],
+  store: EvidenceStore,
+): Regulatory {
+  return evaluateRegulatory(input.packs, buildComplianceContext(input, indicators, store));
 }

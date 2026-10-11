@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { EvidenceIdSchema } from '../evidence/types.js';
+import { ConditionSchema as PolicyConditionSchema } from '../compliance/applicability.js';
 
 export const METHODOLOGY_VERSION = '0.4';
 
@@ -106,5 +107,21 @@ export const ProfileSchema = z.object({
   rule_weights: z.record(z.string(), z.number().min(0).max(100)).default({}),
   /** Advisory floors (0-100) per dimension or "overall"; enforced only with --enforce-profile. */
   minimums: z.record(z.string(), z.number().min(0).max(100)).default({}),
+  /**
+   * Policy-as-code: conditions over the report (facts, findings, capabilities, ...) that block adoption. Enforced only
+   * with --enforce-profile. A condition that cannot be decided (`unknown`) blocks only when `on_unknown: block`.
+   */
+  block: z
+    .array(
+      z
+        .object({
+          id: z.string().regex(/^[a-z0-9-]{3,60}$/),
+          description: z.string().min(5).max(300),
+          when: PolicyConditionSchema,
+          on_unknown: z.enum(['ignore', 'block']).default('ignore'),
+        })
+        .strict(),
+    )
+    .default([]),
 });
 export type Profile = z.infer<typeof ProfileSchema>;

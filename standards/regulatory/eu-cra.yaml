@@ -17,7 +17,20 @@ requires_context:
   - 'product category and any exemption that applies'
 applies_when:
   artifact_type:
-    [library, application, cli, service, framework, plugin, extension, sdk, driver, tooling, container, monorepo]
+    [
+      library,
+      application,
+      cli,
+      service,
+      framework,
+      plugin,
+      extension,
+      sdk,
+      driver,
+      tooling,
+      container,
+      monorepo,
+    ]
 indicators:
   - id: cra.vulnerability-disclosure-policy
     title: 'A security policy / vulnerability disclosure channel is published'

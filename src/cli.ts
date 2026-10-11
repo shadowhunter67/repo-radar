@@ -1,10 +1,13 @@
 #!/usr/bin/env node
-import { realpathSync, writeFileSync } from 'node:fs';
+import { readFileSync, realpathSync, statSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { analyzeRepository, toolVersion } from './analyze.js';
 import { RepoNotFoundError } from './collectors/github/collector.js';
+import { buildRepositoryModel, summarizeModel } from './model/index.js';
 import { listProfiles, UnknownProfileError } from './profiles/load.js';
+import { diffReports, renderDiffText } from './report/diff.js';
+import { ReportSchema } from './report/schema.js';
 import { renderText } from './report/text.js';
 import { parseMinimums } from './scoring/policy.js';
 import { loadRuleSet } from './scoring/rules.js';
@@ -25,6 +28,8 @@ const HELP = `repo-radar - transparent, evidence-traceable repository intelligen
 
 Usage:
   repo-radar analyze <owner/repo | https://github.com/owner/repo> [options]
+  repo-radar diff <old.json> <new.json> [--format text|json]   Compare two JSON reports (new/removed dependencies, capabilities, hooks, vulnerabilities, ...)
+  repo-radar model <report.json> [--format text|json]          Project a 0.4 report onto the unified repository model
   repo-radar profiles                 List scoring profiles
   repo-radar rules [dimension]        List scoring rules (weights, evidence ids)
   repo-radar --version | --help
@@ -126,6 +131,34 @@ export async function main(
       );
       return EXIT.OK;
     }
+    if (cmd === 'diff' || cmd === 'model') {
+      const want = cmd === 'diff' ? 2 : 1;
+      if (rest.length !== want) {
+        stderr(`error: ${cmd} needs exactly ${want} report file${want > 1 ? 's' : ''}\n`);
+        return EXIT.USAGE;
+      }
+      const readJson = (file: string): unknown => {
+        if (statSync(file).size > 50 * 1024 * 1024)
+          throw new Error(`${sanitizeForTerminal(file, 80)} is larger than 50 MiB`);
+        return JSON.parse(readFileSync(file, 'utf8')) as unknown;
+      };
+      const fmt = values.format === 'json' ? 'json' : 'text';
+      if (cmd === 'diff') {
+        const d = diffReports(readJson(rest[0] as string), readJson(rest[1] as string));
+        stdout(fmt === 'json' ? JSON.stringify(d, null, 2) + '\n' : renderDiffText(d));
+      } else {
+        const parsed = ReportSchema.safeParse(readJson(rest[0] as string));
+        if (!parsed.success) {
+          stderr(
+            'error: model needs a report of the current schema version (0.4); re-run the analysis\n',
+          );
+          return EXIT.USAGE;
+        }
+        const m = buildRepositoryModel(parsed.data);
+        stdout(fmt === 'json' ? JSON.stringify(m, null, 2) + '\n' : summarizeModel(m));
+      }
+      return EXIT.OK;
+    }
     if (cmd !== 'analyze') {
       stderr(`error: unknown command "${sanitizeForTerminal(cmd, 40)}"\n\n${HELP}`);
       return EXIT.USAGE;
@@ -174,7 +207,10 @@ export async function main(
     } else {
       stdout(body);
     }
-    return report.policy.enforced && report.policy.violations.length > 0 ? EXIT.POLICY : EXIT.OK;
+    return report.policy.enforced &&
+      (report.policy.violations.length > 0 || report.policy.block_violations.length > 0)
+      ? EXIT.POLICY
+      : EXIT.OK;
   } catch (e) {
     return handleError(e, stderr);
   }

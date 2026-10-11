@@ -33,7 +33,10 @@ indicators:
     title: 'Dataset / data provenance documentation is present'
     reference: 'AI Act data governance (indicative)'
     rationale: 'Datasheets or data cards describe where training data comes from.'
-    observed_when: { path: '(^|/)(DATA_?CARD|datasheet|dataset[-_]card|DATASETS?|data[-_]provenance|training[-_]data)(\.[a-z]+)?$' }
+    observed_when:
+      {
+        path: '(^|/)(DATA_?CARD|datasheet|dataset[-_]card|DATASETS?|data[-_]provenance|training[-_]data)(\.[a-z]+)?$',
+      }
     limitations: 'Data documentation is often external; its absence in the repository is not evidence of absence.'
   - id: ai.model-license
     title: 'A license file is present for the model/code'
@@ -46,11 +49,15 @@ indicators:
     title: 'Evaluation or benchmark artifacts are present'
     reference: 'AI Act accuracy / robustness documentation (indicative)'
     rationale: 'Reproducible evaluation scripts or results support accuracy and robustness claims.'
-    observed_when: { path: '(^|/)(evals?|evaluation|benchmarks?|leaderboard)(/|\.[a-z]+$)|eval[_-]results' }
+    observed_when:
+      { path: '(^|/)(evals?|evaluation|benchmarks?|leaderboard)(/|\.[a-z]+$)|eval[_-]results' }
     limitations: 'Evaluation can be hosted elsewhere; the presence of files says nothing about their quality.'
   - id: ai.copyright-provenance-documentation
     title: 'Copyright / third-party notices or a training-data summary is present'
     reference: 'AI Act copyright policy and training-content summary for general-purpose models (indicative)'
     rationale: 'Notices and training-content summaries are how providers document rights and sources.'
-    observed_when: { path: '(^|/)(COPYRIGHT|NOTICE|THIRD[_-]PARTY[\w-]*|copyright[-_]policy|training[-_]data[-_]summary)(\.[a-z]+)?$' }
+    observed_when:
+      {
+        path: '(^|/)(COPYRIGHT|NOTICE|THIRD[_-]PARTY[\w-]*|copyright[-_]policy|training[-_]data[-_]summary)(\.[a-z]+)?$',
+      }
     limitations: 'Only file presence is checked; no statement about legality of the underlying data is made.'

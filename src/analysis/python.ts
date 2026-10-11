@@ -4,9 +4,9 @@ import { AUXILIARY_DIR } from '../util/scope.js';
 import { sanitizeForTerminal } from '../util/text.js';
 import type { ExecApi } from './exec-api.js';
 import { addHookCapabilities, type BuildProject, type Entrypoint } from './exec-model.js';
-import type { ExecEdge, ExecNode, Hook } from './execution.js';
+import type { ExecEdge } from './execution.js';
 import { resolvePyModule } from './refs.js';
-import type { Capability, ExecContext, RiskLevel, ScannedFile } from './types.js';
+import type { Capability, ScannedFile } from './types.js';
 
 /**
  * Python execution model (static; setup.py and backends are NEVER run).

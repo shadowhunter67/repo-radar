@@ -101,6 +101,17 @@ export const ReportSchema = z.object({
     source: z.enum(['none', 'profile', 'cli']),
     enforced: z.boolean(),
     minimums: z.record(z.string(), z.number()),
+    /** Policy-as-code blocks of the profile that were evaluated, and the ones that fired. */
+    blocks_evaluated: z.number(),
+    block_violations: z.array(
+      z.object({
+        id: z.string(),
+        description: z.string(),
+        reason: z.enum(['condition_true', 'undecidable']),
+        evidence: z.array(z.string()),
+        missing: z.array(z.string()),
+      }),
+    ),
     violations: z.array(
       z.object({
         key: z.string(),

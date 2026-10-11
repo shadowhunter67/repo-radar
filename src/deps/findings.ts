@@ -190,6 +190,33 @@ export function buildDependencyFindings(intel: DependencyIntel): Finding[] {
       summary: `${name(v.detail ?? 'the OSV request failed')}. No dependency was treated as safe because of this; the vulnerability rule is unobserved.`,
       remediation: 'Re-run the analysis when the OSV service is reachable.',
     });
+
+  // Registries restrict package names to ASCII; a non-ASCII (or mixed-script) name is a classic look-alike trick.
+  const odd = deps.filter((d) => /[^\x20-\x7e]/.test(d.package.name));
+  if (odd.length > 0)
+    out.push({
+      id: id(),
+      title: `${odd.length} dependenc${odd.length === 1 ? 'y name contains' : 'y names contain'} non-ASCII characters`,
+      severity: 'medium',
+      confidence: 0.8,
+      dimension: 'supply-chain',
+      category: 'dependency',
+      evidence_ids: odd.slice(0, 10).map((d) => d.id),
+      rule_ids: [],
+      ...base,
+      summary: `Package registries normally allow ASCII names only. Names: ${odd
+        .slice(0, 3)
+        .map((d) =>
+          [...d.package.name.slice(0, 40)]
+            .map((ch) => (ch.charCodeAt(0) > 127 ? `\\u{${ch.codePointAt(0)?.toString(16)}}` : ch))
+            .join(''),
+        )
+        .join(
+          '; ',
+        )} (non-ASCII characters shown as escapes). This can indicate a look-alike (homoglyph) of a legitimate package or an unusual registry.`,
+      remediation:
+        'Check the exact package name against the registry before installing; replace look-alike names.',
+    });
   return out;
 }
 

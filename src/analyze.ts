@@ -20,6 +20,7 @@ import { systemClock, type Clock } from './evidence/builder.js';
 import { EvidenceStore } from './evidence/store.js';
 import type { Diagnostic, Evidence } from './evidence/types.js';
 import {
+  buildComplianceContext,
   collectIndicators,
   deriveIndicatorFacts,
   evaluateCompliance,
@@ -40,7 +41,7 @@ import { LIMITS } from './limits.js';
 import { loadProfile, validateProfileAgainstRules } from './profiles/load.js';
 import { REPORT_SCHEMA_VERSION, type Report } from './report/schema.js';
 import { evaluate } from './scoring/engine.js';
-import { evaluatePolicy } from './scoring/policy.js';
+import { evaluateBlocks, evaluatePolicy } from './scoring/policy.js';
 import { loadRuleSet } from './scoring/rules.js';
 import { HttpClient, HttpError, RateLimitError, type FetchLike } from './util/http.js';
 import { packageRoot } from './util/paths.js';
@@ -280,6 +281,36 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   const cliMin = opts.minimums && Object.keys(opts.minimums).length > 0 ? opts.minimums : undefined;
   const minimums = cliMin ?? profile.minimums;
   const violations = evaluatePolicy(scoring, minimums);
+  const findings = [...buildFindings(code), ...buildDependencyFindings(intel)];
+  const blockViolations = evaluateBlocks(
+    profile.block,
+    buildComplianceContext(
+      {
+        packs: [],
+        identity: {
+          artifact_type: identity.artifact_type,
+          artifact_confidence: identity.artifact_confidence,
+          domain: identity.domain,
+          ecosystem: identity.ecosystem,
+        },
+        code,
+        intel,
+        allDependencies: depsStatic.deps,
+        manifests: github.snapshot.manifests,
+        files: github.files,
+        treePaths: github.allTreePaths,
+        scanReliable,
+      },
+      indicators,
+      scoringStore,
+      findings.map((f) => ({
+        id: f.id,
+        category: f.category,
+        severity: f.severity,
+        rule_ids: f.rule_ids,
+      })),
+    ),
+  );
 
   const report: Omit<Report, 'integrity'> = {
     tool: { name: 'repo-radar', version: toolVersion(root) },
@@ -329,9 +360,15 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     dimensions: scoring.dimensions,
     warnings: scoring.warnings,
     policy: {
-      source: cliMin ? 'cli' : Object.keys(profile.minimums).length > 0 ? 'profile' : 'none',
+      source: cliMin
+        ? 'cli'
+        : Object.keys(profile.minimums).length > 0 || profile.block.length > 0
+          ? 'profile'
+          : 'none',
       enforced: !!opts.enforcePolicy || !!cliMin,
       minimums,
+      blocks_evaluated: profile.block.length,
+      block_violations: blockViolations,
       violations,
     },
     diagnostics: diagnostics.map((d) => ({ ...d, message: redactSecrets(d.message) })),
@@ -343,7 +380,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     evidence: store.all(),
     facts,
     code_analysis: code,
-    findings: [...buildFindings(code), ...buildDependencyFindings(intel)],
+    findings,
     dependency_intel: intel,
     regulatory,
   };

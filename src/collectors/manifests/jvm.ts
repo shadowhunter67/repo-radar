@@ -259,35 +259,6 @@ const NAMED_DEP =
   /group\s*[=:]\s*["']([\w.-]+)["'][^)]{0,200}?name\s*[=:]\s*["']([\w.-]+)["'](?:[^)]{0,200}?version\s*[=:]\s*["']([^"']+)["'])?/;
 const GRADLE_PLUGIN_ID =
   /(?:^|\s)id\s*[( ]\s*["']([\w.:-]+)["']|apply\s+plugin\s*:\s*["']([\w.:-]+)["']|apply\s*\(\s*plugin\s*=\s*["']([\w.:-]+)["']/;
-const CORE_PLUGINS = new Set([
-  'java',
-  'java-library',
-  'application',
-  'war',
-  'ear',
-  'maven-publish',
-  'publishing',
-  'signing',
-  'jacoco',
-  'checkstyle',
-  'pmd',
-  'idea',
-  'eclipse',
-  'base',
-  'distribution',
-  'groovy',
-  'scala',
-  'kotlin',
-  'org.jetbrains.kotlin.jvm',
-  'java-platform',
-  'jvm-test-suite',
-  'application-distribution',
-  'version-catalog',
-  'war-plugin',
-  'cpp-library',
-  'cpp-application',
-  'antlr',
-]);
 const TASK_TYPES =
   /\b(Exec|JavaExec|Download|Copy|Delete|Sync|Zip|Tar|Jar|Test|GradleBuild|AntBuilder|SshTask)\b/;
 

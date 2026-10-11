@@ -680,6 +680,50 @@
             "type": "number"
           }
         },
+        "blocks_evaluated": {
+          "type": "number"
+        },
+        "block_violations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "condition_true",
+                  "undecidable"
+                ]
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "missing": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "description",
+              "reason",
+              "evidence",
+              "missing"
+            ],
+            "additionalProperties": false
+          }
+        },
         "violations": {
           "type": "array",
           "items": {
@@ -719,6 +763,8 @@
         "source",
         "enforced",
         "minimums",
+        "blocks_evaluated",
+        "block_violations",
         "violations"
       ],
       "additionalProperties": false

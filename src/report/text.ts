@@ -101,6 +101,17 @@ export function renderText(r: Report, o: TextOptions = {}): string {
     }
   }
 
+  if (r.policy.block_violations.length > 0) {
+    out.push('');
+    out.push(
+      `POLICY BLOCKS (${r.policy.blocks_evaluated} evaluated${r.policy.enforced ? ', enforced' : ', advisory'})`,
+    );
+    for (const b of r.policy.block_violations)
+      out.push(
+        `  - ${s(b.id, 60)}: ${s(b.description, 140)}${b.reason === 'undecidable' ? ' (could not be decided; this block fails closed)' : ''}`,
+      );
+  }
+
   const notable = r.diagnostics.filter((d) => d.level !== 'info');
   if (notable.length > 0 || o.verbose) {
     out.push('');

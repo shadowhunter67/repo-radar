@@ -25,3 +25,13 @@ minimums:
   supply-chain: 60
   maintenance: 60
   overall: 65
+block:
+  - id: no-install-time-remote-execution
+    description: 'A download-and-execute chain runs automatically at install time'
+    when: { fact: { id: execution.chain.install_time, equals: true } }
+  - id: no-high-severity-execution-finding
+    description: 'A high-severity execution finding exists (code that runs during install or build)'
+    when: { finding: { category: execution, min_severity: high } }
+  - id: sbom-required
+    description: 'No parsable SBOM (CycloneDX or SPDX) is committed'
+    when: { fact: { id: deps.sbom.present, equals: false } }
