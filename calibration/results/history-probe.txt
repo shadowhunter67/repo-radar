@@ -1,0 +1,179 @@
+=== pallets/flask 2.0.0 -> 2.3.0
+repo-radar historical comparison: pallets/flask 2f0c62f5e6 -> 8728c3e4cd
+from 2021-05-11T21:43:42Z  to 2023-04-25T18:35:06Z   (81 requests, 3 files reused, 43 s)
+comparability: reduced (score differences are not meaningful)
+  caveat: analysis configuration differs (flags or standards packs changed)
+
+IDENTITY (6)
+  primary_artifact: framework -> cli
+  packaging: unknown -> single_package
+  secondary_roles: cli_interface, service_component -> library_api
+  interfaces: cli, http_server -> cli, library_api
+  deployment_form: library_dependency -> local_executable
+  ecosystem: Python -> Python, PyPI
+
+CAPABILITIES (1)
+  NETWORK_SERVER       REMOVED  risk none, no context
+
+EXECUTION PATHS (1)
+  REMOVED [runs for dependents] pypi setup.py -> setup.py
+
+DEPENDENCIES (18)
+  added: PyPI:Werkzeug
+  new unpinned dependency: PyPI:Werkzeug
+  added: PyPI:Jinja2
+  new unpinned dependency: PyPI:Jinja2
+  added: PyPI:itsdangerous
+  new unpinned dependency: PyPI:itsdangerous
+  added: PyPI:click
+  new unpinned dependency: PyPI:click
+  added: PyPI:blinker
+  new unpinned dependency: PyPI:blinker
+  added: PyPI:importlib-metadata
+  new unpinned dependency: PyPI:importlib-metadata
+  added: PyPI:asgiref
+  new unpinned dependency: PyPI:asgiref
+  added: PyPI:python-dotenv
+  new unpinned dependency: PyPI:python-dotenv
+  added: PyPI:setuptools
+  new unpinned dependency: PyPI:setuptools
+
+FINDINGS (6)
+  ADDED [medium] Known advisories for flask@2.2.3 (4)
+  ADDED [medium] Known advisories for jinja2@3.1.2 (10)
+  ADDED [medium] Known advisories for redis@4.5.1 (4)
+  ADDED [medium] Known advisories for werkzeug@2.2.3 (15)
+  ADDED [info] 9 direct dependencies have no exact version in this revision
+  REMOVED [info] pypi hook "setup.py" runs code at install time, including for dependents
+
+RISK DELTA
+  scores are not directly comparable between these analyses; interpretable reasons below still hold.
+  + PyPI:Werkzeug is a new unpinned dependency
+  + PyPI:Jinja2 is a new unpinned dependency
+  + PyPI:itsdangerous is a new unpinned dependency
+  + PyPI:click is a new unpinned dependency
+  + PyPI:blinker is a new unpinned dependency
+  + PyPI:importlib-metadata is a new unpinned dependency
+  + PyPI:asgiref is a new unpinned dependency
+  + PyPI:python-dotenv is a new unpinned dependency
+  + PyPI:setuptools is a new unpinned dependency
+  - execution path removed: pypi setup.py -> setup.py
+  - capability NETWORK_SERVER no longer observed
+=== sindresorhus/got v11.8.0 -> v12.0.0
+repo-radar historical comparison: sindresorhus/got e0cb8206da -> a405e7cb54
+from 2020-10-20T17:12:18Z  to 2021-12-10T14:35:05Z   (81 requests, 1 files reused, 13 s)
+comparability: reduced (score differences are not meaningful)
+  caveat: analysis configuration differs (flags or standards packs changed)
+
+DEPENDENCIES (27)
+  added: npm:form-data-encoder   -> 1.7.1
+  added: npm:@hapi/bourne
+  new unpinned dependency: npm:@hapi/bourne
+  added: npm:@types/readable-stream
+  new unpinned dependency: npm:@types/readable-stream
+  added: npm:@types/sinonjs__fake-timers
+  new unpinned dependency: npm:@types/sinonjs__fake-timers
+  added: npm:bluebird
+  new unpinned dependency: npm:bluebird
+  added: npm:body-parser
+  new unpinned dependency: npm:body-parser
+  added: npm:create-cert
+  new unpinned dependency: npm:create-cert
+  added: npm:formdata-node
+  new unpinned dependency: npm:formdata-node
+  added: npm:readable-stream
+  new unpinned dependency: npm:readable-stream
+  added: npm:request
+  new unpinned dependency: npm:request
+  added: npm:then-busboy
+  new unpinned dependency: npm:then-busboy
+  added: npm:ts-node
+  new unpinned dependency: npm:ts-node
+  version changed: npm:typescript  4.0.3 -> 4.5.3
+  removed: npm:@ava/typescript
+  removed: npm:@types/node-fetch
+  removed: npm:coveralls
+
+FINDINGS (2)
+  REMOVED [info] 45 direct dependencies have no exact version in this revision
+  ADDED [info] 53 direct dependencies have no exact version in this revision
+
+COMPLIANCE INDICATORS (1)
+  indicator privacy.user_files: not observed -> observed
+
+RISK DELTA
+  scores are not directly comparable between these analyses; interpretable reasons below still hold.
+  + npm:@hapi/bourne is a new unpinned dependency
+  + npm:@types/readable-stream is a new unpinned dependency
+  + npm:@types/sinonjs__fake-timers is a new unpinned dependency
+  + npm:bluebird is a new unpinned dependency
+  + npm:body-parser is a new unpinned dependency
+  + npm:create-cert is a new unpinned dependency
+  + npm:formdata-node is a new unpinned dependency
+  + npm:readable-stream is a new unpinned dependency
+  + npm:request is a new unpinned dependency
+  + npm:then-busboy is a new unpinned dependency
+  + npm:ts-node is a new unpinned dependency
+
+This is a description of differences between two analyses, not a verdict; intent is undetermined.
+=== BurntSushi/ripgrep 12.0.0 -> 14.0.0
+repo-radar historical comparison: BurntSushi/ripgrep b9cd95faf1 -> 93429d0f85
+from 2020-03-16T01:54:11Z  to 2023-11-26T19:19:31Z   (136 requests, 0 files reused, 15 s)
+comparability: reduced (score differences are not meaningful)
+  caveat: analysis configuration differs (flags or standards packs changed)
+
+CAPABILITIES (1)
+  FILESYSTEM_WRITE     CONTEXT_CHANGED  risk low, runtime
+
+DEPENDENCIES (42)
+  added: crates.io:anyhow   -> 1.0.75
+  new vulnerability: crates.io:anyhow   -> 1.0.75  RUSTSEC-2026-0190
+  version changed: crates.io:bstr  0.2.12 -> 1.8.0
+  added: crates.io:lexopt   -> 0.3.0
+  version changed: crates.io:log  0.4.8 -> 0.4.20
+  version changed: crates.io:serde_json  1.0.48 -> 1.0.108
+  version changed: crates.io:termcolor  1.1.0 -> 1.4.0
+  added: crates.io:textwrap   -> 0.16.0
+  version changed: crates.io:serde  1.0.104 -> 1.0.193
+  version changed: crates.io:serde_derive  1.0.104 -> 1.0.193
+  version changed: crates.io:walkdir  2.3.1 -> 2.4.0
+  version changed: crates.io:jemallocator  0.3.2 -> 0.5.4
+  version changed: crates.io:winapi-util  0.1.3 -> 0.1.6
+  added: crates.io:libc   -> 0.2.150
+  version changed: crates.io:aho-corasick  0.7.10 -> 1.1.2
+  version changed: crates.io:regex-syntax  0.6.17 -> 0.8.2
+  added: crates.io:regex-automata   -> 0.4.3
+  version changed: crates.io:glob  0.3.0 -> 0.3.1
+  added: crates.io:crossbeam-deque   -> 0.8.3
+  version changed: crates.io:memchr  2.3.3 -> 2.6.4
+  version changed: crates.io:crossbeam-channel  0.4.2 -> 0.5.8
+  resolved vulnerability: crates.io:crossbeam-channel  0.4.2 -> 0.5.8  GHSA-9g55-pg62-m8hh
+  resolved vulnerability: crates.io:crossbeam-channel  0.4.2 -> 0.5.8  RUSTSEC-2022-0019
+  version changed: crates.io:regex  1.3.5 -> 1.10.2
+  resolved vulnerability: crates.io:regex  1.3.5 -> 1.10.2  GHSA-m5pq-gvj9-9vr8
+  resolved vulnerability: crates.io:regex  1.3.5 -> 1.10.2  RUSTSEC-2022-0013
+  version changed: crates.io:pcre2  0.2.3 -> 0.2.6
+  version changed: crates.io:encoding_rs  0.8.22 -> 0.8.33
+  added: crates.io:memmap2   -> 0.9.0
+  new vulnerability: crates.io:memmap2   -> 0.9.0  RUSTSEC-2026-0186
+  added: crates.io:crossbeam-epoch   -> 0.9.15
+  new vulnerability: crates.io:crossbeam-epoch   -> 0.9.15  RUSTSEC-2026-0204
+  removed: crates.io:lazy_static  1.4.0 -> 
+  removed: crates.io:num_cpus  1.12.0 -> 
+  removed: crates.io:clap  2.33.0 -> 
+  removed: crates.io:atty  0.2.14 -> 
+  removed: crates.io:fnv  1.0.6 -> 
+  removed: crates.io:crossbeam-utils  0.7.2 -> 
+  removed: crates.io:thread_local  1.0.1 -> 
+  removed: crates.io:base64  0.11.0 -> 
+  ... 2 more
+
+FINDINGS (9)
+  ADDED [medium] Known advisories for anyhow@1.0.75 (1)
+  REMOVED [medium] Known advisories for atty@0.2.14 (3)
+  REMOVED [medium] Known advisories for crossbeam-channel@0.4.2 (2)
+  ADDED [medium] Known advisories for crossbeam-epoch@0.9.15 (1)
+  REMOVED [medium] Known advisories for crossbeam-utils@0.7.2 (2)
+  ADDED [medium] Known advisories for memmap2@0.9.0 (1)
+  REMOVED [medium] Known advisories for memmap@0.7.0 (1)
+  REMOVED [medium] Known advisories for regex@1.3.5 (2)

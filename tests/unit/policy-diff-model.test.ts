@@ -37,7 +37,7 @@ describe('policy-as-code blocks', () => {
         'no-high-severity-execution-finding',
       ]),
     );
-    expect(r.policy.blocks_evaluated).toBe(3);
+    expect(r.policy.blocks_evaluated).toBe(4);
     expect(
       r.policy.block_violations.find((b) => b.id === 'no-install-time-remote-execution')?.evidence
         .length,

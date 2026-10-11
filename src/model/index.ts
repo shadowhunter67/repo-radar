@@ -24,6 +24,11 @@ export const ENTITY_KINDS = [
   'Capability',
   'Sbom',
   'Release',
+  'ReleaseAsset',
+  'ArtifactDigest',
+  'Signature',
+  'ProvenanceRecord',
+  'Commit',
   'Artifact',
   'Maintainer',
   'ExternalService',
@@ -50,6 +55,15 @@ export const RELATION_TYPES = [
   'PERSISTS_AS',
   'DESCRIBES',
   'DERIVED_FROM',
+  // trust-graph vocabulary (release / provenance / governance)
+  'RELEASES',
+  'TAGGED_AT',
+  'HAS_DIGEST',
+  'SIGNS',
+  'ATTESTS',
+  'BUILT_FROM',
+  'RELEASED',
+  'PUBLISHED_BY',
 ] as const;
 export type RelationType = (typeof RELATION_TYPES)[number];
 
@@ -68,7 +82,7 @@ export const RelationshipSchema = z.object({
   attrs: z.record(z.string(), Attr).optional(),
 });
 export const RepositoryModelSchema = z.object({
-  version: z.literal('0.1'),
+  version: z.literal('0.2'),
   entities: z.array(EntitySchema),
   relationships: z.array(RelationshipSchema),
   truncated: z.boolean(),
@@ -278,7 +292,72 @@ export function buildRepositoryModel(report: Report): RepositoryModel {
 
   // Future inputs that already have a home: releases/artifacts (presence only), maintainers (counts only).
   const evv = (id: string): unknown => report.evidence.find((e) => e.id === id)?.value;
-  if (evv('github.releases.has_any') === true) {
+  // Release intelligence: releases, assets, digests, signatures, provenance and the commit a tag points to.
+  const rel2 = report.release_intel.releases;
+  for (const r of rel2) {
+    const rId = ent(`release:${r.tag}`, 'Release', r.tag, {
+      prerelease: r.prerelease,
+      tag_kind: r.tag_kind,
+      correspondence: r.correspondence,
+    });
+    rel(repoId, rId, 'RELEASES');
+    if (r.tag_commit) {
+      const cId = ent(`commit:${r.tag_commit}`, 'Commit', r.tag_commit.slice(0, 12), {
+        sha: r.tag_commit,
+      });
+      rel(rId, cId, 'TAGGED_AT');
+    }
+    if (r.published_by) {
+      const pId = ent(`actor:${r.published_by}`, 'Maintainer', r.published_by, {
+        role: 'release_author',
+      });
+      rel(pId, rId, 'RELEASED');
+    }
+    for (const a of r.assets.slice(0, 50)) {
+      const aId = ent(`asset:${r.tag}/${a.name}`, 'ReleaseAsset', a.name, {
+        kind: a.kind,
+        suspicious_name: a.suspicious_name,
+      });
+      rel(rId, aId, 'PUBLISHES');
+      if (a.digest) {
+        const dId = ent(
+          `digest:${a.digest.algorithm}:${a.digest.value}`,
+          'ArtifactDigest',
+          `${a.digest.algorithm}:${a.digest.value.slice(0, 16)}`,
+          {
+            source: a.digest.source,
+            weak: a.digest.weak,
+          },
+        );
+        rel(aId, dId, 'HAS_DIGEST');
+      }
+    }
+    for (const s of r.signatures) {
+      const sId = ent(`sig:${r.tag}/${s.subject}`, 'Signature', `${s.kind} ${s.state}`, {
+        state: s.state,
+        verified_by: s.verified_by,
+      });
+      const target = s.subject === 'tag' ? rId : `asset:${r.tag}/${s.subject}`;
+      rel(sId, entities.has(target) ? target : rId, 'SIGNS');
+    }
+    r.provenance.forEach((p, i) => {
+      const pId = ent(`prov:${r.tag}/${i}`, 'ProvenanceRecord', p.predicate_type, {
+        slsa: p.slsa,
+        verification: p.verification,
+        builder: p.builder_id ?? '',
+        source_revision: p.source_revision ?? '',
+      });
+      rel(pId, rId, 'ATTESTS');
+      if (p.source_revision) {
+        const cId = ent(`commit:${p.source_revision}`, 'Commit', p.source_revision.slice(0, 12), {
+          sha: p.source_revision,
+        });
+        rel(rId, cId, 'BUILT_FROM', 0.6, { verified: false });
+      }
+    });
+  }
+
+  if (rel2.length === 0 && evv('github.releases.has_any') === true) {
     const rId = ent('release:latest', 'Release', 'latest release', {
       age_days: Number(evv('github.releases.latest_age_days') ?? -1),
     });
@@ -300,7 +379,7 @@ export function buildRepositoryModel(report: Report): RepositoryModel {
       'DECLARES',
     );
 
-  return { version: '0.1', entities: [...entities.values()], relationships: rels, truncated };
+  return { version: '0.2', entities: [...entities.values()], relationships: rels, truncated };
 }
 
 export function summarizeModel(m: RepositoryModel): string {

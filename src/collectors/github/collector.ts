@@ -7,6 +7,11 @@ import { parseManifest, type ParsedManifest } from '../manifests/parse.js';
 import type { GithubCollection } from '../types.js';
 import { analyzeReadme } from './readme.js';
 import { analyzeTree, isStaticallyTyped, type TreeEntry } from './tree.js';
+import type { BlobCache } from './blobcache.js';
+import { collectReleases } from './releases.js';
+import type { GovernanceInput } from '../../governance/temporal.js';
+import type { RawRelease } from '../../release/analyze.js';
+import { EMPTY_RELEASE_INTEL, type ReleaseIntel } from '../../release/model.js';
 import {
   DEFAULT_RETRIEVAL_BUDGET,
   retrieveTargeted,
@@ -19,7 +24,14 @@ import { nextRefCandidates, selectScanCandidates } from './scanfiles.js';
 import type { FileRole, ScannedFile } from '../../analysis/types.js';
 import { LIMITS } from '../../limits.js';
 
-export const GITHUB_HOSTS = ['api.github.com', 'raw.githubusercontent.com'];
+// github.com and the two asset hosts are only used for small release checksum files, via repository-scoped URLs.
+export const GITHUB_HOSTS = [
+  'api.github.com',
+  'raw.githubusercontent.com',
+  'github.com',
+  'objects.githubusercontent.com',
+  'release-assets.githubusercontent.com',
+];
 const API = 'https://api.github.com';
 const RAW = 'https://raw.githubusercontent.com';
 
@@ -71,6 +83,10 @@ export async function collectGithub(
     /** false disables the targeted walk used when the recursive tree is truncated or too large. */
     targetedTree?: boolean;
     retrievalBudget?: RetrievalBudget;
+    /** Reuse unchanged file contents across revisions analyzed in the same run. */
+    blobCache?: BlobCache;
+    /** Collect release assets, checksums, signatures and attestations metadata (default true). */
+    releases?: boolean;
   } = {},
 ): Promise<GithubCollection & CollectorResult> {
   const b = new EvidenceBuilder('github', clock);
@@ -395,10 +411,16 @@ export async function collectGithub(
   }
 
   // ---- raw file fetches (never executed; parsed statically) ---------------------------------
+  const blobShas = new Map<string, string>();
+  for (const e of entries) if (e.type === 'blob' && e.sha) blobShas.set(e.path, e.sha);
+  const slug = `${ref.owner}/${ref.repo}`;
   const rawFetchBytes = (path: string, maxBytes: number): Promise<string | undefined> =>
     safe(`raw ${path}`, async () => {
+      const cached = options.blobCache?.get(slug, blobShas.get(path));
+      if (cached !== undefined && cached.length <= maxBytes) return cached;
       const u = `${RAW}/${encodeURIComponent(ref.owner)}/${encodeURIComponent(ref.repo)}/${encodeURIComponent(refStr)}/${path.split('/').map(encodeURIComponent).join('/')}`;
       const r = await http.request(u, { maxBytes });
+      if (r.status === 200) options.blobCache?.set(slug, blobShas.get(path), r.body);
       return r.status === 200 ? r.body : undefined;
     });
   const rawFetch = (path: string): Promise<string | undefined> =>
@@ -630,6 +652,7 @@ export async function collectGithub(
     const cu = { url: url('/commits'), ...cap };
     if (commits.length > 0) {
       const lastDate = commits[0]?.commit?.committer?.date ?? commits[0]?.commit?.author?.date;
+      if (lastDate) b.add('github.commits.head_date', lastDate, cu);
       if (lastDate)
         b.add(
           'github.commits.last_commit_age_days',
@@ -728,6 +751,43 @@ export async function collectGithub(
     }
   }
 
+  // ---- release intelligence (assets, checksums, tag signatures, provenance); no binary is downloaded ----------
+  const releaseIntel: ReleaseIntel =
+    options.releases === false
+      ? EMPTY_RELEASE_INTEL
+      : await collectReleases({
+          http,
+          base,
+          owner: ref.owner,
+          repo: ref.repo,
+          headers: jsonHeaders,
+          releases: releasesRes?.data as RawRelease[] | undefined,
+          analyzedCommit: headSha ?? null,
+          note: (code, message) => b.diag('info', code, message),
+        });
+
+  const governanceInput: GovernanceInput = {
+    commits: (commitsRes?.data ?? []).slice(0, 100).flatMap((c) => {
+      const date = c.commit?.committer?.date ?? c.commit?.author?.date;
+      return date ? [{ date, login: c.author?.login ?? null }] : [];
+    }),
+    releases: ((releasesRes?.data ?? []) as RawRelease[])
+      .filter(
+        (r) =>
+          r.draft !== true && typeof r.published_at === 'string' && typeof r.tag_name === 'string',
+      )
+      .slice(0, 30)
+      .map((r) => ({
+        tag: String(r.tag_name).slice(0, 200),
+        date: String(r.published_at),
+        author: typeof r.author?.login === 'string' ? r.author.login.slice(0, 100) : null,
+      })),
+    contributors: (contribRes?.data ?? [])
+      .filter((c) => typeof c.login === 'string')
+      .slice(0, 100)
+      .map((c) => ({ login: String(c.login).slice(0, 100), contributions: c.contributions })),
+  };
+
   // ---- issues / PR responsiveness (sampled) -------------------------------------------------
   if (issuesRes) {
     const issues = issuesRes.data.filter((i) => !i.pull_request);
@@ -770,9 +830,16 @@ export async function collectGithub(
         return;
       }
       try {
+        const hit = options.blobCache?.get(slug, blobShas.get(path));
+        if (hit !== undefined && hit.length <= LIMITS.maxScanFileBytes) {
+          totalBytes += hit.length;
+          files.push({ path, content: hit, size: hit.length, role });
+          return;
+        }
         const u = `${RAW}/${encodeURIComponent(ref.owner)}/${encodeURIComponent(ref.repo)}/${encodeURIComponent(refStr)}/${path.split('/').map(encodeURIComponent).join('/')}`;
         const r = await http.request(u, { maxBytes: LIMITS.maxScanFileBytes });
         if (r.status === 200) {
+          options.blobCache?.set(slug, blobShas.get(path), r.body);
           totalBytes += r.body.length;
           files.push({ path, content: r.body, size: r.body.length, role });
         } else {
@@ -836,13 +903,15 @@ export async function collectGithub(
     fetchStats,
     scanned: doScan,
     treeRetrieval,
+    releaseIntel,
+    governanceInput,
   };
 }
 
 interface CommunityProfile {
   files?: Record<string, unknown>;
 }
-interface GhRelease {
+interface GhRelease extends RawRelease {
   draft?: boolean;
   published_at?: string | null;
   assets?: { name?: string }[];

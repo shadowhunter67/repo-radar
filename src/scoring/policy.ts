@@ -79,3 +79,127 @@ export function evaluateBlocks(blocks: Profile['block'], ctx: ComplianceContext)
   }
   return out;
 }
+
+type Block = Profile['block'][number];
+
+/** Explicit `block` rules plus the ones `require:` compiles into. Deterministic and order-stable. */
+export function effectiveBlocks(profile: Pick<Profile, 'block' | 'require'>): Block[] {
+  const out: Block[] = [...profile.block];
+  const r = profile.require;
+  const mk = (
+    key: 'sbom' | 'signed_release' | 'provenance' | 'checksums',
+    description: string,
+    when: Block['when'],
+  ): void => {
+    const v = r[key];
+    if (v === undefined || v === false) return;
+    out.push({
+      id: `require-${key.replace(/_/g, '-')}`,
+      description,
+      when,
+      on_unknown: v === 'strict' ? 'block' : 'ignore',
+    });
+  };
+  mk('sbom', 'A parsable SBOM is required but none is committed', {
+    fact: { id: 'deps.sbom.present', equals: false },
+  });
+  mk(
+    'signed_release',
+    'A signed release is required: the latest release tag is not GitHub-verified and no signature asset is published',
+    {
+      all: [
+        { fact: { id: 'release.tag.signature_verified', equals: false } },
+        { fact: { id: 'release.signature_assets.present', equals: false } },
+      ],
+    } as Block['when'],
+  );
+  mk('provenance', 'Release provenance is required but none was found for the latest release', {
+    fact: { id: 'release.provenance.present', equals: false },
+  });
+  mk(
+    'checksums',
+    'Published checksums are required but the latest release has none covering its assets',
+    { fact: { id: 'release.checksums.published', equals: false } },
+  );
+  return out;
+}
+
+export interface HistoryViolation {
+  id: string;
+  description: string;
+  kind: string;
+  /** Dependency / hook / capability names that triggered the rule. */
+  subjects: string[];
+}
+
+/** Evaluate `history_block` rules on a historical diff. Only observed (not inconclusive) additions can trigger a rule. */
+export function evaluateHistoryBlocks(
+  rules: Profile['history_block'],
+  diff: {
+    dependencies: { kind: string; package: string; certainty: string }[];
+    execution: {
+      change: string;
+      hook: string;
+      for_dependents: boolean;
+      path: string;
+      risk: string;
+      certainty: string;
+    }[];
+    capabilities: {
+      capability: string;
+      change: string;
+      after: { risk: string } | null;
+      certainty: string;
+    }[];
+    governance: { takeover_indicators_after: boolean };
+  },
+): HistoryViolation[] {
+  const out: HistoryViolation[] = [];
+  const newHooks = diff.execution.filter(
+    (e) => e.change === 'new' && e.for_dependents && e.certainty === 'observed',
+  );
+  for (const r of rules) {
+    let subjects: string[] = [];
+    switch (r.kind) {
+      case 'new_vulnerability':
+        subjects = diff.dependencies
+          .filter((d) => d.kind === 'new_vulnerability')
+          .map((d) => d.package);
+        break;
+      case 'new_install_hook':
+        subjects = newHooks.map((h) => h.hook);
+        break;
+      case 'new_install_time_remote_execution':
+        subjects = newHooks.filter((h) => /download|piped|remote/.test(h.path)).map((h) => h.hook);
+        break;
+      case 'new_capability':
+        subjects = diff.capabilities
+          .filter(
+            (c) =>
+              c.change === 'new' &&
+              c.certainty === 'observed' &&
+              (r.capability
+                ? c.capability === r.capability
+                : c.after?.risk === 'medium' || c.after?.risk === 'high'),
+          )
+          .map((c) => c.capability);
+        break;
+      case 'new_git_or_path_dependency':
+        subjects = diff.dependencies
+          .filter((d) => d.kind === 'new_git_or_path_dependency')
+          .map((d) => d.package);
+        break;
+      case 'takeover_indicators_with_new_install_hook':
+        subjects = diff.governance.takeover_indicators_after ? newHooks.map((h) => h.hook) : [];
+        break;
+    }
+    if (subjects.length > 0)
+      out.push({
+        id: r.id,
+        description: r.description,
+        kind: r.kind,
+        subjects: [...new Set(subjects)].slice(0, 10),
+      });
+  }
+  return out;
+}

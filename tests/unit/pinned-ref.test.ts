@@ -58,7 +58,7 @@ describe('--ref: reading files at a pinned revision', () => {
     expect(r.diagnostics.some((d) => d.code === 'pinned_ref')).toBe(false);
   });
 
-  it('the pinned ref is part of the configuration digest', async () => {
+  it('the pinned ref is recorded in the subject, not in the configuration digest (so two revisions stay comparable)', async () => {
     const a = await analyzeRepository('acme/widget', {
       fetch: fakeFetch(goodRepo()),
       clock: fixedClock,
@@ -68,7 +68,7 @@ describe('--ref: reading files at a pinned revision', () => {
       clock: fixedClock,
       ref: SHA,
     });
-    expect(a.methodology.config_digest).not.toBe(b.methodology.config_digest);
+    expect(a.methodology.config_digest).toBe(b.methodology.config_digest);
   });
 
   it('the CLI rejects an invalid --ref as a usage error before any network call', async () => {

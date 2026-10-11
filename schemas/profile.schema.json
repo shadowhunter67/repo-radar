@@ -94,6 +94,96 @@
         ],
         "additionalProperties": false
       }
+    },
+    "require": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "sbom": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "signed_release": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "checksums": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "history_block": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]{3,60}$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 300
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "new_vulnerability",
+              "new_install_hook",
+              "new_install_time_remote_execution",
+              "new_capability",
+              "new_git_or_path_dependency",
+              "takeover_indicators_with_new_install_hook"
+            ]
+          },
+          "capability": {
+            "type": "string",
+            "maxLength": 40
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [

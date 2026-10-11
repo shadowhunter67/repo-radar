@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import type { FetchLike } from '../../src/util/http.js';
 import type { Clock } from '../../src/evidence/builder.js';
 
@@ -12,7 +13,24 @@ export interface FakeItem {
   updatedDaysAgo: number;
   closedDaysAgo?: number;
 }
+/** Rich release description for release-intelligence tests. */
+export interface FakeReleaseDetail {
+  tag: string;
+  /** commit the tag points to */
+  commit: string;
+  /** annotated tags are resolved through /git/tags/<sha> */
+  annotated?: boolean;
+  verification?: { verified: boolean; reason: string };
+  publishedBy?: string;
+  /** name -> content (checksum files are served; other contents are only hashed) */
+  assets: Record<string, string>;
+  /** asset name -> attestation response body (served at /attestations/sha256:<digest>) */
+  attestations?: Record<string, unknown>;
+  /** override the browser_download_url of a named asset (for unsafe-URL tests) */
+  downloadUrl?: Record<string, string>;
+}
 export interface FakeRelease {
+  detail?: FakeReleaseDetail;
   daysAgo: number;
   assets?: string[];
   draft?: boolean;
@@ -52,6 +70,8 @@ export interface FakeSpec {
   /** URL substrings that should answer 500 */
   failing: string[];
   treeTruncated: boolean;
+  /** Requests seen by the release endpoints (paths), for assertions. */
+  releaseRequests: string[];
   /** The recursive tree answers with an oversized body (as for very large repositories). */
   treeTooLarge: boolean;
   /** With treeTruncated: how many entries the truncated recursive answer still contains. */
@@ -103,6 +123,7 @@ export function baseSpec(over: Partial<FakeSpec> = {}): FakeSpec {
     rateLimited: [],
     failing: [],
     treeTruncated: false,
+    releaseRequests: [],
     treeTooLarge: false,
     treeKeep: -1,
     treeRequests: [],
@@ -181,6 +202,20 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
       const hit = Object.entries(spec.depsDev).find(([k]) => url.includes(k));
       return hit ? json(hit[1]) : json({ error: 'not found' }, 404);
     }
+    const dlPrefix = `https://github.com/${spec.owner}/${spec.repo}/releases/download/`;
+    if (url.startsWith(dlPrefix)) {
+      const [tagPart, ...rest] = url.slice(dlPrefix.length).split('/');
+      const tag = decodeURIComponent(tagPart ?? '');
+      const name = decodeURIComponent(rest.join('/'));
+      spec.releaseRequests.push('download:' + name);
+      const d = spec.releases
+        .flatMap((r) => (r.detail ? [r.detail] : []))
+        .find((x) => x.tag === tag);
+      const content = d?.assets[name];
+      return content === undefined
+        ? new Response('404', { status: 404 })
+        : new Response(content, { status: 200 });
+    }
     const orgRaw = `https://raw.githubusercontent.com/${spec.owner}/.github/HEAD/`;
     if (url.startsWith(orgRaw)) {
       const c = spec.orgFiles[url.slice(orgRaw.length)];
@@ -244,8 +279,9 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
               const dp = parts.slice(0, i).join('/');
               out.set(dp, { path: dp, type: 'tree', sha: 'tree:' + prefix + dp });
             }
-            out.set(sub, { path: sub, type: 'blob', size: c.length });
-          } else if (slash < 0) out.set(sub, { path: sub, type: 'blob', size: c.length });
+            out.set(sub, { path: sub, type: 'blob', size: c.length, sha: blobSha(c) });
+          } else if (slash < 0)
+            out.set(sub, { path: sub, type: 'blob', size: c.length, sha: blobSha(c) });
           else {
             const d = sub.slice(0, slash);
             out.set(d, { path: d, type: 'tree', sha: 'tree:' + prefix + d });
@@ -257,7 +293,7 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
         return json({
           tree: Object.entries(spec.files)
             .slice(0, spec.treeKeep < 0 ? undefined : spec.treeKeep)
-            .map(([p, c]) => ({ path: p, type: 'blob', size: c.length })),
+            .map(([p, c]) => ({ path: p, type: 'blob', size: c.length, sha: blobSha(c) })),
           truncated: true,
         });
       }
@@ -266,6 +302,7 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
           path: p,
           type: 'blob',
           size: c.length,
+          sha: blobSha(c),
         })),
         truncated: spec.treeTruncated,
       });
@@ -277,12 +314,58 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
     }
     if (path.startsWith('/contributors'))
       return json(spec.contributors.map((c) => ({ type: 'User', ...c })));
+    if (
+      path.startsWith('/git/ref/tags/') ||
+      path.startsWith('/git/tags/') ||
+      path.startsWith('/attestations/')
+    ) {
+      spec.releaseRequests.push(path);
+      const details = spec.releases.flatMap((r) => (r.detail ? [r.detail] : []));
+      if (path.startsWith('/git/ref/tags/')) {
+        const d = details.find(
+          (x) => x.tag === decodeURIComponent(path.slice('/git/ref/tags/'.length)),
+        );
+        if (!d) return json({ message: 'Not Found' }, 404);
+        return json({
+          object: d.annotated
+            ? { type: 'tag', sha: 'ab'.repeat(20) }
+            : { type: 'commit', sha: d.commit },
+        });
+      }
+      if (path.startsWith('/git/tags/')) {
+        const d = details.find((x) => x.annotated);
+        if (!d || path !== '/git/tags/' + 'ab'.repeat(20))
+          return json({ message: 'Not Found' }, 404);
+        return json({ object: { type: 'commit', sha: d.commit }, verification: d.verification });
+      }
+      const digest = path.slice('/attestations/sha256:'.length);
+      for (const d of details)
+        for (const [name, body] of Object.entries(d.attestations ?? {}))
+          if (sha256(d.assets[name] ?? '') === digest) return json(body);
+      return json({ message: 'Not Found' }, 404);
+    }
     if (path.startsWith('/releases')) {
       return json(
         spec.releases.map((r) => ({
           draft: !!r.draft,
           published_at: r.noDate ? null : ago(r.daysAgo),
-          assets: (r.assets ?? []).map((name) => ({ name })),
+          ...(r.detail
+            ? {
+                tag_name: r.detail.tag,
+                name: r.detail.tag,
+                author: { login: r.detail.publishedBy ?? 'releaser' },
+                assets: Object.entries(r.detail.assets).map(([name, content]) => ({
+                  name,
+                  size: content.length,
+                  content_type: 'application/octet-stream',
+                  digest: 'sha256:' + sha256(content),
+                  download_count: 1,
+                  browser_download_url:
+                    r.detail?.downloadUrl?.[name] ??
+                    `https://github.com/${spec.owner}/${spec.repo}/releases/download/${r.detail?.tag}/${encodeURIComponent(name)}`,
+                })),
+              }
+            : { assets: (r.assets ?? []).map((name) => ({ name })) }),
         })),
       );
     }
@@ -306,4 +389,14 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
     if (path.startsWith('/branches/')) return json({ protected: spec.branchProtected });
     return new Response('not found', { status: 404 });
   };
+}
+
+export function sha256(content: string): string {
+  return createHash('sha256').update(content, 'utf8').digest('hex');
+}
+
+/** Git blob object id of a text (what GitHub reports as `sha` for a blob). */
+export function blobSha(content: string): string {
+  const body = Buffer.from(content, 'utf8');
+  return createHash('sha1').update(`blob ${body.length}\0`).update(body).digest('hex');
 }

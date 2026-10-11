@@ -35,3 +35,16 @@ block:
   - id: sbom-required
     description: 'No parsable SBOM (CycloneDX or SPDX) is committed'
     when: { fact: { id: deps.sbom.present, equals: false } }
+# Requirements compile into blocks. `true` blocks only when the evidence says the requirement is not met; unknown does not block.
+require:
+  checksums: true
+history_block:
+  - id: no-new-install-time-remote-execution
+    description: 'A revision introduces a download-and-execute path that runs for dependents at install time'
+    kind: new_install_time_remote_execution
+  - id: no-new-install-hook-after-takeover-indicators
+    description: 'A new install-time hook appears while recent history shows takeover risk indicators'
+    kind: takeover_indicators_with_new_install_hook
+  - id: no-new-vulnerability
+    description: 'A revision introduces a dependency with a known advisory'
+    kind: new_vulnerability

@@ -96,6 +96,28 @@ export const RuleFileSchema = z.object({
   rules: z.array(RuleSchema).min(1),
 });
 
+/** Minimal deterministic requirements that compile into blocks. `strict` also blocks when the evidence is unknown. */
+export const REQUIRE_KEYS = ['sbom', 'signed_release', 'provenance', 'checksums'] as const;
+const RequireValue = z.union([z.boolean(), z.literal('strict')]);
+
+export const HISTORY_RULE_KINDS = [
+  'new_vulnerability',
+  'new_install_hook',
+  'new_install_time_remote_execution',
+  'new_capability',
+  'new_git_or_path_dependency',
+  'takeover_indicators_with_new_install_hook',
+] as const;
+export const HistoryBlockSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9-]{3,60}$/),
+    description: z.string().min(5).max(300),
+    kind: z.enum(HISTORY_RULE_KINDS),
+    /** For `new_capability`: only this capability (default: any capability of medium or high risk). */
+    capability: z.string().max(40).optional(),
+  })
+  .strict();
+
 export const ProfileSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   version: z.string(),
@@ -123,5 +145,20 @@ export const ProfileSchema = z.object({
         .strict(),
     )
     .default([]),
+  /**
+   * Requirements, e.g. `require: { sbom: true, signed_release: strict }`. `true` blocks when the evidence says the
+   * requirement is not met; `strict` also blocks when it cannot be decided. Unknown never blocks by default.
+   */
+  require: z
+    .object({
+      sbom: RequireValue.optional(),
+      signed_release: RequireValue.optional(),
+      provenance: RequireValue.optional(),
+      checksums: RequireValue.optional(),
+    })
+    .strict()
+    .default({}),
+  /** Rules over the difference between two revisions (`repo-radar diff owner/repo --from A --to B --profile P --enforce-profile`). */
+  history_block: z.array(HistoryBlockSchema).default([]),
 });
 export type Profile = z.infer<typeof ProfileSchema>;

@@ -13,7 +13,16 @@ export const FindingSchema = z.object({
   severity: z.enum(['info', 'low', 'medium', 'high']),
   confidence: z.number().min(0).max(1),
   dimension: z.enum(['security', 'supply-chain']),
-  category: z.enum(['execution', 'capability', 'secrets', 'persistence', 'dependency', 'sbom']),
+  category: z.enum([
+    'execution',
+    'capability',
+    'secrets',
+    'persistence',
+    'dependency',
+    'sbom',
+    'release',
+    'governance',
+  ]),
   /** Ids of detections / chains / hooks / secret candidates in this report. */
   evidence_ids: z.array(z.string()),
   rule_ids: z.array(z.string()),

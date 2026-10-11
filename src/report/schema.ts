@@ -7,6 +7,8 @@ import { EvidenceSchema } from '../evidence/types.js';
 import { FactSchema } from '../facts/index.js';
 import { SemanticIdentitySchema } from '../identity/types.js';
 import { IdentityV2Schema } from '../identity/v2.js';
+import { GovernanceSchema } from '../governance/temporal.js';
+import { ReleaseIntelSchema } from '../release/model.js';
 import { CoverageMapSchema, TreeRetrievalSchema } from './coverage.js';
 import { DIMENSIONS } from '../scoring/types.js';
 
@@ -149,6 +151,10 @@ export const ReportSchema = z.object({
   /** Dependency model, resolution state, vulnerability coverage, deps.dev status and SBOM comparison (schema 0.3). */
   /** How the repository tree was obtained (full recursive tree, or a bounded targeted walk) and what was left unread. */
   retrieval: TreeRetrievalSchema,
+  /** Release assets, checksums, signature states and provenance; never a claim of reproducibility. */
+  release_intel: ReleaseIntelSchema,
+  /** Temporal governance signals (committer / release-author changes, dormancy). Descriptive; intent undetermined. */
+  governance: GovernanceSchema,
   /** Coverage by evidence class instead of one generic percentage. */
   coverage_map: CoverageMapSchema,
   dependency_intel: DependencyIntelSchema,

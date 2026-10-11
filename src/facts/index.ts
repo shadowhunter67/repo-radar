@@ -38,6 +38,8 @@ export const FactSchema = z.object({
     'secret',
     'scan',
     'dependency',
+    'release',
+    'governance',
   ]),
   derived_from: z.array(z.string()),
   derived_by: z.string(),

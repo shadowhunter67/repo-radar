@@ -11,6 +11,12 @@ import {
   enrichWithDepsDev,
   type DepsDevResult,
 } from './deps/depsdev.js';
+import { analyzeGovernance } from './governance/temporal.js';
+import {
+  buildGovernanceFindings,
+  buildReleaseFindings,
+  deriveReleaseFacts,
+} from './release/findings.js';
 import { buildDependencyFindings, deriveDependencyFacts } from './deps/findings.js';
 import { analyzeDependencies, finalizeIntel } from './deps/intel.js';
 import { SBOM_LIMITS } from './deps/sbom.js';
@@ -38,13 +44,14 @@ import {
 import { HeuristicClassifier, identityEvidence, loadDefaultTaxonomy } from './identity/index.js';
 import type { IdentityClassifier } from './identity/types.js';
 import { classifyIdentityV2 } from './identity/v2.js';
+import type { BlobCache } from './collectors/github/blobcache.js';
 import { buildCoverageMap } from './report/coverage.js';
 import type { RetrievalBudget } from './collectors/github/retrieval.js';
 import { LIMITS } from './limits.js';
 import { loadProfile, validateProfileAgainstRules } from './profiles/load.js';
 import { REPORT_SCHEMA_VERSION, type Report } from './report/schema.js';
 import { evaluate } from './scoring/engine.js';
-import { evaluateBlocks, evaluatePolicy } from './scoring/policy.js';
+import { effectiveBlocks, evaluateBlocks, evaluatePolicy } from './scoring/policy.js';
 import { loadRuleSet } from './scoring/rules.js';
 import { HttpClient, HttpError, RateLimitError, type FetchLike } from './util/http.js';
 import { packageRoot } from './util/paths.js';
@@ -73,6 +80,10 @@ export interface AnalyzeOptions {
   codeScan?: boolean;
   /** Read repository files at this commit/ref instead of the default branch head (reproducible runs). */
   ref?: string;
+  /** Reuse unchanged files across revisions analyzed in one run (see src/history). */
+  blobCache?: BlobCache;
+  /** Collect release/provenance metadata (default true). */
+  releases?: boolean;
   /** Walk priority directories when the recursive tree is truncated or too large (default true). */
   targetedTree?: boolean;
   /** Override the targeted-retrieval budget (requests, nodes, bytes, time, depth). */
@@ -117,7 +128,9 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     collectGithub(ref, gh, clock, {
       scan: scanEnabled,
       sbom: opts.sbom !== false,
+      ...(opts.blobCache ? { blobCache: opts.blobCache } : {}),
       ...(opts.targetedTree === false ? { targetedTree: false } : {}),
+      ...(opts.releases === false ? { releases: false } : {}),
       ...(opts.retrievalBudget ? { retrievalBudget: opts.retrievalBudget } : {}),
       ...(opts.ref ? { ref: parseGitRef(opts.ref) } : {}),
     }),
@@ -246,6 +259,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
         allDependencies: depsStatic.deps,
       })
     : [];
+  const governance = analyzeGovernance(github.governanceInput);
   const facts = [
     ...(complianceOn ? deriveIndicatorFacts(indicators, scanReliable, code) : []),
     ...deriveFacts({
@@ -254,6 +268,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       artifact: { type: identity.artifact_type, confidence: identity.artifact_confidence },
     }),
     ...deriveDependencyFacts(intel, opts.sbom !== false),
+    ...deriveReleaseFacts(github.releaseIntel, governance),
   ];
   if (
     code.scan.performed &&
@@ -310,9 +325,14 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   const cliMin = opts.minimums && Object.keys(opts.minimums).length > 0 ? opts.minimums : undefined;
   const minimums = cliMin ?? profile.minimums;
   const violations = evaluatePolicy(scoring, minimums);
-  const findings = [...buildFindings(code), ...buildDependencyFindings(intel)];
+  const findings = [
+    ...buildFindings(code),
+    ...buildDependencyFindings(intel),
+    ...buildReleaseFindings(github.releaseIntel),
+    ...buildGovernanceFindings(governance),
+  ];
   const blockViolations = evaluateBlocks(
-    profile.block,
+    effectiveBlocks(profile),
     buildComplianceContext(
       {
         packs: [],
@@ -370,7 +390,8 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
             min_vuln_coverage: MIN_VULN_COVERAGE,
           },
           scan: scanEnabled,
-          pinned_ref: opts.ref ?? null,
+          targeted_tree: opts.targetedTree !== false,
+          releases: opts.releases !== false,
           limits: LIMITS,
         }),
       ),
@@ -387,6 +408,8 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     identity,
     identity_v2: identityV2,
     retrieval: github.treeRetrieval,
+    release_intel: github.releaseIntel,
+    governance,
     coverage_map: coverageMap,
     overall: scoring.overall,
     dimensions: scoring.dimensions,
@@ -394,12 +417,12 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     policy: {
       source: cliMin
         ? 'cli'
-        : Object.keys(profile.minimums).length > 0 || profile.block.length > 0
+        : Object.keys(profile.minimums).length > 0 || effectiveBlocks(profile).length > 0
           ? 'profile'
           : 'none',
       enforced: !!opts.enforcePolicy || !!cliMin,
       minimums,
-      blocks_evaluated: profile.block.length,
+      blocks_evaluated: effectiveBlocks(profile).length,
       block_violations: blockViolations,
       violations,
     },

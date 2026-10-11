@@ -1,5 +1,7 @@
 import type { ScannedFile } from '../analysis/types.js';
 import type { ParsedManifest } from './manifests/parse.js';
+import type { GovernanceInput } from '../governance/temporal.js';
+import type { ReleaseIntel } from '../release/model.js';
 import type { TreeRetrieval } from './github/retrieval.js';
 
 /** What the identity engine (and humans) can read about a repo, independent of scoring. */
@@ -35,4 +37,8 @@ export interface GithubCollection {
   scanned: boolean;
   /** How the repository tree was obtained and how much of it was read. */
   treeRetrieval: TreeRetrieval;
+  /** Release assets, checksums, signatures and provenance metadata (no binary downloaded). */
+  releaseIntel: ReleaseIntel;
+  /** Small samples of who committed, who published releases and when (public logins only). */
+  governanceInput: GovernanceInput;
 }

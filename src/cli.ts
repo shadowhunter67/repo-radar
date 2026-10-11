@@ -5,8 +5,10 @@ import { parseArgs } from 'node:util';
 import { analyzeRepository, toolVersion } from './analyze.js';
 import { RepoNotFoundError } from './collectors/github/collector.js';
 import { buildRepositoryModel, summarizeModel } from './model/index.js';
-import { listProfiles, UnknownProfileError } from './profiles/load.js';
-import { diffReports, renderDiffText } from './report/diff.js';
+import { evaluateHistoryBlocks } from './scoring/policy.js';
+import { listProfiles, loadProfile, UnknownProfileError } from './profiles/load.js';
+import { compareRevisions, compareSnapshots, renderHistoricalText } from './history/index.js';
+import { renderDiffText } from './report/diff.js';
 import { ReportSchema } from './report/schema.js';
 import { renderText } from './report/text.js';
 import { parseMinimums } from './scoring/policy.js';
@@ -28,6 +30,7 @@ const HELP = `repo-radar - transparent, evidence-traceable repository intelligen
 
 Usage:
   repo-radar analyze <owner/repo | https://github.com/owner/repo> [options]
+  repo-radar diff <owner/repo> --from <ref> [--to <ref>]       Analyze two exact revisions and explain what changed (capabilities, execution, dependencies, risk)
   repo-radar diff <old.json> <new.json> [--format text|json]   Compare two JSON reports (new/removed dependencies, capabilities, hooks, vulnerabilities, ...)
   repo-radar model <report.json> [--format text|json]          Project a 0.4 report onto the unified repository model
   repo-radar profiles                 List scoring profiles
@@ -45,6 +48,7 @@ Options for analyze:
   --no-osv                   Skip the OSV vulnerability lookup
   --no-deps-dev              Skip deps.dev package metadata (licenses, current-version candidates)
   --no-compliance            Skip regulatory readiness packs and privacy/AI technical indicators
+  --no-releases              Skip release asset / checksum / signature / provenance metadata
   --no-targeted-tree         Do not walk priority directories when the recursive git tree is truncated or too large
   --no-sbom                  Do not discover or ingest SBOM files in the repository
   --ref <sha|tag|branch>     Read repository files at this revision (reproducible runs; API metadata stays current)
@@ -91,8 +95,11 @@ export async function main(
         'no-sbom': { type: 'boolean', default: false },
         'no-compliance': { type: 'boolean', default: false },
         'no-targeted-tree': { type: 'boolean', default: false },
+        'no-releases': { type: 'boolean', default: false },
         'no-scan': { type: 'boolean', default: false },
         ref: { type: 'string' },
+        from: { type: 'string' },
+        to: { type: 'string' },
         verbose: { type: 'boolean', default: false },
         ascii: { type: 'boolean', default: false },
         help: { type: 'boolean', short: 'h', default: false },
@@ -133,6 +140,57 @@ export async function main(
       );
       return EXIT.OK;
     }
+    if (cmd === 'diff' && (values.from || values.to)) {
+      // Revision mode: analyze two exact revisions of one repository (sequentially, sharing unchanged files) and compare.
+      if (!values.from || rest.length !== 1) {
+        stderr(
+          'error: diff <owner/repo> --from <ref> [--to <ref>] needs one repository and a --from revision\n',
+        );
+        return EXIT.USAGE;
+      }
+      const tokenR = process.env['GITHUB_TOKEN'] || undefined;
+      const cmp = await compareRevisions(rest[0] as string, values.from, values.to ?? null, {
+        profile: values.profile,
+        ...(tokenR ? { token: tokenR } : {}),
+        scorecard: !values['no-scorecard'],
+        osv: !values['no-osv'],
+        depsDev: !values['no-deps-dev'],
+        sbom: !values['no-sbom'],
+        compliance: !values['no-compliance'],
+        targetedTree: !values['no-targeted-tree'],
+        releases: !values['no-releases'],
+        codeScan: !values['no-scan'],
+      });
+      const histProfile = loadProfile(values.profile);
+      const histViolations = evaluateHistoryBlocks(histProfile.history_block, cmp.diff);
+      const histText =
+        histViolations.length > 0
+          ? `\nHISTORY POLICY (${histProfile.id}${values['enforce-profile'] ? ', enforced' : ', advisory'})\n` +
+            histViolations
+              .map(
+                (v) =>
+                  `  BLOCK ${v.id}: ${sanitizeForTerminal(v.description, 120)} [${v.subjects.map((x) => sanitizeForTerminal(x, 40)).join(', ')}]\n`,
+              )
+              .join('')
+          : '';
+      stdout(
+        values.format === 'json'
+          ? JSON.stringify(
+              {
+                ...cmp,
+                history_policy: {
+                  profile: histProfile.id,
+                  enforced: values['enforce-profile'],
+                  violations: histViolations,
+                },
+              },
+              null,
+              2,
+            ) + '\n'
+          : renderHistoricalText(cmp.diff, cmp) + histText,
+      );
+      return values['enforce-profile'] && histViolations.length > 0 ? EXIT.POLICY : EXIT.OK;
+    }
     if (cmd === 'diff' || cmd === 'model') {
       const want = cmd === 'diff' ? 2 : 1;
       if (rest.length !== want) {
@@ -146,7 +204,7 @@ export async function main(
       };
       const fmt = values.format === 'json' ? 'json' : 'text';
       if (cmd === 'diff') {
-        const d = diffReports(readJson(rest[0] as string), readJson(rest[1] as string));
+        const d = compareSnapshots(readJson(rest[0] as string), readJson(rest[1] as string));
         stdout(fmt === 'json' ? JSON.stringify(d, null, 2) + '\n' : renderDiffText(d));
       } else {
         const parsed = ReportSchema.safeParse(readJson(rest[0] as string));
@@ -188,6 +246,7 @@ export async function main(
       sbom: !values['no-sbom'],
       compliance: !values['no-compliance'],
       targetedTree: !values['no-targeted-tree'],
+      releases: !values['no-releases'],
       codeScan: !values['no-scan'],
       ...(values.ref ? { ref: values.ref } : {}),
     });
