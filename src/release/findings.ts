@@ -13,7 +13,7 @@ export function buildReleaseFindings(intel: ReleaseIntel): Finding[] {
   if (intel.status !== 'analyzed') return out;
   let n = 0;
   const id = (): string => `RR-REL-${String(++n).padStart(3, '0')}`;
-  const latest = intel.releases[0];
+  const latest = intel.releases.find((r) => !r.prerelease) ?? intel.releases[0];
   if (!latest) return out;
   const trace = (): string[] => [
     `release:${latest.tag.replace(/[^\x20-\x7e]/g, '?').slice(0, 60)}`,
@@ -146,7 +146,7 @@ export function deriveReleaseFacts(intel: ReleaseIntel, g: Governance): Fact[] {
       derived_by: 'release-intel@0.1',
     });
   };
-  const latest = intel.releases[0];
+  const latest = intel.releases.find((r) => !r.prerelease) ?? intel.releases[0];
   if (intel.status === 'analyzed' && latest) {
     const from = [`release:${latest.tag.replace(/[^\x20-\x7e]/g, '?').slice(0, 60)}`];
     f('release.count', intel.releases_total, from, 'release');
@@ -175,7 +175,13 @@ export function deriveReleaseFacts(intel: ReleaseIntel, g: Governance): Fact[] {
       'release',
       0.85,
     );
-    f('release.provenance.present', latest.provenance.length > 0, from, 'release', 0.8);
+    f(
+      'release.provenance.present',
+      latest.provenance.length > 0 || latest.attestations_listed > 0,
+      from,
+      'release',
+      0.8,
+    );
     f(
       'release.provenance.consistent_with_tag',
       latest.correspondence === 'attested_to_tag_commit',

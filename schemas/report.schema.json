@@ -21,7 +21,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "0.4"
+      "const": "0.5"
     },
     "methodology": {
       "type": "object",
@@ -2713,6 +2713,11 @@
                   "additionalProperties": false
                 }
               },
+              "attestations_listed": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
               "correspondence": {
                 "type": "string",
                 "enum": [
@@ -2789,6 +2794,7 @@
               "assets_total",
               "signatures",
               "provenance",
+              "attestations_listed",
               "correspondence",
               "correspondence_reasons",
               "checksum_files"

@@ -45,6 +45,7 @@ export interface ReleaseInputs {
   checksumTexts: Map<string, Map<string, string>>;
   /** Provenance records by release tag. */
   provenance: Map<string, Provenance[]>;
+  attestationsListed: Map<string, number>;
   requests: number;
   limits_hit: string[];
 }
@@ -106,7 +107,11 @@ function releaseOf(
   const fromChecksum = new Map<string, ArtifactDigest>();
   const texts = inputs.checksumTexts.get(tag) ?? new Map<string, string>();
   const parsed = new Map<string, ChecksumFile>();
-  for (const [asset, text] of texts) parsed.set(asset, parseChecksumFile(text));
+  for (const [asset, text] of texts)
+    parsed.set(
+      asset,
+      parseChecksumFile(text, asset.replace(/.(?:sha(?:1|256|384|512)|md5)(?:sum)?$/i, '')),
+    );
   const assets: ReleaseAsset[] = rawAssets.map((a) => {
     const name = (str(a.name) ?? '').replace(/[^\x20-\x7e]/g, '?');
     const original = str(a.name) ?? '';
@@ -235,6 +240,8 @@ function releaseOf(
       correspondence = tagCommit ? 'tag_only' : 'unlinked';
       reasons.push('an attestation exists but does not name a source revision');
     }
+    if ((inputs.attestationsListed.get(tag) ?? 0) > provenance.length)
+      reasons.push('more attestations are listed than could be read here');
   } else if (fromChecksum.size > 0) {
     correspondence = 'checksum_listed';
     reasons.push(
@@ -261,6 +268,7 @@ function releaseOf(
     assets_total: Array.isArray(raw.assets) ? raw.assets.length : 0,
     signatures,
     provenance,
+    attestations_listed: inputs.attestationsListed.get(tag) ?? provenance.length,
     correspondence,
     correspondence_reasons: reasons,
     checksum_files: checksumFiles,

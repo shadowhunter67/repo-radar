@@ -60,7 +60,7 @@ export function nameProblems(name: string): boolean {
  * untrusted: the size and line count are capped, nothing is interpreted as a path, and a name with two different digests is
  * reported as a conflict instead of picking one.
  */
-export function parseChecksumFile(text: string): ChecksumFile {
+export function parseChecksumFile(text: string, impliedName?: string): ChecksumFile {
   const out: ChecksumFile = {
     entries: [],
     malformed: 0,
@@ -74,11 +74,26 @@ export function parseChecksumFile(text: string): ChecksumFile {
     out.truncated = true;
   }
   const seen = new Map<string, string>();
+  let seenBare = false;
   const lines = body.split(/\r?\n/);
   if (lines.length > CHECKSUM_LIMITS.maxLines) out.truncated = true;
   for (const raw of lines.slice(0, CHECKSUM_LIMITS.maxLines)) {
     const line = raw.trim();
     if (line === '' || line.startsWith('#')) continue;
+    // `<asset>.sha256` files often hold one bare digest (the asset is named by the file, not inside it)
+    const bare = /^([0-9a-fA-F]{32,128})$/.exec(line);
+    if (bare && impliedName) {
+      const v = (bare[1] as string).toLowerCase();
+      const a = BY_LENGTH[v.length];
+      if (a && !seenBare) {
+        seenBare = true;
+        out.entries.push({ algorithm: a, value: v, name: impliedName });
+        seen.set(`${a}:${impliedName}`, v);
+        continue;
+      }
+      out.malformed++;
+      continue;
+    }
     let algo: ArtifactDigest['algorithm'] | undefined;
     let value: string | undefined;
     let name: string | undefined;

@@ -130,6 +130,8 @@ export const ReleaseSchema = z.object({
   assets_total: z.number().int().min(0),
   signatures: z.array(SignatureSchema).max(50),
   provenance: z.array(ProvenanceSchema).max(20),
+  /** Attestations GitHub lists for the release's assets, including ones whose statement could not be read here. */
+  attestations_listed: z.number().int().min(0),
   correspondence: z.enum(CORRESPONDENCE),
   /** Short, factual reasons for the correspondence class. */
   correspondence_reasons: z.array(z.string().max(200)).max(10),

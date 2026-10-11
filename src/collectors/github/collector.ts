@@ -210,7 +210,13 @@ export async function collectGithub(
       '/contributors?per_page=100',
       ['github.contributors.'],
     ),
-    getJson<GhRelease[]>('releases', '/releases?per_page=30', ['github.releases.']),
+    // releases of projects with many assets can exceed the default response cap
+    getJson<GhRelease[]>(
+      'releases',
+      '/releases?per_page=30',
+      ['github.releases.'],
+      8 * 1024 * 1024,
+    ),
     getJson<unknown[]>('tags', '/tags?per_page=1'),
     getJson<GhCommit[]>('commits', `/commits?per_page=100&sha=${encodeURIComponent(readRef)}`, [
       'github.commits.recent',

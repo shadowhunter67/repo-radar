@@ -445,9 +445,9 @@ describe('report integrity and configuration', () => {
     ).toBe(3);
   });
 
-  it('declares schema 0.3 and methodology 0.3 and validates', async () => {
+  it('declares schema 0.5 and methodology 0.4 and validates', async () => {
     const { r } = await run(goodRepo());
-    expect(r).toMatchObject({ schema_version: '0.4', methodology: { version: '0.4' } });
+    expect(r).toMatchObject({ schema_version: '0.5', methodology: { version: '0.4' } });
     expect(ReportSchema.safeParse(r).success).toBe(true);
   });
 

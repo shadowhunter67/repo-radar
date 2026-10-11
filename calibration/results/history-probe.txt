@@ -1,8 +1,7 @@
 === pallets/flask 2.0.0 -> 2.3.0
 repo-radar historical comparison: pallets/flask 2f0c62f5e6 -> 8728c3e4cd
-from 2021-05-11T21:43:42Z  to 2023-04-25T18:35:06Z   (81 requests, 3 files reused, 43 s)
-comparability: reduced (score differences are not meaningful)
-  caveat: analysis configuration differs (flags or standards packs changed)
+from 2021-05-11T21:43:42Z  to 2023-04-25T18:35:06Z   (96 requests, 3 files reused, 42 s)
+comparability: comparable
 
 IDENTITY (6)
   primary_artifact: framework -> cli
@@ -18,7 +17,7 @@ CAPABILITIES (1)
 EXECUTION PATHS (1)
   REMOVED [runs for dependents] pypi setup.py -> setup.py
 
-DEPENDENCIES (18)
+DEPENDENCIES (17)
   added: PyPI:Werkzeug
   new unpinned dependency: PyPI:Werkzeug
   added: PyPI:Jinja2
@@ -36,7 +35,6 @@ DEPENDENCIES (18)
   added: PyPI:python-dotenv
   new unpinned dependency: PyPI:python-dotenv
   added: PyPI:setuptools
-  new unpinned dependency: PyPI:setuptools
 
 FINDINGS (6)
   ADDED [medium] Known advisories for flask@2.2.3 (4)
@@ -46,81 +44,32 @@ FINDINGS (6)
   ADDED [info] 9 direct dependencies have no exact version in this revision
   REMOVED [info] pypi hook "setup.py" runs code at install time, including for dependents
 
-RISK DELTA
-  scores are not directly comparable between these analyses; interpretable reasons below still hold.
-  + PyPI:Werkzeug is a new unpinned dependency
-  + PyPI:Jinja2 is a new unpinned dependency
-  + PyPI:itsdangerous is a new unpinned dependency
-  + PyPI:click is a new unpinned dependency
-  + PyPI:blinker is a new unpinned dependency
-  + PyPI:importlib-metadata is a new unpinned dependency
-  + PyPI:asgiref is a new unpinned dependency
-  + PyPI:python-dotenv is a new unpinned dependency
-  + PyPI:setuptools is a new unpinned dependency
-  - execution path removed: pypi setup.py -> setup.py
-  - capability NETWORK_SERVER no longer observed
-=== sindresorhus/got v11.8.0 -> v12.0.0
-repo-radar historical comparison: sindresorhus/got e0cb8206da -> a405e7cb54
-from 2020-10-20T17:12:18Z  to 2021-12-10T14:35:05Z   (81 requests, 1 files reused, 13 s)
-comparability: reduced (score differences are not meaningful)
-  caveat: analysis configuration differs (flags or standards packs changed)
+=== psf/requests v2.25.0 -> v2.32.0
+repo-radar historical comparison: psf/requests 03957eb1c2 -> d6ebc4a2f1
+from 2020-11-11T19:55:50Z  to 2024-05-20T15:46:49Z   (88 requests, 2 files reused, 18 s)
+comparability: comparable
 
-DEPENDENCIES (27)
-  added: npm:form-data-encoder   -> 1.7.1
-  added: npm:@hapi/bourne
-  new unpinned dependency: npm:@hapi/bourne
-  added: npm:@types/readable-stream
-  new unpinned dependency: npm:@types/readable-stream
-  added: npm:@types/sinonjs__fake-timers
-  new unpinned dependency: npm:@types/sinonjs__fake-timers
-  added: npm:bluebird
-  new unpinned dependency: npm:bluebird
-  added: npm:body-parser
-  new unpinned dependency: npm:body-parser
-  added: npm:create-cert
-  new unpinned dependency: npm:create-cert
-  added: npm:formdata-node
-  new unpinned dependency: npm:formdata-node
-  added: npm:readable-stream
-  new unpinned dependency: npm:readable-stream
-  added: npm:request
-  new unpinned dependency: npm:request
-  added: npm:then-busboy
-  new unpinned dependency: npm:then-busboy
-  added: npm:ts-node
-  new unpinned dependency: npm:ts-node
-  version changed: npm:typescript  4.0.3 -> 4.5.3
-  removed: npm:@ava/typescript
-  removed: npm:@types/node-fetch
-  removed: npm:coveralls
+IDENTITY (1)
+  ecosystem: Python -> Python, PyPI
 
-FINDINGS (2)
-  REMOVED [info] 45 direct dependencies have no exact version in this revision
-  ADDED [info] 53 direct dependencies have no exact version in this revision
+CAPABILITIES (1)
+  FILESYSTEM_DELETE    CONTEXT_CHANGED  risk medium, build/runtime
 
-COMPLIANCE INDICATORS (1)
-  indicator privacy.user_files: not observed -> observed
+EXECUTION PATHS (1)
+  CHANGED make Makefile -> docs/Makefile => make Makefile -> Makefile, setup.py
+
+FINDINGS (1)
+  ADDED [low] Low-confidence hard-coded secret: key-material-file (3 locations)
 
 RISK DELTA
-  scores are not directly comparable between these analyses; interpretable reasons below still hold.
-  + npm:@hapi/bourne is a new unpinned dependency
-  + npm:@types/readable-stream is a new unpinned dependency
-  + npm:@types/sinonjs__fake-timers is a new unpinned dependency
-  + npm:bluebird is a new unpinned dependency
-  + npm:body-parser is a new unpinned dependency
-  + npm:create-cert is a new unpinned dependency
-  + npm:formdata-node is a new unpinned dependency
-  + npm:readable-stream is a new unpinned dependency
-  + npm:request is a new unpinned dependency
-  + npm:then-busboy is a new unpinned dependency
-  + npm:ts-node is a new unpinned dependency
+  overall 74.6 -> 79.6; security 88.9 -> 100; supply-chain 37.3 -> 60.8
+  no interpretable risk-relevant change found
 
 This is a description of differences between two analyses, not a verdict; intent is undetermined.
 === BurntSushi/ripgrep 12.0.0 -> 14.0.0
 repo-radar historical comparison: BurntSushi/ripgrep b9cd95faf1 -> 93429d0f85
-from 2020-03-16T01:54:11Z  to 2023-11-26T19:19:31Z   (136 requests, 0 files reused, 15 s)
-comparability: reduced (score differences are not meaningful)
-  caveat: analysis configuration differs (flags or standards packs changed)
+from 2020-03-16T01:54:11Z  to 2023-11-26T19:19:31Z   (166 requests, 0 files reused, 24 s)
+comparability: comparable
 
 CAPABILITIES (1)
   FILESYSTEM_WRITE     CONTEXT_CHANGED  risk low, runtime
@@ -163,17 +112,49 @@ DEPENDENCIES (42)
   removed: crates.io:clap  2.33.0 -> 
   removed: crates.io:atty  0.2.14 -> 
   removed: crates.io:fnv  1.0.6 -> 
-  removed: crates.io:crossbeam-utils  0.7.2 -> 
-  removed: crates.io:thread_local  1.0.1 -> 
-  removed: crates.io:base64  0.11.0 -> 
-  ... 2 more
+=== tj/commander.js v7.0.0 -> v12.0.0
+repo-radar historical comparison: tj/commander.js 034ad9f326 -> 83c3f4e391
+from 2021-01-13T08:17:21Z  to 2024-02-03T09:10:52Z   (57 requests, 0 files reused, 16 s)
+comparability: comparable
 
-FINDINGS (9)
-  ADDED [medium] Known advisories for anyhow@1.0.75 (1)
-  REMOVED [medium] Known advisories for atty@0.2.14 (3)
-  REMOVED [medium] Known advisories for crossbeam-channel@0.4.2 (2)
-  ADDED [medium] Known advisories for crossbeam-epoch@0.9.15 (1)
-  REMOVED [medium] Known advisories for crossbeam-utils@0.7.2 (2)
-  ADDED [medium] Known advisories for memmap2@0.9.0 (1)
-  REMOVED [medium] Known advisories for memmap@0.7.0 (1)
-  REMOVED [medium] Known advisories for regex@1.3.5 (2)
+DEPENDENCIES (50)
+  version changed: npm:@types/jest  26.0.20 -> 29.5.11
+  version changed: npm:@types/node  14.14.20 -> 20.11.7
+  version changed: npm:@typescript-eslint/eslint-plugin  4.12.0 -> 6.19.1
+  version changed: npm:@typescript-eslint/parser  4.12.0 -> 6.19.1
+  version changed: npm:eslint  7.17.0 -> 8.56.0
+  version changed: npm:eslint-config-standard  16.0.2 -> 17.1.0
+  added: npm:eslint-config-standard-with-typescript   -> 40.0.0
+  added: npm:eslint-plugin-import   -> 2.29.1
+  version changed: npm:eslint-plugin-jest  24.1.3 -> 27.6.3
+  added: npm:eslint-plugin-n   -> 16.6.2
+  added: npm:eslint-plugin-promise   -> 6.1.1
+  version changed: npm:jest  26.6.3 -> 29.7.0
+  added: npm:ts-jest   -> 29.1.2
+  added: npm:tsd   -> 0.30.4
+  version changed: npm:typescript  4.1.3 -> 5.3.3
+  version changed: npm:@babel/core  7.12.10 -> 7.23.9
+  version changed: npm:@babel/helpers  7.12.5 -> 7.23.9
+  version changed: npm:brace-expansion  1.1.11 -> 2.0.1
+  version changed: npm:minimatch  3.0.4 -> 9.0.3
+  resolved vulnerability: npm:minimatch  3.0.4 -> 9.0.3  GHSA-f8q6-p94x-37v3
+  version changed: npm:js-yaml  3.14.1 -> 4.1.0
+  version changed: npm:ajv  7.0.3 -> 6.12.6
+  version changed: npm:braces  2.3.2 -> 3.0.2
+  added: npm:browserslist   -> 4.22.3
+  new vulnerability: npm:browserslist   -> 4.22.3  GHSA-73wf-gq98-2v4g
+  new vulnerability: npm:browserslist   -> 4.22.3  GHSA-c83g-rgw3-j3cx
+  version changed: npm:cross-spawn  6.0.5 -> 7.0.3
+  version changed: npm:flatted  2.0.2 -> 3.2.9
+  version changed: npm:micromatch  3.1.10 -> 4.0.5
+  version changed: npm:picomatch  2.2.2 -> 2.3.1
+  removed: npm:standard  16.0.3 -> 
+  removed: npm:semver  7.3.4 -> 
+  removed: npm:@babel/traverse  7.12.12 -> 
+  removed: npm:ansi-regex  4.1.0 -> 
+  removed: npm:decode-uri-component  0.2.0 -> 
+  removed: npm:form-data  2.3.3 -> 
+  removed: npm:glob-parent  5.1.1 -> 
+  removed: npm:hosted-git-info  2.8.8 -> 
+  removed: npm:json-schema  0.2.3 -> 
+  removed: npm:json5  1.0.1 -> 

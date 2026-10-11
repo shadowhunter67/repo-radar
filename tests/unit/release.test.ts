@@ -488,3 +488,23 @@ describe('release intelligence end to end', () => {
     expect((await run(spec)).release_intel.status).toBe('no_releases');
   });
 });
+
+describe('real-world checksum shapes found by probes', () => {
+  it('a per-asset .sha256 file with one bare digest names the asset by the file name; extra bare lines are malformed', () => {
+    const c = parseChecksumFile(`SHA256 hash of x.zip:\r\n${H64}\r\nCertUtil: done\r\n`, 'x.zip');
+    expect(c.entries).toEqual([{ algorithm: 'sha256', value: H64, name: 'x.zip' }]);
+    expect(c.malformed).toBe(2);
+    expect(parseChecksumFile(`${H64}\n${'b'.repeat(64)}\n`, 'x.zip').entries).toHaveLength(1);
+    expect(parseChecksumFile(`${H64}\n`).entries).toEqual([]); // without a file-name hint a bare digest names nothing
+  });
+
+  it('attestations whose bundle is not inlined are counted as listed, never fetched or invented', () => {
+    const r = provenanceFromAttestationResponse({
+      attestations: [
+        { bundle: null, bundle_url: 'https://blob.example.net/x.json.sn?sig=secret' },
+        { bundle: null },
+      ],
+    });
+    expect(r).toMatchObject({ listed: 2, not_inlined: 1, records: [], unreadable: 1 });
+  });
+});

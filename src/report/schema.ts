@@ -12,7 +12,7 @@ import { ReleaseIntelSchema } from '../release/model.js';
 import { CoverageMapSchema, TreeRetrievalSchema } from './coverage.js';
 import { DIMENSIONS } from '../scoring/types.js';
 
-export const REPORT_SCHEMA_VERSION = '0.4';
+export const REPORT_SCHEMA_VERSION = '0.5';
 
 const SufficiencySchema = z.enum(['sufficient', 'low', 'insufficient']);
 

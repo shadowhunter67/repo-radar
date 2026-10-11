@@ -117,13 +117,22 @@ export function parseStatement(
 export function provenanceFromAttestationResponse(body: unknown): {
   records: Provenance[];
   unreadable: number;
+  /** Attestations the API listed, whether or not their bundle could be read here. */
+  listed: number;
+  /** Listed attestations whose bundle was not inlined (large bundles come as a `bundle_url` on another host, which is never fetched). */
+  not_inlined: number;
 } {
   const records: Provenance[] = [];
   let unreadable = 0;
+  let notInlined = 0;
   const list = Array.isArray(obj(body)['attestations'])
     ? (obj(body)['attestations'] as unknown[])
     : [];
   for (const a of list.slice(0, 10)) {
+    if (obj(a)['bundle'] == null && typeof obj(a)['bundle_url'] === 'string') {
+      notInlined++;
+      continue;
+    }
     const payload = obj(obj(obj(a)['bundle'])['dsseEnvelope'])['payload'];
     const text = decodeBase64Capped(payload);
     if (text === undefined) {
@@ -138,5 +147,5 @@ export function provenanceFromAttestationResponse(body: unknown): {
       unreadable++;
     }
   }
-  return { records, unreadable };
+  return { records, unreadable, listed: Math.min(list.length, 10), not_inlined: notInlined };
 }

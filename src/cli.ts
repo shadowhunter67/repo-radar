@@ -210,7 +210,7 @@ export async function main(
         const parsed = ReportSchema.safeParse(readJson(rest[0] as string));
         if (!parsed.success) {
           stderr(
-            'error: model needs a report of the current schema version (0.4); re-run the analysis\n',
+            'error: model needs a report of the current schema version (0.5); re-run the analysis\n',
           );
           return EXIT.USAGE;
         }

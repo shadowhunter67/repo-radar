@@ -95,8 +95,13 @@ export async function collectReleases(opts: {
   const tags = new Map<string, TagInfo>();
   const checksumTexts = new Map<string, Map<string, string>>();
   const provenance = new Map<string, Provenance[]>();
+  const attestationsListed = new Map<string, number>();
 
-  for (const [i, rel] of published.slice(0, RELEASE_LIMITS.tagReleases).entries()) {
+  // Detail (checksums, attestations) goes to the newest STABLE release among those inspected; nightlies and pre-releases
+  // would otherwise take the slot.
+  const inspected = published.slice(0, RELEASE_LIMITS.tagReleases);
+  const detailRelease = inspected.find((r) => r.prerelease !== true) ?? inspected[0];
+  for (const rel of inspected) {
     const tag = typeof rel.tag_name === 'string' ? rel.tag_name.slice(0, 200) : '';
     if (!tag) continue;
     // 1) tag -> object
@@ -121,7 +126,7 @@ export async function collectReleases(opts: {
       });
     } else tags.set(tag, { kind: 'unresolved', commit: null });
 
-    if (i >= RELEASE_LIMITS.detailReleases) continue;
+    if (rel !== detailRelease) continue;
     const assets = (Array.isArray(rel.assets) ? rel.assets : []) as RawAssetWithUrl[];
     // 2) checksum files (small, same-repo release URLs only)
     const wanted = assets
@@ -161,13 +166,22 @@ export async function collectReleases(opts: {
       .slice(0, RELEASE_LIMITS.attestationsPerRelease);
     const recs: Provenance[] = [];
     let unreadable = 0;
+    let listed = 0;
+    let notInlined = 0;
     for (const { d } of withDigest) {
       const body = await getJson(`/attestations/sha256:${d?.value}`);
       if (body === undefined) continue;
       const p = provenanceFromAttestationResponse(body);
       recs.push(...p.records);
       unreadable += p.unreadable;
+      listed += p.listed;
+      notInlined += p.not_inlined;
     }
+    if (listed > 0) attestationsListed.set(tag, listed);
+    if (notInlined > 0)
+      limits.push(
+        `${notInlined} attestation bundle(s) not inlined by the API (large bundle URL on another host, not fetched)`,
+      );
     if (unreadable > 0) limits.push(`${unreadable} attestation bundle(s) could not be parsed`);
     if (recs.length > 0) provenance.set(tag, recs);
   }
@@ -175,7 +189,15 @@ export async function collectReleases(opts: {
     limits.push(`tags resolved for ${RELEASE_LIMITS.tagReleases} of ${published.length} releases`);
 
   return buildReleaseIntel(
-    { releases: opts.releases, tags, checksumTexts, provenance, requests, limits_hit: limits },
+    {
+      releases: opts.releases,
+      tags,
+      checksumTexts,
+      provenance,
+      attestationsListed,
+      requests,
+      limits_hit: limits,
+    },
     opts.analyzedCommit,
   );
 }
