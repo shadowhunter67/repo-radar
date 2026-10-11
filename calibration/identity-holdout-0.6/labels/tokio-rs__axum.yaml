@@ -1,0 +1,24 @@
+repository: tokio-rs/axum
+commit: dcfd5e3442b2a8b021ccc954501157ebd602d2a2
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: Read the pinned repository layout and manifests before the analyzer was run; identity fields only.
+  reviewers: [claude-ai-assisted]
+artifact_type: framework
+artifact_also_acceptable: [library]
+domain: web
+domain_also_acceptable: [networking]
+packaging: multi_package
+packaging_also_acceptable: [workspace, monorepo]
+interfaces: [library_api, http_server, plugin_interface]
+deployment_form: library_dependency
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

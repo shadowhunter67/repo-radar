@@ -1,0 +1,24 @@
+repository: minio/minio
+commit: 7aac2a2c5b7c882e68c1ce017d8256be2feea27f
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: Read the pinned repository layout and manifests before the analyzer was run; identity fields only.
+  reviewers: [claude-ai-assisted]
+artifact_type: service
+artifact_also_acceptable: []
+domain: cloud
+domain_also_acceptable: [database, filesystem]
+packaging: single_package
+packaging_also_acceptable: []
+interfaces: [cli, http_server, container_entrypoint]
+deployment_form: server_service
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

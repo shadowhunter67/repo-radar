@@ -1,0 +1,95 @@
+{
+  "dataset_version": "0.1.0",
+  "repos": {
+    "koajs/koa": {
+      "commit": "2fecd029c6ce6b79d65158d28a76538f7f6b0378",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "labstack/echo": {
+      "commit": "3882266a3641a36fc2111b48cd597adab1c1ecea",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "eza-community/eza": {
+      "commit": "471bfbc7b03cbac8c738e8d9050edb06ee79132a",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "casey/just": {
+      "commit": "a1951a5ff7626f2dca436cd13cfd99cea7a84ca7",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "dandavison/delta": {
+      "commit": "3c2269c6b845913965575f11b0196d70ef5352f3",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "tokio-rs/axum": {
+      "commit": "dcfd5e3442b2a8b021ccc954501157ebd602d2a2",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "httpie/cli": {
+      "commit": "5b604c37c6c67e18e7c3e9aee6c88a8c22b98345",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "Textualize/textual": {
+      "commit": "5e5b7ef58b8c5572c13a3ff9027d756623661495",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "fastapi/fastapi": {
+      "commit": "f5c6e9b4f9cadc1bf0f9a1fd672e621206b63007",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "traefik/traefik": {
+      "commit": "6e722fee4ed4ba16c4c039eb0721fdedb9d558b8",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "nats-io/nats-server": {
+      "commit": "64dda80fdd87b41b2afcdc5faf5d846db6c189b0",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "curl/curl": {
+      "commit": "b8f71d6e1199701352c498467c17847237d1c43e",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "nginx/nginx": {
+      "commit": "2b5c2b605b5df669da5dec6749dcc76c07d1315d",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "lodash/lodash": {
+      "commit": "2b5e6f7399a7b48005140b5d5c6bc6c0e62919a8",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "vuejs/core": {
+      "commit": "4ab865a848a1da3d10fb674f857e5fff13094644",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "rust-lang/mdBook": {
+      "commit": "d4658998d44112e873c90049767d7eb002169a2d",
+      "branch": "main",
+      "pinned_on": "2026-10-11"
+    },
+    "redis/redis-py": {
+      "commit": "9677c7237e83cdf063673ed28d95d48496910fad",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    },
+    "minio/minio": {
+      "commit": "7aac2a2c5b7c882e68c1ce017d8256be2feea27f",
+      "branch": "master",
+      "pinned_on": "2026-10-11"
+    }
+  }
+}

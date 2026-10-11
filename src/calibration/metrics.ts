@@ -1,3 +1,8 @@
+import {
+  evaluateIdentityV2,
+  renderIdentityV2,
+  type IdentityV2Metrics,
+} from './identity-metrics.js';
 import type { CAPABILITIES } from '../analysis/types.js';
 import type { Report } from '../report/schema.js';
 import type { Label, Tri } from './schema.js';
@@ -118,6 +123,9 @@ export interface Prediction {
     alternatives: string[];
     multiPackage: boolean;
     packaging: string;
+    status: string;
+    interfaces: string[];
+    deployment: string;
   };
   domain: { value: string; confidence: number; alternatives: string[] };
   capabilities: Partial<Record<CapabilityName, { predicted: boolean; confidence: number }>>;
@@ -146,6 +154,9 @@ export function predictionFrom(r: Report): Prediction {
           confidence: r.identity_v2.primary_artifact.confidence,
           alternatives: r.identity_v2.primary_artifact.alternatives.map((a) => a.value),
           packaging: r.identity_v2.packaging.value,
+          status: r.identity_v2.primary_artifact.status,
+          interfaces: r.identity_v2.interfaces,
+          deployment: r.identity_v2.deployment_form.value,
           multiPackage: [
             'workspace',
             'multi_package',
@@ -248,6 +259,7 @@ export interface Evaluation {
   artifactV2?: CategoricalResult;
   /** Packaging axis accuracy over repositories whose packaging was labelled. */
   packaging?: CategoricalResult;
+  identityV2Detail?: IdentityV2Metrics;
   domain: CategoricalResult;
   capabilities: Record<string, Prf>;
   /** Capability recall/precision restricted to repositories whose source was mostly scanned (>= 50%) vs not. */
@@ -300,6 +312,7 @@ export function evaluate(cases: Case[]): Evaluation {
           };
         })
       : undefined,
+    identityV2Detail: evaluateIdentityV2(cases),
     packaging: cases.some((c) => c.label.packaging && c.prediction.artifactV2)
       ? categorical(
           cases.filter((c) => c.label.packaging && c.prediction.artifactV2),
@@ -374,6 +387,7 @@ export function renderMarkdown(title: string, e: Evaluation): string {
     ...(e.artifactV2
       ? reliabilityLines('Primary-artifact (v2) confidence', e.artifactV2.calibration)
       : []),
+    ...(e.identityV2Detail ? renderIdentityV2(e.identityV2Detail) : []),
     ...reliabilityLines('Domain confidence', e.domain.calibration),
     `Capability confidence calibration: n=${e.capabilityConfidence.n}, ECE=${e.capabilityConfidence.ece === null ? 'n/a' : e.capabilityConfidence.ece.toFixed(2)}, Brier=${e.capabilityConfidence.brier === null ? 'n/a' : e.capabilityConfidence.brier.toFixed(2)}`,
     ...e.capabilityConfidence.bins.map(

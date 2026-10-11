@@ -1,0 +1,37 @@
+version: '0.1.0'
+corpus_id: identity-holdout-0.6
+for_methodology: '0.4'
+fixed_split: holdout
+selection_notes: >-
+  Second independent identity holdout (created 2026-10-11 AFTER the structural Identity v2 changes of cycle 0.6 were
+  frozen). Identity v2 was tuned on the dev/validation splits of calibration/dataset.yaml only; identity-holdout-0.5 was
+  observed and is NOT used. Rules: none of these repositories appears in any earlier corpus, probe or result file;
+  pinned by commit in pins.json; labels written from the pinned source BEFORE the analyzer ran; analyzer run once
+  (scripts/calibrate.mjs --corpus calibration/identity-holdout-0.6 --final); the result is frozen, no tuning.
+  Labelled: artifact type, packaging, domain, interfaces, deployment form. Everything else is unknown.
+review_defaults:
+  kind: ai-assisted-single
+  method: >-
+    One AI-assisted reviewer read the pinned repository's manifests, entry points and layout (git ls-tree/show on a bare
+    clone). NOT independent human review.
+  reviewers: [claude-ai-assisted]
+  labelled_on: '2026-10-11'
+repositories:
+  - { repo: koajs/koa, categories: [framework, npm] }
+  - { repo: labstack/echo, categories: [framework, go] }
+  - { repo: eza-community/eza, categories: [cli, rust] }
+  - { repo: casey/just, categories: [cli, rust] }
+  - { repo: dandavison/delta, categories: [cli, rust] }
+  - { repo: tokio-rs/axum, categories: [framework, rust, workspace] }
+  - { repo: httpie/cli, categories: [cli, python] }
+  - { repo: Textualize/textual, categories: [framework, python] }
+  - { repo: fastapi/fastapi, categories: [framework, python] }
+  - { repo: traefik/traefik, categories: [service, go] }
+  - { repo: nats-io/nats-server, categories: [service, go] }
+  - { repo: curl/curl, categories: [cli, c] }
+  - { repo: nginx/nginx, categories: [service, c] }
+  - { repo: lodash/lodash, categories: [library, npm] }
+  - { repo: vuejs/core, categories: [framework, npm, monorepo] }
+  - { repo: rust-lang/mdBook, categories: [cli, rust] }
+  - { repo: redis/redis-py, categories: [sdk, python] }
+  - { repo: minio/minio, categories: [service, go] }

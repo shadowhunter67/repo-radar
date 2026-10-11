@@ -1,0 +1,24 @@
+repository: vuejs/core
+commit: 4ab865a848a1da3d10fb674f857e5fff13094644
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: Read the pinned repository layout and manifests before the analyzer was run; identity fields only.
+  reviewers: [claude-ai-assisted]
+artifact_type: framework
+artifact_also_acceptable: [library]
+domain: web
+domain_also_acceptable: []
+packaging: monorepo
+packaging_also_acceptable: [workspace, multi_package]
+interfaces: [library_api, plugin_interface]
+deployment_form: library_dependency
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

@@ -1,0 +1,24 @@
+repository: lodash/lodash
+commit: 2b5e6f7399a7b48005140b5d5c6bc6c0e62919a8
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: Read the pinned repository layout and manifests before the analyzer was run; identity fields only.
+  reviewers: [claude-ai-assisted]
+artifact_type: library
+artifact_also_acceptable: []
+domain: general
+domain_also_acceptable: []
+packaging: single_package
+packaging_also_acceptable: []
+interfaces: [library_api]
+deployment_form: library_dependency
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

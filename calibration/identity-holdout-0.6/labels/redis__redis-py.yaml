@@ -1,0 +1,24 @@
+repository: redis/redis-py
+commit: 9677c7237e83cdf063673ed28d95d48496910fad
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: Read the pinned repository layout and manifests before the analyzer was run; identity fields only.
+  reviewers: [claude-ai-assisted]
+artifact_type: sdk
+artifact_also_acceptable: [library]
+domain: database
+domain_also_acceptable: []
+packaging: single_package
+packaging_also_acceptable: []
+interfaces: [library_api]
+deployment_form: library_dependency
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

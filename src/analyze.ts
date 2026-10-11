@@ -189,12 +189,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     legacy: identity,
     observedCapabilities: identity.capabilities,
     entrypointCount: code.execution.entrypoints.length,
-    goPackageMain: github.files.some(
-      (f) =>
-        f.path.endsWith('.go') &&
-        !f.path.endsWith('_test.go') &&
-        /^package main(?:\s|$)/m.test(f.content),
-    ),
+    files: github.files,
   });
 
   const store = new EvidenceStore();

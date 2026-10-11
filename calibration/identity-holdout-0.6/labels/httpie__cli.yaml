@@ -1,0 +1,22 @@
+repository: httpie/cli
+commit: 5b604c37c6c67e18e7c3e9aee6c88a8c22b98345
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: Read the pinned repository layout and manifests before the analyzer was run; identity fields only.
+  reviewers: [claude-ai-assisted]
+artifact_type: cli
+artifact_also_acceptable: []
+domain: networking
+domain_also_acceptable: [developer-tooling, web]
+interfaces: [cli]
+deployment_form: local_executable
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

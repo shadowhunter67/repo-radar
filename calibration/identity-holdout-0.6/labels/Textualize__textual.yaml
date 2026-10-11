@@ -1,0 +1,24 @@
+repository: Textualize/textual
+commit: 5e5b7ef58b8c5572c13a3ff9027d756623661495
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: Read the pinned repository layout and manifests before the analyzer was run; identity fields only.
+  reviewers: [claude-ai-assisted]
+artifact_type: framework
+artifact_also_acceptable: [library]
+domain: developer-tooling
+domain_also_acceptable: [general]
+packaging: single_package
+packaging_also_acceptable: []
+interfaces: [library_api, gui, cli]
+deployment_form: library_dependency
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

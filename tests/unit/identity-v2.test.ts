@@ -20,6 +20,12 @@ const snap = (over: Partial<RepoSnapshot> = {}): RepoSnapshot => ({
   htmlUrl: 'https://github.com/o/r',
   ...over,
 });
+const src = (path: string, content: string) => ({
+  path,
+  content,
+  size: content.length,
+  role: 'source' as const,
+});
 const v2 = (s: RepoSnapshot, extra: Partial<Parameters<typeof classifyIdentityV2>[0]> = {}) => {
   const legacy = classifier.classify(s);
   const r = classifyIdentityV2({ snapshot: s, legacy, ...extra });
@@ -84,16 +90,25 @@ describe('identity v2: structural evidence, not names or prose', () => {
 
   it('a Go module with a `package main` file is a program; without one it is a library', () => {
     const go = parseManifest('go.mod', 'module example.com/x\n\ngo 1.22\n')!;
-    const prog = v2(snap({ manifests: [go], treePaths: ['x.go'] }), { goPackageMain: true });
-    const lib = v2(snap({ manifests: [go], treePaths: ['x.go'] }), { goPackageMain: false });
+    const prog = v2(snap({ manifests: [go], treePaths: ['x.go'] }), {
+      files: [src('main.go', 'package main\n\nfunc main() {}\n')],
+    });
+    const lib = v2(snap({ manifests: [go], treePaths: ['x.go'] }), {
+      files: [src('x.go', 'package x\n')],
+    });
     expect(prog.primary_artifact.value).toBe('cli');
     expect(lib.primary_artifact.value).toBe('library');
   });
 
-  it('a server capability inside a CLI does not turn the CLI into a service, but it is exposed', () => {
+  it('a program with a command-line parser that can also serve stays a CLI; the server is exposed as a secondary role', () => {
     const go = parseManifest('go.mod', 'module example.com/x\n\ngo 1.22\n')!;
     const r = v2(snap({ manifests: [go], hasDockerfile: true, treePaths: ['main.go'] }), {
-      goPackageMain: true,
+      files: [
+        src(
+          'main.go',
+          'package main\n\nfunc main() { flag.Parse(); http.ListenAndServe(":80", nil) }\n',
+        ),
+      ],
       observedCapabilities: ['NETWORK_SERVER'],
     });
     expect(r.primary_artifact.value).toBe('cli');
@@ -138,5 +153,111 @@ describe('identity v2: structural evidence, not names or prose', () => {
     expect(r.primary_artifact.value).toBe('plugin');
     expect(r.deployment_form.value).toBe('ci_action');
     expect(r.interfaces).toContain('plugin_interface');
+  });
+});
+
+describe('identity v2: evidence hierarchy and structural reasoning', () => {
+  const fw = [
+    src(
+      'lib/server.js',
+      "const app = require('x');\napp.register(plugin);\napp.addHook('onRequest', f);\nrouter.get('/a', h);\nserver.listen({ port: 3000 });\nmiddleware.use(m);\n",
+    ),
+  ];
+
+  it('a package with a server bootstrap AND an extension surface (routing, middleware, plugin, hooks) is a framework, not a library', () => {
+    const r = v2(
+      snap({
+        manifests: [pkg('package.json', { main: 'fastify.js' })],
+        treePaths: ['fastify.js', 'lib/server.js'],
+      }),
+      { files: fw },
+    );
+    expect(r.primary_artifact.value).toBe('framework');
+    expect(r.interfaces).toContain('plugin_interface');
+    expect(r.primary_artifact.evidence_strength.strong).toBeGreaterThanOrEqual(3);
+  });
+
+  it('a plain client library with no server bootstrap stays a library', () => {
+    const r = v2(
+      snap({ manifests: [pkg('package.json', { main: 'index.js' })], treePaths: ['index.js'] }),
+      {
+        files: [
+          src(
+            'lib/client.js',
+            'function request(url) { return fetch(url); }\nmodule.exports = { request, register: 1 };\n',
+          ),
+        ],
+      },
+    );
+    expect(r.primary_artifact.value).toBe('library');
+  });
+
+  it('a Cargo project with a src/bin/<name>/main.rs target is a CLI whose library surface is a secondary role', () => {
+    const cargo = parseManifest(
+      'Cargo.toml',
+      '[package]\nname = "tool"\nversion = "1.0.0"\n\n[lib]\nname = "tool"\n',
+    )!;
+    const r = v2(
+      snap({
+        manifests: [cargo],
+        treePaths: ['src/lib.rs', 'src/bin/tool/main.rs', 'src/bin/tool/cli.rs'],
+      }),
+    );
+    expect(r.primary_artifact.value).toBe('cli');
+    expect(r.secondary_roles).toContain('library_api');
+    expect(r.interfaces).toEqual(expect.arrayContaining(['cli', 'library_api']));
+  });
+
+  it('a Dockerfile alone is a deployment form, never the identity of a repository that has code', () => {
+    const go = parseManifest('go.mod', 'module example.com/x\n\ngo 1.22\n')!;
+    const r = v2(
+      snap({ manifests: [go], hasDockerfile: true, treePaths: ['main.go', 'Dockerfile'] }),
+      {
+        files: [src('main.go', 'package main\nfunc main() {}\n')],
+      },
+    );
+    expect(r.primary_artifact.value).not.toBe('container');
+    expect(r.deployment_form.supported).toContain('container');
+    const image = v2(snap({ hasDockerfile: true, treePaths: ['Dockerfile', 'README.md'] }));
+    expect(image.primary_artifact.value).toBe('container');
+  });
+
+  it('a C project without manifests but with src/main.c is a program, and a *-server.c entry points to a service', () => {
+    const jq = v2(
+      snap({
+        hasDockerfile: true,
+        treePaths: ['src/main.c', 'src/jv.c', 'configure.ac', 'Dockerfile'],
+      }),
+    );
+    expect(jq.primary_artifact.value).toBe('cli');
+    const srv = v2(
+      snap({ treePaths: ['src/server.c', 'src/redis-cli.c', 'src/util.c', 'Makefile'] }),
+    );
+    expect(srv.primary_artifact.value).toBe('service');
+    expect(srv.secondary_roles).toContain('cli_interface');
+  });
+
+  it('weak evidence alone (the keyword hint) never yields a clear answer', () => {
+    const r = v2(
+      snap({
+        description: 'A web framework for http servers',
+        topics: ['web-framework', 'http-server'],
+        treePaths: ['README.md'],
+      }),
+    );
+    expect(r.primary_artifact.status).not.toBe('clear');
+    expect(r.primary_artifact.value).toBe('unknown');
+  });
+
+  it('close top candidates are reported as ambiguous, not forced', () => {
+    const r = v2(
+      snap({
+        manifests: [pkg('package.json', { bin: { t: 'b.js' }, main: 'l.js' })],
+        treePaths: ['b.js'],
+      }),
+    );
+    expect(['ambiguous', 'clear']).toContain(r.primary_artifact.status);
+    if (r.primary_artifact.status === 'ambiguous')
+      expect(r.primary_artifact.alternatives.length).toBeGreaterThan(0);
   });
 });

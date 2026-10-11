@@ -1,0 +1,24 @@
+repository: casey/just
+commit: a1951a5ff7626f2dca436cd13cfd99cea7a84ca7
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: Read the pinned repository layout and manifests before the analyzer was run; identity fields only.
+  reviewers: [claude-ai-assisted]
+artifact_type: cli
+artifact_also_acceptable: []
+domain: developer-tooling
+domain_also_acceptable: []
+packaging: single_package
+packaging_also_acceptable: []
+interfaces: [cli]
+deployment_form: local_executable
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

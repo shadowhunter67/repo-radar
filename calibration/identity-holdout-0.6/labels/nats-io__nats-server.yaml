@@ -1,0 +1,23 @@
+repository: nats-io/nats-server
+commit: 64dda80fdd87b41b2afcdc5faf5d846db6c189b0
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: Read the pinned repository layout and manifests before the analyzer was run; identity fields only.
+  reviewers: [claude-ai-assisted]
+artifact_type: service
+artifact_also_acceptable: []
+domain: networking
+domain_also_acceptable: []
+packaging: single_package
+packaging_also_acceptable: []
+deployment_form: server_service
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

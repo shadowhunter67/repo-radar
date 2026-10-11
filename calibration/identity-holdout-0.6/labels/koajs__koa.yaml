@@ -1,0 +1,24 @@
+repository: koajs/koa
+commit: 2fecd029c6ce6b79d65158d28a76538f7f6b0378
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: Read the pinned repository layout and manifests before the analyzer was run; identity fields only.
+  reviewers: [claude-ai-assisted]
+artifact_type: framework
+artifact_also_acceptable: [library]
+domain: web
+domain_also_acceptable: []
+packaging: single_package
+packaging_also_acceptable: []
+interfaces: [library_api, plugin_interface]
+deployment_form: library_dependency
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

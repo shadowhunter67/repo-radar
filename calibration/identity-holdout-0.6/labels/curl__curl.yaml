@@ -1,0 +1,22 @@
+repository: curl/curl
+commit: b8f71d6e1199701352c498467c17847237d1c43e
+split: holdout
+tuned_on: false
+labelled_on: '2026-10-11'
+review:
+  kind: ai-assisted-single
+  method: Read the pinned repository layout and manifests before the analyzer was run; identity fields only.
+  reviewers: [claude-ai-assisted]
+artifact_type: cli
+artifact_also_acceptable: [library]
+domain: networking
+domain_also_acceptable: []
+interfaces: [cli, library_api]
+deployment_form: local_executable
+capabilities: {}
+install_hooks:
+  automatic: unknown
+  names: []
+persistence: unknown
+hard_coded_secrets: unknown
+ambiguity_notes: ''

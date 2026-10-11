@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { CAPABILITIES } from '../analysis/types.js';
 import { ARTIFACT_TYPES } from '../identity/taxonomy.js';
-import { PACKAGING } from '../identity/v2.js';
+import { DEPLOYMENT_FORMS, INTERFACES, PACKAGING } from '../identity/v2.js';
 
 /** A label a reviewer could not or would not decide is `unknown` or `disputed`; both are excluded from metrics and counted. */
 export const TriSchema = z.enum(['yes', 'no', 'unknown', 'disputed']);
@@ -79,6 +79,10 @@ export const LabelSchema = z.object({
   /** Identity v2 packaging axis (how the repository is packaged, not what it is). Optional: absent = not labelled. */
   packaging: z.enum(PACKAGING).optional(),
   packaging_also_acceptable: z.array(z.enum(PACKAGING)).default([]),
+  /** Interfaces the product really exposes (identity v2 interface axis). Optional. */
+  interfaces: z.array(z.enum(INTERFACES)).optional(),
+  deployment_form: z.enum(DEPLOYMENT_FORMS).optional(),
+  deployment_also_acceptable: z.array(z.enum(DEPLOYMENT_FORMS)).default([]),
   /** Capability exists in non-test, non-example, non-vendor source or build files of the pinned revision. */
   capabilities: z.partialRecord(z.enum(CAPABILITIES), TriSchema),
   install_hooks: z.object({
