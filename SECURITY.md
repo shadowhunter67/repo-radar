@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Only the latest released minor version of repo-radar receives security fixes (currently 0.6.x).
+Only the latest released minor version of repo-radar receives security fixes (currently 0.7.x).
 
 ## Reporting a vulnerability
 
@@ -17,7 +17,7 @@ within a week; this is a volunteer project and no bug bounty exists.
 
 In scope: anything that lets an analyzed repository, or a response from GitHub / OpenSSF Scorecard / OSV, cause code execution,
 file access outside what the user asked for, requests to unintended hosts, token disclosure, terminal escape injection,
-or unbounded resource use in repo-radar.
+or unbounded resource use in repo-radar. Since 0.7 that includes: a repository or registry response that makes repo-radar trust a key or identity the user did not supply, contact an observed domain, run `gpg` or any other program, or accept a signature/provenance state it did not verify.
 
 Out of scope: a repository receiving a score you disagree with (open a normal issue or a standards proposal), vulnerabilities
 in the analyzed repositories themselves, and the deliberate behaviors listed under "Deliberate non-controls" in
