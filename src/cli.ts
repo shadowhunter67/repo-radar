@@ -6,7 +6,15 @@ import { analyzeRepository, toolVersion, type AnalyzeOptions } from './analyze.j
 import { RepoNotFoundError } from './collectors/github/collector.js';
 import { buildRepositoryModel, summarizeModel } from './model/index.js';
 import { buildTrustGraph, summarizeGraph } from './graph/trust.js';
-import { FsSnapshotStore, type PutResult } from './store/snapshots.js';
+import { copySnapshots, FsSnapshotStore, type PutResult } from './store/snapshots.js';
+import {
+  assetsBoundToCommit,
+  dependenciesPublishedBy,
+  domainsIntroducedAfter,
+  GraphIndex,
+  publishTimes,
+  versionsWithoutVerifiedProvenance,
+} from './graph/query.js';
 import { evaluateHistoryBlocks } from './scoring/policy.js';
 import { listProfiles, loadProfile, UnknownProfileError } from './profiles/load.js';
 import { compareRevisions, compareSnapshots, renderHistoricalText } from './history/index.js';
@@ -45,8 +53,11 @@ Usage:
   repo-radar diff <owner/repo> --from <ref> [--to <ref>]       Analyze two exact revisions and explain what changed (capabilities, execution, dependencies, risk)
   repo-radar diff <old.json> <new.json> [--format text|json]   Compare two JSON reports (new/removed dependencies, capabilities, hooks, vulnerabilities, ...)
   repo-radar model <report.json> [--format text|json]          Project a 0.4 report onto the unified repository model
-  repo-radar graph <report.json> [--format text|json]          Project a report onto the Software Trust Graph (every edge carries evidence)
+  repo-radar graph <report.json> [--format text|json] [--query <q>]  Project a report onto the Software Trust Graph (every edge carries evidence)
+  repo-radar graph --snapshot-dir <dir> --repo owner/repo [--commit <sha>] [--query <q>]  Project a STORED snapshot (the graph is regenerated, never stored)
+    queries: published-by:<account> | bound-to-commit:<sha> | domains-after:<iso>[,<days>] | without-verified-provenance | publish-times:<account>
   repo-radar snapshots --snapshot-dir <dir> [--repo owner/repo] List stored immutable snapshots
+  repo-radar snapshots --snapshot-dir <dir> --export-to <dir2> | --import-from <dir2>   Copy snapshots between stores (hashes verified, nothing overwritten)
   repo-radar profiles                 List scoring profiles
   repo-radar rules [dimension]        List scoring rules (weights, evidence ids)
   repo-radar --version | --help
@@ -68,6 +79,7 @@ Options for analyze:
   --verify-assets            Download up to 3 small release assets (<= 8 MiB each) and compare their bytes with published digests
   --no-registry              Skip npm / PyPI / crates.io lookups (own packages and dependencies)
   --no-dep-registry          Skip registry lookups for DEPENDENCIES only
+  --no-domains               Skip extraction of the external hostnames the repository's files refer to
   --dep-registry-max <n>     Look up at most n dependency packages, highest priority first (default 25)
   --dep-registry-requests <n>  Registry request budget for dependencies (default 60)
   --dep-registry-time <sec>  Time budget for dependency registry lookups (default 45)
@@ -181,6 +193,7 @@ export async function main(
         'no-releases': { type: 'boolean', default: false },
         'no-registry': { type: 'boolean', default: false },
         'no-dep-registry': { type: 'boolean', default: false },
+        'no-domains': { type: 'boolean', default: false },
         'dep-registry-max': { type: 'string' },
         'dep-registry-requests': { type: 'string' },
         'dep-registry-time': { type: 'string' },
@@ -192,6 +205,10 @@ export async function main(
         'snapshot-dir': { type: 'string' },
         'snapshot-revision': { type: 'boolean', default: false },
         repo: { type: 'string' },
+        commit: { type: 'string' },
+        query: { type: 'string' },
+        'export-to': { type: 'string' },
+        'import-from': { type: 'string' },
         'verify-assets': { type: 'boolean', default: false },
         'no-scan': { type: 'boolean', default: false },
         ref: { type: 'string' },
@@ -238,22 +255,73 @@ export async function main(
       return EXIT.OK;
     }
     if (cmd === 'graph') {
-      if (rest.length !== 1) {
-        stderr(
-          'error: graph needs exactly one report file (a JSON report of the current schema)\n',
+      let report: import('./report/schema.js').Report | undefined;
+      if (values['snapshot-dir']) {
+        if (!values.repo) {
+          stderr('error: graph --snapshot-dir needs --repo owner/repo (and optionally --commit)\n');
+          return EXIT.USAGE;
+        }
+        const store = new FsSnapshotStore(values['snapshot-dir']);
+        const rows = store.listSnapshots({
+          repository: values.repo,
+          ...(values.commit ? { commit: values.commit } : {}),
+          limit: 100,
+        });
+        // newest snapshot (by storage time) of the requested repository / commit
+        const entry = [...rows].sort((a, b) => (a.stored_at < b.stored_at ? 1 : -1))[0];
+        if (!entry) {
+          stderr('error: no stored snapshot matches\n');
+          return EXIT.NOT_FOUND;
+        }
+        const got = store.getSnapshot(entry);
+        if ('error' in got) {
+          stderr(`error: ${sanitizeForTerminal(got.error, 160)}\n`);
+          return EXIT.ERROR;
+        }
+        report = got.report;
+      } else {
+        if (rest.length !== 1) {
+          stderr(
+            'error: graph needs exactly one report file (a JSON report of the current schema) or --snapshot-dir\n',
+          );
+          return EXIT.USAGE;
+        }
+        if (statSync(rest[0] as string).size > 50 * 1024 * 1024)
+          throw new Error('report is larger than 50 MiB');
+        const parsedReport = ReportSchema.safeParse(
+          JSON.parse(readFileSync(rest[0] as string, 'utf8')),
         );
-        return EXIT.USAGE;
+        if (!parsedReport.success) {
+          stderr(
+            'error: graph needs a report of the current schema version; re-run the analysis\n',
+          );
+          return EXIT.USAGE;
+        }
+        report = parsedReport.data;
       }
-      if (statSync(rest[0] as string).size > 50 * 1024 * 1024)
-        throw new Error('report is larger than 50 MiB');
-      const parsedReport = ReportSchema.safeParse(
-        JSON.parse(readFileSync(rest[0] as string, 'utf8')),
-      );
-      if (!parsedReport.success) {
-        stderr('error: graph needs a report of the current schema version; re-run the analysis\n');
-        return EXIT.USAGE;
+      const g = buildTrustGraph(report);
+      if (values.query) {
+        const idx = new GraphIndex(g);
+        const [name, ...restQ] = values.query.split(':');
+        const arg = restQ.join(':');
+        let rows: unknown;
+        if (name === 'published-by' && arg) rows = dependenciesPublishedBy(idx, arg);
+        else if (name === 'bound-to-commit' && arg) rows = assetsBoundToCommit(idx, arg);
+        else if (name === 'domains-after' && arg) {
+          const [iso, days] = arg.split(/,(?=\d+$)/);
+          rows = domainsIntroducedAfter(idx, iso as string, days ? Number(days) : undefined);
+        } else if (name === 'without-verified-provenance')
+          rows = versionsWithoutVerifiedProvenance(idx);
+        else if (name === 'publish-times' && arg) rows = publishTimes(idx, arg);
+        else {
+          stderr(
+            'error: unknown --query; use published-by:<account> | bound-to-commit:<sha> | domains-after:<iso>[,<days>] | without-verified-provenance | publish-times:<account>\n',
+          );
+          return EXIT.USAGE;
+        }
+        stdout(JSON.stringify(rows, null, 2) + '\n');
+        return EXIT.OK;
       }
-      const g = buildTrustGraph(parsedReport.data);
       stdout(values.format === 'json' ? JSON.stringify(g, null, 2) + '\n' : summarizeGraph(g));
       return EXIT.OK;
     }
@@ -264,6 +332,16 @@ export async function main(
         return EXIT.USAGE;
       }
       const store = new FsSnapshotStore(dir);
+      if (values['export-to'] || values['import-from']) {
+        const other = new FsSnapshotStore((values['export-to'] ?? values['import-from']) as string);
+        const r = values['export-to']
+          ? copySnapshots(store, other, { allowRevision: values['snapshot-revision'] })
+          : copySnapshots(other, store, { allowRevision: values['snapshot-revision'] });
+        stdout(
+          `${values['export-to'] ? 'exported' : 'imported'}: ${r.copied} copied, ${r.existing} already present, ${r.conflicts} conflict(s) kept as they were, ${r.unreadable} unreadable\n`,
+        );
+        return r.conflicts > 0 || r.unreadable > 0 ? EXIT.ERROR : EXIT.OK;
+      }
       const rows = store.listSnapshots({
         ...(values.repo ? { repository: values.repo } : {}),
         limit: 100,
@@ -305,6 +383,7 @@ export async function main(
           verifyCrypto: values['verify-crypto'],
           verifyAssets: values['verify-assets'],
           codeScan: !values['no-scan'],
+          domains: !values['no-domains'],
           ...registryAndTrustOptions(values),
         },
         (a, b) => {
@@ -406,6 +485,7 @@ export async function main(
       verifyCrypto: values['verify-crypto'],
       verifyAssets: values['verify-assets'],
       codeScan: !values['no-scan'],
+      domains: !values['no-domains'],
       ...registryAndTrustOptions(values),
       ...(values.ref ? { ref: values.ref } : {}),
     });

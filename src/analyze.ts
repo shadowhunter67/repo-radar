@@ -31,6 +31,9 @@ import {
   deriveDependencyRegistryFacts,
 } from './registry/dependency-findings.js';
 import { EMPTY_REGISTRY_INTEL, type RegistryIntel } from './registry/model.js';
+import { EMPTY_EXTERNAL_DOMAINS, type ExternalDomains } from './domains/model.js';
+import { extractDomains } from './domains/extract.js';
+import { buildDomainFindings, deriveDomainFacts } from './domains/findings.js';
 import { analyzeGovernance } from './governance/temporal.js';
 import {
   buildGovernanceFindings,
@@ -118,6 +121,8 @@ export interface AnalyzeOptions {
   trust?: TrustConfig;
   /** Look up the packages this repository publishes in their registries (default true). */
   registry?: boolean;
+  /** Extract the external hostnames the repository's files refer to (default true; needs the code scan). */
+  domains?: boolean;
   /** Look up the registries of the repository's dependencies, under a budget (default true; needs `registry`). */
   dependencyRegistry?: boolean;
   /** Override the dependency-registry budget (packages, requests, time, versions, bytes). */
@@ -268,6 +273,16 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   identity.capabilities = code.capabilities.summary
     .filter((c) => c.observed && c.mode !== 'POSSIBLE')
     .map((c) => c.capability);
+  const externalDomains: ExternalDomains =
+    opts.domains === false
+      ? EMPTY_EXTERNAL_DOMAINS
+      : github.scanned
+        ? extractDomains({
+            files: github.files,
+            hooks: code.execution.hooks,
+            detections: code.capabilities.detections,
+          })
+        : { ...EMPTY_EXTERNAL_DOMAINS, status: 'not_scanned' };
   const coverageMap = buildCoverageMap({
     retrieval: github.treeRetrieval,
     sourceScanRatio:
@@ -367,6 +382,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...deriveReleaseFacts(github.releaseIntel, governance),
     ...deriveRegistryFacts(registryIntel),
     ...deriveDependencyRegistryFacts(depRegistry, timeline.correlations),
+    ...deriveDomainFacts(externalDomains, scanReliable),
   ];
   if (
     code.scan.performed &&
@@ -429,6 +445,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...buildReleaseFindings(github.releaseIntel),
     ...buildRegistryFindings(registryIntel),
     ...buildDependencyRegistryFindings(depRegistry, timeline.correlations),
+    ...buildDomainFindings(externalDomains),
     ...buildGovernanceFindings(governance),
   ];
   const blockViolations = [
@@ -502,6 +519,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
               : false,
           verify_crypto: opts.verifyCrypto === true,
           verify_assets: opts.verifyAssets === true,
+          domains: opts.domains !== false,
           trusted_keys: opts.trust?.keys.length ?? 0,
           expected_identity: !!opts.trust?.expectedIdentity,
           limits: LIMITS,
@@ -523,6 +541,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     release_intel: github.releaseIntel,
     registry_intel: registryIntel,
     dependency_registry_intel: depRegistry,
+    external_domains: externalDomains,
     timeline,
     governance,
     coverage_map: coverageMap,

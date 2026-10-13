@@ -1,5 +1,8 @@
+import { domainDeltas, type DomainDelta } from '../domains/diff.js';
+import { ExternalDomainsSchema } from '../domains/model.js';
 import { buildTimeline } from '../events/build.js';
 import type { Timeline, TimelineEvent } from '../events/model.js';
+import { DependencyRegistryIntelSchema } from '../registry/dependency-model.js';
 import { EMPTY_GOVERNANCE, GovernanceSchema } from '../governance/temporal.js';
 import { EMPTY_REGISTRY_INTEL, RegistryIntelSchema } from '../registry/model.js';
 import { EMPTY_RELEASE_INTEL, ReleaseIntelSchema } from '../release/model.js';
@@ -136,7 +139,36 @@ export interface GovernanceDelta {
   note: string;
 }
 
+export const PROVENANCE_DELTA_KINDS = [
+  'provenance_added',
+  'provenance_removed',
+  'provenance_verification_changed',
+  'source_binding_changed',
+  'signature_state_changed',
+  'registry_repository_correspondence_changed',
+] as const;
+export type ProvenanceDeltaKind = (typeof PROVENANCE_DELTA_KINDS)[number];
+/**
+ * A change in what is claimed or verified about WHERE artifacts come from, between two analyses. `at` is the publication
+ * time of the release the change attaches to, or the later analysis time (`at_basis: observed`) for facts that only
+ * describe the moment of the analysis; null when neither is known (such a change never becomes a timeline event).
+ */
+export interface ProvenanceDelta {
+  kind: ProvenanceDeltaKind;
+  subject: string;
+  before: string;
+  after: string;
+  at: string | null;
+  at_basis: 'release_published' | 'observed' | 'unknown';
+  certainty: Certainty;
+  evidence_ids: string[];
+}
+
 export interface HistoricalDiff extends ReportDiff {
+  /** External hostnames that appeared, disappeared or moved to another context (schema 0.7 reports). */
+  domains: DomainDelta[];
+  /** Provenance, verification, source-binding, signature and registry-correspondence changes (schema 0.7 reports). */
+  provenance: ProvenanceDelta[];
   governance: GovernanceDelta;
   /** Timeline of the later revision plus events introduced by this change (install hooks, capabilities), correlated. */
   timeline: Timeline;
@@ -620,6 +652,8 @@ function riskDelta(
   policy: PolicyDelta,
   base: Change[],
   gov: GovernanceDelta,
+  domains: DomainDelta[] = [],
+  provenance: ProvenanceDelta[] = [],
 ): RiskDelta {
   const score = (r: Json, dimension: string): number | null => {
     if (dimension === 'overall') return num(obj(r['overall'])['score']);
@@ -702,6 +736,55 @@ function riskDelta(
     if (f.change === 'removed' && f.certainty === 'observed' && sevRank(f.severity) >= 2)
       down(`${f.severity} finding gone: ${f.title}`, 'finding:removed', f.id);
   }
+  for (const d of domains) {
+    const ctx = d.after?.strongest_context ?? '';
+    if (
+      d.kind === 'introduced' &&
+      d.significance === 'active' &&
+      d.category !== 'registry' &&
+      d.category !== 'github'
+    )
+      up(
+        `new external host ${d.hostname} referenced in ${ctx} context`,
+        'domain:introduced',
+        ...d.evidence_ids,
+      );
+    else if (d.kind === 'context_changed' && d.significance === 'active' && ctx === 'install')
+      up(
+        `external host ${d.hostname} is now referenced at install time`,
+        'domain:context_changed',
+        ...d.evidence_ids,
+      );
+    else if (
+      d.kind === 'removed' &&
+      d.certainty === 'observed' &&
+      d.significance === 'active' &&
+      d.before?.strongest_context === 'install'
+    )
+      down(`install-time reference to ${d.hostname} removed`, 'domain:removed', ...d.evidence_ids);
+  }
+  for (const p of provenance) {
+    if (
+      p.kind === 'provenance_removed' ||
+      (p.kind === 'provenance_verification_changed' && p.after === 'not verified')
+    )
+      up(
+        `${p.subject}: ${p.kind.replace(/_/g, ' ')} (${p.before} -> ${p.after})`,
+        `provenance:${p.kind}`,
+        ...p.evidence_ids,
+      );
+    else if (p.kind === 'source_binding_changed' && /conflict|inconsistent|unlinked/.test(p.after))
+      up(
+        `${p.subject}: source binding is now ${p.after}`,
+        'provenance:source_binding_changed',
+        ...p.evidence_ids,
+      );
+    else if (
+      p.kind === 'provenance_added' ||
+      (p.kind === 'provenance_verification_changed' && p.after === 'verified')
+    )
+      down(`${p.subject}: ${p.kind.replace(/_/g, ' ')}`, `provenance:${p.kind}`, ...p.evidence_ids);
+  }
   if (gov.combined_sequence) up(gov.combined_sequence, 'governance:combined_sequence');
   for (const v of policy.block_violations_added)
     up(`policy block now violated: ${v}`, 'policy:block');
@@ -766,8 +849,137 @@ function governanceDelta(a: Json, b: Json, exec: ExecutionDelta[]): GovernanceDe
   };
 }
 
+const latestStable = (r: Json): Json | undefined => {
+  const rels = arr(obj(r['release_intel'])['releases']);
+  return rels.find((x) => x['prerelease'] !== true) ?? rels[0];
+};
+
+function provenanceDeltas(a: Json, b: Json): ProvenanceDelta[] {
+  const out: ProvenanceDelta[] = [];
+  const bWhen = typeof b['generated_at'] === 'string' ? (b['generated_at'] as string) : null;
+  const ra = latestStable(a);
+  const rb = latestStable(b);
+  const add = (d: Omit<ProvenanceDelta, 'certainty'> & { certainty?: Certainty }): void => {
+    out.push({ certainty: 'observed', ...d });
+  };
+  if (ra && rb) {
+    const tagB = str(rb['tag']).slice(0, 60);
+    const when = str(rb['published_at']) || null;
+    const at = when ?? bWhen;
+    const atBasis = when ? 'release_published' : bWhen ? 'observed' : 'unknown';
+    const has = (r: Json): boolean =>
+      arr(r['provenance']).length > 0 || (num(r['attestations_listed']) ?? 0) > 0;
+    if (!has(ra) && has(rb))
+      add({
+        kind: 'provenance_added',
+        subject: `release ${tagB}`,
+        before: 'none',
+        after: 'present',
+        at,
+        at_basis: atBasis,
+        evidence_ids: [`release:${tagB}`],
+      });
+    if (has(ra) && !has(rb))
+      add({
+        kind: 'provenance_removed',
+        subject: `release ${tagB}`,
+        before: 'present',
+        after: 'none',
+        at,
+        at_basis: atBasis,
+        evidence_ids: [`release:${tagB}`],
+      });
+    const verified = (r: Json): boolean => obj(r['slsa'])['provenance_verified'] === true;
+    const ranA = obj(obj(a['release_intel'])['verification_run'])['attestations'] === true;
+    const ranB = obj(obj(b['release_intel'])['verification_run'])['attestations'] === true;
+    // a verification state is only comparable when both analyses actually ran the verifier
+    if (ranA && ranB && verified(ra) !== verified(rb))
+      add({
+        kind: 'provenance_verification_changed',
+        subject: `release ${tagB}`,
+        before: verified(ra) ? 'verified' : 'not verified',
+        after: verified(rb) ? 'verified' : 'not verified',
+        at,
+        at_basis: atBasis,
+        evidence_ids: [`release:${tagB}`],
+      });
+    const ca = str(ra['correspondence']);
+    const cb = str(rb['correspondence']);
+    if (ranA && ranB && ca && cb && ca !== cb)
+      add({
+        kind: 'source_binding_changed',
+        subject: `release ${tagB}`,
+        before: ca,
+        after: cb,
+        at,
+        at_basis: atBasis,
+        evidence_ids: [`release:${tagB}`],
+      });
+    {
+      const sigState = (r: Json): Map<string, string> =>
+        new Map(
+          arr(r['signatures']).map((x) => [
+            str(x['subject']).slice(0, 80),
+            `${str(x['state'])}/${str(x['local_state'])}`,
+          ]),
+        );
+      const sa = sigState(ra);
+      const sb = sigState(rb);
+      for (const [subject, after] of sb) {
+        const before = sa.get(subject);
+        if (before !== undefined && before !== after)
+          add({
+            kind: 'signature_state_changed',
+            subject: `${tagB} ${subject}`,
+            before,
+            after,
+            at,
+            at_basis: atBasis,
+            evidence_ids: [`release:${tagB}`],
+          });
+      }
+    }
+  }
+  // registry <-> repository correspondence of packages this repository publishes and of its dependencies
+  const corr = (r: Json): Map<string, string> => {
+    const m = new Map<string, string>();
+    for (const sect of ['registry_intel', 'dependency_registry_intel'])
+      for (const p of arr(obj(r[sect])['packages']))
+        m.set(
+          `${sect === 'registry_intel' ? 'own' : 'dep'}:${str(p['registry'])}:${str(p['name'])}`,
+          str(obj(p['repository'])['match']),
+        );
+    return m;
+  };
+  const ma = corr(a);
+  const mb = corr(b);
+  for (const [k, after] of mb) {
+    const before = ma.get(k);
+    // `unknown` is a failed or skipped lookup: a change to or from it says nothing about the package
+    if (before && before !== after && before !== 'unknown' && after !== 'unknown')
+      add({
+        kind: 'registry_repository_correspondence_changed',
+        subject: k.slice(0, 120),
+        before,
+        after,
+        at: bWhen,
+        at_basis: bWhen ? 'observed' : 'unknown',
+        evidence_ids: [
+          k.startsWith('dep:') ? `depregistry:${k.slice(4)}` : `registry:${k.slice(4)}`,
+        ],
+      });
+  }
+  return out.slice(0, 40);
+}
+
 /** Events that a revision introduced, stamped with the later revision's commit date (the best known time of the change). */
-function diffTimeline(b: Json, exec: ExecutionDelta[], caps: CapabilityDelta[]): Timeline {
+function diffTimeline(
+  b: Json,
+  exec: ExecutionDelta[],
+  caps: CapabilityDelta[],
+  domains: DomainDelta[],
+  prov: ProvenanceDelta[],
+): Timeline {
   const headDate = (): string | null => {
     const ev = arr(b['evidence']).find((e) => e['id'] === 'github.commits.head_date');
     return typeof ev?.['value'] === 'string' ? (ev['value'] as string) : null;
@@ -802,12 +1014,54 @@ function diffTimeline(b: Json, exec: ExecutionDelta[], caps: CapabilityDelta[]):
         confidence: 0.7,
         evidence: [],
       });
+  for (const d of domains) {
+    if (d.significance !== 'active' || d.certainty !== 'observed') continue;
+    const ctxAfter = d.after?.strongest_context ?? d.before?.strongest_context ?? 'unknown';
+    extra.push({
+      id: 'x',
+      type:
+        d.kind === 'introduced'
+          ? 'external_domain_introduced'
+          : d.kind === 'removed'
+            ? 'external_domain_removed'
+            : 'external_domain_context_changed',
+      at,
+      subject: d.hostname,
+      source: 'analysis_diff',
+      detail: `external host ${d.hostname} ${d.kind.replace('_', ' ')} (${d.category}, context ${ctxAfter}${d.before && d.after ? ', was ' + d.before.strongest_context : ''})`,
+      // confidence follows the context: an install-time reference is not a README mention
+      confidence: Math.max(0.1, Math.min(0.9, d.confidence)),
+      evidence: d.evidence_ids.slice(0, 4),
+    });
+  }
+  const PROV_EVENT: Record<ProvenanceDeltaKind, TimelineEvent['type']> = {
+    provenance_added: 'provenance_added',
+    provenance_removed: 'provenance_removed',
+    provenance_verification_changed: 'provenance_verification_changed',
+    source_binding_changed: 'source_binding_changed',
+    signature_state_changed: 'signature_state_changed',
+    registry_repository_correspondence_changed: 'registry_repository_correspondence_changed',
+  };
+  for (const p of prov)
+    if (p.at && p.certainty === 'observed')
+      extra.push({
+        id: 'x',
+        type: PROV_EVENT[p.kind],
+        at: p.at,
+        subject: p.subject.slice(0, 120),
+        source: 'analysis_diff',
+        detail: `${p.kind.replace(/_/g, ' ')}: ${p.before} -> ${p.after}`.slice(0, 250),
+        confidence: p.at_basis === 'release_published' ? 0.7 : 0.5,
+        evidence: p.evidence_ids.slice(0, 4),
+      });
   const gov = GovernanceSchema.safeParse(b['governance']);
   const reg = RegistryIntelSchema.safeParse(b['registry_intel']);
   const rel = ReleaseIntelSchema.safeParse(b['release_intel']);
+  const depReg = DependencyRegistryIntelSchema.safeParse(b['dependency_registry_intel']);
   return buildTimeline({
     governance: gov.success ? gov.data : EMPTY_GOVERNANCE,
     registry: reg.success ? reg.data : EMPTY_REGISTRY_INTEL,
+    ...(depReg.success ? { dependencyRegistry: depReg.data } : {}),
     releases: rel.success ? rel.data : EMPTY_RELEASE_INTEL,
     extra,
   });
@@ -825,6 +1079,14 @@ export function compareSnapshots(oldReport: unknown, newReport: unknown): Histor
   const policy = policyDeltas(a, b);
   const compliance = complianceDeltas(a, b);
   const identity = identityChanges(a, b);
+  const domainsA = ExternalDomainsSchema.safeParse(a['external_domains']);
+  const domainsB = ExternalDomainsSchema.safeParse(b['external_domains']);
+  const domains = domainDeltas(
+    domainsA.success ? domainsA.data : undefined,
+    domainsB.success ? domainsB.data : undefined,
+    incomplete(a) || incomplete(b) || lowScan(a) || lowScan(b),
+  );
+  const provenance = provenanceDeltas(a, b);
   const risk = riskDelta(
     a,
     b,
@@ -836,6 +1098,8 @@ export function compareSnapshots(oldReport: unknown, newReport: unknown): Histor
     policy,
     base.changes,
     governanceDelta(a, b, execution),
+    domains,
+    provenance,
   );
   return {
     ...base,
@@ -849,7 +1113,9 @@ export function compareSnapshots(oldReport: unknown, newReport: unknown): Histor
     policy,
     compliance,
     risk,
+    domains,
+    provenance,
     governance: governanceDelta(a, b, execution),
-    timeline: diffTimeline(b, execution, capabilities),
+    timeline: diffTimeline(b, execution, capabilities, domains, provenance),
   };
 }

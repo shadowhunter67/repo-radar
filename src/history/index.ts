@@ -134,7 +134,22 @@ export function renderHistoricalText(d: HistoricalDiff, info?: RevisionCompariso
     ),
   );
   section(
+    'EXTERNAL DOMAINS',
+    d.domains.map(
+      (x) =>
+        `${x.kind.replace('_', ' ').toUpperCase()}${x.significance === 'passive' ? ' [passive: docs/tests/metadata]' : ''} ${clip(x.hostname, 70)} (${x.category}${x.after ? ', ' + x.after.strongest_context : ''}${x.before && x.after ? ', was ' + x.before.strongest_context : ''})${x.certainty === 'inconclusive' ? ' (inconclusive)' : ''}`,
+    ),
+  );
+  section(
+    'PROVENANCE, SIGNATURES, SOURCE BINDING',
+    d.provenance.map(
+      (x) =>
+        `${x.kind.replace(/_/g, ' ')}: ${clip(x.subject, 60)} ${clip(x.before, 40)} -> ${clip(x.after, 40)}`,
+    ),
+  );
+  section(
     'DEPENDENCIES',
+
     d.dependencies.map(
       (x) =>
         `${x.kind.replace(/_/g, ' ')}: ${clip(x.package, 60)}${x.before?.version || x.after?.version ? `  ${x.before?.version ?? x.before?.spec ?? ''} -> ${x.after?.version ?? x.after?.spec ?? ''}` : ''}${x.advisory_ids ? `  ${x.advisory_ids.join(',')}` : ''}${x.certainty === 'inconclusive' ? ' (inconclusive)' : ''}`,

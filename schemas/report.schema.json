@@ -1229,7 +1229,8 @@
               "dependency",
               "release",
               "governance",
-              "registry"
+              "registry",
+              "domain"
             ]
           },
           "derived_from": {
@@ -2217,7 +2218,8 @@
               "sbom",
               "release",
               "governance",
-              "registry"
+              "registry",
+              "domain"
             ]
           },
           "evidence_ids": {
@@ -4674,6 +4676,257 @@
       ],
       "additionalProperties": false
     },
+    "external_domains": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "1"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "analyzed",
+            "not_scanned",
+            "disabled"
+          ]
+        },
+        "domains": {
+          "maxItems": 300,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hostname": {
+                "type": "string",
+                "maxLength": 253
+              },
+              "display": {
+                "type": "string",
+                "maxLength": 253
+              },
+              "ports": {
+                "maxItems": 5,
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                }
+              },
+              "schemes": {
+                "maxItems": 6,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 10
+                }
+              },
+              "category": {
+                "type": "string",
+                "enum": [
+                  "generic_external",
+                  "registry",
+                  "github",
+                  "telemetry",
+                  "ip_literal",
+                  "localhost",
+                  "private_address",
+                  "documentation_example",
+                  "unknown"
+                ]
+              },
+              "ambiguity": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "punycode",
+                  "unicode",
+                  "mixed_script"
+                ]
+              },
+              "strongest_context": {
+                "type": "string",
+                "enum": [
+                  "install",
+                  "build",
+                  "release",
+                  "ci",
+                  "container",
+                  "runtime",
+                  "unknown",
+                  "metadata",
+                  "test",
+                  "docs",
+                  "comment"
+                ]
+              },
+              "contexts": {
+                "maxItems": 11,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "install",
+                    "build",
+                    "release",
+                    "ci",
+                    "container",
+                    "runtime",
+                    "unknown",
+                    "metadata",
+                    "test",
+                    "docs",
+                    "comment"
+                  ]
+                }
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "observations": {
+                "maxItems": 6,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "context": {
+                      "type": "string",
+                      "enum": [
+                        "install",
+                        "build",
+                        "release",
+                        "ci",
+                        "container",
+                        "runtime",
+                        "unknown",
+                        "metadata",
+                        "test",
+                        "docs",
+                        "comment"
+                      ]
+                    },
+                    "file": {
+                      "type": "string",
+                      "maxLength": 300
+                    },
+                    "line": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "confidence": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "bare": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "context",
+                    "file",
+                    "line",
+                    "confidence",
+                    "bare"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "observations_total": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "credentials_in_url": {
+                "type": "boolean"
+              },
+              "notes": {
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 60
+                }
+              }
+            },
+            "required": [
+              "hostname",
+              "display",
+              "ports",
+              "schemes",
+              "category",
+              "ambiguity",
+              "strongest_context",
+              "contexts",
+              "confidence",
+              "observations",
+              "observations_total",
+              "credentials_in_url",
+              "notes"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "domains_total": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "filtered": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "files_scanned": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "unparsed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "limits_hit": {
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "not_available": {
+          "maxItems": 6,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        }
+      },
+      "required": [
+        "version",
+        "status",
+        "domains",
+        "domains_total",
+        "filtered",
+        "files_scanned",
+        "unparsed",
+        "limits_hit",
+        "not_available"
+      ],
+      "additionalProperties": false
+    },
     "timeline": {
       "type": "object",
       "properties": {
@@ -6560,6 +6813,7 @@
     "release_intel",
     "registry_intel",
     "dependency_registry_intel",
+    "external_domains",
     "timeline",
     "governance",
     "coverage_map",

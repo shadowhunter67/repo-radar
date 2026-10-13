@@ -248,6 +248,15 @@ export function evaluateHistoryBlocks(
       certainty: string;
     }[];
     governance: { takeover_indicators_after: boolean };
+    domains?: {
+      kind: string;
+      hostname: string;
+      category: string;
+      significance: string;
+      certainty: string;
+      after: { strongest_context: string } | null;
+    }[];
+    provenance?: { kind: string; subject: string; before: string; after: string }[];
   },
 ): HistoryViolation[] {
   const out: HistoryViolation[] = [];
@@ -284,6 +293,36 @@ export function evaluateHistoryBlocks(
         subjects = diff.dependencies
           .filter((d) => d.kind === 'new_git_or_path_dependency')
           .map((d) => d.package);
+        break;
+      case 'new_install_time_domain':
+        subjects = (diff.domains ?? [])
+          .filter(
+            (d) =>
+              (d.kind === 'introduced' || d.kind === 'context_changed') &&
+              d.certainty === 'observed' &&
+              d.after?.strongest_context === 'install' &&
+              d.category !== 'registry' &&
+              d.category !== 'github',
+          )
+          .map((d) => d.hostname);
+        break;
+      case 'provenance_verification_lost':
+        subjects = (diff.provenance ?? [])
+          .filter(
+            (p) =>
+              p.kind === 'provenance_removed' ||
+              (p.kind === 'provenance_verification_changed' &&
+                p.before === 'verified' &&
+                p.after !== 'verified'),
+          )
+          .map((p) => p.subject);
+        break;
+      case 'source_binding_conflict':
+        subjects = (diff.provenance ?? [])
+          .filter(
+            (p) => p.kind === 'source_binding_changed' && p.after === 'source_binding_conflict',
+          )
+          .map((p) => p.subject);
         break;
       case 'takeover_indicators_with_new_install_hook':
         subjects = diff.governance.takeover_indicators_after ? newHooks.map((h) => h.hook) : [];

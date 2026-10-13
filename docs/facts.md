@@ -67,3 +67,43 @@ remediation, intent}`; `intent` is always `"undetermined"` (capability is not in
 | `release.provenance.verified` | A release attestation was cryptographically verified (emitted only when `--verify-crypto` ran; otherwise unknown). |
 | `release.source_binding_verified` | The correspondence class is `verified_source_binding` (same condition for emission). |
 | `release.assets.checksum_verified` | Downloaded asset bytes matched their published digest and none mismatched (emitted only when `--verify-assets` ran and checked something). |
+
+## Dependency registry facts (0.7)
+
+Emitted only when dependency registry lookups ran (`--no-registry` / `--no-dep-registry` leave them unobserved). The rule
+for every fact below: the PRESENCE of an event is evidence at any coverage; its ABSENCE (`false`) is emitted only when every
+eligible dependency was queried and answered, so a skipped or failed lookup can never read as "stable".
+
+| Fact | Meaning |
+| ---- | ------- |
+| `registry.deps.queried` | Distinct registry packages looked up (of the eligible ones; see `dependency_registry_intel.coverage`). |
+| `registry.deps.coverage` | queried / eligible, 0..1. |
+| `registry.deps.lookup_complete` | Every eligible package was queried and answered. |
+| `registry.deps.publisher_changed` | A dependency version was published by an account new to its sampled history. |
+| `registry.deps.maintainer_changed` | The maintainers recorded with consecutive versions of a dependency differ (npm only). |
+| `registry.deps.repository_changed` | A dependency version declares a different source repository than the previous one (npm only). |
+| `registry.deps.install_hook_introduced` | A dependency version introduced an install-time script (npm only). |
+| `registry.deps.provenance_removed` | A dependency version lost the provenance attestation the previous one had (npm only). |
+| `registry.deps.takeover_indicators` | A dependency shows a takeover-indicator pattern in its publish history (same dependency; intent undetermined). |
+| `registry.deps.repository_match` | Worst package <-> repository correspondence over the queried dependencies (`conflicting`, `unknown`, `missing`, `likely`, `confirmed`). |
+| `registry.deps.provenance_reported` | npm only: every queried dependency reports provenance for its latest version (reported by the registry, NOT verified). |
+
+## External domain facts (0.7)
+
+| Fact | Meaning |
+| ---- | ------- |
+| `domains.external.count` | External hostnames the scanned files refer to (localhost, private and documentation hosts excluded). |
+| `domains.active.count` | Of those, hosts whose strongest reference sits in an active context (install, build, release, CI, container, runtime). |
+| `domains.install_time.present` | A non-registry, non-GitHub host is referenced from code that runs at install time. Absence is emitted only when the scan read enough code. |
+| `domains.ambiguous_names.present` | An active host name uses punycode, Unicode or mixed scripts (informational; no judgement is made). |
+
+## Local signature verification facts (0.7)
+
+Emitted only when repo-radar ran its own signature checks (`--verify-crypto` for Sigstore, or any `--trust-*` key).
+
+| Fact | Meaning |
+| ---- | ------- |
+| `release.signatures.locally_verified` | A release signature asset or tag signature was verified locally against a trust root the user configured. |
+| `release.signatures.invalid` | A local check rejected a signature. |
+| `release.tag.signature_locally_verified` | The annotated tag signature was verified locally (needs a trusted GPG key); GitHub's own assertion is `release.tag.signature_verified`. |
+

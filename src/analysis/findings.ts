@@ -23,6 +23,7 @@ export const FindingSchema = z.object({
     'release',
     'governance',
     'registry',
+    'domain',
   ]),
   /** Ids of detections / chains / hooks / secret candidates in this report. */
   evidence_ids: z.array(z.string()),

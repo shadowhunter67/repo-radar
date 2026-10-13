@@ -495,6 +495,34 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
     }
   }
 
+  // ---- external domains: the hosts the repository's files refer to ---------------------------------------------------------
+  // CONNECTS_TO means "a file of this repository refers to this host in this context", never that a connection was observed.
+  const headDate = (() => {
+    const ev = report.evidence.find((e) => e.id === 'github.commits.head_date');
+    return typeof ev?.value === 'string' ? ev.value : null;
+  })();
+  for (const d of report.external_domains.domains.slice(0, GRAPH_LIMITS.domains)) {
+    const did = node(`domain:${d.hostname}`, 'ExternalDomain', d.hostname, {
+      category: d.category,
+      strongest_context: d.strongest_context,
+      ambiguity: d.ambiguity,
+      display: d.display === d.hostname ? null : d.display,
+    });
+    const first = d.observations[0];
+    edge(
+      repo,
+      did,
+      'CONNECTS_TO',
+      [
+        `domain:${clean(d.hostname, 100)}`,
+        ...(first ? [`${clean(first.file, 120)}:${first.line}`] : []),
+      ],
+      d.confidence,
+      'revision',
+      'domains',
+    );
+  }
+
   // ---- capabilities and findings ----------------------------------------------------------------------------------
   for (const c of report.code_analysis.capabilities.summary.filter(
     (x) => x.observed && x.mode !== 'POSSIBLE',
@@ -523,6 +551,31 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
   }
 
   // ---- what a revision diff adds ----------------------------------------------------------------------------------
+  if (diff) {
+    for (const d of diff.domains.filter(
+      (x) => x.certainty === 'observed' && (x.kind === 'introduced' || x.kind === 'removed'),
+    )) {
+      const did = node(`domain:${d.hostname}`, 'ExternalDomain', d.hostname, {
+        category: d.category,
+        strongest_context: (d.after ?? d.before)?.strongest_context ?? 'unknown',
+        ambiguity: 'none',
+        display: null,
+      });
+      // The time of the change is the later revision's head commit date; the analysis time is never used as a commit time.
+      const when = headDate;
+      edge(
+        repo,
+        did,
+        'CONNECTS_TO',
+        [`diff:domain:${clean(d.hostname, 100)}`],
+        d.confidence,
+        'revision',
+        'diff',
+        null,
+        d.kind === 'introduced' ? { introduced_at: when } : { removed_at: when },
+      );
+    }
+  }
   if (diff && headId) {
     for (const c of diff.capabilities.filter(
       (x) => x.change === 'new' && x.certainty === 'observed',

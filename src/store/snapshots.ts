@@ -257,7 +257,9 @@ export class FsSnapshotStore implements SnapshotStore {
         };
       const entry = this.listSnapshots({ ...key, limit: 1 })[0];
       if (!entry) return { error: 'snapshot is not in the index' };
-      return { report: r, entry };
+      // The report as stored (validated, not re-ordered): its integrity digest depends on key order, so a copy made from the
+      // schema-parsed object would no longer match its own digest and could not be stored again.
+      return { report: raw as Report, entry };
     } catch (e) {
       return {
         error: `unreadable snapshot (${e instanceof Error ? e.message.slice(0, 60) : 'error'})`,
@@ -293,4 +295,30 @@ export class FsSnapshotStore implements SnapshotStore {
     out.sort((a, b) => (a.stored_at < b.stored_at ? 1 : -1));
     return out.slice(0, filter.limit ?? 200);
   }
+}
+
+/**
+ * Copy every snapshot of one store into another (export / import, or a move to another backend). Each snapshot is read with
+ * its hash verified and written through the target's own immutability rules, so a conflicting snapshot in the target is kept
+ * and reported, never overwritten.
+ */
+export function copySnapshots(
+  from: SnapshotStore,
+  to: SnapshotStore,
+  options: { allowRevision?: boolean } = {},
+): { copied: number; existing: number; conflicts: number; unreadable: number } {
+  const out = { copied: 0, existing: 0, conflicts: 0, unreadable: 0 };
+  for (const entry of from.listSnapshots({ limit: SNAPSHOT_LIMITS.maxIndexLines })) {
+    const got = from.getSnapshot(entry);
+    if ('error' in got) {
+      out.unreadable++;
+      continue;
+    }
+    const r = to.putSnapshot(got.report, options);
+    if (r.status === 'stored' || r.status === 'revision_stored') out.copied++;
+    else if (r.status === 'exists') out.existing++;
+    else if (r.status === 'conflict') out.conflicts++;
+    else out.unreadable++;
+  }
+  return out;
 }

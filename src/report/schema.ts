@@ -7,6 +7,7 @@ import { EvidenceSchema } from '../evidence/types.js';
 import { FactSchema } from '../facts/index.js';
 import { SemanticIdentitySchema } from '../identity/types.js';
 import { IdentityV2Schema } from '../identity/v2.js';
+import { ExternalDomainsSchema } from '../domains/model.js';
 import { TimelineSchema } from '../events/model.js';
 import { DependencyRegistryIntelSchema } from '../registry/dependency-model.js';
 import { RegistryIntelSchema } from '../registry/model.js';
@@ -160,6 +161,8 @@ export const ReportSchema = z.object({
   registry_intel: RegistryIntelSchema,
   /** Registry history of the DEPENDENCIES (priority, budget, coverage, publisher / maintainer / repository events). Schema 0.7. */
   dependency_registry_intel: DependencyRegistryIntelSchema,
+  /** Hostnames the repository's own files refer to, by context (install, build, CI, runtime, docs...). Static; nothing is resolved or contacted. Schema 0.7. */
+  external_domains: ExternalDomainsSchema,
   /** Unified temporal events (git, releases, registry) and the patterns they form. Indicators only. */
   timeline: TimelineSchema,
   /** Temporal governance signals (committer / release-author changes, dormancy). Descriptive; intent undetermined. */

@@ -24,4 +24,10 @@ export const LIMITS = {
   /** Reference-following rounds when tracing install scripts to the files they run. */
   maxRefRounds: 2,
   maxRefsPerRound: 10,
+  /** External domain extraction: URL length, observations kept, distinct hosts tracked and reported, references per file. */
+  maxUrlChars: 300,
+  maxDomainObservations: 3000,
+  maxDomainsTracked: 600,
+  maxDomainsReported: 300,
+  maxDomainsPerFile: 80,
 } as const;

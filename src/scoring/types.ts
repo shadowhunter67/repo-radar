@@ -108,6 +108,9 @@ export const HISTORY_RULE_KINDS = [
   'new_capability',
   'new_git_or_path_dependency',
   'takeover_indicators_with_new_install_hook',
+  'new_install_time_domain',
+  'provenance_verification_lost',
+  'source_binding_conflict',
 ] as const;
 /** Blocks over the temporal event correlations of one analysis or of a revision diff. */
 export const TemporalBlockSchema = z
