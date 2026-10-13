@@ -21,6 +21,8 @@ A snapshot is one analysis: repository, commit SHA, commit date (when known), to
 | execution | new / removed / changed hooks with the path (`npm postinstall -> scripts/install.js -> remote download -> piped into a shell`), flagged when they run for dependents |
 | findings, policy, compliance indicators, SBOM, persistence | added / removed |
 | governance | new signals, takeover indicators before and after, and a combined sequence when a new install-time hook coincides with takeover indicators |
+| external domains (0.7) | introduced / removed / context changed, each `active` (install, build, CI, container, release, runtime) or `passive` (docs, tests, metadata, comments); only active changes become timeline events ([domains.md](domains.md)) |
+| provenance, signatures, source binding (0.7) | provenance added/removed, verification changed (only when both analyses ran the verifier), source-binding class changed, signature state changed, registry <-> repository correspondence changed (never to or from `unknown`) |
 | risk | per-dimension and overall score change (only when comparable) and a list of traceable reasons |
 
 ## Comparability and uncertainty
@@ -37,3 +39,7 @@ A snapshot is one analysis: repository, commit SHA, commit date (when known), to
 ## Policy
 
 `history_block` rules in a profile (see [methodology.md](methodology.md)) are evaluated on the delta. Only observed additions trigger them. With `--enforce-profile` a violation exits with code 2.
+
+## History blocks added in 0.7
+
+`new_install_time_domain` (an observed new or moved-to-install host that is not a registry or GitHub host), `provenance_verification_lost` (provenance removed, or verified -> not verified), `source_binding_conflict` (the correspondence became `source_binding_conflict`). None is enabled in a shipped profile. Release data is the repository's CURRENT state: two revisions analyzed in the same run share it, so provenance deltas are meaningful for two reports made at different times (`diff old.json new.json`), and a revision-to-revision diff says so in its caveats.

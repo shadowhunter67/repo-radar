@@ -33,6 +33,7 @@ const SLASH_COMMENT =
 const HASH_COMMENT =
   /(?:\.(?:py|pyw|sh|bash|zsh|ksh|ps1|rb|ya?ml|toml|mk|conf|cfg|ini|cmake|tf)|(?:^|\/)(?:Dockerfile[\w.-]*|Makefile|GNUmakefile|CMakeLists\.txt|Gemfile|Rakefile))$/i;
 const BLOCK_COMMENT = SLASH_COMMENT;
+const PY_FILE = /\.pyw?$/i;
 
 /** Index where a line comment starts, or Infinity. A `//` that belongs to `scheme://` is not a comment. */
 function lineCommentStart(line: string, path: string): number {
@@ -157,6 +158,13 @@ export function classifyHost(host: string): { category: DomainCategory; notes: s
   if (v4) {
     const [a, b] = v4 as [number, number, number, number];
     if (a === 127 || host === '0.0.0.0') return { category: 'localhost', notes };
+    // RFC 5737 documentation ranges are placeholders by definition
+    if (
+      (a === 192 && b === 0 && v4[2] === 2) ||
+      (a === 198 && b === 51 && v4[2] === 100) ||
+      (a === 203 && b === 0 && v4[2] === 113)
+    )
+      return { category: 'documentation_example', notes };
     if (host === '169.254.169.254' || host === '100.100.100.200') {
       return { category: 'private_address', notes: ['cloud_metadata_endpoint'] };
     }
@@ -293,17 +301,21 @@ const RELEASE_PATH = /(?:^|\/)[\w.-]*(?:release|publish|deploy|ship)[\w.-]*$/i;
 export interface ContextInputs {
   installFiles: ReadonlySet<string>;
   buildFiles: ReadonlySet<string>;
+  /** Files where a network-capable behaviour was detected (client, download, server). */
+  networkFiles: ReadonlySet<string>;
 }
 
 export function fileContext(file: ScannedFile, c: ContextInputs): DomainContext {
   const p = file.path;
+  // a manifest holds the script text AND urls of its own metadata (homepage, repository, author): the script text is scanned
+  // separately with the hook's context, so the file itself is metadata
+  if (file.role === 'manifest') return TEST_PATH.test(p) ? 'test' : 'metadata';
   if (c.installFiles.has(p)) return 'install';
   if (file.role === 'workflow') return 'ci';
   if (TEST_PATH.test(p)) return 'test';
   if (DOCS_PATH.test(p)) return 'docs';
   if (fileKind(p) === 'docker') return 'container';
   if (c.buildFiles.has(p)) return 'build';
-  if (file.role === 'manifest') return 'metadata';
   if (RELEASE_PATH.test(p)) return 'release';
   if (file.role === 'build' || fileKind(p) === 'make') return 'build';
   if (file.role === 'script') return 'build';
@@ -337,7 +349,12 @@ export function extractDomains(input: ExtractInput): ExternalDomains {
   for (const h of input.hooks)
     for (const f of h.files) (h.context === 'install' ? installFiles : buildFiles).add(f);
   for (const d of input.detections) if (d.contexts.includes('install')) installFiles.add(d.file);
-  const ctx: ContextInputs = { installFiles, buildFiles };
+  const networkFiles = new Set(
+    input.detections
+      .filter((d) => d.capability === 'NETWORK_CLIENT' || d.capability === 'REMOTE_DOWNLOAD')
+      .map((d) => d.file),
+  );
+  const ctx: ContextInputs = { installFiles, buildFiles, networkFiles };
 
   const aggs = new Map<string, Agg>();
   const limits: string[] = [];
@@ -346,6 +363,7 @@ export function extractDomains(input: ExtractInput): ExternalDomains {
   const filtered: Record<string, number> = {};
   const seenFiltered = new Set<string>();
 
+  let networkCapable = true;
   const add = (
     parsed: ParsedHost,
     context: DomainContext,
@@ -368,7 +386,13 @@ export function extractDomains(input: ExtractInput): ExternalDomains {
       return;
     }
     const eff: DomainContext = inComment ? 'comment' : context;
-    const conf = Math.max(0, Math.min(1, BASE_CONFIDENCE[eff] - (bare ? 0.1 : 0)));
+    // A host in an install script that never touches the network (a funding message printed after install) is a weaker
+    // observation than one in a script that downloads: the reference is real, the behaviour is not evidenced.
+    const textOnly = (eff === 'install' || eff === 'build') && !networkCapable && !bare;
+    const conf = Math.max(
+      0,
+      Math.min(1, BASE_CONFIDENCE[eff] - (bare ? 0.1 : 0) - (textOnly ? 0.3 : 0)),
+    );
     let a = aggs.get(parsed.hostname);
     if (!a) {
       if (aggs.size >= LIMITS.maxDomainsTracked) {
@@ -403,14 +427,16 @@ export function extractDomains(input: ExtractInput): ExternalDomains {
     text: string,
     context: DomainContext,
     role: ScannedFile['role'],
+    capable = true,
   ): void => {
+    networkCapable = capable;
     let inBlock = false;
+    let inDocstring = false;
     const lines = text.split(/\r?\n/, LIMITS.maxLinesPerFile);
     let perFile = 0;
     for (let i = 0; i < lines.length; i++) {
       const raw = lines[i] as string;
       const line = raw.length > LIMITS.maxLineChars ? raw.slice(0, LIMITS.maxLineChars) : raw;
-      if (line.length < 4) continue;
       const lineComment = lineCommentStart(line, path);
       // block comments of C-like languages, tracked line by line (strings containing /* are not modelled)
       const blockRanges: [number, number][] = [];
@@ -437,8 +463,18 @@ export function extractDomains(input: ExtractInput): ExternalDomains {
         }
       }
       const commentAt = (idx: number): boolean =>
-        idx >= lineComment || blockRanges.some(([a, b]) => idx >= a && idx < b);
+        docstring || idx >= lineComment || blockRanges.some(([a, b]) => idx >= a && idx < b);
+      // Python docstrings: a triple-quoted region is documentation text
+      let docstring = inDocstring;
+      if (PY_FILE.test(path)) {
+        const marks = line.match(/"""|'''/g)?.length ?? 0;
+        if (marks > 0) {
+          if (marks % 2 === 1) inDocstring = !inDocstring;
+          docstring = true; // the lines that open or close a docstring belong to it
+        }
+      }
       // markdown/HTML comments in docs are just docs; role-based context already covers them
+      if (line.length < 4) continue;
       if (
         !line.includes('/') &&
         !line.includes('@') &&
@@ -487,11 +523,12 @@ export function extractDomains(input: ExtractInput): ExternalDomains {
       limits.push('per-file reference limit reached');
   };
 
-  for (const f of input.files) scanText(f.path, f.content, fileContext(f, ctx), f.role);
+  for (const f of input.files)
+    scanText(f.path, f.content, fileContext(f, ctx), f.role, networkFiles.has(f.path));
   // the lifecycle command strings (package.json scripts and the like) are not separate files
   for (const h of input.hooks)
     if (h.script)
-      scanText(h.files[0] ?? `${h.ecosystem}:${h.name}`, h.script, h.context, 'manifest');
+      scanText(h.files[0] ?? `${h.ecosystem}:${h.name}`, h.script, h.context, 'manifest', true);
 
   const domains: ExternalDomain[] = [...aggs.values()].map((a) => {
     const obs = [...a.obs].sort(

@@ -83,6 +83,7 @@ export async function fetchRegistryPackage(
   registry: RegistryId,
   c: Common,
   get: RegistryGet,
+  options: { crateOwners?: boolean } = {},
 ): Promise<{ pkg: RegistryPackage; failure?: string }> {
   try {
     if (registry === 'npm') {
@@ -103,8 +104,11 @@ export async function fetchRegistryPackage(
       `https://crates.io/api/v1/crates/${encodeURIComponent(c.name)}`,
       REGISTRY_LIMITS.jsonMaxBytes,
     );
+    // Owners are the registry's CURRENT maintainer set: dependency events never use them, so a dependency lookup skips the
+    // second request (halving the crates.io cost); the package then says owners were not read.
     let owners: unknown;
     try {
+      if (options.crateOwners === false) throw new Error('not requested');
       owners = (
         await get(
           `https://crates.io/api/v1/crates/${encodeURIComponent(c.name)}/owners`,

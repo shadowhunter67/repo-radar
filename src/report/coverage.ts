@@ -71,6 +71,12 @@ export const TreeRetrievalSchema = z.object({
     requests: z.number().int().min(0),
     stopped_by: z.enum(['complete', 'request_budget', 'path_limit']),
   }),
+  /** Package manifests found in the tree and how many were read (retrieval v3). */
+  manifest_paths: z.object({
+    in_tree: z.number().int().min(0),
+    read: z.number().int().min(0),
+    cap: z.number().int().min(0),
+  }),
   /** Bounded recursive listings of subtrees, keeping only manifest and build-definition files (retrieval v3). */
   manifest_seek: z.object({
     enabled: z.boolean(),

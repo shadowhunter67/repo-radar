@@ -35,7 +35,8 @@ export function buildDomainFindings(d: ExternalDomains): Finding[] {
         ...base,
         id: `RR-DOM-${String(++n).padStart(3, '0')}`,
         title: 'Install-time code refers to an external host',
-        severity: 'medium',
+        // a script that also shows network behaviour is a stronger observation than text it prints
+        severity: x.confidence >= 0.7 ? 'medium' : 'low',
         confidence: x.confidence,
         evidence_ids: ev(x),
         summary: `${safe(x.hostname)}${at} is referenced from a file that runs when the package is installed. A reference is not a connection and says nothing about intent.`,

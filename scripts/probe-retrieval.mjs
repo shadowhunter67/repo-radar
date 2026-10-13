@@ -72,6 +72,7 @@ for (const spec of repos) {
       manifests: r.identity_v2.packaging.package_count,
       packaging: r.identity_v2.packaging.value,
       bytes: r.retrieval.bytes,
+      manifestPaths: r.retrieval.manifest_paths,
       seek: r.retrieval.manifest_seek,
       declared: r.retrieval.declared_paths,
       primary: `${r.identity_v2.primary_artifact.value} (${r.identity_v2.primary_artifact.confidence})`,

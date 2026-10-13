@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { analyzeRepository } from '../../src/analyze.js';
 import type { Hook } from '../../src/analysis/execution.js';
-import type { ScannedFile } from '../../src/analysis/types.js';
+import type { Detection, ScannedFile } from '../../src/analysis/types.js';
 import { domainDeltas } from '../../src/domains/diff.js';
 import { classifyHost, extractDomains, parseHost } from '../../src/domains/extract.js';
 import { ExternalDomainsSchema } from '../../src/domains/model.js';
@@ -38,8 +38,19 @@ const hook = (over: Partial<Hook> & { files: string[] }): Hook =>
     node_ids: [],
     ...over,
   }) as Hook;
-const run = (files: ScannedFile[], hooks: Hook[] = []) =>
-  extractDomains({ files, hooks, detections: [] });
+const net = (file: string) =>
+  ({
+    id: 'CAP-1',
+    detector: 'js.net-client',
+    capability: 'NETWORK_CLIENT',
+    mode: 'DIRECT',
+    confidence: 0.8,
+    file,
+    line: 1,
+    contexts: ['install'],
+  }) as unknown as Detection;
+const run = (files: ScannedFile[], hooks: Hook[] = [], detections: Detection[] = []) =>
+  extractDomains({ files, hooks, detections });
 const byHost = (r: ReturnType<typeof run>, h: string) => r.domains.find((d) => d.hostname === h);
 
 describe('external domain extraction: contexts', () => {
@@ -59,10 +70,71 @@ describe('external domain extraction: contexts', () => {
     const r = run(
       [file('scripts/postinstall.js', "download('https://dl.vendor.io/bin/tool.tgz')", 'script')],
       [hook({ files: ['package.json', 'scripts/postinstall.js'] })],
+      [net('scripts/postinstall.js')],
     );
     const d = byHost(r, 'dl.vendor.io');
     expect(d?.strongest_context).toBe('install');
     expect(d?.confidence).toBeGreaterThanOrEqual(0.8);
+  });
+
+  it('an install script that only PRINTS a host (no network behaviour in the file) is a weaker observation', () => {
+    const r = run(
+      [
+        file(
+          'scripts/postinstall.js',
+          "console.log('Please support us: https://opencollective.com/x')",
+          'script',
+        ),
+      ],
+      [hook({ files: ['package.json', 'scripts/postinstall.js'] })],
+    );
+    const d = byHost(r, 'opencollective.com');
+    expect(d?.strongest_context).toBe('install');
+    expect(d?.confidence).toBeLessThan(0.7);
+  });
+
+  it('URLs inside a manifest are metadata even when the manifest holds the install script', () => {
+    const r = run(
+      [
+        file(
+          'package.json',
+          '{"homepage":"https://home.vendor.io","author":{"url":"https://me.vendor.io"},"scripts":{"install":"node x.js"}}',
+          'manifest',
+        ),
+      ],
+      [hook({ files: ['package.json'], script: 'node x.js' })],
+    );
+    expect(byHost(r, 'home.vendor.io')?.strongest_context).toBe('metadata');
+    expect(byHost(r, 'me.vendor.io')?.strongest_context).toBe('metadata');
+  });
+
+  it('block comments (JSDoc), including their one-line openers and closers, and Python docstrings are comments', () => {
+    const js = [
+      '/**',
+      ' * See https://jsdoc.vendor.io/spec',
+      ' */',
+      'fetch("https://live.vendor.io/x")',
+    ].join(String.fromCharCode(10));
+    const q = String.fromCharCode(34).repeat(3);
+    const py = [
+      'def f():',
+      '    ' + q,
+      '    Docs at https://pydoc.vendor.io/x',
+      '    ' + q,
+      '    return requests.get("https://live2.vendor.io")',
+    ].join(String.fromCharCode(10));
+    const r = run([file('src/a.mjs', js, 'source'), file('src/b.py', py, 'source')]);
+    expect(byHost(r, 'jsdoc.vendor.io')?.strongest_context).toBe('comment');
+    expect(byHost(r, 'live.vendor.io')?.strongest_context).toBe('runtime');
+    expect(byHost(r, 'pydoc.vendor.io')?.strongest_context).toBe('comment');
+    expect(byHost(r, 'live2.vendor.io')?.strongest_context).toBe('runtime');
+  });
+
+  it('RFC 5737 documentation ranges are placeholders', () => {
+    expect(classifyHost('203.0.113.7').category).toBe('documentation_example');
+    expect(classifyHost('198.51.100.9').category).toBe('documentation_example');
+    expect(classifyHost('192.0.2.1').category).toBe('documentation_example');
+    expect(classifyHost('8.8.4.4').category).toBe('ip_literal');
   });
 
   it('the lifecycle command string itself counts, with the hook context', () => {
@@ -180,7 +252,7 @@ describe('external domain extraction: filtering and classification', () => {
     expect(cat('github.com')).toBe('github');
     expect(cat('o123.ingest.sentry.io')).toBe('telemetry');
     expect(cat('telemetry.vendor.io')).toBe('telemetry');
-    expect(cat('203.0.113.7')).toBe('ip_literal');
+    expect(cat('8.8.4.4')).toBe('ip_literal');
     expect(cat('api.vendor.io')).toBe('generic_external');
   });
 
@@ -188,11 +260,11 @@ describe('external domain extraction: filtering and classification', () => {
     const r = run([
       file(
         'scripts/a.sh',
-        'curl http://203.0.113.7:8080/x\ngit clone git@github.com:acme/widget.git',
+        'curl http://8.8.4.4:8080/x\ngit clone git@github.com:acme/widget.git',
         'script',
       ),
     ]);
-    expect(byHost(r, '203.0.113.7')).toMatchObject({ category: 'ip_literal', ports: [8080] });
+    expect(byHost(r, '8.8.4.4')).toMatchObject({ category: 'ip_literal', ports: [8080] });
     expect(byHost(r, 'github.com')?.category).toBe('github');
   });
 

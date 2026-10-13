@@ -57,6 +57,9 @@ repo-radar analyze owner/repo --verify-crypto --verify-assets   # verify release
 repo-radar analyze owner/repo --snapshot-dir ./snapshots       # immutable snapshot (docs/snapshots.md)
 repo-radar snapshots --snapshot-dir ./snapshots                # list stored snapshots
 repo-radar graph report.json                                    # Software Trust Graph projection (every edge has evidence)
+repo-radar graph report.json --query published-by:alice         # which dependencies did this account publish? (docs/snapshots.md)
+repo-radar analyze owner/repo --trust-gpg-key key.asc --trust-minisign-key RWQ... --expect-signer owner/repo   # verify signatures against keys YOU trust (docs/trust.md)
+repo-radar analyze owner/repo --no-dep-registry --dep-registry-max 10 --no-domains                           # dependency registry budget / switches (docs/dependency-registry.md, docs/domains.md)
 repo-radar profiles
 repo-radar rules security
 ```

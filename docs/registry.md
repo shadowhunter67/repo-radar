@@ -1,6 +1,6 @@
 # Registry and publisher intelligence
 
-`registry_intel` records what npm, PyPI and crates.io say about the packages THIS repository publishes (a manifest that is publishable, not an example/test/fuzz/xtask directory, with a valid registry name; at most 4 packages). Dependencies are not looked up here. The purpose is observable publisher/package history, not a reputation score.
+`registry_intel` records what npm, PyPI and crates.io say about the packages THIS repository publishes (a manifest that is publishable, not an example/test/fuzz/xtask directory, with a valid registry name; at most 4 packages). Dependencies are looked up by the separate, budgeted `dependency_registry_intel` ([dependency-registry.md](dependency-registry.md), 0.7). The purpose is observable publisher/package history, not a reputation score.
 
 ## Package model
 
@@ -31,3 +31,7 @@ Maintainers are `current_state`: the registry shows the set NOW and never the se
 ## Failure semantics
 
 Timeout, 429, 5xx, a wrong content type, malformed JSON, an oversized body and a missing package each produce a lookup status and a diagnostic; the package's correspondence is `unknown` and no signal or fact claims anything. `registry.lookup_complete=false` withholds `registry.publisher_stable`. Requests go only to `registry.npmjs.org`, `pypi.org` and `crates.io`; redirects to any other host are refused; the GitHub token is never sent. Registry text is sanitized and length-capped before it enters a report. `--no-registry` skips the whole section.
+
+## Additions in 0.7
+
+Each npm version now also records the source repository it declares, whether it declares an install-time script, and the maintainers stored WITH that version (all optional fields; `repository.homepage_normalized` is kept for every package). They feed the dependency events; for the packages this repository publishes they change no signal. The parsers are shared with the dependency lookup, which passes no analyzed repository: the `repository` block then keeps the declared URL and a correspondence of `unknown`, completed by `correspondDependency` from independent sources.

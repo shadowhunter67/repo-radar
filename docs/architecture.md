@@ -145,3 +145,12 @@ All repository content (names, README, manifests, workflow YAML, tree paths) and
 - Policy: `require` keys, `history_block`, `temporal_block` in `src/scoring/policy.ts`.
 
 All new subsystems are pure functions over collected data with the network confined to collectors; the only network access outside `src/util/http.ts` is the Sigstore TUF client under `--verify-crypto`.
+
+## 0.7: dependency registry, trust roots, domains, retrieval v3
+
+- `src/registry/dependency-*.ts` + `src/collectors/dependency-registry.ts`: priority model, budget, events, correspondence, findings and facts for dependencies; the per-package parser and fetcher are shared with `registry_intel` (`parse.ts`, `collectors/registry.ts`).
+- `src/trust/` (`config.ts` the only place a key becomes trusted, `sigstore.ts` with blob bundles and limits, `gpg.ts`, `minisign.ts`), `src/release/verify-signatures.ts`: detached signature verification; `src/util/snappy.ts`: bounded Snappy for GitHub's large attestation bundles.
+- `src/domains/` (model, extract, findings, diff): external hostnames by context; `src/history/delta.ts` gains `domains[]` and `provenance[]`.
+- `src/graph/query.ts`: deterministic queries over the Trust Graph projection; `src/store/snapshots.ts`: `copySnapshots`.
+- `src/collectors/github/retrieval.ts` (declared-path pool, manifest seeking), `hints.ts` (more build files, hostile-path accounting).
+- Methodology and rules are untouched; the new outputs are facts, findings, events, trust states and policy inputs.

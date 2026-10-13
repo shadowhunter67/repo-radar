@@ -3,6 +3,28 @@
 All notable changes are documented here. Versioning: the CLI follows semver; the report schema and the scoring
 methodology are versioned separately (`schema_version`, `methodology.version`) and are listed per release.
 
+## [0.7.0] - unreleased
+
+Report schema 0.7, methodology 0.4 (rules unchanged: 86 -> 86 rules; scoring semantics untouched, so the fresh holdout of methodology 0.4 stays valid; the new outputs are facts, findings, events, trust states and policy inputs). Migration notes: [docs/migration.md](docs/migration.md). Design: [dependency registry](docs/dependency-registry.md), [trust](docs/trust.md), [domains](docs/domains.md), [retrieval](docs/retrieval.md), [governance](docs/governance.md), [history](docs/history.md), [snapshots and graph](docs/snapshots.md), [policy](docs/policy.md), [security model](docs/security-model.md).
+
+### Added
+
+- **Dependency registry and publisher intelligence** (`dependency_registry_intel`): a deterministic priority model (direct, runtime, vulnerable, unpinned ...) and an explicit budget (packages, requests, time, bytes) over npm, PyPI and crates.io; coverage and every skipped package reported; dated events (publisher, maintainer, repository, dormancy, cadence, provenance, install script) with their position relative to the resolved version; package <-> repository correspondence from independent pointers; findings, facts and policy keys; failures are `unknown`, never stable.
+- **Cryptographic verification**: Sigstore BLOB bundles (artifact digest first, expected signer identity), resource limits with the new state `verification_skipped_resource_limit`, large attestation bundles from GitHub's attestation store (bounded Snappy), OpenPGP detached signatures and git tag signatures (`openpgp`) and minisign, all against trust the USER supplies (`--trust-config`, `--trust-gpg-key`, `--trust-minisign-key`, `--expect-signer`); committed keys are evidence only (`key_present_in_repository`); trust roots `user_supplied_*` / `project_pinned_*`; every result names trust root, engine and subject.
+- **External domain intelligence** (`external_domains`): hostnames the scanned files refer to, by context, normalized (IDN, credentials dropped), categorized without DNS, filtered (localhost, private, documentation); findings, facts, and `external_domain_introduced` / `_removed` / `_context_changed` in the revision diff.
+- **Retrieval v3**: declared-path following from its own pool (depth up to 8, hostile paths counted as rejected), nested workspace hints, more build files (`rush.json`, `.sln`, uv workspaces, Kbuild `obj-y`), bounded manifest seeking; targeted trees accept manifests up to depth 8 (24 read).
+- **Timeline and diff**: dependency and provenance events, `entity` and `same_entity` patterns, `provenance[]` and `domains[]` deltas, history blocks `new_install_time_domain`, `provenance_verification_lost`, `source_binding_conflict`.
+- **Trust graph**: `ExternalDomain`, `TrustRoot`, `Registry` nodes; `CONNECTS_TO`, `VERIFIED_BY`, `USES_TRUST_ROOT`, `PUBLISHED_IN`, `CORRESPONDS_TO` edges; `introduced_at` / `removed_at`; deterministic queries (`graph --query`); projection from stored snapshots; `snapshots --export-to / --import-from`.
+- Probes: `scripts/probe-dep-registry.mjs`, `probe-crypto.mjs`, `probe-domains.mjs`, `probe-performance.mjs`; `probe-retrieval.mjs --v2` for a same-revision baseline. Labeled synthetic domain set `calibration/domains-synthetic.json`.
+
+### Changed
+
+- See the table in [docs/migration.md](docs/migration.md): trust-root names, the new verification state, Sigstore error classification by library code, `checksums.txt.sigstore.json` is a signature, `getSnapshot` returns the stored report, the retrieval budget has three pools, the bundle banner. Node >= 20.17 and package 0.7.0.
+
+### Fixed (found by real probes)
+
+- A key file with several keys was read as its first, revoked key (restic); a Sigstore bundle named like a checksum file was a checksum file (goreleaser); large attestation bundles were all unreadable (cli/cli); deps.dev project ids were not normalized and an organisation rename read as a conflict (react); JSDoc block comments, Python docstrings and manifests that hold the install script produced domains in the wrong context (sharp, node-sass, playwright); manifests the targeted walk had listed at depth 3-8 were ignored (kubernetes staging modules).
+
 ## [0.6.0] - unreleased
 
 Report schema 0.6, methodology 0.4 (rules unchanged: 86 -> 86 rules; see [docs/methodology.md](docs/methodology.md) section 16 for why the methodology did not move). Migration notes: [docs/migration.md](docs/migration.md). Design: [identity](docs/identity.md), [retrieval](docs/retrieval.md), [registry](docs/registry.md), [trust](docs/trust.md), [governance](docs/governance.md), [snapshots and graph](docs/snapshots.md), [policy](docs/policy.md).

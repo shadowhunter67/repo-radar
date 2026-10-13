@@ -127,6 +127,7 @@ export async function collectDependencyRegistry(opts: {
           resolvedVersions: c.resolvedVersions,
         },
         get,
+        { crateOwners: false },
       ).then((r) => {
         if (r.failure)
           opts.note(

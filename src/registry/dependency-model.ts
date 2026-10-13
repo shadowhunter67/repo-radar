@@ -16,7 +16,7 @@ import { REGISTRIES, RegistryPackageSchema } from './model.js';
 export const DEP_REGISTRY_BUDGET_DEFAULTS = {
   /** Distinct registry packages looked up. */
   maxDependencies: 25,
-  /** HTTP requests to registries (crates.io needs two per crate). */
+  /** HTTP requests to registries (one per package). */
   maxRequests: 60,
   /** Wall-clock budget by the injected clock. */
   maxElapsedMs: 45_000,

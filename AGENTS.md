@@ -27,10 +27,12 @@ node dist/cli.js analyze owner/repo [--format json] [--profile enterprise] [--ve
 - Never put a secret value in a report: redact at detection time (`src/analysis/secrets.ts`).
 - New rules should read normalized facts (`src/facts`), not raw collector ids; every limit lives in `src/limits.ts`.
 - Wording: observations and confidence, never verdicts ("safe", "secure", "AI-generated", "trustworthy").
+- Trust comes only from the person running the tool (`src/trust/config.ts`): a public key or identity found in the analyzed repository is evidence (`key_present_in_repository`), never a trust root; private keys are refused. Dependency tarballs and observed domains are never fetched, resolved or contacted.
 - Tests use the fakes in `tests/helpers/` and never the network. Do not read or print secret files.
 
 ## Dependencies installed (keep this list current)
 
 Runtime: `zod` (schemas + JSON Schema generation), `yaml` (workflow/standards parsing, core schema), `smol-toml` (pyproject/Cargo parsing), `sigstore` 4.1.1 (exact; 4.1.0 and earlier had GHSA-52v5-jr5w-gjxr, constraints we never use; the maintained Sigstore client, used ONLY with `--verify-crypto` and loaded lazily: it replaces any hand-written certificate/signature code. Its TUF client reaches `tuf-repo-cdn.sigstore.dev`, the one network access outside `src/util/http.ts`; Node >= 20.17).
+`openpgp` 6.3.2 (exact; LGPL-3.0-or-later, used unmodified; OpenPGP detached-signature verification against keys the USER supplies, loaded lazily in `src/trust/gpg.ts`: it replaces any hand-written OpenPGP code and avoids running a host `gpg`; added 2026-10-13).
 Dev: `typescript`, `vitest`, `eslint` + `typescript-eslint` + `@eslint/js`, `prettier`, `esbuild`, `@types/node`.
 Adding a runtime dependency needs a justification in the PR.

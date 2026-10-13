@@ -1,5 +1,37 @@
 # Migration notes
 
+## 0.6 -> 0.7 (report schema 0.7, methodology 0.4)
+
+Additive except the items marked **changed**. 86 rules in total (unchanged); scoring semantics untouched, so the fresh holdout of methodology 0.4 stays valid and no new holdout is required. Not accepted: schema `0.6` reports by tools that only know 0.7 (the `model` and `graph` commands ask for a re-run).
+
+### Additive
+
+- Top level `dependency_registry_intel{}` and `external_domains{}`; `retrieval.declared_paths{}`, `retrieval.manifest_seek{}`, `retrieval.manifest_paths{}`; registry versions: optional `repository`, `has_install_script`, `maintainers`; registry package: optional `resolved_times`, `repository.homepage_normalized`; verification: `engine` and `subject`; signatures: `local_detail`, `basis`; `release_intel.key_material_in_repository`, `verification_run.signatures` / `trusted_keys`.
+- Timeline: new event types and sources, optional `entity`, pattern flag `same_entity`, four built-in patterns. Fact scope `domain`, facts `registry.deps.*`, `domains.*`, `release.signatures.*`, `release.tag.signature_locally_verified`; finding category `domain`, ids `RR-DEPREG-*`, `RR-DOM-*`.
+- Trust graph: nodes `TrustRoot`, `Registry`; edges `VERIFIED_BY`, `USES_TRUST_ROOT`, `PUBLISHED_IN`, `CORRESPONDS_TO`; edge fields `introduced_at` / `removed_at`; `graph --query`, `graph --snapshot-dir`; `snapshots --export-to / --import-from`.
+- Historical diff: `domains[]` and `provenance[]`.
+- Policy: `require` keys `locally_verified_signature`, `dependency_registry_match`, `dependency_publisher_stability`, `dependency_provenance_reported`, `no_dependency_takeover_indicators`; `history_block` kinds `new_install_time_domain`, `provenance_verification_lost`, `source_binding_conflict`. None is in a shipped profile.
+- CLI: `--no-dep-registry`, `--dep-registry-max`, `--dep-registry-requests`, `--dep-registry-time`, `--no-domains`, `--trust-config`, `--trust-gpg-key`, `--trust-minisign-key`, `--expect-signer`.
+- Dependency `openpgp` 6.3.2 (exact, loaded lazily). Package 0.7.0.
+
+### Changed
+
+| What | Before | Now | Why |
+| ---- | ------ | --- | --- |
+| Trust roots | `user_supplied_key`, `project_pinned_key` (never emitted) | `user_supplied_gpg_key`, `project_pinned_gpg_key`, `user_supplied_minisign_key`, `project_pinned_minisign_key` | The algorithm is part of what a root verifies. |
+| Verification states | 6 | + `verification_skipped_resource_limit` | A limit stopped the check; it is not a failure to decide. An oversized Sigstore bundle used to be `verification_failed`. |
+| Sigstore error classification | message regex | the library's error codes first, then the regex | `inclusion proof`, `expired` and `digest mismatch` are rejections even though they mention the log. |
+| `release.signature_assets.present` | signatures with `verified_by: none` | signatures not asserted by GitHub | A signature asset checked locally is still present. |
+| Asset `checksums.txt.sigstore.json` | classified as a checksum file | a signature | Found by the real goreleaser probe. |
+| Large attestation bundles | counted, not read | downloaded from GitHub's attestation store within strict limits | Found by the real cli/cli probe (5 of 5 unreadable before). |
+| Targeted tree | manifests at depth <= 2 | depth <= 8 and up to 24 manifests read for a TARGETED tree only; complete trees keep depth 2 | The staging modules kubernetes' `go.work` names were listed and then ignored. |
+| Retrieval budget | one pool of 90 requests | + a declared-path pool (60) and a manifest-seek pool (24); total requests can exceed 90 | Declared paths are followed without widening the generic traversal. Tight budgets in custom code: set `declared: { maxRequests: 0, maxHintReads: 0 }` and `seek: { enabled: false }` for the 0.6 behaviour. |
+| `getSnapshot` | returned the schema-parsed copy | returns the report as stored | Its integrity digest depends on key order. |
+| Bundle banner (`npm run bundle`) | `createRequire` | aliased `__rrCreateRequire` | `openpgp` imports `createRequire` itself. |
+| Package / schema | 0.6.0 / 0.6 | 0.7.0 / 0.7 | New report sections. |
+
+Methodology stays 0.4: no rule, weight, fact consumed by a rule, or score input changed. The new facts feed policy only.
+
 ## 0.5 -> 0.6 (report schema 0.6, methodology 0.4)
 
 Additive except the items marked **changed**. 86 rules in total (unchanged).

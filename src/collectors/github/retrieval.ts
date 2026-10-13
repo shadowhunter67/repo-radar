@@ -204,6 +204,8 @@ export interface TreeRetrieval {
   wide_directories: string[];
   declared_paths: DeclaredPathsReport;
   manifest_seek: ManifestSeekReport;
+  /** Package manifests in the tree the walk produced, and how many of them were read (the read cap is finite). */
+  manifest_paths: { in_tree: number; read: number; cap: number };
 }
 
 /** One non-recursive or recursive tree listing by object sha or ref name. */
@@ -527,6 +529,7 @@ export async function retrieveTargeted(
         wide_directories: [...wide].slice(0, 10),
         declared_paths: { ...declared },
         manifest_seek: { ...seek },
+        manifest_paths: { in_tree: 0, read: 0, cap: 0 },
       },
     };
   };

@@ -71,3 +71,16 @@ Done: Identity v2 representation, targeted retrieval and coverage map, historica
 ## After 0.6
 
 Done: structural Identity v2 with an evidence hierarchy, multi-pass retrieval with hints, registry intelligence (npm, PyPI, crates.io), Sigstore verification of GitHub attestations, source binding, bounded asset checks, unified timeline with generic correlation, immutable snapshots, trust graph, new policy requirements. Next, in order of value: (1) human review of labels (gate 14) and a second reviewer for the identity holdouts; (2) verification of Sigstore blob bundles, minisign/GPG with pinned keys, and local tag-signature verification; (3) registry coverage for DEPENDENCIES (publisher change of a dependency is the classic attack path) with a request budget; (4) a manifest selection that follows hinted directories deeper than three segments (kubernetes); (5) external-domain extraction so `external_domain_introduced` and `CONNECTS_TO` become real; (6) calibration of identity confidence on a larger independent set; (7) a remote snapshot store with concurrent-writer rules.
+
+
+## After 0.7
+
+Done: dependency registry and publisher intelligence with a priority model and budget; Sigstore blob and large-bundle verification; OpenPGP, minisign and local tag verification against user-held trust; external domains with context; dependency and provenance events in the timeline and diff; trust graph enrichment, queries and snapshot projection; retrieval v3 (declared paths, manifest seeking). Next, in order of value:
+
+1. Human review of the calibration labels (gate 14) and a second reviewer for the identity holdouts - still MANUAL.
+2. GitHub's own Sigstore instance as a trust root (its release attestations are `verification_failed` today) and verification of npm / PyPI dependency attestations (the registries only report them).
+3. Calibrate the dependency-event thresholds (dormancy, cadence, new publisher) on a labeled set of real incidents and benign hand-overs; today they are plausible defaults, not measured.
+4. A benign-vs-takeover labeled history set for domains and dependencies, so false-positive rates are measured rather than listed.
+5. A remote snapshot store with a concurrent-writer protocol, built on the `SnapshotStore` seam and `copySnapshots`.
+6. Bazel / Nix / Buck declared-path readers for retrieval, and cheaper per-request costs for the largest repositories.
+7. Reading README / docs for domains (documentation context is empty today because those files are not fetched).

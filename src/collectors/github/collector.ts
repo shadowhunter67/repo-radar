@@ -330,6 +330,7 @@ export async function collectGithub(
     wide_directories: [],
     declared_paths: { ...EMPTY_DECLARED },
     manifest_seek: { ...EMPTY_SEEK },
+    manifest_paths: { in_tree: 0, read: 0, cap: 0 },
   };
   const needTargeted =
     options.targetedTree !== false &&
@@ -470,6 +471,11 @@ export async function collectGithub(
     0,
     targetedTree ? MAX_MANIFESTS_TARGETED : MAX_MANIFESTS,
   );
+  treeRetrieval.manifest_paths = {
+    in_tree: tree.manifestPaths.length,
+    read: manifestPaths.length,
+    cap: targetedTree ? MAX_MANIFESTS_TARGETED : MAX_MANIFESTS,
+  };
   const lockPaths = tree.lockPaths.slice(0, MAX_LOCKS);
   const sbomPaths = options.sbom === false ? [] : tree.sbomPaths.slice(0, MAX_SBOMS);
   if (tree.sbomPaths.length > MAX_SBOMS && options.sbom !== false)

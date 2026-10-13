@@ -2478,6 +2478,32 @@
           ],
           "additionalProperties": false
         },
+        "manifest_paths": {
+          "type": "object",
+          "properties": {
+            "in_tree": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "read": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "cap": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "in_tree",
+            "read",
+            "cap"
+          ],
+          "additionalProperties": false
+        },
         "manifest_seek": {
           "type": "object",
           "properties": {
@@ -2560,6 +2586,7 @@
         "skipped_by_rule",
         "wide_directories",
         "declared_paths",
+        "manifest_paths",
         "manifest_seek"
       ],
       "additionalProperties": false
