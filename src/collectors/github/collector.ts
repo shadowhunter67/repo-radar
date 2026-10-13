@@ -17,6 +17,8 @@ import type { RawRelease } from '../../release/analyze.js';
 import { EMPTY_RELEASE_INTEL, type ReleaseIntel } from '../../release/model.js';
 import {
   DEFAULT_RETRIEVAL_BUDGET,
+  EMPTY_DECLARED,
+  EMPTY_SEEK,
   retrieveTargeted,
   type RetrievalBudget,
   type TreeFetcher,
@@ -322,6 +324,8 @@ export async function collectGithub(
     hints: { files_read: 0, directories_named: 0, files: [] },
     skipped_by_rule: 0,
     wide_directories: [],
+    declared_paths: { ...EMPTY_DECLARED },
+    manifest_seek: { ...EMPTY_SEEK },
   };
   const needTargeted =
     options.targetedTree !== false &&

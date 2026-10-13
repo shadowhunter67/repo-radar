@@ -40,7 +40,15 @@ export const TreeRetrievalSchema = z.object({
   passes: z
     .array(
       z.object({
-        name: z.enum(['root', 'ci_build', 'hinted', 'source_roots', 'breadth']),
+        name: z.enum([
+          'root',
+          'ci_build',
+          'hinted',
+          'declared_deep',
+          'source_roots',
+          'breadth',
+          'manifest_seek',
+        ]),
         directories: z.number().int().min(0),
       }),
     )
@@ -52,6 +60,38 @@ export const TreeRetrievalSchema = z.object({
   }),
   skipped_by_rule: z.number().int().min(0),
   wide_directories: z.array(z.string().max(400)).max(10),
+  /** Directories the project's own build files declare, followed from a separate budget (retrieval v3). */
+  declared_paths: z.object({
+    accepted: z.number().int().min(0),
+    followed: z.number().int().min(0),
+    deep: z.number().int().min(0),
+    rejected_unsafe: z.number().int().min(0),
+    rejected_depth: z.number().int().min(0),
+    rejected_over_limit: z.number().int().min(0),
+    requests: z.number().int().min(0),
+    stopped_by: z.enum(['complete', 'request_budget', 'path_limit']),
+  }),
+  /** Bounded recursive listings of subtrees, keeping only manifest and build-definition files (retrieval v3). */
+  manifest_seek: z.object({
+    enabled: z.boolean(),
+    requests: z.number().int().min(0),
+    subtrees: z.number().int().min(0),
+    truncated_subtrees: z.number().int().min(0),
+    failed_subtrees: z.number().int().min(0),
+    manifests_found: z.number().int().min(0),
+    entries_scanned: z.number().int().min(0),
+    stopped_by: z.enum([
+      'not_needed',
+      'complete',
+      'request_budget',
+      'subtree_budget',
+      'scan_budget',
+      'time_budget',
+      'byte_budget',
+      'node_budget',
+      'disabled',
+    ]),
+  }),
 });
 
 export const CoverageEntrySchema = z.object({

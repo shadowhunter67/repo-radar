@@ -2358,8 +2358,10 @@
                   "root",
                   "ci_build",
                   "hinted",
+                  "declared_deep",
                   "source_roots",
-                  "breadth"
+                  "breadth",
+                  "manifest_seek"
                 ]
               },
               "directories": {
@@ -2416,6 +2418,128 @@
             "type": "string",
             "maxLength": 400
           }
+        },
+        "declared_paths": {
+          "type": "object",
+          "properties": {
+            "accepted": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "followed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "deep": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "rejected_unsafe": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "rejected_depth": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "rejected_over_limit": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "requests": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "stopped_by": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "request_budget",
+                "path_limit"
+              ]
+            }
+          },
+          "required": [
+            "accepted",
+            "followed",
+            "deep",
+            "rejected_unsafe",
+            "rejected_depth",
+            "rejected_over_limit",
+            "requests",
+            "stopped_by"
+          ],
+          "additionalProperties": false
+        },
+        "manifest_seek": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "requests": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "subtrees": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "truncated_subtrees": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "failed_subtrees": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "manifests_found": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "entries_scanned": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "stopped_by": {
+              "type": "string",
+              "enum": [
+                "not_needed",
+                "complete",
+                "request_budget",
+                "subtree_budget",
+                "scan_budget",
+                "time_budget",
+                "byte_budget",
+                "node_budget",
+                "disabled"
+              ]
+            }
+          },
+          "required": [
+            "enabled",
+            "requests",
+            "subtrees",
+            "truncated_subtrees",
+            "failed_subtrees",
+            "manifests_found",
+            "entries_scanned",
+            "stopped_by"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -2434,7 +2558,9 @@
         "passes",
         "hints",
         "skipped_by_rule",
-        "wide_directories"
+        "wide_directories",
+        "declared_paths",
+        "manifest_seek"
       ],
       "additionalProperties": false
     },

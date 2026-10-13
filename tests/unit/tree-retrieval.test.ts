@@ -41,6 +41,11 @@ function fsFetcher(
   };
 }
 const opts = { reason: 'response_too_large' as const, githubTruncated: false };
+/** The v2 behaviour: only the generic pool pays for anything (no declared-path pool, no manifest seeking). */
+const GENERIC_ONLY = {
+  declared: { maxRequests: 0, maxHintReads: 0 },
+  seek: { enabled: false },
+} as const;
 
 describe('directory priority', () => {
   it('reads CI and build directories first, source roots next, low-ranks docs/tests/vendor, and never reads dependency/VCS directories', () => {
@@ -105,7 +110,7 @@ describe('targeted retrieval', () => {
     const r = await retrieveTargeted(
       fsFetcher(repo, log),
       'main',
-      { ...DEFAULT_RETRIEVAL_BUDGET, maxRequests: 2 },
+      { ...DEFAULT_RETRIEVAL_BUDGET, ...GENERIC_ONLY, maxRequests: 2 },
       opts,
     );
     expect(log).toHaveLength(2);
@@ -149,7 +154,7 @@ describe('targeted retrieval', () => {
     await retrieveTargeted(
       fsFetcher(deep, log),
       'main',
-      { ...DEFAULT_RETRIEVAL_BUDGET, maxDepth: 1 },
+      { ...DEFAULT_RETRIEVAL_BUDGET, ...GENERIC_ONLY, maxDepth: 1 },
       opts,
     );
     expect(log.some((l) => /tree:a\/b\/c/.test(l))).toBe(false);
@@ -264,7 +269,9 @@ describe('analysis of repositories whose recursive tree is too large or truncate
 
   it('a tiny request budget is respected and reported', async () => {
     const spec = big({ treeTooLarge: true });
-    const r = await run(spec, { retrievalBudget: { ...DEFAULT_RETRIEVAL_BUDGET, maxRequests: 2 } });
+    const r = await run(spec, {
+      retrievalBudget: { ...DEFAULT_RETRIEVAL_BUDGET, ...GENERIC_ONLY, maxRequests: 2 },
+    });
     expect(r.retrieval.requests).toBeLessThanOrEqual(2);
     expect(r.retrieval.stopped_by).toBe('request_budget');
   });
@@ -329,7 +336,7 @@ describe('retrieval v2: structural hints, wide directories, passes', () => {
     const r = await retrieveTargeted(
       fsFetcher(files),
       'main',
-      { ...DEFAULT_RETRIEVAL_BUDGET, maxHintReads: 1 },
+      { ...DEFAULT_RETRIEVAL_BUDGET, ...GENERIC_ONLY, maxHintReads: 1 },
       {
         ...opts,
         readHint: async (p) => (reads.push(p), '[workspace]\nmembers = ["crates/*"]\n'),
@@ -345,7 +352,7 @@ describe('retrieval v2: structural hints, wide directories, passes', () => {
     const r = await retrieveTargeted(
       fsFetcher([...wide, 'src/a.c', 'src/sub/b.c']),
       'main',
-      { ...DEFAULT_RETRIEVAL_BUDGET, wideFanout: 10, maxRequests: 6 },
+      { ...DEFAULT_RETRIEVAL_BUDGET, ...GENERIC_ONLY, wideFanout: 10, maxRequests: 6 },
       opts,
     );
     expect(r.report.wide_directories).toContain('drivers');
@@ -384,6 +391,7 @@ describe('retrieval v2: hint extraction', () => {
     expect(extractHints('package.json', '', '{"workspaces":["packages/*","tools/cli"]}')).toEqual({
       exact: ['tools/cli'],
       parents: ['packages'],
+      rejected: 0,
     });
     expect(
       extractHints('Makefile', '', 'core-y += kernel/ mm/ fs/\ndrivers-y += drivers/ \\n').exact,

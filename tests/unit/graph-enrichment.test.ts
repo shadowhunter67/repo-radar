@@ -360,7 +360,7 @@ describe('graph projection from stored snapshots', () => {
     const r = await analyze(spec({}));
     const a = new FsSnapshotStore(mkdtempSync(join(tmpdir(), 'rr-a-')));
     const b = new FsSnapshotStore(mkdtempSync(join(tmpdir(), 'rr-b-')));
-    const put = a.putSnapshot(r);
+    expect(a.putSnapshot(r).status).toBe('stored');
     expect(copySnapshots(a, b)).toEqual({ copied: 1, existing: 0, conflicts: 0, unreadable: 0 });
     expect(copySnapshots(a, b)).toEqual({ copied: 0, existing: 1, conflicts: 0, unreadable: 0 });
     const other = JSON.parse(JSON.stringify(r)) as Report;
