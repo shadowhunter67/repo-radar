@@ -756,6 +756,16 @@ function riskDelta(
         ...d.evidence_ids,
       );
     else if (
+      d.kind === 'context_changed' &&
+      d.before?.strongest_context === 'install' &&
+      d.after?.strongest_context !== 'install'
+    )
+      down(
+        `external host ${d.hostname} is no longer referenced at install time`,
+        'domain:context_changed',
+        ...d.evidence_ids,
+      );
+    else if (
       d.kind === 'removed' &&
       d.certainty === 'observed' &&
       d.significance === 'active' &&

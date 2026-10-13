@@ -1,47 +1,330 @@
 {
   "description": "Hand-labeled synthetic snippets for external domain extraction. Labels were written from the question 'which hostnames does this file refer to, and in which context?' before the extractor was run on them; a case the extractor gets wrong stays in the file as a known limitation and is counted in the reported metrics. They are synthetic: they say nothing about how the extractor behaves on real repositories (see calibration/results/domain-probe.md for that).",
   "cases": [
-    { "id": "js-runtime-fetch", "path": "src/client.ts", "role": "source", "content": "const r = await fetch('https://api.vendor.io/v1/items');", "expect": [{ "host": "api.vendor.io", "context": "runtime" }] },
-    { "id": "py-runtime-requests", "path": "app/client.py", "role": "source", "content": "r = requests.get('https://svc.vendor.io/health')", "expect": [{ "host": "svc.vendor.io", "context": "runtime" }] },
-    { "id": "go-runtime-http", "path": "pkg/c.go", "role": "source", "content": "resp, err := http.Get(\"https://go.vendor.io/v1\")", "expect": [{ "host": "go.vendor.io", "context": "runtime" }] },
-    { "id": "rust-runtime-reqwest", "path": "src/lib.rs", "role": "source", "content": "let body = reqwest::get(\"https://rs.vendor.io/data\").await?;", "expect": [{ "host": "rs.vendor.io", "context": "runtime" }] },
-    { "id": "websocket", "path": "src/ws.ts", "role": "source", "content": "const s = new WebSocket('wss://stream.vendor.io/feed');", "expect": [{ "host": "stream.vendor.io", "context": "runtime" }] },
-    { "id": "shell-install-bare-curl", "path": "scripts/install.sh", "role": "script", "content": "curl -sSL get.vendor.io/install.sh | sh", "installFile": true, "expect": [{ "host": "get.vendor.io", "context": "install" }] },
-    { "id": "makefile-curl", "path": "Makefile", "role": "build", "content": "deps:\n\tcurl -O https://build.vendor.io/a.tgz", "expect": [{ "host": "build.vendor.io", "context": "build" }] },
-    { "id": "dockerfile-wget", "path": "Dockerfile", "role": "build", "content": "RUN wget https://img.vendor.io/base.tar", "expect": [{ "host": "img.vendor.io", "context": "container" }] },
-    { "id": "workflow-curl", "path": ".github/workflows/ci.yml", "role": "workflow", "content": "      - run: curl -fsSL https://ci.vendor.io/setup | bash", "expect": [{ "host": "ci.vendor.io", "context": "ci" }] },
-    { "id": "registry-in-install", "path": "scripts/setup.sh", "role": "script", "content": "npm config set registry https://registry.npmjs.org/", "installFile": true, "expect": [{ "host": "registry.npmjs.org", "context": "install" }] },
-    { "id": "package-json-homepage", "path": "package.json", "role": "manifest", "content": "{\"homepage\": \"https://home.vendor.io\"}", "expect": [{ "host": "home.vendor.io", "context": "metadata" }] },
-    { "id": "docs-file", "path": "docs/guide.md", "role": "config", "content": "See https://docs.vendor.io/start", "expect": [{ "host": "docs.vendor.io", "context": "docs" }] },
-    { "id": "test-file", "path": "tests/e2e/a.test.ts", "role": "source", "content": "await fetch('https://test.vendor.io/ping')", "expect": [{ "host": "test.vendor.io", "context": "test" }] },
-    { "id": "line-comment", "path": "src/a.ts", "role": "source", "content": "// see https://cm.vendor.io/docs\nconst x = 1;", "expect": [{ "host": "cm.vendor.io", "context": "comment" }] },
-    { "id": "hash-comment", "path": "scripts/a.sh", "role": "script", "content": "# https://hash.vendor.io/x\necho hi", "expect": [{ "host": "hash.vendor.io", "context": "comment" }] },
-    { "id": "jsdoc", "path": "src/doc.ts", "role": "source", "content": "/**\n * https://jsdoc.vendor.io/spec\n */\nexport const a = 1;", "expect": [{ "host": "jsdoc.vendor.io", "context": "comment" }] },
-    { "id": "localhost", "path": "src/dev.ts", "role": "source", "content": "fetch('http://localhost:3000/api'); fetch('http://127.0.0.1:8080')", "expect": [], "filtered": ["localhost"] },
-    { "id": "private-ip", "path": "src/net.ts", "role": "source", "content": "connect('http://10.0.0.5/x'); connect('http://192.168.1.1/y')", "expect": [], "filtered": ["private_address"] },
-    { "id": "cloud-metadata", "path": "src/aws.ts", "role": "source", "content": "get('http://169.254.169.254/latest/meta-data/')", "expect": [], "filtered": ["private_address"] },
-    { "id": "example-domains", "path": "src/e.ts", "role": "source", "content": "post('https://example.com/a'); post('https://api.example.org/b')", "expect": [], "filtered": ["documentation_example"] },
-    { "id": "doc-ip-range", "path": "src/e2.ts", "role": "source", "content": "ping('http://203.0.113.9/x')", "expect": [], "filtered": ["documentation_example"] },
-    { "id": "template-variable", "path": "src/t.ts", "role": "source", "content": "get(`https://${HOST}/v1`)", "expect": [] },
-    { "id": "public-ip", "path": "scripts/ip.sh", "role": "script", "content": "curl http://8.8.4.4:8080/x", "expect": [{ "host": "8.8.4.4", "context": "build" }] },
-    { "id": "telemetry", "path": "src/t2.ts", "role": "source", "content": "init({ dsn: 'https://abc@o123.ingest.sentry.io/456' })", "expect": [{ "host": "o123.ingest.sentry.io", "context": "runtime" }] },
-    { "id": "scp-git", "path": "scripts/clone.sh", "role": "script", "content": "git clone git@github.com:org/repo.git", "expect": [{ "host": "github.com", "context": "build" }] },
-    { "id": "punycode", "path": "src/p.ts", "role": "source", "content": "get('https://xn--80ak6aa92e.com/x')", "expect": [{ "host": "xn--80ak6aa92e.com", "context": "runtime" }] },
-    { "id": "two-hosts-one-line", "path": "src/two.ts", "role": "source", "content": "const urls = ['https://a1.vendor.io/x', 'https://a2.vendor.io/y'];", "expect": [{ "host": "a1.vendor.io", "context": "runtime" }, { "host": "a2.vendor.io", "context": "runtime" }] },
-    { "id": "trailing-punctuation", "path": "src/tp.ts", "role": "source", "content": "log('see (https://tp.vendor.io/a).')", "expect": [{ "host": "tp.vendor.io", "context": "runtime" }] },
-    { "id": "mailto-ignored", "path": "src/m.ts", "role": "source", "content": "const c = 'mailto:someone@mail.vendor.io';", "expect": [] },
-    { "id": "string-concat-host", "path": "src/sc.ts", "role": "source", "content": "const u = 'https://' + host + '/v1';", "expect": [] },
-    { "id": "image-reference-no-scheme", "path": "deploy/k8s.yaml", "role": "config", "content": "image: ghcr.io/org/service:1.2.3", "expect": [{ "host": "ghcr.io", "context": "unknown" }], "known_limitation": "a container image reference has no URL scheme and is not extracted" },
-    { "id": "s3-url", "path": "src/s3.ts", "role": "source", "content": "upload('s3://my-bucket/key')", "expect": [{ "host": "my-bucket", "context": "runtime" }], "known_limitation": "s3:// and gs:// bucket references are not extracted" }
+    {
+      "id": "js-runtime-fetch",
+      "path": "src/client.ts",
+      "role": "source",
+      "content": "const r = await fetch('https://api.vendor.io/v1/items');",
+      "expect": [{ "host": "api.vendor.io", "context": "runtime" }]
+    },
+    {
+      "id": "py-runtime-requests",
+      "path": "app/client.py",
+      "role": "source",
+      "content": "r = requests.get('https://svc.vendor.io/health')",
+      "expect": [{ "host": "svc.vendor.io", "context": "runtime" }]
+    },
+    {
+      "id": "go-runtime-http",
+      "path": "pkg/c.go",
+      "role": "source",
+      "content": "resp, err := http.Get(\"https://go.vendor.io/v1\")",
+      "expect": [{ "host": "go.vendor.io", "context": "runtime" }]
+    },
+    {
+      "id": "rust-runtime-reqwest",
+      "path": "src/lib.rs",
+      "role": "source",
+      "content": "let body = reqwest::get(\"https://rs.vendor.io/data\").await?;",
+      "expect": [{ "host": "rs.vendor.io", "context": "runtime" }]
+    },
+    {
+      "id": "websocket",
+      "path": "src/ws.ts",
+      "role": "source",
+      "content": "const s = new WebSocket('wss://stream.vendor.io/feed');",
+      "expect": [{ "host": "stream.vendor.io", "context": "runtime" }]
+    },
+    {
+      "id": "shell-install-bare-curl",
+      "path": "scripts/install.sh",
+      "role": "script",
+      "content": "curl -sSL get.vendor.io/install.sh | sh",
+      "installFile": true,
+      "expect": [{ "host": "get.vendor.io", "context": "install" }]
+    },
+    {
+      "id": "makefile-curl",
+      "path": "Makefile",
+      "role": "build",
+      "content": "deps:\n\tcurl -O https://build.vendor.io/a.tgz",
+      "expect": [{ "host": "build.vendor.io", "context": "build" }]
+    },
+    {
+      "id": "dockerfile-wget",
+      "path": "Dockerfile",
+      "role": "build",
+      "content": "RUN wget https://img.vendor.io/base.tar",
+      "expect": [{ "host": "img.vendor.io", "context": "container" }]
+    },
+    {
+      "id": "workflow-curl",
+      "path": ".github/workflows/ci.yml",
+      "role": "workflow",
+      "content": "      - run: curl -fsSL https://ci.vendor.io/setup | bash",
+      "expect": [{ "host": "ci.vendor.io", "context": "ci" }]
+    },
+    {
+      "id": "registry-in-install",
+      "path": "scripts/setup.sh",
+      "role": "script",
+      "content": "npm config set registry https://registry.npmjs.org/",
+      "installFile": true,
+      "expect": [{ "host": "registry.npmjs.org", "context": "install" }]
+    },
+    {
+      "id": "package-json-homepage",
+      "path": "package.json",
+      "role": "manifest",
+      "content": "{\"homepage\": \"https://home.vendor.io\"}",
+      "expect": [{ "host": "home.vendor.io", "context": "metadata" }]
+    },
+    {
+      "id": "docs-file",
+      "path": "docs/guide.md",
+      "role": "config",
+      "content": "See https://docs.vendor.io/start",
+      "expect": [{ "host": "docs.vendor.io", "context": "docs" }]
+    },
+    {
+      "id": "test-file",
+      "path": "tests/e2e/a.test.ts",
+      "role": "source",
+      "content": "await fetch('https://test.vendor.io/ping')",
+      "expect": [{ "host": "test.vendor.io", "context": "test" }]
+    },
+    {
+      "id": "line-comment",
+      "path": "src/a.ts",
+      "role": "source",
+      "content": "// see https://cm.vendor.io/docs\nconst x = 1;",
+      "expect": [{ "host": "cm.vendor.io", "context": "comment" }]
+    },
+    {
+      "id": "hash-comment",
+      "path": "scripts/a.sh",
+      "role": "script",
+      "content": "# https://hash.vendor.io/x\necho hi",
+      "expect": [{ "host": "hash.vendor.io", "context": "comment" }]
+    },
+    {
+      "id": "jsdoc",
+      "path": "src/doc.ts",
+      "role": "source",
+      "content": "/**\n * https://jsdoc.vendor.io/spec\n */\nexport const a = 1;",
+      "expect": [{ "host": "jsdoc.vendor.io", "context": "comment" }]
+    },
+    {
+      "id": "localhost",
+      "path": "src/dev.ts",
+      "role": "source",
+      "content": "fetch('http://localhost:3000/api'); fetch('http://127.0.0.1:8080')",
+      "expect": [],
+      "filtered": ["localhost"]
+    },
+    {
+      "id": "private-ip",
+      "path": "src/net.ts",
+      "role": "source",
+      "content": "connect('http://10.0.0.5/x'); connect('http://192.168.1.1/y')",
+      "expect": [],
+      "filtered": ["private_address"]
+    },
+    {
+      "id": "cloud-metadata",
+      "path": "src/aws.ts",
+      "role": "source",
+      "content": "get('http://169.254.169.254/latest/meta-data/')",
+      "expect": [],
+      "filtered": ["private_address"]
+    },
+    {
+      "id": "example-domains",
+      "path": "src/e.ts",
+      "role": "source",
+      "content": "post('https://example.com/a'); post('https://api.example.org/b')",
+      "expect": [],
+      "filtered": ["documentation_example"]
+    },
+    {
+      "id": "doc-ip-range",
+      "path": "src/e2.ts",
+      "role": "source",
+      "content": "ping('http://203.0.113.9/x')",
+      "expect": [],
+      "filtered": ["documentation_example"]
+    },
+    {
+      "id": "template-variable",
+      "path": "src/t.ts",
+      "role": "source",
+      "content": "get(`https://${HOST}/v1`)",
+      "expect": []
+    },
+    {
+      "id": "public-ip",
+      "path": "scripts/ip.sh",
+      "role": "script",
+      "content": "curl http://8.8.4.4:8080/x",
+      "expect": [{ "host": "8.8.4.4", "context": "build" }]
+    },
+    {
+      "id": "telemetry",
+      "path": "src/t2.ts",
+      "role": "source",
+      "content": "init({ dsn: 'https://abc@o123.ingest.sentry.io/456' })",
+      "expect": [{ "host": "o123.ingest.sentry.io", "context": "runtime" }]
+    },
+    {
+      "id": "scp-git",
+      "path": "scripts/clone.sh",
+      "role": "script",
+      "content": "git clone git@github.com:org/repo.git",
+      "expect": [{ "host": "github.com", "context": "build" }]
+    },
+    {
+      "id": "punycode",
+      "path": "src/p.ts",
+      "role": "source",
+      "content": "get('https://xn--80ak6aa92e.com/x')",
+      "expect": [{ "host": "xn--80ak6aa92e.com", "context": "runtime" }]
+    },
+    {
+      "id": "two-hosts-one-line",
+      "path": "src/two.ts",
+      "role": "source",
+      "content": "const urls = ['https://a1.vendor.io/x', 'https://a2.vendor.io/y'];",
+      "expect": [
+        { "host": "a1.vendor.io", "context": "runtime" },
+        { "host": "a2.vendor.io", "context": "runtime" }
+      ]
+    },
+    {
+      "id": "trailing-punctuation",
+      "path": "src/tp.ts",
+      "role": "source",
+      "content": "log('see (https://tp.vendor.io/a).')",
+      "expect": [{ "host": "tp.vendor.io", "context": "runtime" }]
+    },
+    {
+      "id": "mailto-ignored",
+      "path": "src/m.ts",
+      "role": "source",
+      "content": "const c = 'mailto:someone@mail.vendor.io';",
+      "expect": []
+    },
+    {
+      "id": "string-concat-host",
+      "path": "src/sc.ts",
+      "role": "source",
+      "content": "const u = 'https://' + host + '/v1';",
+      "expect": []
+    },
+    {
+      "id": "image-reference-no-scheme",
+      "path": "deploy/k8s.yaml",
+      "role": "config",
+      "content": "image: ghcr.io/org/service:1.2.3",
+      "expect": [{ "host": "ghcr.io", "context": "unknown" }],
+      "known_limitation": "a container image reference has no URL scheme and is not extracted"
+    },
+    {
+      "id": "s3-url",
+      "path": "src/s3.ts",
+      "role": "source",
+      "content": "upload('s3://my-bucket/key')",
+      "expect": [{ "host": "my-bucket", "context": "runtime" }],
+      "known_limitation": "s3:// and gs:// bucket references are not extracted"
+    }
   ],
   "history": [
-    { "id": "install-host-added", "before": [], "after": [{ "path": "scripts/install.js", "role": "script", "installFile": true, "content": "require('https').get('https://dl.vendor.io/p');" }], "expect": [{ "kind": "introduced", "host": "dl.vendor.io", "significance": "active" }] },
-    { "id": "docs-host-added", "before": [], "after": [{ "path": "package.json", "role": "manifest", "content": "{\"homepage\":\"https://docs.vendor.io\"}" }], "expect": [{ "kind": "introduced", "host": "docs.vendor.io", "significance": "passive" }] },
-    { "id": "host-removed", "before": [{ "path": "src/a.ts", "role": "source", "content": "fetch('https://old.vendor.io/x')" }], "after": [{ "path": "src/a.ts", "role": "source", "content": "const x = 1;" }], "expect": [{ "kind": "removed", "host": "old.vendor.io", "significance": "active" }] },
-    { "id": "runtime-to-install", "before": [{ "path": "src/a.ts", "role": "source", "content": "fetch('https://dl.vendor.io/x')" }], "after": [{ "path": "src/a.ts", "role": "source", "content": "fetch('https://dl.vendor.io/x')" }, { "path": "scripts/install.js", "role": "script", "installFile": true, "content": "get('https://dl.vendor.io/x')" }], "expect": [{ "kind": "context_changed", "host": "dl.vendor.io", "significance": "active" }] },
-    { "id": "comment-only-added", "before": [], "after": [{ "path": "src/a.ts", "role": "source", "content": "// https://cm.vendor.io/x" }], "expect": [{ "kind": "introduced", "host": "cm.vendor.io", "significance": "passive" }] },
-    { "id": "unchanged", "before": [{ "path": "src/a.ts", "role": "source", "content": "fetch('https://same.vendor.io/x')" }], "after": [{ "path": "src/a.ts", "role": "source", "content": "fetch('https://same.vendor.io/x') // changed" }], "expect": [] },
-    { "id": "localhost-added", "before": [], "after": [{ "path": "src/a.ts", "role": "source", "content": "fetch('http://localhost:9000')" }], "expect": [] },
-    { "id": "moved-between-files", "before": [{ "path": "src/a.ts", "role": "source", "content": "fetch('https://mv.vendor.io/x')" }], "after": [{ "path": "src/b.ts", "role": "source", "content": "fetch('https://mv.vendor.io/x')" }], "expect": [] }
+    {
+      "id": "install-host-added",
+      "before": [],
+      "after": [
+        {
+          "path": "scripts/install.js",
+          "role": "script",
+          "installFile": true,
+          "content": "require('https').get('https://dl.vendor.io/p');"
+        }
+      ],
+      "expect": [{ "kind": "introduced", "host": "dl.vendor.io", "significance": "active" }]
+    },
+    {
+      "id": "docs-host-added",
+      "before": [],
+      "after": [
+        {
+          "path": "package.json",
+          "role": "manifest",
+          "content": "{\"homepage\":\"https://docs.vendor.io\"}"
+        }
+      ],
+      "expect": [{ "kind": "introduced", "host": "docs.vendor.io", "significance": "passive" }]
+    },
+    {
+      "id": "host-removed",
+      "before": [
+        { "path": "src/a.ts", "role": "source", "content": "fetch('https://old.vendor.io/x')" }
+      ],
+      "after": [{ "path": "src/a.ts", "role": "source", "content": "const x = 1;" }],
+      "expect": [{ "kind": "removed", "host": "old.vendor.io", "significance": "active" }]
+    },
+    {
+      "id": "runtime-to-install",
+      "before": [
+        { "path": "src/a.ts", "role": "source", "content": "fetch('https://dl.vendor.io/x')" }
+      ],
+      "after": [
+        { "path": "src/a.ts", "role": "source", "content": "fetch('https://dl.vendor.io/x')" },
+        {
+          "path": "scripts/install.js",
+          "role": "script",
+          "installFile": true,
+          "content": "get('https://dl.vendor.io/x')"
+        }
+      ],
+      "expect": [{ "kind": "context_changed", "host": "dl.vendor.io", "significance": "active" }]
+    },
+    {
+      "id": "comment-only-added",
+      "before": [],
+      "after": [{ "path": "src/a.ts", "role": "source", "content": "// https://cm.vendor.io/x" }],
+      "expect": [{ "kind": "introduced", "host": "cm.vendor.io", "significance": "passive" }]
+    },
+    {
+      "id": "unchanged",
+      "before": [
+        { "path": "src/a.ts", "role": "source", "content": "fetch('https://same.vendor.io/x')" }
+      ],
+      "after": [
+        {
+          "path": "src/a.ts",
+          "role": "source",
+          "content": "fetch('https://same.vendor.io/x') // changed"
+        }
+      ],
+      "expect": []
+    },
+    {
+      "id": "localhost-added",
+      "before": [],
+      "after": [
+        { "path": "src/a.ts", "role": "source", "content": "fetch('http://localhost:9000')" }
+      ],
+      "expect": []
+    },
+    {
+      "id": "moved-between-files",
+      "before": [
+        { "path": "src/a.ts", "role": "source", "content": "fetch('https://mv.vendor.io/x')" }
+      ],
+      "after": [
+        { "path": "src/b.ts", "role": "source", "content": "fetch('https://mv.vendor.io/x')" }
+      ],
+      "expect": []
+    }
   ]
 }

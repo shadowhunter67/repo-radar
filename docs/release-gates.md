@@ -44,3 +44,9 @@ Methodology is unchanged (0.4), so the fresh holdout `fresh-holdout-0.4` still v
 ## 0.6 (2026-10-11)
 
 Methodology unchanged (0.4); the fresh holdout `fresh-holdout-0.4` still validates gate 5. Two further holdouts are on record for identity (0.5 observed in the previous cycle, 0.6 run once after the structural rules were frozen); both are weaker than the tuned dev/validation numbers and are reported as such. Gate 14 remains manual: nothing was human-reviewed.
+
+
+## 0.7 (2026-10-13)
+
+Methodology unchanged (0.4); the fresh holdout `fresh-holdout-0.4` still validates gate 5. The 0.7 probes (dependency registry, cryptographic verification, domains, retrieval) are probes, not calibration results: nothing was tuned on them and they do not satisfy or change any gate. Gate 14 remains manual: nothing was human-reviewed, and the labeled synthetic domain set (`calibration/domains-synthetic.json`) was written by the same AI-assisted process, so it is not an independent label source either.
+

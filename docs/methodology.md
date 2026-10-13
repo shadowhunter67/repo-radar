@@ -178,3 +178,8 @@ Profiles may carry `require:` (`sbom`, `signed_release`, `provenance`, `checksum
 ## 16. Methodology version for 0.6 (decision)
 
 The methodology stays **0.4**. Nothing that changes how a score or a confidence is interpreted was added: identity v2, retrieval, registry, cryptographic verification, release binding, the timeline, snapshots and the trust graph are informational sections and new non-scoring facts. Two input corrections are recorded rather than hidden: a Cargo crate with `publish = false` is now private (it no longer counts as an install-time hook for dependents), and retrieval v2 reads more of very large repositories (their coverage, not the rules, changes). The fresh holdout of methodology 0.4 therefore remains valid for gate 5. A new methodology would be required if a rule or weight started to depend on the new facts.
+
+## 17. Methodology version for 0.7 (decision)
+
+The methodology stays **0.4**. No rule, weight or score input changed and no scored rule reads a 0.7 fact: dependency registry intelligence, external domains, local signature verification, retrieval v3, the new timeline events and the trust-graph additions are informational sections, facts, findings and policy inputs. One input effect is recorded rather than hidden: on very large repositories a targeted tree now reads more manifests (kubernetes: 1 -> 24, 250 -> 1,212 dependencies), so the scores of those repositories can differ from 0.6 runs because more evidence was read, not because a rule changed; the coverage map and `retrieval` say how much was read. The fresh holdout of methodology 0.4 therefore remains valid for gate 5, and no new holdout is required. A new methodology would be required if a rule or weight started to depend on a 0.7 fact.
+

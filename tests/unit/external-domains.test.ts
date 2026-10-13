@@ -460,6 +460,16 @@ describe('external domains through the pipeline and the diff', () => {
     expect(d).toMatchObject({ kind: 'context_changed', significance: 'active' });
     expect(d?.before?.strongest_context).toBe('runtime');
     expect(d?.after?.strongest_context).toBe('install');
+    // and back: the install-time reference is gone, which is a risk DECREASE with its reason
+    const back = compareSnapshots(withHost, runtimeOnly);
+    expect(back.domains.find((x) => x.hostname === 'dl.vendor.io')?.after?.strongest_context).toBe(
+      'runtime',
+    );
+    expect(
+      back.risk.reasons.some(
+        (x) => x.direction === 'decrease' && /no longer referenced at install time/.test(x.text),
+      ),
+    ).toBe(true);
   });
 
   it('removal is inconclusive when the earlier scan may simply have missed the file', () => {

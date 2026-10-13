@@ -43,6 +43,10 @@ In a revision diff ([history.md](history.md)): `external_domain_introduced`, `ex
 
 Trust graph: `ExternalDomain` nodes and `CONNECTS_TO` edges (meaning "a file refers to this host", with the confidence, evidence `domain:<host>` + `file:line`, and for a diff `introduced_at` / `removed_at` from the head commit date, never the analysis time).
 
+## A real revision pair
+
+`lovell/sharp` v0.32.6 -> v0.33.0 (`calibration/results/domain-history-probe-sharp-0.32.6-0.33.0.json`, comparable, nothing tuned): the install step stopped downloading prebuilt libvips from `github.com` and moved to optional npm packages. The diff reports `github.com` as `context_changed` from `install` to `release` (passive: the move is out of an active install path into a release helper `npm/from-github-release.js`), a risk DECREASE reason "external host github.com is no longer referenced at install time", the execution path `npm install -> install/libvips.js ... => install/check.js ...`, two passive removals (a test-only and a comment-only host), and one active introduction: `www.apache.org` referenced in release context at `npm/from-github-release.js:31` - an observation that is accurate (a reference in code) and, as the report says, not a connection and not an indicator by itself. This was the only real pair tried, and it is not a case of a new install-time host; no such real pair was found, so the introduction path is exercised by the labeled synthetic revision pairs instead (`calibration/domains-synthetic.json`) rather than by a weak real-world claim.
+
 ## Safety of the extractor
 
 Every line is cut at 2,000 characters before any regex runs; patterns have bounded repetition (URL: 1-300 characters); at most 80 references per file, 3,000 observations and 600 distinct hosts per run, 300 reported; a test feeds 200 KB URL literals, 500 KB lines and 5,000-label hosts. A host is never requested.

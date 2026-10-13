@@ -1,0 +1,1381 @@
+{
+  "from": {
+    "repository": "lovell/sharp",
+    "requested_ref": "v0.32.6",
+    "commit": "eefaa998725cf345227d94b40615e090495c6d09",
+    "commit_date": "2023-09-18T19:33:39Z",
+    "tool_version": "0.7.0",
+    "schema_version": "0.7",
+    "methodology": "0.4",
+    "rules_digest": "9d4d2b08538b35e088411c9e4515a61d66294b21a47d74192fa1456f3cb0e83e",
+    "config_digest": "7ef5751eb197685b26430f6e5056de3f461220453b06135da47e2c7e306775e5",
+    "http_requests": 56,
+    "blob_reused": 0,
+    "ms": 3416
+  },
+  "to": {
+    "repository": "lovell/sharp",
+    "requested_ref": "v0.33.0",
+    "commit": "545e09fad2e10eb9d21c03fe4ad73196e36ffc98",
+    "commit_date": "2023-11-29T11:55:31Z",
+    "tool_version": "0.7.0",
+    "schema_version": "0.7",
+    "methodology": "0.4",
+    "rules_digest": "9d4d2b08538b35e088411c9e4515a61d66294b21a47d74192fa1456f3cb0e83e",
+    "config_digest": "7ef5751eb197685b26430f6e5056de3f461220453b06135da47e2c7e306775e5",
+    "http_requests": 49,
+    "blob_reused": 10,
+    "ms": 3775
+  },
+  "diff": {
+    "from": {
+      "repository": "lovell/sharp",
+      "commit": "eefaa998725cf345227d94b40615e090495c6d09",
+      "tool_version": "0.7.0",
+      "schema_version": "0.7",
+      "methodology": "0.4",
+      "rules_digest": "9d4d2b08538b35e088411c9e4515a61d66294b21a47d74192fa1456f3cb0e83e",
+      "generated_at": "2026-10-13T15:53:00.199Z"
+    },
+    "to": {
+      "repository": "lovell/sharp",
+      "commit": "545e09fad2e10eb9d21c03fe4ad73196e36ffc98",
+      "tool_version": "0.7.0",
+      "schema_version": "0.7",
+      "methodology": "0.4",
+      "rules_digest": "9d4d2b08538b35e088411c9e4515a61d66294b21a47d74192fa1456f3cb0e83e",
+      "generated_at": "2026-10-13T15:53:03.974Z"
+    },
+    "caveats": [],
+    "changes": [
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-darwin-arm64",
+        "after": "0.33.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-darwin-x64",
+        "after": "0.33.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-libvips-darwin-arm64",
+        "after": "1.0.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-libvips-darwin-x64",
+        "after": "1.0.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-libvips-linux-arm",
+        "after": "1.0.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-libvips-linux-arm64",
+        "after": "1.0.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-libvips-linux-s390x",
+        "after": "1.0.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-libvips-linux-x64",
+        "after": "1.0.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-libvips-linuxmusl-arm64",
+        "after": "1.0.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-libvips-linuxmusl-x64",
+        "after": "1.0.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-linux-arm",
+        "after": "0.33.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-linux-arm64",
+        "after": "0.33.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-linux-s390x",
+        "after": "0.33.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-linux-x64",
+        "after": "0.33.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-linuxmusl-arm64",
+        "after": "0.33.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-linuxmusl-x64",
+        "after": "0.33.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-wasm32",
+        "after": "0.33.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-win32-ia32",
+        "after": "0.33.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-win32-x64",
+        "after": "0.33.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@emnapi/runtime",
+        "after": "range ^0.44.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-libvips-dev",
+        "after": "1.0.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-libvips-dev-wasm32",
+        "after": "1.0.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-libvips-win32-ia32",
+        "after": "1.0.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:@img/sharp-libvips-win32-x64",
+        "after": "1.0.0"
+      },
+      {
+        "category": "dependency_added",
+        "subject": "npm:emnapi",
+        "after": "range ^0.44.0"
+      },
+      {
+        "category": "dependency_removed",
+        "subject": "npm:prebuild-install",
+        "before": "range ^7.1.1"
+      },
+      {
+        "category": "dependency_removed",
+        "subject": "npm:simple-get",
+        "before": "range ^4.0.1"
+      },
+      {
+        "category": "dependency_removed",
+        "subject": "npm:tunnel-agent",
+        "before": "range ^0.6.0"
+      },
+      {
+        "category": "dependency_removed",
+        "subject": "npm:mock-fs",
+        "before": "range ^5.2.0"
+      },
+      {
+        "category": "dependency_removed",
+        "subject": "npm:@squoosh/cli",
+        "before": "0.7.3"
+      },
+      {
+        "category": "dependency_removed",
+        "subject": "npm:@squoosh/lib",
+        "before": "0.5.3"
+      },
+      {
+        "category": "dependency_removed",
+        "subject": "npm:benchmark",
+        "before": "2.1.4"
+      },
+      {
+        "category": "dependency_removed",
+        "subject": "npm:gm",
+        "before": "1.25.0"
+      },
+      {
+        "category": "dependency_removed",
+        "subject": "npm:imagemagick",
+        "before": "0.1.3"
+      },
+      {
+        "category": "dependency_removed",
+        "subject": "npm:jimp",
+        "before": "0.22.10"
+      },
+      {
+        "category": "dependency_removed",
+        "subject": "npm:@tensorflow/tfjs-node",
+        "before": "4.9.0"
+      },
+      {
+        "category": "dependency_removed",
+        "subject": "npm:mapnik",
+        "before": "4.5.9"
+      },
+      {
+        "category": "dependency_version_changed",
+        "subject": "npm:async",
+        "before": "3.2.4",
+        "after": "range ^3.2.5"
+      },
+      {
+        "category": "dependency_version_changed",
+        "subject": "npm:exif-reader",
+        "before": "range ^1.2.0",
+        "after": "range ^2.0.0"
+      },
+      {
+        "category": "dependency_version_changed",
+        "subject": "npm:node-addon-api",
+        "before": "range ^6.1.0",
+        "after": "range ^7.0.0"
+      },
+      {
+        "category": "dependency_version_changed",
+        "subject": "npm:prebuild",
+        "before": "range ^12.0.0",
+        "after": "range ^12.1.0"
+      },
+      {
+        "category": "dependency_version_changed",
+        "subject": "npm:semistandard",
+        "before": "range ^16.0.1",
+        "after": "range ^17.0.0"
+      },
+      {
+        "category": "capability_removed",
+        "subject": "FILESYSTEM_DELETE",
+        "before": "risk high"
+      },
+      {
+        "category": "finding_added",
+        "subject": "dependency: 20 direct dependencies have no exact version in this revision",
+        "after": "info"
+      },
+      {
+        "category": "finding_removed",
+        "subject": "capability: High-risk capability observed: FILESYSTEM_DELETE",
+        "before": "high"
+      },
+      {
+        "category": "finding_removed",
+        "subject": "dependency: 22 direct dependencies have no exact version in this revision",
+        "before": "info"
+      },
+      {
+        "category": "score_changed",
+        "subject": "semantic-clarity",
+        "before": "98.2",
+        "after": "96.9"
+      },
+      {
+        "category": "score_changed",
+        "subject": "overall",
+        "before": "78.6",
+        "after": "78.4"
+      }
+    ],
+    "summary": {
+      "dependency_added": 25,
+      "dependency_removed": 12,
+      "dependency_version_changed": 5,
+      "capability_removed": 1,
+      "finding_added": 1,
+      "finding_removed": 2,
+      "score_changed": 2
+    },
+    "comparability": {
+      "level": "comparable",
+      "score_deltas_meaningful": true,
+      "reasons": []
+    },
+    "identity": [
+      {
+        "field": "packaging",
+        "before": "single_package",
+        "after": "monorepo"
+      },
+      {
+        "field": "secondary_roles",
+        "before": "(none)",
+        "after": "workspace_root"
+      }
+    ],
+    "dependencies": [
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-darwin-arm64",
+        "after": {
+          "spec": "0.33.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "0.33.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0004"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-darwin-x64",
+        "after": {
+          "spec": "0.33.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "0.33.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0005"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-libvips-darwin-arm64",
+        "after": {
+          "spec": "1.0.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "1.0.0",
+          "version_source": "manifest_pin",
+          "file": "npm/darwin-arm64/package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0044"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-libvips-darwin-x64",
+        "after": {
+          "spec": "1.0.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "1.0.0",
+          "version_source": "manifest_pin",
+          "file": "npm/darwin-x64/package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0045"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-libvips-linux-arm",
+        "after": {
+          "spec": "1.0.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "1.0.0",
+          "version_source": "manifest_pin",
+          "file": "npm/linux-arm/package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0046"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-libvips-linux-arm64",
+        "after": {
+          "spec": "1.0.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "1.0.0",
+          "version_source": "manifest_pin",
+          "file": "npm/linux-arm64/package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0047"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-libvips-linux-s390x",
+        "after": {
+          "spec": "1.0.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "1.0.0",
+          "version_source": "manifest_pin",
+          "file": "npm/linux-s390x/package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0048"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-libvips-linux-x64",
+        "after": {
+          "spec": "1.0.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "1.0.0",
+          "version_source": "manifest_pin",
+          "file": "npm/linux-x64/package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0049"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-libvips-linuxmusl-arm64",
+        "after": {
+          "spec": "1.0.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "1.0.0",
+          "version_source": "manifest_pin",
+          "file": "npm/linuxmusl-arm64/package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0050"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-libvips-linuxmusl-x64",
+        "after": {
+          "spec": "1.0.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "1.0.0",
+          "version_source": "manifest_pin",
+          "file": "npm/linuxmusl-x64/package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0051"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-linux-arm",
+        "after": {
+          "spec": "0.33.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "0.33.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0014"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-linux-arm64",
+        "after": {
+          "spec": "0.33.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "0.33.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0015"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-linux-s390x",
+        "after": {
+          "spec": "0.33.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "0.33.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0016"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-linux-x64",
+        "after": {
+          "spec": "0.33.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "0.33.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0017"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-linuxmusl-arm64",
+        "after": {
+          "spec": "0.33.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "0.33.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0018"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-linuxmusl-x64",
+        "after": {
+          "spec": "0.33.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "0.33.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0019"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-wasm32",
+        "after": {
+          "spec": "0.33.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "0.33.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0020"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-win32-ia32",
+        "after": {
+          "spec": "0.33.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "0.33.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0021"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-win32-x64",
+        "after": {
+          "spec": "0.33.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "0.33.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "optional"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0022"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@emnapi/runtime",
+        "after": {
+          "spec": "^0.44.0",
+          "spec_kind": "range",
+          "resolution": "unresolved",
+          "version": null,
+          "version_source": null,
+          "file": "package.json",
+          "direct": true,
+          "relationship": "development"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0023"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-libvips-dev",
+        "after": {
+          "spec": "1.0.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "1.0.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "development"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0024"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-libvips-dev-wasm32",
+        "after": {
+          "spec": "1.0.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "1.0.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "development"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0025"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-libvips-win32-ia32",
+        "after": {
+          "spec": "1.0.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "1.0.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "development"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0026"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:@img/sharp-libvips-win32-x64",
+        "after": {
+          "spec": "1.0.0",
+          "spec_kind": "exact",
+          "resolution": "resolved",
+          "version": "1.0.0",
+          "version_source": "manifest_pin",
+          "file": "package.json",
+          "direct": true,
+          "relationship": "development"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0027"
+        ]
+      },
+      {
+        "kind": "added",
+        "package": "npm:emnapi",
+        "after": {
+          "spec": "^0.44.0",
+          "spec_kind": "range",
+          "resolution": "unresolved",
+          "version": null,
+          "version_source": null,
+          "file": "package.json",
+          "direct": true,
+          "relationship": "development"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0031"
+        ]
+      },
+      {
+        "kind": "removed",
+        "package": "npm:prebuild-install",
+        "before": {
+          "spec": "^7.1.1",
+          "spec_kind": "range",
+          "resolution": "unresolved",
+          "version": null,
+          "version_source": null,
+          "file": "package.json",
+          "direct": true,
+          "relationship": "runtime"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0004"
+        ]
+      },
+      {
+        "kind": "removed",
+        "package": "npm:simple-get",
+        "before": {
+          "spec": "^4.0.1",
+          "spec_kind": "range",
+          "resolution": "unresolved",
+          "version": null,
+          "version_source": null,
+          "file": "package.json",
+          "direct": true,
+          "relationship": "runtime"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0006"
+        ]
+      },
+      {
+        "kind": "removed",
+        "package": "npm:tunnel-agent",
+        "before": {
+          "spec": "^0.6.0",
+          "spec_kind": "range",
+          "resolution": "unresolved",
+          "version": null,
+          "version_source": null,
+          "file": "package.json",
+          "direct": true,
+          "relationship": "runtime"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0008"
+        ]
+      },
+      {
+        "kind": "removed",
+        "package": "npm:mock-fs",
+        "before": {
+          "spec": "^5.2.0",
+          "spec_kind": "range",
+          "resolution": "unresolved",
+          "version": null,
+          "version_source": null,
+          "file": "package.json",
+          "direct": true,
+          "relationship": "development"
+        },
+        "certainty": "observed",
+        "evidence_ids": [
+          "DEP-0018"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "capability": "BACKGROUND_PROCESS",
+        "change": "unchanged",
+        "before": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "after": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "BINARY_EXECUTION",
+        "change": "unchanged",
+        "before": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "after": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "BROWSER_DATA_ACCESS",
+        "change": "unchanged",
+        "before": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "after": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "CREDENTIAL_ACCESS",
+        "change": "unchanged",
+        "before": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "after": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "DYNAMIC_CODE_LOAD",
+        "change": "unchanged",
+        "before": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "after": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "ENVIRONMENT_READ",
+        "change": "context_changed",
+        "before": {
+          "observed": true,
+          "risk": "low",
+          "contexts": [
+            "install"
+          ]
+        },
+        "after": {
+          "observed": true,
+          "risk": "low",
+          "contexts": [
+            "install",
+            "runtime"
+          ]
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "FILESYSTEM_DELETE",
+        "change": "removed",
+        "before": {
+          "observed": true,
+          "risk": "high",
+          "contexts": [
+            "install"
+          ]
+        },
+        "after": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "FILESYSTEM_WRITE",
+        "change": "unchanged",
+        "before": {
+          "observed": true,
+          "risk": "low",
+          "contexts": [
+            "install",
+            "runtime"
+          ]
+        },
+        "after": {
+          "observed": true,
+          "risk": "low",
+          "contexts": [
+            "install",
+            "runtime"
+          ]
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "NETWORK_CLIENT",
+        "change": "unchanged",
+        "before": {
+          "observed": true,
+          "risk": "low",
+          "contexts": [
+            "runtime"
+          ]
+        },
+        "after": {
+          "observed": true,
+          "risk": "low",
+          "contexts": [
+            "runtime"
+          ]
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "NETWORK_SERVER",
+        "change": "unchanged",
+        "before": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "after": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "PERSISTENCE",
+        "change": "unchanged",
+        "before": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "after": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "PRIVILEGE_CHANGE",
+        "change": "unchanged",
+        "before": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "after": {
+          "observed": false,
+          "risk": "none",
+          "contexts": []
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "PROCESS_EXEC",
+        "change": "unchanged",
+        "before": {
+          "observed": true,
+          "risk": "high",
+          "contexts": [
+            "install"
+          ]
+        },
+        "after": {
+          "observed": true,
+          "risk": "high",
+          "contexts": [
+            "install"
+          ]
+        },
+        "certainty": "observed"
+      },
+      {
+        "capability": "REMOTE_DOWNLOAD",
+        "change": "unchanged",
+        "before": {
+          "observed": true,
+          "risk": "medium",
+          "contexts": [
+            "runtime"
+          ]
+        },
+        "after": {
+          "observed": true,
+          "risk": "medium",
+          "contexts": [
+            "runtime"
+          ]
+        },
+        "certainty": "observed"
+      }
+    ],
+    "execution": [
+      {
+        "change": "changed",
+        "path": "npm install -> install/libvips.js, lib/agent.js, lib/is.js  =>  npm install -> install/check.js, lib/libvips.js, package.json",
+        "certainty": "observed",
+        "hook": "npm:install",
+        "for_dependents": true,
+        "risk": "medium",
+        "evidence_ids": [
+          "HOOK-1"
+        ]
+      }
+    ],
+    "findings": [
+      {
+        "change": "removed",
+        "id": "RR-CAP-002",
+        "title": "High-risk capability observed: FILESYSTEM_DELETE",
+        "severity": "high",
+        "dimension": "security",
+        "category": "capability",
+        "evidence_ids": [
+          "CAP-0007",
+          "CAP-0009",
+          "CAP-0015"
+        ],
+        "certainty": "observed"
+      },
+      {
+        "change": "added",
+        "id": "RR-DEP-001",
+        "title": "20 direct dependencies have no exact version in this revision",
+        "severity": "info",
+        "dimension": "supply-chain",
+        "category": "dependency",
+        "evidence_ids": [
+          "DEP-0001",
+          "DEP-0002",
+          "DEP-0003",
+          "DEP-0023",
+          "DEP-0028",
+          "DEP-0029",
+          "DEP-0030",
+          "DEP-0031",
+          "DEP-0032",
+          "DEP-0033"
+        ],
+        "certainty": "observed"
+      },
+      {
+        "change": "removed",
+        "id": "RR-DEP-001",
+        "title": "22 direct dependencies have no exact version in this revision",
+        "severity": "info",
+        "dimension": "supply-chain",
+        "category": "dependency",
+        "evidence_ids": [
+          "DEP-0001",
+          "DEP-0002",
+          "DEP-0003",
+          "DEP-0004",
+          "DEP-0005",
+          "DEP-0006",
+          "DEP-0007",
+          "DEP-0008",
+          "DEP-0009",
+          "DEP-0010"
+        ],
+        "certainty": "observed"
+      }
+    ],
+    "policy": {
+      "block_violations_added": [],
+      "block_violations_removed": [],
+      "violations_added": [],
+      "violations_removed": [],
+      "enforced": {
+        "before": false,
+        "after": false
+      }
+    },
+    "compliance": [],
+    "risk": {
+      "comparable": true,
+      "overall": {
+        "before": 78.6,
+        "after": 78.4,
+        "delta": -0.2
+      },
+      "dimensions": [
+        {
+          "dimension": "code-quality",
+          "before": 87.6,
+          "after": 87.6,
+          "delta": 0
+        },
+        {
+          "dimension": "community",
+          "before": 73,
+          "after": 73,
+          "delta": 0
+        },
+        {
+          "dimension": "documentation",
+          "before": 86.3,
+          "after": 86.3,
+          "delta": 0
+        },
+        {
+          "dimension": "maintenance",
+          "before": 73.7,
+          "after": 73.7,
+          "delta": 0
+        },
+        {
+          "dimension": "security",
+          "before": 94.2,
+          "after": 94.2,
+          "delta": 0
+        },
+        {
+          "dimension": "semantic-clarity",
+          "before": 98.2,
+          "after": 96.9,
+          "delta": -1.3
+        },
+        {
+          "dimension": "supply-chain",
+          "before": 37.3,
+          "after": 37.3,
+          "delta": 0
+        }
+      ],
+      "reasons": [
+        {
+          "direction": "decrease",
+          "text": "capability FILESYSTEM_DELETE no longer observed",
+          "traces": [
+            "capability:removed"
+          ]
+        },
+        {
+          "direction": "decrease",
+          "text": "high finding gone: High-risk capability observed: FILESYSTEM_DELETE",
+          "traces": [
+            "finding:removed",
+            "RR-CAP-002"
+          ]
+        },
+        {
+          "direction": "increase",
+          "text": "new external host www.apache.org referenced in release context",
+          "traces": [
+            "domain:introduced",
+            "domain:www.apache.org"
+          ]
+        },
+        {
+          "direction": "decrease",
+          "text": "external host github.com is no longer referenced at install time",
+          "traces": [
+            "domain:context_changed",
+            "domain:github.com"
+          ]
+        }
+      ]
+    },
+    "domains": [
+      {
+        "kind": "introduced",
+        "hostname": "www.apache.org",
+        "category": "generic_external",
+        "before": null,
+        "after": {
+          "strongest_context": "release",
+          "contexts": [
+            "release"
+          ]
+        },
+        "significance": "active",
+        "confidence": 0.65,
+        "certainty": "observed",
+        "evidence_ids": [
+          "domain:www.apache.org"
+        ]
+      },
+      {
+        "kind": "context_changed",
+        "hostname": "github.com",
+        "category": "github",
+        "before": {
+          "strongest_context": "install",
+          "contexts": [
+            "install",
+            "metadata",
+            "comment"
+          ]
+        },
+        "after": {
+          "strongest_context": "release",
+          "contexts": [
+            "release",
+            "metadata",
+            "comment"
+          ]
+        },
+        "significance": "passive",
+        "confidence": 0.65,
+        "certainty": "observed",
+        "evidence_ids": [
+          "domain:github.com"
+        ]
+      },
+      {
+        "kind": "removed",
+        "hostname": "research.microsoft.com",
+        "category": "generic_external",
+        "before": {
+          "strongest_context": "test",
+          "contexts": [
+            "test",
+            "comment"
+          ]
+        },
+        "after": null,
+        "significance": "passive",
+        "confidence": 0.2,
+        "certainty": "observed",
+        "evidence_ids": [
+          "domain:research.microsoft.com"
+        ]
+      },
+      {
+        "kind": "removed",
+        "hostname": "www.vips.ecs.soton.ac.uk",
+        "category": "generic_external",
+        "before": {
+          "strongest_context": "comment",
+          "contexts": [
+            "comment"
+          ]
+        },
+        "after": null,
+        "significance": "passive",
+        "confidence": 0.1,
+        "certainty": "observed",
+        "evidence_ids": [
+          "domain:www.vips.ecs.soton.ac.uk"
+        ]
+      }
+    ],
+    "provenance": [],
+    "governance": {
+      "new_signals": [],
+      "resolved_signals": [],
+      "takeover_indicators_before": false,
+      "takeover_indicators_after": false,
+      "combined_sequence": null,
+      "note": "Governance signals are computed from the commit window ending at each revision. Release authors and the contributor list reflect the CURRENT state of the repository, not the revision, so they are not compared here."
+    },
+    "timeline": {
+      "version": "1",
+      "events": [
+        {
+          "id": "x",
+          "type": "external_domain_introduced",
+          "at": "2023-11-29T11:55:31Z",
+          "subject": "www.apache.org",
+          "source": "analysis_diff",
+          "detail": "external host www.apache.org introduced (generic_external, context release)",
+          "confidence": 0.65,
+          "evidence": [
+            "domain:www.apache.org"
+          ]
+        }
+      ],
+      "events_total": 1,
+      "correlations": [],
+      "not_available": [
+        "external_domain_* events need a revision comparison (diff): one analysis has no introduction time",
+        "maintainer_change / ownership_change: current-state only; per-version maintainers exist for npm dependencies",
+        "dependency domains: dependency tarballs are never fetched, so they are not observed"
+      ]
+    }
+  },
+  "cost": {
+    "total_requests": 105,
+    "total_ms": 7191,
+    "blobs_reused": 10
+  },
+  "history_policy": {
+    "profile": "default",
+    "enforced": false,
+    "violations": []
+  }
+}
