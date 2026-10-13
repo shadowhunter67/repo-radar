@@ -224,6 +224,11 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
         if (v === 'slow') throw new Error('The operation was aborted due to timeout');
         if (v === 'html')
           return new Response('<html>', { status: 200, headers: { 'content-type': 'text/html' } });
+        if (v === 'big')
+          return new Response('{}', {
+            status: 200,
+            headers: { 'content-type': 'application/json', 'content-length': '99000000' },
+          });
         if (v === 'broken')
           return new Response('{not json', {
             status: 200,

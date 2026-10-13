@@ -8,13 +8,14 @@ import { FactSchema } from '../facts/index.js';
 import { SemanticIdentitySchema } from '../identity/types.js';
 import { IdentityV2Schema } from '../identity/v2.js';
 import { TimelineSchema } from '../events/model.js';
+import { DependencyRegistryIntelSchema } from '../registry/dependency-model.js';
 import { RegistryIntelSchema } from '../registry/model.js';
 import { GovernanceSchema } from '../governance/temporal.js';
 import { ReleaseIntelSchema } from '../release/model.js';
 import { CoverageMapSchema, TreeRetrievalSchema } from './coverage.js';
 import { DIMENSIONS } from '../scoring/types.js';
 
-export const REPORT_SCHEMA_VERSION = '0.6';
+export const REPORT_SCHEMA_VERSION = '0.7';
 
 const SufficiencySchema = z.enum(['sufficient', 'low', 'insufficient']);
 
@@ -157,6 +158,8 @@ export const ReportSchema = z.object({
   release_intel: ReleaseIntelSchema,
   /** Registry package intelligence (npm, PyPI, crates.io) for the packages this repository publishes. */
   registry_intel: RegistryIntelSchema,
+  /** Registry history of the DEPENDENCIES (priority, budget, coverage, publisher / maintainer / repository events). Schema 0.7. */
+  dependency_registry_intel: DependencyRegistryIntelSchema,
   /** Unified temporal events (git, releases, registry) and the patterns they form. Indicators only. */
   timeline: TimelineSchema,
   /** Temporal governance signals (committer / release-author changes, dormancy). Descriptive; intent undetermined. */

@@ -11,7 +11,7 @@ import { evaluateHistoryBlocks } from './scoring/policy.js';
 import { listProfiles, loadProfile, UnknownProfileError } from './profiles/load.js';
 import { compareRevisions, compareSnapshots, renderHistoricalText } from './history/index.js';
 import { renderDiffText } from './report/diff.js';
-import { ReportSchema } from './report/schema.js';
+import { REPORT_SCHEMA_VERSION, ReportSchema } from './report/schema.js';
 import { renderText } from './report/text.js';
 import { parseMinimums } from './scoring/policy.js';
 import { loadRuleSet } from './scoring/rules.js';
@@ -290,7 +290,7 @@ export async function main(
         const parsed = ReportSchema.safeParse(readJson(rest[0] as string));
         if (!parsed.success) {
           stderr(
-            'error: model needs a report of the current schema version (0.6); re-run the analysis\n',
+            `error: model needs a report of the current schema version (${REPORT_SCHEMA_VERSION}); re-run the analysis\n`,
           );
           return EXIT.USAGE;
         }

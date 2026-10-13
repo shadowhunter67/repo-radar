@@ -405,7 +405,7 @@ describe('end to end: publisher change near a release in a real analysis', () =>
     const r = await run(s);
     expect(r.timeline.events.some((e) => e.type === 'new_publisher')).toBe(true);
     expect(r.timeline.events.some((e) => e.type === 'release')).toBe(true);
-    expect(r.timeline.not_available.join(' ')).toMatch(/external_domain_introduced/);
+    expect(r.timeline.not_available.join(' ')).toMatch(/external_domain_/);
     for (const c of r.timeline.correlations) expect(c.statement).toMatch(/undetermined/);
   });
 });

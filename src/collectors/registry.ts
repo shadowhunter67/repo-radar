@@ -1,5 +1,5 @@
 import type { Clock } from '../evidence/builder.js';
-import { failedPackage, parseCrates, parseNpm, parsePypi } from '../registry/parse.js';
+import { failedPackage, parseCrates, parseNpm, parsePypi, type Common } from '../registry/parse.js';
 import type { RegistryId, RegistryIntel, RegistryPackage } from '../registry/model.js';
 import { registrySignals } from '../registry/signals.js';
 import type { HttpClient } from '../util/http.js';
@@ -53,7 +53,7 @@ export function declaredPackages(
   return out.slice(0, REGISTRY_LIMITS.maxPackages);
 }
 
-function statusOf(e: unknown): { status: RegistryPackage['status']; detail: string } {
+export function statusOf(e: unknown): { status: RegistryPackage['status']; detail: string } {
   if (e instanceof RateLimitError)
     return { status: 'rate_limited', detail: 'registry rate limit reached' };
   if (e instanceof TooLargeError)
@@ -70,6 +70,74 @@ function statusOf(e: unknown): { status: RegistryPackage['status']; detail: stri
   return {
     status: 'unavailable',
     detail: (e instanceof Error ? e.message : 'failed').replace(/[^\x20-\x7e]/g, '?').slice(0, 120),
+  };
+}
+
+export type RegistryGet = (url: string, maxBytes: number) => Promise<{ body: unknown }>;
+
+/**
+ * One package lookup (own packages and dependencies share it). Never throws: every failure becomes a package with a failed
+ * status, which downstream code reads as "unknown", never as clean.
+ */
+export async function fetchRegistryPackage(
+  registry: RegistryId,
+  c: Common,
+  get: RegistryGet,
+): Promise<{ pkg: RegistryPackage; failure?: string }> {
+  try {
+    if (registry === 'npm') {
+      const { body } = await get(
+        `https://registry.npmjs.org/${c.name.replace('/', '%2F')}`,
+        REGISTRY_LIMITS.npmMaxBytes,
+      );
+      return { pkg: parseNpm(body, c) };
+    }
+    if (registry === 'pypi') {
+      const { body } = await get(
+        `https://pypi.org/pypi/${encodeURIComponent(c.name)}/json`,
+        REGISTRY_LIMITS.jsonMaxBytes,
+      );
+      return { pkg: parsePypi(body, c) };
+    }
+    const { body } = await get(
+      `https://crates.io/api/v1/crates/${encodeURIComponent(c.name)}`,
+      REGISTRY_LIMITS.jsonMaxBytes,
+    );
+    let owners: unknown;
+    try {
+      owners = (
+        await get(
+          `https://crates.io/api/v1/crates/${encodeURIComponent(c.name)}/owners`,
+          REGISTRY_LIMITS.jsonMaxBytes,
+        )
+      ).body;
+    } catch {
+      owners = undefined; // owners are optional: the package stays `ok` and says owners were not read
+    }
+    return { pkg: parseCrates(body, owners, c) };
+  } catch (e) {
+    const s =
+      e instanceof SyntaxError
+        ? { status: 'malformed' as const, detail: 'response is not valid JSON' }
+        : statusOf(e);
+    return { pkg: failedPackage(registry, c, s.status, s.detail), failure: s.status };
+  }
+}
+
+/** Build the guarded `get` used by both collectors: content-type check, JSON parse, status check. */
+export function makeRegistryGet(
+  http: HttpClient,
+  guard: (url: string) => void,
+  onBody?: (bytes: number) => void,
+): RegistryGet {
+  return async (url, maxBytes) => {
+    guard(url);
+    const r = await http.request(url, { headers: { Accept: 'application/json' }, maxBytes });
+    onBody?.(r.body.length);
+    if (r.status !== 200) throw new HttpError(`HTTP ${r.status}`, r.status, url);
+    const ct = r.headers.get('content-type') ?? '';
+    if (ct && !/json/i.test(ct)) throw new SyntaxError('unexpected content type');
+    return { body: JSON.parse(r.body) as unknown };
   };
 }
 
@@ -93,61 +161,18 @@ export async function collectRegistry(opts: {
   const observedAt = opts.clock.now().toISOString();
   const limits: string[] = [];
   let requests = 0;
-  const get = async (
-    url: string,
-    maxBytes: number,
-  ): Promise<{ body: unknown; truncatedFallback?: boolean }> => {
+  const get = makeRegistryGet(opts.http, (url) => {
     if (requests >= REGISTRY_LIMITS.maxRequests)
       throw new HttpError('registry request budget reached', 0, url);
     requests++;
-    const r = await opts.http.request(url, { headers: { Accept: 'application/json' }, maxBytes });
-    if (r.status !== 200) throw new HttpError(`HTTP ${r.status}`, r.status, url);
-    const ct = r.headers.get('content-type') ?? '';
-    if (ct && !/json/i.test(ct)) throw new SyntaxError('unexpected content type');
-    return { body: JSON.parse(r.body) as unknown };
-  };
+  });
   const packages: RegistryPackage[] = [];
   for (const w of wanted) {
     const c = { name: w.name, declaredBy: w.declaredBy, analyzed: opts.analyzed, observedAt };
-    try {
-      if (w.registry === 'npm') {
-        const { body } = await get(
-          `https://registry.npmjs.org/${w.name.replace('/', '%2F')}`,
-          REGISTRY_LIMITS.npmMaxBytes,
-        );
-        packages.push(parseNpm(body, c));
-      } else if (w.registry === 'pypi') {
-        const { body } = await get(
-          `https://pypi.org/pypi/${encodeURIComponent(w.name)}/json`,
-          REGISTRY_LIMITS.jsonMaxBytes,
-        );
-        packages.push(parsePypi(body, c));
-      } else {
-        const { body } = await get(
-          `https://crates.io/api/v1/crates/${encodeURIComponent(w.name)}`,
-          REGISTRY_LIMITS.jsonMaxBytes,
-        );
-        let owners: unknown;
-        try {
-          owners = (
-            await get(
-              `https://crates.io/api/v1/crates/${encodeURIComponent(w.name)}/owners`,
-              REGISTRY_LIMITS.jsonMaxBytes,
-            )
-          ).body;
-        } catch {
-          owners = undefined; // owners are optional: the package stays `ok` and says owners were not read
-        }
-        packages.push(parseCrates(body, owners, c));
-      }
-    } catch (e) {
-      const s =
-        e instanceof SyntaxError
-          ? { status: 'malformed' as const, detail: 'response is not valid JSON' }
-          : statusOf(e);
-      opts.note('registry_lookup_failed', `${w.registry}:${w.name.slice(0, 60)}: ${s.status}`);
-      packages.push(failedPackage(w.registry, c, s.status, s.detail));
-    }
+    const r = await fetchRegistryPackage(w.registry, c, get);
+    if (r.failure)
+      opts.note('registry_lookup_failed', `${w.registry}:${w.name.slice(0, 60)}: ${r.failure}`);
+    packages.push(r.pkg);
   }
   const signals = packages.flatMap((p) => registrySignals(p)).slice(0, 60);
   return { version: '1', status: 'analyzed', packages, signals, requests, limits_hit: limits };

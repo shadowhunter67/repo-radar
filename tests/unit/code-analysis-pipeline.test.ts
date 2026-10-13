@@ -70,6 +70,8 @@ describe('installer-like repository (capabilities observed, intent undetermined)
       ...r.code_analysis.capabilities.detections.map((d) => d.id),
       ...r.dependency_intel.dependencies.map((d) => d.id),
       ...r.registry_intel.packages.map((p) => `registry:${p.registry}:${p.name}`),
+      ...r.dependency_registry_intel.packages.map((p) => `depregistry:${p.registry}:${p.name}`),
+      ...r.dependency_registry_intel.events.map((e) => e.id),
       ...r.release_intel.releases.map((x) => `release:${x.tag}`),
       ...r.governance.signals.map((x) => x.id),
       ...r.dependency_intel.lockfiles.map((l) => l.path),
@@ -107,6 +109,8 @@ describe('installer-like repository (capabilities observed, intent undetermined)
       ...r.code_analysis.capabilities.detections.map((d) => d.id),
       ...r.dependency_intel.dependencies.map((d) => d.id),
       ...r.registry_intel.packages.map((p) => `registry:${p.registry}:${p.name}`),
+      ...r.dependency_registry_intel.packages.map((p) => `depregistry:${p.registry}:${p.name}`),
+      ...r.dependency_registry_intel.events.map((e) => e.id),
       ...r.release_intel.releases.map((x) => `release:${x.tag}`),
       ...r.governance.signals.map((x) => x.id),
       ...r.dependency_intel.lockfiles.map((l) => l.path),
@@ -256,7 +260,7 @@ describe('artifact classification and identity layers', () => {
 describe('report versioning and integrity', () => {
   it('records every component version and a verifiable tamper-evidence digest', async () => {
     const r = await run(goodRepo());
-    expect(r.schema_version).toBe('0.6');
+    expect(r.schema_version).toBe('0.7');
     expect(r.methodology).toMatchObject({
       version: '0.4',
       taxonomy_version: '0.2',

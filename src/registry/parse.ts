@@ -124,11 +124,46 @@ export function matchRepository(
   };
 }
 
-interface Common {
+export interface Common {
   name: string;
   declaredBy: string;
-  analyzed: { owner: string; repo: string };
+  /**
+   * The analyzed repository. Absent for DEPENDENCY lookups: the repository field then keeps what the registry declares and
+   * `unknown` correspondence, to be completed by `correspondDependency` from independent sources.
+   */
+  analyzed?: { owner: string; repo: string } | undefined;
   observedAt: string;
+  /** Versions kept (newest first). Default 40. */
+  capVersions?: number | undefined;
+}
+
+const capOf = (c: Common): number =>
+  Math.max(1, Math.min(c.capVersions ?? CAP_VERSIONS, CAP_VERSIONS));
+
+function repositoryBlock(
+  c: Common,
+  declared: string | null,
+  home: string | null,
+): RegistryPackage['repository'] {
+  if (c.analyzed) {
+    const mr = matchRepository(c.analyzed, declared, home);
+    return {
+      declared_url: declared ? declared.slice(0, 300) : null,
+      normalized: mr.normalized,
+      homepage_match: mr.homepageMatch,
+      homepage_normalized: home,
+      match: mr.match,
+      reason: mr.reason,
+    };
+  }
+  return {
+    declared_url: declared ? declared.slice(0, 300) : null,
+    normalized: normalizeRepoUrl(declared),
+    homepage_match: false,
+    homepage_normalized: home,
+    match: 'unknown',
+    reason: 'dependency: no analyzed repository to compare with; see correspondence',
+  };
 }
 
 const emptyBase = (registry: RegistryId, c: Common): RegistryPackage => ({
@@ -198,6 +233,9 @@ export function parseNpm(body: unknown, c: Common): RegistryPackage {
     const vo = obj(versions[v]);
     const dist = obj(vo['dist']);
     const att = obj(dist['attestations']);
+    const scripts = obj(vo['scripts']);
+    const vrepo = vo['repository'];
+    const vrepoUrl = typeof vrepo === 'string' ? vrepo : str(obj(vrepo)['url']);
     return {
       version: v.slice(0, 100),
       published_at: str(times[v], 40),
@@ -205,15 +243,29 @@ export function parseNpm(body: unknown, c: Common): RegistryPackage {
       yanked_or_deprecated: typeof vo['deprecated'] === 'string' && vo['deprecated'].length > 0,
       has_integrity: typeof dist['integrity'] === 'string' || typeof dist['shasum'] === 'string',
       has_provenance: Object.keys(att).length > 0,
+      repository: vrepoUrl
+        ? (normalizeRepoUrl(vrepoUrl) ?? vrepoUrl.trim().toLowerCase().slice(0, 120))
+        : null,
+      has_install_script:
+        vo['hasInstallScript'] === true ||
+        ['preinstall', 'install', 'postinstall'].some((k) => typeof scripts[k] === 'string'),
+      maintainers: dedupe(
+        arr(vo['maintainers']).flatMap((x) => {
+          const n = publisher(obj(x)['name']);
+          return n ? [n] : [];
+        }),
+      )
+        .names.map((n) => n.name)
+        .slice(0, 12),
     };
   });
   rows.sort(
     (a, b) => (Date.parse(b.published_at ?? '') || 0) - (Date.parse(a.published_at ?? '') || 0),
   );
   p.versions_total = rows.length;
-  p.versions = rows.slice(0, CAP_VERSIONS);
-  if (rows.length > CAP_VERSIONS)
-    p.limits.push(`only the newest ${CAP_VERSIONS} of ${rows.length} versions are kept`);
+  p.versions = rows.slice(0, capOf(c));
+  if (rows.length > capOf(c))
+    p.limits.push(`only the newest ${capOf(c)} of ${rows.length} versions are kept`);
   const m = dedupe(
     arr(j['maintainers']).flatMap((x) => {
       const n = publisher(obj(x)['name']);
@@ -229,14 +281,7 @@ export function parseNpm(body: unknown, c: Common): RegistryPackage {
     normalizeRepoUrl(
       obj(j['bugs'])['url'] && String(obj(j['bugs'])['url']).replace(/\/issues.*$/, ''),
     );
-  const mr = matchRepository(c.analyzed, declared, home);
-  p.repository = {
-    declared_url: declared ? declared.slice(0, 300) : null,
-    normalized: mr.normalized,
-    homepage_match: mr.homepageMatch,
-    match: mr.match,
-    reason: mr.reason,
-  };
+  p.repository = repositoryBlock(c, declared, home);
   const withProv = rows.filter((r) => r.has_provenance).length;
   p.provenance = { reported: withProv > 0 ? 'yes' : 'no', versions_with: withProv };
   if (rows.length === 0) {
@@ -274,9 +319,9 @@ export function parsePypi(body: unknown, c: Common): RegistryPackage {
     (a, b) => (Date.parse(b.published_at ?? '') || 0) - (Date.parse(a.published_at ?? '') || 0),
   );
   p.versions_total = rows.length;
-  p.versions = rows.slice(0, CAP_VERSIONS);
-  if (rows.length > CAP_VERSIONS)
-    p.limits.push(`only the newest ${CAP_VERSIONS} of ${rows.length} versions are kept`);
+  p.versions = rows.slice(0, capOf(c));
+  if (rows.length > capOf(c))
+    p.limits.push(`only the newest ${capOf(c)} of ${rows.length} versions are kept`);
   p.limits.push('PyPI exposes neither maintainers nor per-version publishers through this API');
   const urls = obj(info['project_urls']);
   const candidates = [
@@ -292,14 +337,7 @@ export function parsePypi(body: unknown, c: Common): RegistryPackage {
     .filter((x): x is string => !!x);
   const declared = candidates.find((u) => normalizeRepoUrl(u)) ?? candidates[0] ?? null;
   const home = normalizeRepoUrl(info['home_page']) ?? normalizeRepoUrl(urls['Homepage']);
-  const mr = matchRepository(c.analyzed, declared, home);
-  p.repository = {
-    declared_url: declared ? declared.slice(0, 300) : null,
-    normalized: mr.normalized,
-    homepage_match: mr.homepageMatch,
-    match: mr.match,
-    reason: mr.reason,
-  };
+  p.repository = repositoryBlock(c, declared, home);
   p.provenance = { reported: 'unknown', versions_with: 0 };
   p.limits.push('PyPI attestations are not read by this version');
   if (rows.length === 0) {
@@ -334,9 +372,9 @@ export function parseCrates(body: unknown, owners: unknown, c: Common): Registry
     (a, b) => (Date.parse(b.published_at ?? '') || 0) - (Date.parse(a.published_at ?? '') || 0),
   );
   p.versions_total = rows.length;
-  p.versions = rows.slice(0, CAP_VERSIONS);
-  if (rows.length > CAP_VERSIONS)
-    p.limits.push(`only the newest ${CAP_VERSIONS} of ${rows.length} versions are kept`);
+  p.versions = rows.slice(0, capOf(c));
+  if (rows.length > capOf(c))
+    p.limits.push(`only the newest ${capOf(c)} of ${rows.length} versions are kept`);
   const own = obj(owners);
   const list = arr(own['users']).flatMap((u) => {
     const n = publisher(obj(u)['login']);
@@ -347,14 +385,7 @@ export function parseCrates(body: unknown, owners: unknown, c: Common): Registry
   if (Object.keys(own).length === 0) p.limits.push('crate owners were not read');
   const declared = str(crate['repository']);
   const home = normalizeRepoUrl(crate['homepage']);
-  const mr = matchRepository(c.analyzed, declared, home);
-  p.repository = {
-    declared_url: declared ? declared.slice(0, 300) : null,
-    normalized: mr.normalized,
-    homepage_match: mr.homepageMatch,
-    match: mr.match,
-    reason: mr.reason,
-  };
+  p.repository = repositoryBlock(c, declared, home);
   p.provenance = { reported: 'unknown', versions_with: 0 };
   p.limits.push('crates.io trusted-publishing provenance is not read by this version');
   return p;

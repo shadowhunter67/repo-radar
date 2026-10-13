@@ -21,7 +21,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "0.6"
+      "const": "0.7"
     },
     "methodology": {
       "type": "object",
@@ -3391,6 +3391,17 @@
                   "homepage_match": {
                     "type": "boolean"
                   },
+                  "homepage_normalized": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "match": {
                     "type": "string",
                     "enum": [
@@ -3479,6 +3490,28 @@
                     },
                     "has_provenance": {
                       "type": "boolean"
+                    },
+                    "repository": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 120
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "has_install_script": {
+                      "type": "boolean"
+                    },
+                    "maintainers": {
+                      "maxItems": 12,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 100
+                      }
                     }
                   },
                   "required": [
@@ -3682,6 +3715,733 @@
       ],
       "additionalProperties": false
     },
+    "dependency_registry_intel": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "1"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "analyzed",
+            "no_dependencies",
+            "disabled"
+          ]
+        },
+        "budget": {
+          "type": "object",
+          "properties": {
+            "max_dependencies": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "max_requests": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "max_elapsed_ms": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "max_versions": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "max_bytes": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "max_dependencies",
+            "max_requests",
+            "max_elapsed_ms",
+            "max_versions",
+            "max_bytes"
+          ],
+          "additionalProperties": false
+        },
+        "coverage": {
+          "type": "object",
+          "properties": {
+            "eligible": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "queried": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "ok": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "failed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "skipped": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "direct_eligible": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "direct_queried": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "ratio": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "eligible",
+            "queried",
+            "ok",
+            "failed",
+            "skipped",
+            "direct_eligible",
+            "direct_queried",
+            "ratio"
+          ],
+          "additionalProperties": false
+        },
+        "skipped_counts": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "skipped": {
+          "maxItems": 40,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "registry": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "npm",
+                      "pypi",
+                      "crates.io"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "ecosystem": {
+                "type": "string",
+                "maxLength": 20
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 214
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "budget_dependencies",
+                  "budget_requests",
+                  "budget_time",
+                  "budget_bytes",
+                  "unsupported_ecosystem",
+                  "not_registry_source",
+                  "invalid_name"
+                ]
+              },
+              "priority": {
+                "type": "object",
+                "properties": {
+                  "score": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "reasons": {
+                    "maxItems": 12,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 80
+                    }
+                  }
+                },
+                "required": [
+                  "score",
+                  "reasons"
+                ],
+                "additionalProperties": false
+              },
+              "direct": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "string",
+                    "const": "unknown"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "registry",
+              "ecosystem",
+              "name",
+              "reason",
+              "priority",
+              "direct"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "packages": {
+          "maxItems": 100,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "registry": {
+                "type": "string",
+                "enum": [
+                  "npm",
+                  "pypi",
+                  "crates.io"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 214
+              },
+              "declared_by": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "partial",
+                  "not_found",
+                  "rate_limited",
+                  "timeout",
+                  "server_error",
+                  "malformed",
+                  "too_large",
+                  "unavailable"
+                ]
+              },
+              "status_detail": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "repository": {
+                "type": "object",
+                "properties": {
+                  "declared_url": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 300
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "normalized": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "homepage_match": {
+                    "type": "boolean"
+                  },
+                  "homepage_normalized": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "match": {
+                    "type": "string",
+                    "enum": [
+                      "confirmed",
+                      "likely",
+                      "conflicting",
+                      "missing",
+                      "unknown"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "declared_url",
+                  "normalized",
+                  "homepage_match",
+                  "match",
+                  "reason"
+                ],
+                "additionalProperties": false
+              },
+              "latest_version": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "versions_total": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "versions": {
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string",
+                      "maxLength": 100
+                    },
+                    "published_at": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "publisher": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "maxLength": 100
+                            },
+                            "suspicious": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "suspicious"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "yanked_or_deprecated": {
+                      "type": "boolean"
+                    },
+                    "has_integrity": {
+                      "type": "boolean"
+                    },
+                    "has_provenance": {
+                      "type": "boolean"
+                    },
+                    "repository": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 120
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "has_install_script": {
+                      "type": "boolean"
+                    },
+                    "maintainers": {
+                      "maxItems": 12,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 100
+                      }
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "published_at",
+                    "publisher",
+                    "yanked_or_deprecated",
+                    "has_integrity",
+                    "has_provenance"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "maintainers": {
+                "type": "object",
+                "properties": {
+                  "scope": {
+                    "type": "string",
+                    "const": "current_state"
+                  },
+                  "names": {
+                    "maxItems": 30,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "maxLength": 100
+                        },
+                        "suspicious": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "suspicious"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "duplicates": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "scope",
+                  "names",
+                  "duplicates"
+                ],
+                "additionalProperties": false
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "reported": {
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no",
+                      "unknown"
+                    ]
+                  },
+                  "versions_with": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "reported",
+                  "versions_with"
+                ],
+                "additionalProperties": false
+              },
+              "observed_at": {
+                "type": "string"
+              },
+              "limits": {
+                "maxItems": 6,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 200
+                }
+              },
+              "dependency_ids": {
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 160
+                }
+              },
+              "resolved_versions": {
+                "maxItems": 5,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 100
+                }
+              },
+              "priority": {
+                "type": "object",
+                "properties": {
+                  "score": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "reasons": {
+                    "maxItems": 12,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 80
+                    }
+                  }
+                },
+                "required": [
+                  "score",
+                  "reasons"
+                ],
+                "additionalProperties": false
+              },
+              "corroboration": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "deps.dev",
+                      "none"
+                    ]
+                  },
+                  "repositories": {
+                    "maxItems": 5,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 120
+                    }
+                  }
+                },
+                "required": [
+                  "source",
+                  "repositories"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "registry",
+              "name",
+              "declared_by",
+              "status",
+              "status_detail",
+              "repository",
+              "latest_version",
+              "versions_total",
+              "versions",
+              "maintainers",
+              "provenance",
+              "observed_at",
+              "limits",
+              "dependency_ids",
+              "resolved_versions",
+              "priority",
+              "corroboration"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "events": {
+          "maxItems": 120,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "dependency_publisher_changed",
+                  "dependency_maintainer_changed",
+                  "dependency_repository_changed",
+                  "dependency_dormancy_ended",
+                  "dependency_release_cadence_changed",
+                  "dependency_provenance_added",
+                  "dependency_provenance_removed",
+                  "dependency_install_hook_introduced"
+                ]
+              },
+              "at": {
+                "type": "string"
+              },
+              "registry": {
+                "type": "string",
+                "enum": [
+                  "npm",
+                  "pypi",
+                  "crates.io"
+                ]
+              },
+              "package": {
+                "type": "string",
+                "maxLength": 214
+              },
+              "version": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "detail": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "scope": {
+                "type": "string",
+                "const": "publish_history"
+              },
+              "relative_to_resolved": {
+                "type": "string",
+                "enum": [
+                  "before",
+                  "at",
+                  "after",
+                  "unknown"
+                ]
+              },
+              "evidence": {
+                "maxItems": 4,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 160
+                }
+              },
+              "intent": {
+                "type": "string",
+                "const": "undetermined"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "at",
+              "registry",
+              "package",
+              "version",
+              "detail",
+              "confidence",
+              "scope",
+              "relative_to_resolved",
+              "evidence",
+              "intent"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "events_total": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "requests": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "elapsed_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "limits_hit": {
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "not_available": {
+          "maxItems": 8,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        }
+      },
+      "required": [
+        "version",
+        "status",
+        "budget",
+        "coverage",
+        "skipped_counts",
+        "skipped",
+        "packages",
+        "events",
+        "events_total",
+        "requests",
+        "bytes",
+        "elapsed_ms",
+        "limits_hit",
+        "not_available"
+      ],
+      "additionalProperties": false
+    },
     "timeline": {
       "type": "object",
       "properties": {
@@ -3718,7 +4478,23 @@
                   "capability_introduced",
                   "external_domain_introduced",
                   "provenance_change",
-                  "signature_change"
+                  "signature_change",
+                  "dependency_publisher_changed",
+                  "dependency_maintainer_changed",
+                  "dependency_repository_changed",
+                  "dependency_dormancy_ended",
+                  "dependency_release_cadence_changed",
+                  "dependency_provenance_added",
+                  "dependency_provenance_removed",
+                  "dependency_install_hook_introduced",
+                  "external_domain_removed",
+                  "external_domain_context_changed",
+                  "provenance_added",
+                  "provenance_removed",
+                  "provenance_verification_changed",
+                  "source_binding_changed",
+                  "signature_state_changed",
+                  "registry_repository_correspondence_changed"
                 ]
               },
               "at": {
@@ -3737,6 +4513,7 @@
                   "git",
                   "github_release",
                   "registry",
+                  "dependency_registry",
                   "analysis_diff"
                 ]
               },
@@ -3756,6 +4533,10 @@
                   "type": "string",
                   "maxLength": 120
                 }
+              },
+              "entity": {
+                "type": "string",
+                "maxLength": 240
               }
             },
             "required": [
@@ -3807,6 +4588,10 @@
               "span_days": {
                 "type": "number",
                 "minimum": 0
+              },
+              "entity": {
+                "type": "string",
+                "maxLength": 240
               },
               "statement": {
                 "type": "string",
@@ -5542,6 +6327,7 @@
     "retrieval",
     "release_intel",
     "registry_intel",
+    "dependency_registry_intel",
     "timeline",
     "governance",
     "coverage_map",

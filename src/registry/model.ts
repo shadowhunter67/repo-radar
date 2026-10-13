@@ -44,6 +44,12 @@ export const RegistryVersionSchema = z.object({
   has_integrity: z.boolean(),
   /** The registry reports a provenance attestation for this version (npm dist.attestations). Not verified here. */
   has_provenance: z.boolean(),
+  /** Source repository this VERSION declares (normalized owner/repo for GitHub, else a capped lowercase URL). npm only. */
+  repository: z.string().max(120).nullable().optional(),
+  /** The version declares an install-time script (npm `hasInstallScript` / preinstall, install, postinstall). npm only. */
+  has_install_script: z.boolean().optional(),
+  /** Maintainers the registry recorded WITH this version at publish time (npm). Historical, unlike the package-level set. */
+  maintainers: z.array(z.string().max(100)).max(12).optional(),
 });
 
 export const RegistryPackageSchema = z.object({
@@ -58,6 +64,8 @@ export const RegistryPackageSchema = z.object({
     declared_url: z.string().max(300).nullable(),
     normalized: z.string().max(200).nullable(),
     homepage_match: z.boolean(),
+    /** The homepage / bug-tracker URL normalized to owner/repo when it is a GitHub URL. */
+    homepage_normalized: z.string().max(200).nullable().optional(),
     match: z.enum(REPO_MATCH),
     reason: z.string().max(200),
   }),

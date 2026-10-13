@@ -15,8 +15,20 @@ import type { AssetVerifyLimits } from './release/verify-assets.js';
 import type { BundleVerifier } from './trust/sigstore.js';
 import { buildTimeline } from './events/build.js';
 import { BUILTIN_PATTERNS } from './events/correlate.js';
+import { hintKey, PRIORITY_POINTS, type PriorityHints } from './registry/dependency-priority.js';
+import { collectDependencyRegistry } from './collectors/dependency-registry.js';
 import { collectRegistry, REGISTRY_HOSTS } from './collectors/registry.js';
 import { buildRegistryFindings, deriveRegistryFacts } from './registry/findings.js';
+import {
+  DEP_REGISTRY_BUDGET_DEFAULTS,
+  EMPTY_DEP_REGISTRY_INTEL,
+  type DepRegistryBudget,
+  type DependencyRegistryIntel,
+} from './registry/dependency-model.js';
+import {
+  buildDependencyRegistryFindings,
+  deriveDependencyRegistryFacts,
+} from './registry/dependency-findings.js';
 import { EMPTY_REGISTRY_INTEL, type RegistryIntel } from './registry/model.js';
 import { analyzeGovernance } from './governance/temporal.js';
 import {
@@ -103,6 +115,10 @@ export interface AnalyzeOptions {
   assetLimits?: Partial<AssetVerifyLimits>;
   /** Look up the packages this repository publishes in their registries (default true). */
   registry?: boolean;
+  /** Look up the registries of the repository's dependencies, under a budget (default true; needs `registry`). */
+  dependencyRegistry?: boolean;
+  /** Override the dependency-registry budget (packages, requests, time, versions, bytes). */
+  dependencyRegistryBudget?: Partial<DepRegistryBudget>;
   /** Collect release/provenance metadata (default true). */
   releases?: boolean;
   /** Walk priority directories when the recursive tree is truncated or too large (default true). */
@@ -198,6 +214,39 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     depsDevEnabled: opts.depsDev !== false,
   });
 
+  const depRegistryDiag: Diagnostic[] = [];
+  // Dependencies involved in a medium or high dependency finding are looked up first (see src/registry/dependency-priority.ts).
+  const priorityHints: PriorityHints = new Map();
+  {
+    const byId = new Map(depsStatic.deps.map((d) => [d.id, d]));
+    for (const f of buildDependencyFindings(intel))
+      if (f.severity === 'medium' || f.severity === 'high')
+        for (const eid of f.evidence_ids) {
+          const d = byId.get(eid);
+          if (!d) continue;
+          const k = hintKey(d.package.ecosystem, d.package.name);
+          const list = priorityHints.get(k) ?? [];
+          if (!list.some((h) => h.reason === 'involved in a finding'))
+            list.push({
+              points: PRIORITY_POINTS.involvedInFinding,
+              reason: 'involved in a finding',
+            });
+          priorityHints.set(k, list);
+        }
+  }
+  const depRegistry: DependencyRegistryIntel =
+    opts.registry === false || opts.dependencyRegistry === false
+      ? EMPTY_DEP_REGISTRY_INTEL
+      : await collectDependencyRegistry({
+          http: registryHttp,
+          dependencies: depsStatic.deps,
+          clock,
+          hints: priorityHints,
+          ...(opts.dependencyRegistryBudget ? { budget: opts.dependencyRegistryBudget } : {}),
+          note: (code, message) =>
+            depRegistryDiag.push({ source: 'registry', level: 'warn', code, message }),
+        });
+
   const identity = await classifier.classify(github.snapshot);
   identity.confidence_semantics ??= 'heuristic_uncalibrated';
   const idEvidence = identityEvidence(identity, github.snapshot, clock);
@@ -239,6 +288,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...depsStatic.diagnostics,
     ...(depsDev?.diagnostics ?? []),
     ...registryDiag,
+    ...depRegistryDiag,
   ];
   for (const e of [...github.evidence, ...scorecard.evidence, ...osvRes.evidence, ...idEvidence]) {
     if (store.has(e.id))
@@ -298,6 +348,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   const timeline = buildTimeline({
     governance,
     registry: registryIntel,
+    dependencyRegistry: depRegistry,
     releases: github.releaseIntel,
     patterns: BUILTIN_PATTERNS,
   });
@@ -311,6 +362,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...deriveDependencyFacts(intel, opts.sbom !== false),
     ...deriveReleaseFacts(github.releaseIntel, governance),
     ...deriveRegistryFacts(registryIntel),
+    ...deriveDependencyRegistryFacts(depRegistry, timeline.correlations),
   ];
   if (
     code.scan.performed &&
@@ -372,6 +424,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...buildDependencyFindings(intel),
     ...buildReleaseFindings(github.releaseIntel),
     ...buildRegistryFindings(registryIntel),
+    ...buildDependencyRegistryFindings(depRegistry, timeline.correlations),
     ...buildGovernanceFindings(governance),
   ];
   const blockViolations = [
@@ -439,6 +492,10 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
           targeted_tree: opts.targetedTree !== false,
           releases: opts.releases !== false,
           registry: opts.registry !== false,
+          dependency_registry:
+            opts.registry !== false && opts.dependencyRegistry !== false
+              ? { ...DEP_REGISTRY_BUDGET_DEFAULTS, ...opts.dependencyRegistryBudget }
+              : false,
           verify_crypto: opts.verifyCrypto === true,
           verify_assets: opts.verifyAssets === true,
           limits: LIMITS,
@@ -459,6 +516,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     retrieval: github.treeRetrieval,
     release_intel: github.releaseIntel,
     registry_intel: registryIntel,
+    dependency_registry_intel: depRegistry,
     timeline,
     governance,
     coverage_map: coverageMap,

@@ -292,7 +292,23 @@
                               "capability_introduced",
                               "external_domain_introduced",
                               "provenance_change",
-                              "signature_change"
+                              "signature_change",
+                              "dependency_publisher_changed",
+                              "dependency_maintainer_changed",
+                              "dependency_repository_changed",
+                              "dependency_dormancy_ended",
+                              "dependency_release_cadence_changed",
+                              "dependency_provenance_added",
+                              "dependency_provenance_removed",
+                              "dependency_install_hook_introduced",
+                              "external_domain_removed",
+                              "external_domain_context_changed",
+                              "provenance_added",
+                              "provenance_removed",
+                              "provenance_verification_changed",
+                              "source_binding_changed",
+                              "signature_state_changed",
+                              "registry_repository_correspondence_changed"
                             ]
                           }
                         }
@@ -307,6 +323,9 @@
                     "type": "number",
                     "minimum": 0,
                     "maximum": 3650
+                  },
+                  "same_entity": {
+                    "type": "boolean"
                   }
                 },
                 "required": [

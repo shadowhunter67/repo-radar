@@ -27,10 +27,34 @@ export const EVENT_TYPES = [
   'external_domain_introduced',
   'provenance_change',
   'signature_change',
+  // dependency registry history (schema 0.7)
+  'dependency_publisher_changed',
+  'dependency_maintainer_changed',
+  'dependency_repository_changed',
+  'dependency_dormancy_ended',
+  'dependency_release_cadence_changed',
+  'dependency_provenance_added',
+  'dependency_provenance_removed',
+  'dependency_install_hook_introduced',
+  // revision-to-revision changes of the analyzed repository (schema 0.7)
+  'external_domain_removed',
+  'external_domain_context_changed',
+  'provenance_added',
+  'provenance_removed',
+  'provenance_verification_changed',
+  'source_binding_changed',
+  'signature_state_changed',
+  'registry_repository_correspondence_changed',
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
 
-export const EVENT_SOURCES = ['git', 'github_release', 'registry', 'analysis_diff'] as const;
+export const EVENT_SOURCES = [
+  'git',
+  'github_release',
+  'registry',
+  'dependency_registry',
+  'analysis_diff',
+] as const;
 
 export const TimelineEventSchema = z.object({
   id: z.string().max(80),
@@ -44,6 +68,11 @@ export const TimelineEventSchema = z.object({
   confidence: z.number().min(0).max(1),
   /** Ids in the report (governance signals, registry signals, hooks, releases) this event is derived from. */
   evidence: z.array(z.string().max(120)).max(8),
+  /**
+   * What the event is about, as one key (`npm:left-pad`, `repository`). Patterns with `same_entity` only match events that
+   * share it, so a publisher change of one dependency never combines with an install hook of another. Absent = the repository.
+   */
+  entity: z.string().max(240).optional(),
 });
 export type TimelineEvent = z.infer<typeof TimelineEventSchema>;
 
@@ -58,6 +87,8 @@ export const TemporalPatternSchema = z
     steps: z.array(PatternStepSchema).min(2).max(6),
     /** First to last event must fall inside this many days. Steps must occur in the listed order (ties allowed). */
     within_days: z.number().min(0).max(3650),
+    /** All matched events must be about the same entity (see `TimelineEvent.entity`). */
+    same_entity: z.boolean().optional(),
   })
   .strict();
 export type TemporalPattern = z.infer<typeof TemporalPatternSchema>;
@@ -69,6 +100,8 @@ export const CorrelationSchema = z.object({
   start: z.string(),
   end: z.string(),
   span_days: z.number().min(0),
+  /** The shared entity when the pattern requires `same_entity`. */
+  entity: z.string().max(240).optional(),
   /** Always the same: a pattern of events, not a verdict. */
   statement: z.string().max(300),
 });

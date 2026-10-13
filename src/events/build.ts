@@ -1,4 +1,5 @@
 import type { Governance } from '../governance/temporal.js';
+import type { DependencyRegistryIntel } from '../registry/dependency-model.js';
 import type { RegistryIntel } from '../registry/model.js';
 import type { ReleaseIntel } from '../release/model.js';
 import { correlate } from './correlate.js';
@@ -19,6 +20,8 @@ export interface TimelineInput {
   governance: Governance;
   registry: RegistryIntel;
   releases: ReleaseIntel;
+  /** Registry history of the dependencies (schema 0.7). Each event keeps the package as its `entity`. */
+  dependencyRegistry?: DependencyRegistryIntel;
   /** Events derived from the difference between two revisions (install hooks, capabilities...). */
   extra?: TimelineEvent[];
   patterns?: TemporalPattern[];
@@ -137,6 +140,19 @@ export function buildTimeline(i: TimelineInput): Timeline {
         evidence: [s.id],
       });
   }
+  for (const e of i.dependencyRegistry?.events ?? []) {
+    const entity = `${e.registry}:${clean(e.package, 80)}`;
+    add({
+      type: e.type,
+      at: iso(e.at),
+      subject: `${entity}@${clean(e.version, 30)}`,
+      source: 'dependency_registry',
+      detail: e.detail,
+      confidence: e.confidence,
+      evidence: [...e.evidence, e.id].slice(0, 8),
+      entity,
+    });
+  }
   for (const e of i.extra ?? []) add({ ...e });
   events.sort((a, b) => (Date.parse(a.at ?? '') || 0) - (Date.parse(b.at ?? '') || 0));
   const kept = events.slice(-MAX_EVENTS);
@@ -146,8 +162,9 @@ export function buildTimeline(i: TimelineInput): Timeline {
     events_total: events.length,
     correlations: correlate(kept, i.patterns),
     not_available: [
-      'external_domain_introduced: no extractor yet (domains are not tracked across revisions)',
-      'maintainer_change / ownership_change: registry maintainers and GitHub ownership are current-state only, without history',
+      'external_domain_* events need a revision comparison (diff): one analysis has no introduction time',
+      'maintainer_change / ownership_change: current-state only; per-version maintainers exist for npm dependencies',
+      'dependency domains: dependency tarballs are never fetched, so they are not observed',
     ],
   };
 }
