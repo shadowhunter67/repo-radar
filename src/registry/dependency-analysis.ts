@@ -37,7 +37,11 @@ export function dependencyEvents(
   if (pkg.status !== 'ok' && pkg.status !== 'partial') return { events: out, untimed: 0 };
   const evidence = [`depregistry:${pkg.registry}:${safe(pkg.name, 80)}`];
   const observed = Date.parse(pkg.observed_at) || Date.now();
-  const timed = pkg.versions.filter((v) => Number.isFinite(ts(v.published_at)));
+  // A publish time in the future (or before 1990) is registry metadata that cannot be true: such a version is untimed.
+  const timed = pkg.versions.filter((v) => {
+    const t = ts(v.published_at);
+    return Number.isFinite(t) && t <= observed + DAY && t >= Date.UTC(1990, 0, 1);
+  });
   const untimed = pkg.versions.length - timed.length;
   // oldest first; equal times keep a stable order by version string
   const chron = [...timed].sort(
