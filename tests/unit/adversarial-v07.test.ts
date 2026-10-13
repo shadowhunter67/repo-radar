@@ -96,7 +96,8 @@ describe('malicious registry metadata', () => {
     const text = renderText(r, { ascii: true, verbose: true });
     expect([...text].some((c) => [0x1b, 0x07, 0x00, 0x202e].includes(c.charCodeAt(0)))).toBe(false);
     const json = JSON.stringify(r);
-    expect(['\u001b', '\u202e', '\u0007'].some((x) => json.includes(x))).toBe(false);
+    const esc = (h: string): string => String.fromCharCode(92) + 'u' + h;
+    expect([esc('001b'), esc('202e'), esc('0007')].some((x) => json.includes(x))).toBe(false);
     expect(
       r.dependency_registry_intel.packages.some((p) =>
         p.maintainers.names.some((m) => m.suspicious),
