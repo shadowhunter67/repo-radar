@@ -101,15 +101,27 @@ export async function verifyGpgDetached(opts: {
     let rejected = 0;
     for (const cfg of gpgKeys) {
       try {
-        const key = await pgp.readKey({ armoredKey: cfg.material });
-        if (
-          cfg.fingerprint &&
-          key.getFingerprint().toUpperCase() !== cfg.fingerprint.toUpperCase()
-        ) {
-          rejected++;
-          continue;
+        // a published key file often carries more than one key (an old and a new one): every key in it is a candidate
+        // (a file may also hold several armor blocks one after another: each is read on its own)
+        const blocks = cfg.material
+          .split(/(?=-----BEGIN PGP PUBLIC KEY BLOCK-----)/)
+          .filter((b) => b.includes('BEGIN PGP PUBLIC KEY BLOCK'))
+          .slice(0, 8);
+        const keys = (await Promise.all(blocks.map((b) => pgp.readKeys({ armoredKeys: b }))))
+          .flat()
+          .slice(0, 8);
+        let accepted = 0;
+        for (const key of keys) {
+          // the pin names the PRIMARY key; a key that does not have it is not trusted
+          if (
+            cfg.fingerprint &&
+            key.getFingerprint().toUpperCase() !== cfg.fingerprint.toUpperCase()
+          )
+            continue;
+          loaded.push({ key, cfg });
+          accepted++;
         }
-        loaded.push({ key, cfg });
+        if (accepted === 0) rejected++;
       } catch {
         rejected++;
       }

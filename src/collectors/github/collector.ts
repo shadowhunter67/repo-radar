@@ -42,6 +42,8 @@ const RAW = 'https://raw.githubusercontent.com';
 
 const MAX_WORKFLOWS = 20;
 const MAX_MANIFESTS = 10;
+/** A targeted walk of a very large repository finds many workspace manifests; each costs one small raw-file request. */
+const MAX_MANIFESTS_TARGETED = 24;
 const MAX_LOCKS = 6;
 const MAX_SBOMS = 3;
 const TREE_MAX_BYTES = 8 * 1024 * 1024;
@@ -102,6 +104,8 @@ export async function collectGithub(
     assetLimits?: Partial<AssetVerifyLimits>;
     /** Keys and identity the user trusts (never read from the repository). */
     trust?: TrustConfig;
+    /** Credential-free client for GitHub's attestation blob store (large Sigstore bundles). */
+    blobHttp?: HttpClient;
   } = {},
 ): Promise<GithubCollection & CollectorResult> {
   const b = new EvidenceBuilder('github', clock);
@@ -388,7 +392,8 @@ export async function collectGithub(
   // ---- tree-derived evidence ----------------------------------------------------------------
   const entries = treeRes?.data.tree ?? [];
   const truncated = treeRes?.data.truncated === true;
-  const tree = analyzeTree(entries);
+  const targetedTree = treeRetrieval.method === 'targeted';
+  const tree = analyzeTree(entries, { maxManifestDepth: targetedTree ? 8 : 2 });
   if (treeRes) {
     const t = { url: url(`/git/trees/${branch}`), ...cap, confidence: truncated ? 0.6 : 1 };
     if (truncated && treeRetrieval.method !== 'targeted')
@@ -461,7 +466,10 @@ export async function collectGithub(
     rawFetchBytes(path, DEPFILE_MAX_BYTES);
 
   const wfPaths = tree.workflowPaths.slice(0, MAX_WORKFLOWS);
-  const manifestPaths = pickManifests(tree.manifestPaths).slice(0, MAX_MANIFESTS);
+  const manifestPaths = pickManifests(tree.manifestPaths).slice(
+    0,
+    targetedTree ? MAX_MANIFESTS_TARGETED : MAX_MANIFESTS,
+  );
   const lockPaths = tree.lockPaths.slice(0, MAX_LOCKS);
   const sbomPaths = options.sbom === false ? [] : tree.sbomPaths.slice(0, MAX_SBOMS);
   if (tree.sbomPaths.length > MAX_SBOMS && options.sbom !== false)
@@ -808,6 +816,7 @@ export async function collectGithub(
           ...(options.verifyAssets ? { verifyAssets: true } : {}),
           ...(options.assetLimits ? { assetLimits: options.assetLimits } : {}),
           ...(options.trust ? { trust: options.trust } : {}),
+          ...(options.blobHttp ? { blobHttp: options.blobHttp } : {}),
           treePaths: entries
             .filter((e) => e.type === 'blob')
             .map((e) => e.path)

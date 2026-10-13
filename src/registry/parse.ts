@@ -135,6 +135,19 @@ export interface Common {
   observedAt: string;
   /** Versions kept (newest first). Default 40. */
   capVersions?: number | undefined;
+  /** Versions to look up in the full history before it is capped (dependencies: the versions the revision resolved). */
+  resolvedVersions?: string[] | undefined;
+}
+
+function resolvedTimes(
+  c: Common,
+  rows: { version: string; published_at: string | null }[],
+): Record<string, string | null> | undefined {
+  if (!c.resolvedVersions || c.resolvedVersions.length === 0) return undefined;
+  const out: Record<string, string | null> = {};
+  for (const v of c.resolvedVersions.slice(0, 5))
+    out[v.slice(0, 100)] = rows.find((r) => r.version === v)?.published_at ?? null;
+  return out;
 }
 
 const capOf = (c: Common): number =>
@@ -263,6 +276,8 @@ export function parseNpm(body: unknown, c: Common): RegistryPackage {
     (a, b) => (Date.parse(b.published_at ?? '') || 0) - (Date.parse(a.published_at ?? '') || 0),
   );
   p.versions_total = rows.length;
+  const rt = resolvedTimes(c, rows);
+  if (rt) p.resolved_times = rt;
   p.versions = rows.slice(0, capOf(c));
   if (rows.length > capOf(c))
     p.limits.push(`only the newest ${capOf(c)} of ${rows.length} versions are kept`);
@@ -319,6 +334,8 @@ export function parsePypi(body: unknown, c: Common): RegistryPackage {
     (a, b) => (Date.parse(b.published_at ?? '') || 0) - (Date.parse(a.published_at ?? '') || 0),
   );
   p.versions_total = rows.length;
+  const rt = resolvedTimes(c, rows);
+  if (rt) p.resolved_times = rt;
   p.versions = rows.slice(0, capOf(c));
   if (rows.length > capOf(c))
     p.limits.push(`only the newest ${capOf(c)} of ${rows.length} versions are kept`);
@@ -372,6 +389,8 @@ export function parseCrates(body: unknown, owners: unknown, c: Common): Registry
     (a, b) => (Date.parse(b.published_at ?? '') || 0) - (Date.parse(a.published_at ?? '') || 0),
   );
   p.versions_total = rows.length;
+  const rt = resolvedTimes(c, rows);
+  if (rt) p.resolved_times = rt;
   p.versions = rows.slice(0, capOf(c));
   if (rows.length > capOf(c))
     p.limits.push(`only the newest ${capOf(c)} of ${rows.length} versions are kept`);

@@ -84,6 +84,11 @@ export const RegistryPackageSchema = z.object({
     versions_with: z.number().int().min(0),
   }),
   observed_at: z.string(),
+  /**
+   * Publish times of the versions the analyzed revision resolved to, read from the registry's FULL history (the sample above
+   * keeps only the newest versions). Dependencies only; null when the registry does not list that version.
+   */
+  resolved_times: z.record(z.string().max(100), z.string().nullable()).optional(),
   limits: z.array(z.string().max(200)).max(6),
 });
 export type RegistryPackage = z.infer<typeof RegistryPackageSchema>;

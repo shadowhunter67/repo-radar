@@ -151,7 +151,7 @@ export function looksLikeChecksumFile(name: string): boolean {
     (/(?:^|[._-])(?:sha(?:1|256|384|512)sums?|checksums?|md5sums?|sha256|sha512)(?:[._-]|$)/i.test(
       name,
     ) &&
-      !/\.(?:sig|asc|pem|sigstore|bundle|minisig)$/i.test(name)) ||
+      !/\.(?:sig|asc|pem|sigstore|sigstore\.json|bundle|minisig)$/i.test(name)) ||
     /\.(?:sha256|sha512|sha1|md5)(?:sum)?$/i.test(name)
   );
 }

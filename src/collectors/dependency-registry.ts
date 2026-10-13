@@ -124,6 +124,7 @@ export async function collectDependencyRegistry(opts: {
           declaredBy: 'dependency',
           observedAt,
           capVersions: budget.maxVersions,
+          resolvedVersions: c.resolvedVersions,
         },
         get,
       ).then((r) => {

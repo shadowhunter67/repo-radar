@@ -111,7 +111,17 @@ export function isSafeTreePath(p: string): boolean {
   );
 }
 
-export function analyzeTree(entries: TreeEntry[]): TreeFacts {
+/**
+ * `maxManifestDepth` is how deep a package manifest may sit to be considered (root = 0). It is 2 for a complete tree, so
+ * examples and fixtures buried in a repository do not become packages. For a TARGETED tree it is raised, because that walk
+ * only listed a directory deeper than the generic depth when a build file declared it (go.work, workspaces, modules) or the
+ * manifest seeker found a manifest there: the staging/src/k8s.io/* modules of kubernetes are at depth 4.
+ */
+export function analyzeTree(
+  entries: TreeEntry[],
+  opts: { maxManifestDepth?: number } = {},
+): TreeFacts {
+  const maxManifestDepth = opts.maxManifestDepth ?? 2;
   const blobs = entries
     .slice(0, 100_000)
     .filter((e) => e.type === 'blob' && isSafeTreePath(e.path));
@@ -160,7 +170,7 @@ export function analyzeTree(entries: TreeEntry[]): TreeFacts {
       else if (!/^(?:docs?|examples?)\//i.test(path)) facts.sourceFileCount++;
     }
     if (/^\.github\/workflows\/[^/]+\.ya?ml$/i.test(path)) facts.workflowPaths.push(path);
-    if (depth <= 2 && MANIFEST_BASENAMES.has(base) && !VENDOR_DIR.test(path))
+    if (depth <= maxManifestDepth && MANIFEST_BASENAMES.has(base) && !VENDOR_DIR.test(path))
       facts.manifestPaths.push(path);
     if (depth <= 1 && LOCK_BASENAMES.has(base) && !VENDOR_DIR.test(path))
       facts.lockPaths.push(path);

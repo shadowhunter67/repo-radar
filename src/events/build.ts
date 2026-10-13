@@ -1,4 +1,5 @@
 import type { Governance } from '../governance/temporal.js';
+import { isRelevantEvent } from '../registry/dependency-analysis.js';
 import type { DependencyRegistryIntel } from '../registry/dependency-model.js';
 import type { RegistryIntel } from '../registry/model.js';
 import type { ReleaseIntel } from '../release/model.js';
@@ -140,7 +141,12 @@ export function buildTimeline(i: TimelineInput): Timeline {
         evidence: [s.id],
       });
   }
-  for (const e of i.dependencyRegistry?.events ?? []) {
+  // Only events that matter to the analyzed revision enter the timeline: an ancient publisher change of a dependency pinned
+  // long after it must not combine with another old event into a takeover pattern. The full list stays in the report.
+  const depObserved = i.dependencyRegistry?.packages[0]?.observed_at ?? '';
+  for (const e of (i.dependencyRegistry?.events ?? []).filter(
+    (x) => !depObserved || isRelevantEvent(x, depObserved),
+  )) {
     const entity = `${e.registry}:${clean(e.package, 80)}`;
     add({
       type: e.type,

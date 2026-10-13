@@ -91,6 +91,10 @@ export interface FakeSpec {
   registryFail: Record<string, number | string>;
   /** Registry URLs requested, in order. */
   registryRequests: string[];
+  /** GitHub attestation blob store: URL substring -> body (bytes or text). Anything else answers 404. */
+  blobs: Record<string, Uint8Array | string>;
+  /** Blob store URLs requested, in order. */
+  blobRequests: string[];
   /** files in the owner's `.github` repo (org-level defaults), keyed by path */
   orgFiles: Record<string, string>;
   /** GitHub community profile `files` object (inherited health files show up here) */
@@ -140,6 +144,8 @@ export function baseSpec(over: Partial<FakeSpec> = {}): FakeSpec {
     registry: {},
     registryFail: {},
     registryRequests: [],
+    blobs: {},
+    blobRequests: [],
     orgFiles: {},
     community: null,
     ...over,
@@ -211,6 +217,16 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
     if (url.startsWith('https://api.deps.dev/')) {
       const hit = Object.entries(spec.depsDev).find(([k]) => url.includes(k));
       return hit ? json(hit[1]) : json({ error: 'not found' }, 404);
+    }
+    if (url.startsWith('https://tmaproduction.blob.core.windows.net/')) {
+      spec.blobRequests.push(url);
+      const hit = Object.entries(spec.blobs).find(([k]) => url.includes(k));
+      if (!hit) return new Response('', { status: 404 });
+      const v = hit[1];
+      return new Response(typeof v === 'string' ? v : new Uint8Array(v), {
+        status: 200,
+        headers: { 'content-type': 'application/x-snappy' },
+      });
     }
     if (
       ['https://registry.npmjs.org/', 'https://pypi.org/', 'https://crates.io/'].some((h) =>

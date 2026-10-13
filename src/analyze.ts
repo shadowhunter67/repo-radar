@@ -5,6 +5,7 @@ import { buildFindings } from './analysis/findings.js';
 import { analyzeCode, emptyCodeAnalysis, type CodeAnalysis } from './analysis/index.js';
 import { DETECTOR_PACK_VERSION } from './analysis/detectors.js';
 import { collectGithub, GITHUB_HOSTS } from './collectors/github/collector.js';
+import { ATTESTATION_BLOB_HOSTS } from './collectors/github/releases.js';
 import {
   DEPSDEV_HOSTS,
   DEPSDEV_LIMITS,
@@ -181,6 +182,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       ...(opts.verifyAssets ? { verifyAssets: true } : {}),
       ...(opts.assetLimits ? { assetLimits: opts.assetLimits } : {}),
       ...(opts.trust ? { trust: opts.trust } : {}),
+      blobHttp: new HttpClient({ ...common, allowedHosts: ATTESTATION_BLOB_HOSTS }),
       ...(opts.retrievalBudget ? { retrievalBudget: opts.retrievalBudget } : {}),
       ...(opts.ref ? { ref: parseGitRef(opts.ref) } : {}),
     }),

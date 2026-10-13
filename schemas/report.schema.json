@@ -3952,6 +3952,19 @@
               "observed_at": {
                 "type": "string"
               },
+              "resolved_times": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
               "limits": {
                 "maxItems": 6,
                 "type": "array",
@@ -4558,6 +4571,19 @@
               "observed_at": {
                 "type": "string"
               },
+              "resolved_times": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
               "limits": {
                 "maxItems": 6,
                 "type": "array",
@@ -4715,6 +4741,12 @@
                   "at",
                   "after",
                   "unknown"
+                ]
+              },
+              "days_from_resolved": {
+                "type": [
+                  "number",
+                  "null"
                 ]
               },
               "evidence": {

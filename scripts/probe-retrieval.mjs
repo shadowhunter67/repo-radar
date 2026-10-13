@@ -11,12 +11,15 @@ import { dirname, join } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { analyzeRepository } from '../dist/analyze.js';
+import { DEFAULT_RETRIEVAL_BUDGET } from '../dist/collectors/github/retrieval.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const opt = (n, d) => (args.includes(n) ? args[args.indexOf(n) + 1] : d);
 const name = opt('--out', 'retrieval-probe');
 const targeted = !args.includes('--no-targeted');
+// --v2: the 0.6 behaviour (no declared-path pool, no manifest seeking) for a same-revision baseline
+const v2 = args.includes('--v2');
 const repos = args.filter((a, i) => !a.startsWith('--') && args[i - 1] !== '--out');
 const token = process.env.GITHUB_TOKEN || undefined;
 const outDir = join(root, 'calibration', 'runs', 'retrieval-probe', name);
@@ -43,6 +46,15 @@ for (const spec of repos) {
       ref: sha,
       ...(token ? { token } : {}),
       targetedTree: targeted,
+      ...(v2
+        ? {
+            retrievalBudget: {
+              ...DEFAULT_RETRIEVAL_BUDGET,
+              declared: { maxRequests: 0, maxHintReads: 0 },
+              seek: { enabled: false },
+            },
+          }
+        : {}),
       scorecard: false,
       osv: false,
       depsDev: false,
@@ -59,6 +71,9 @@ for (const spec of repos) {
       coverage: Object.fromEntries(Object.entries(r.coverage_map).map(([k, v]) => [k, v.state])),
       manifests: r.identity_v2.packaging.package_count,
       packaging: r.identity_v2.packaging.value,
+      bytes: r.retrieval.bytes,
+      seek: r.retrieval.manifest_seek,
+      declared: r.retrieval.declared_paths,
       primary: `${r.identity_v2.primary_artifact.value} (${r.identity_v2.primary_artifact.confidence})`,
       workflows: r.evidence.find((e) => e.id === 'github.workflows.count')?.value ?? null,
       scan: `${Math.round(r.code_analysis.scan.source_coverage * 100)}% / ${r.code_analysis.scan.files_scanned} files`,
@@ -73,7 +88,7 @@ for (const spec of repos) {
   }
 }
 
-let md = `# Retrieval probe: ${name}\n\nTargeted retrieval: ${targeted ? 'on' : 'OFF (baseline)'}. No enrichment (OSV, deps.dev, Scorecard). Sequential.\n\n`;
+let md = `# Retrieval probe: ${name}\n\nTargeted retrieval: ${targeted ? (v2 ? 'ON, 0.6 behaviour (no declared-path pool, no manifest seeking)' : 'ON, v3') : 'OFF (baseline)'}. No enrichment (OSV, deps.dev, Scorecard). Sequential.\n\n`;
 for (const x of rows) {
   if (x.error) {
     md += `## ${x.repo}\n\nFAILED: ${x.error}\n\n`;

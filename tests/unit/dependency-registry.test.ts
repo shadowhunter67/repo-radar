@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { analyzeRepository } from '../../src/analyze.js';
-import { dependencyEvents, correspondDependency } from '../../src/registry/dependency-analysis.js';
+import {
+  correspondDependency,
+  dependencyEvents,
+  isRelevantEvent,
+  normalizeProjectId,
+} from '../../src/registry/dependency-analysis.js';
 import { PRIORITY_POINTS, selectCandidates } from '../../src/registry/dependency-priority.js';
 import { parseNpm, parsePypi, parseCrates } from '../../src/registry/parse.js';
 import type { Dependency } from '../../src/deps/model.js';
@@ -283,6 +288,63 @@ describe('dependency registry events', () => {
   });
 });
 
+describe('relevance to the revision', () => {
+  it('the resolved version time comes from the full history, even when it is older than the sampled window', () => {
+    const vs = Array.from({ length: 30 }, (_, i) => ({ v: `1.0.${i}`, ago: 900 - i * 20 }));
+    vs[28] = { ...vs[28]!, user: 'mallory' } as V;
+    const doc = npmDoc(vs);
+    const pkg = parseNpm(doc, { ...C, capVersions: 10, resolvedVersions: ['1.0.3'] });
+    expect(pkg.versions).toHaveLength(10);
+    expect(pkg.versions.some((v) => v.version === '1.0.3')).toBe(false); // not in the sample ...
+    expect(pkg.resolved_times?.['1.0.3']).toBe(iso(840)); // ... but its time is known
+    const e = dependencyEvents(pkg, ['1.0.3']).events.find(
+      (x) => x.type === 'dependency_publisher_changed',
+    );
+    expect(e?.relative_to_resolved).toBe('after');
+    expect(e?.days_from_resolved).toBeGreaterThan(400);
+  });
+
+  it('events at or just before the resolved version matter whatever their age; old ones before it do not', () => {
+    const obs = NOW.toISOString();
+    const mk = (relative_to_resolved: string, days: number | null, agoDays: number) => ({
+      at: iso(agoDays),
+      relative_to_resolved,
+      days_from_resolved: days,
+    });
+    expect(isRelevantEvent(mk('at', 0, 4000), obs)).toBe(true);
+    expect(isRelevantEvent(mk('before', -3, 4000), obs)).toBe(true); // a takeover days before the pinned version
+    expect(isRelevantEvent(mk('before', -400, 4000), obs)).toBe(false);
+    expect(isRelevantEvent(mk('after', 20, 100), obs)).toBe(true); // the upgrade path, recent
+    expect(isRelevantEvent(mk('after', 20, 4000), obs)).toBe(false);
+    expect(isRelevantEvent(mk('unknown', null, 100), obs)).toBe(true);
+    expect(isRelevantEvent(mk('unknown', null, 4000), obs)).toBe(false);
+  });
+
+  it('ancient history does not become findings, facts, or a timeline pattern', async () => {
+    // an old publisher change and an old repository change on the same dependency, years before the pinned version
+    const old: V[] = Array.from({ length: 12 }, (_, i) => ({ v: `1.0.${i}`, ago: 3000 - i * 20 }));
+    old[10] = { ...old[10]!, user: 'mallory', repo: 'git+https://github.com/other/dep.git' } as V;
+    const vs: V[] = [...old.slice(0, 10), { ...old[10]! }, ...old.slice(11)];
+    const recent = Array.from({ length: 8 }, (_, i) => ({
+      v: `2.0.${i}`,
+      ago: 200 - i * 20,
+      user: 'mallory',
+    }));
+    const r = await run(goodRepo({ registry: allWith(npmDoc([...vs, ...recent])) }));
+    expect(
+      r.dependency_registry_intel.events.some((e) => e.type === 'dependency_publisher_changed'),
+    ).toBe(true);
+    expect(r.timeline.correlations.filter((c) => c.pattern_id.startsWith('dependency-'))).toEqual(
+      [],
+    );
+    expect(
+      r.findings
+        .filter((f) => f.id.startsWith('RR-DEPREG'))
+        .every((f) => !/2023|2018|2019/.test(f.summary)),
+    ).toBe(true);
+  });
+});
+
 // ---- correspondence -----------------------------------------------------------------------------------------------
 describe('dependency package <-> repository correspondence', () => {
   const pkg = (over: Record<string, unknown> = {}) =>
@@ -302,10 +364,26 @@ describe('dependency package <-> repository correspondence', () => {
   });
 
   it('disagreeing pointers are conflicting', () => {
-    expect(correspondDependency(pkg(), ['https://github.com/evil/dep']).match).toBe('conflicting');
+    expect(correspondDependency(pkg(), ['https://github.com/evil/other']).match).toBe(
+      'conflicting',
+    );
     expect(correspondDependency(pkg({ homepage: 'https://github.com/evil/dep' }), []).match).toBe(
       'conflicting',
     );
+  });
+
+  it('deps.dev project ids (github.com/owner/repo) are normalized and compared case-insensitively', () => {
+    expect(normalizeProjectId('github.com/Acme/Dep')).toBe('acme/dep');
+    expect(normalizeProjectId('github.com/acme/dep.git')).toBe('acme/dep');
+    expect(normalizeProjectId('https://github.com/acme/dep')).toBe('acme/dep');
+    expect(normalizeProjectId('gitlab.com/acme/dep')).toBeNull();
+    expect(correspondDependency(pkg(), ['github.com/ACME/dep']).match).toBe('confirmed');
+  });
+
+  it('the same repository name under another owner is a possible rename or transfer, not a conflict', () => {
+    const r = correspondDependency(pkg(), ['github.com/old-org/dep']);
+    expect(r.match).toBe('likely');
+    expect(r.reason).toMatch(/rename or transfer/);
   });
 
   it('no source is missing; a non-GitHub host is not compared; a failed lookup is unknown', () => {

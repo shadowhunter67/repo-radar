@@ -1,7 +1,12 @@
 import type { Finding } from '../analysis/findings.js';
 import type { Correlation } from '../events/model.js';
 import type { Fact } from '../facts/index.js';
-import type { DependencyRegistryIntel, DepEventType } from './dependency-model.js';
+import { isRelevantEvent } from './dependency-analysis.js';
+import type {
+  DependencyRegistryEvent,
+  DependencyRegistryIntel,
+  DepEventType,
+} from './dependency-model.js';
 import type { RepoMatch } from './model.js';
 
 /**
@@ -63,6 +68,12 @@ const EVENT_TEXT: Record<
   },
 };
 
+/** Events that matter to this revision (see isRelevantEvent); the full list stays in the report. */
+export function relevantEvents(intel: DependencyRegistryIntel): DependencyRegistryEvent[] {
+  const observedAt = intel.packages[0]?.observed_at ?? '';
+  return observedAt ? intel.events.filter((e) => isRelevantEvent(e, observedAt)) : intel.events;
+}
+
 export function buildDependencyRegistryFindings(
   intel: DependencyRegistryIntel,
   correlations: Correlation[] = [],
@@ -95,7 +106,7 @@ export function buildDependencyRegistryFindings(
     });
   }
   // Events: events that happened AFTER the resolved version cannot have affected the analyzed revision.
-  const events = [...intel.events].sort(
+  const events = [...relevantEvents(intel)].sort(
     (a, b) =>
       rank[EVENT_TEXT[b.type].severity] - rank[EVENT_TEXT[a.type].severity] ||
       Date.parse(b.at) - Date.parse(a.at),
@@ -166,7 +177,7 @@ export function deriveDependencyRegistryFacts(
   f('registry.deps.queried', intel.coverage.queried, 0.95);
   if (intel.coverage.ratio !== null) f('registry.deps.coverage', intel.coverage.ratio, 0.95);
   f('registry.deps.lookup_complete', complete, 0.95);
-  const types = new Set(intel.events.map((e) => e.type));
+  const types = new Set(relevantEvents(intel).map((e) => e.type));
   const present = (t: DepEventType, id: string, confidence: number): void => {
     // presence is evidence at any coverage; absence only when every eligible package answered
     if (types.has(t)) f(id, true, confidence);

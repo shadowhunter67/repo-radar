@@ -12,6 +12,33 @@ const DAY = 86_400_000;
 const ts = (s: string | null | undefined): number => (s ? Date.parse(s) : NaN);
 const safe = (s: string, n = 60): string => s.replace(/[^\x20-\x7e]/g, '?').slice(0, n);
 
+/** A deps.dev project id (`github.com/owner/repo`) or any repository URL -> `owner/repo` for GitHub, else null. */
+export function normalizeProjectId(raw: string): string | null {
+  const m = /^(?:www\.)?github\.com\/([\w.-]+)\/([\w.-]+?)(?:\.git)?$/i.exec(
+    raw.trim().slice(0, 200),
+  );
+  if (m) return `${m[1]}/${m[2]}`.toLowerCase();
+  return normalizeRepoUrl(raw);
+}
+
+/**
+ * Whether an event matters to THIS revision. An event at the resolved version, or just before it (the account that
+ * published it may be the new one), matters whatever its age: a project pinned to a version from a takeover still depends
+ * on it. An event after the resolved version, or with no resolved version known, matters while it is recent (the upgrade
+ * path). Old events before the resolved version are history.
+ */
+export const RELEVANCE = { beforeDays: 90, recentDays: 730 } as const;
+export function isRelevantEvent(
+  e: { at: string; relative_to_resolved: string; days_from_resolved?: number | null },
+  observedAt: string,
+): boolean {
+  const age = (Date.parse(observedAt) - Date.parse(e.at)) / DAY;
+  if (e.relative_to_resolved === 'at') return true;
+  if (e.relative_to_resolved === 'before')
+    return (e.days_from_resolved ?? -Infinity) >= -RELEVANCE.beforeDays;
+  return age <= RELEVANCE.recentDays;
+}
+
 export const DEP_EVENT_LIMITS = {
   perPackage: 10,
   /** A burst is this many versions within this many days after a quieter history. */
@@ -47,9 +74,15 @@ export function dependencyEvents(
   const chron = [...timed].sort(
     (a, b) => ts(a.published_at) - ts(b.published_at) || (a.version < b.version ? -1 : 1),
   );
-  const resolvedAt = chron
-    .filter((v) => resolvedVersions.includes(v.version))
-    .map((v) => ts(v.published_at))[0];
+  // The resolved version's publish time comes from the FULL history when the parser recorded it; the sampled window
+  // (newest versions only) may not contain an older resolved version at all.
+  const fromFull = resolvedVersions
+    .map((v) => ts(pkg.resolved_times?.[v] ?? null))
+    .filter((t) => Number.isFinite(t));
+  const resolvedAt =
+    fromFull.length > 0
+      ? Math.min(...fromFull)
+      : chron.filter((v) => resolvedVersions.includes(v.version)).map((v) => ts(v.published_at))[0];
   let n = 0;
   const add = (
     v: Version,
@@ -76,6 +109,8 @@ export function dependencyEvents(
             : at === resolvedAt
               ? 'at'
               : 'after',
+      days_from_resolved:
+        resolvedAt === undefined ? null : Math.round(((at - resolvedAt) / DAY) * 10) / 10,
       evidence,
       intent: 'undetermined',
     });
@@ -246,7 +281,7 @@ export function correspondDependency(
     return keep('unknown', 'registry lookup did not succeed; correspondence unknown');
   const declared = base.normalized;
   const second = [
-    ...new Set(corroboration.map((u) => normalizeRepoUrl(u)).filter((x): x is string => !!x)),
+    ...new Set(corroboration.map((u) => normalizeProjectId(u)).filter((x): x is string => !!x)),
   ];
   const provenance = pkg.versions[0]?.has_provenance === true;
   if (!declared) {
@@ -254,7 +289,14 @@ export function correspondDependency(
       return keep('unknown', 'the registry source URL is not a GitHub repository; not compared');
     return keep('missing', 'the registry lists no source repository');
   }
-  const conflictsWithSecond = second.length > 0 && !second.includes(declared);
+  // The same repository NAME under another owner is how an organisation rename or transfer looks from two indexes that
+  // refreshed at different times: a note, not a conflict.
+  const nameOf = (r: string): string => r.slice(r.indexOf('/') + 1);
+  const renamed =
+    second.length > 0 &&
+    !second.includes(declared) &&
+    second.every((r) => nameOf(r) === nameOf(declared));
+  const conflictsWithSecond = second.length > 0 && !second.includes(declared) && !renamed;
   const conflictsWithHome = homepageNormalized !== null && homepageNormalized !== declared;
   if (conflictsWithSecond)
     return keep(
@@ -265,6 +307,11 @@ export function correspondDependency(
     return keep(
       'conflicting',
       `the registry names ${declared} but its homepage points to ${homepageNormalized}`,
+    );
+  if (renamed)
+    return keep(
+      'likely',
+      `the registry names ${declared} but deps.dev lists ${second.slice(0, 2).join(', ')}: same repository name under another owner (organisation rename or transfer?)`,
     );
   const agreeSecond = second.includes(declared);
   const agreeHome = homepageNormalized === declared;

@@ -95,6 +95,8 @@ export const DependencyRegistryEventSchema = z.object({
    * `unknown` when no exact resolved version is known or it is not in the sampled history.
    */
   relative_to_resolved: z.enum(['before', 'at', 'after', 'unknown']),
+  /** Days from the resolved version's publish time to the event (negative = before it); null when unknown. */
+  days_from_resolved: z.number().nullable().optional(),
   evidence: z.array(z.string().max(160)).max(4),
   intent: z.literal('undetermined'),
 });

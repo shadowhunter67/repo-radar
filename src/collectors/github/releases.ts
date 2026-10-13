@@ -1,4 +1,5 @@
 import type { HttpClient } from '../../util/http.js';
+import { TooLargeError } from '../../util/http.js';
 import {
   classifyAsset,
   buildReleaseIntel,
@@ -14,6 +15,7 @@ import { EMPTY_TRUST, type TrustConfig } from '../../trust/config.js';
 import { verifyGpgDetached } from '../../trust/gpg.js';
 import type { Verification } from '../../trust/model.js';
 import { loadSigstoreVerifier, verifyBundle, type BundleVerifier } from '../../trust/sigstore.js';
+import { snappyDecompress } from '../../util/snappy.js';
 import type { Release } from '../../release/model.js';
 import { provenanceFromAttestationResponse } from '../../release/provenance.js';
 
@@ -32,6 +34,129 @@ export const RELEASE_LIMITS = {
   attestationsPerRelease: 3,
   maxRequests: 24,
 } as const;
+
+/**
+ * GitHub's attestation API returns small bundles inline and large ones as a short-lived signed `bundle_url` in its own
+ * attestation blob store (Snappy-compressed JSON). That store is the ONLY other host fetched for this, from a dedicated client
+ * without credentials; the URL is validated, size-capped both compressed and decompressed, and never recorded anywhere (its
+ * query string is a signature).
+ */
+export const ATTESTATION_BLOB_HOSTS = ['tmaproduction.blob.core.windows.net'];
+export const LARGE_BUNDLE_LIMITS = {
+  maxFetches: 5,
+  maxCompressedBytes: 512 * 1024,
+  maxDecompressedBytes: 1024 * 1024,
+} as const;
+
+export function isSafeBundleUrl(url: unknown): url is string {
+  if (typeof url !== 'string' || url.length > 1500) return false;
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    return false;
+  }
+  return (
+    u.protocol === 'https:' &&
+    ATTESTATION_BLOB_HOSTS.includes(u.hostname) &&
+    !u.username &&
+    !u.password &&
+    !u.port &&
+    u.pathname.startsWith('/attestations/') &&
+    !u.pathname.split('/').some((p) => p === '..' || p === '.')
+  );
+}
+
+/** A listed attestation whose bundle could not be read because of a resource limit: kept as an explicit record, never dropped. */
+function skippedBundleRecord(reason: string): Provenance {
+  const detail: Verification = {
+    state: 'verification_skipped_resource_limit',
+    trust_root: 'none',
+    verified_by: 'none',
+    engine: 'none',
+    subject: null,
+    detail: reason.slice(0, 240),
+    identity: null,
+  };
+  return {
+    subject: [],
+    predicate_type: 'unknown (bundle not downloaded)',
+    slsa: false,
+    builder_id: null,
+    build_type: null,
+    source_repository: null,
+    source_revision: null,
+    invocation: null,
+    verification: 'verification_skipped_resource_limit',
+    verification_detail: detail,
+    origin: 'github_attestation_api',
+    problems: [reason.slice(0, 200)],
+  };
+}
+
+/**
+ * Replace `bundle_url` entries of an attestation response with the downloaded, decompressed bundle (mutating `body`).
+ * Returns the stub records for bundles that were not downloaded because of a limit, and how many were fetched.
+ */
+async function inlineLargeBundles(
+  body: unknown,
+  blob: HttpClient | undefined,
+  budgetOk: () => boolean,
+  fetchedSoFar: { n: number },
+): Promise<{ skipped: Provenance[]; fetched: number; failed: number }> {
+  const out = { skipped: [] as Provenance[], fetched: 0, failed: 0 };
+  const list = (body as { attestations?: unknown } | null)?.attestations;
+  if (!blob || !Array.isArray(list)) return out;
+  for (const a of list.slice(0, 10) as Record<string, unknown>[]) {
+    if (a['bundle'] != null || typeof a['bundle_url'] !== 'string') continue;
+    const url = a['bundle_url'];
+    if (!isSafeBundleUrl(url)) continue; // left as "not inlined": a URL on another host is never fetched
+    if (fetchedSoFar.n >= LARGE_BUNDLE_LIMITS.maxFetches) {
+      out.skipped.push(
+        skippedBundleRecord(
+          `more than ${LARGE_BUNDLE_LIMITS.maxFetches} large bundles; this one was not downloaded`,
+        ),
+      );
+      continue;
+    }
+    if (!budgetOk()) continue;
+    fetchedSoFar.n++;
+    try {
+      const r = await blob.request(url, {
+        maxBytes: LARGE_BUNDLE_LIMITS.maxCompressedBytes,
+        binary: true,
+      });
+      if (r.status !== 200) {
+        out.failed++;
+        continue;
+      }
+      const raw = Buffer.from(r.body, 'latin1');
+      const text = (
+        raw[0] === 0x7b // already JSON
+          ? raw
+          : snappyDecompress(raw, LARGE_BUNDLE_LIMITS.maxDecompressedBytes)
+      )?.toString('utf8');
+      if (text === undefined) {
+        out.skipped.push(
+          skippedBundleRecord('the bundle is larger than the decompression limit or malformed'),
+        );
+        continue;
+      }
+      a['bundle'] = JSON.parse(text) as unknown;
+      out.fetched++;
+    } catch (e) {
+      // never print the error text: it can contain the signed URL
+      if (e instanceof TooLargeError)
+        out.skipped.push(
+          skippedBundleRecord(
+            `the bundle is larger than ${LARGE_BUNDLE_LIMITS.maxCompressedBytes} bytes`,
+          ),
+        );
+      else out.failed++;
+    }
+  }
+  return out;
+}
 
 /** Download URLs must point into this repository's own release assets on GitHub; nothing else is ever fetched. */
 export function isSafeAssetUrl(url: unknown, owner: string, repo: string): url is string {
@@ -118,6 +243,8 @@ export async function collectReleases(opts: {
   trust?: TrustConfig;
   /** Repository tree paths, to report committed public keys as evidence (`key_present_in_repository`). */
   treePaths?: string[];
+  /** Credential-free client for GitHub's attestation blob store (large Sigstore bundles). Absent: they are counted, not fetched. */
+  blobHttp?: HttpClient;
 }): Promise<ReleaseIntel> {
   const { http, base, headers } = opts;
   if (!opts.releases)
@@ -253,17 +380,33 @@ export async function collectReleases(opts: {
     let unreadable = 0;
     let listed = 0;
     let notInlined = 0;
+    const largeFetches = { n: 0 };
+    let largeFetched = 0;
+    let largeFailed = 0;
     for (const { d } of withDigest) {
       const body = await getJson(`/attestations/sha256:${d?.value}`);
       if (body === undefined) continue;
+      const big = await inlineLargeBundles(body, opts.blobHttp, budgetOk, largeFetches);
+      largeFetched += big.fetched;
+      largeFailed += big.failed;
       const p = provenanceFromAttestationResponse(body);
       recs.push(...p.records);
       recBundles.push(...p.bundles);
+      for (const sk of big.skipped) {
+        recs.push(sk);
+        recBundles.push(null);
+      }
       unreadable += p.unreadable;
       listed += p.listed;
       notInlined += p.not_inlined;
     }
     if (listed > 0) attestationsListed.set(tag, listed);
+    if (largeFetched > 0)
+      limits.push(
+        `${largeFetched} large attestation bundle(s) were downloaded from GitHub's attestation store (Snappy, bounded)`,
+      );
+    if (largeFailed > 0)
+      limits.push(`${largeFailed} large attestation bundle(s) could not be downloaded`);
     if (notInlined > 0)
       limits.push(
         `${notInlined} attestation bundle(s) not inlined by the API (large bundle URL on another host, not fetched)`,
@@ -272,6 +415,7 @@ export async function collectReleases(opts: {
     if (opts.verifyCrypto && recs.length > 0) {
       await sigstoreVerifier();
       for (const [i, rec] of recs.entries()) {
+        if (rec.verification === 'verification_skipped_resource_limit') continue; // nothing to verify: it was not downloaded
         const v = await verifyBundle(verifier, recBundles[i]);
         rec.verification = v.state;
         rec.verification_detail = v;

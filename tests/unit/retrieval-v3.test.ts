@@ -442,5 +442,26 @@ describe('retrieval v3 through the pipeline', () => {
     expect(r.retrieval.method).toBe('targeted');
     expect(r.retrieval.declared_paths.deep).toBeGreaterThanOrEqual(1);
     expect(r.retrieval.explored).toContain('staging/src/k8s.io/api');
+    // the declared module's manifest is READ: depth 4 is accepted for manifests found by a targeted walk
+    const manifests = (id: string) => r.evidence.find((e) => e.id === id)?.value;
+    expect(manifests('manifest.file_count')).toBe(2);
+    expect(manifests('manifest.ecosystems')).toEqual(expect.arrayContaining(['Go']));
+  });
+
+  it('a COMPLETE tree keeps the strict depth limit: nested examples are not packages', async () => {
+    const base = goodRepo();
+    const spec = goodRepo({
+      files: { ...base.files, 'a/b/c/d/go.mod': 'module example.org/deep go 1.22' },
+    });
+    const r = await analyzeRepository(`${spec.owner}/${spec.repo}`, {
+      fetch: fakeFetch(spec),
+      clock: fixedClock,
+      scorecard: false,
+      osv: false,
+      depsDev: false,
+      registry: false,
+    });
+    expect(r.retrieval.method).toBe('recursive');
+    expect(r.evidence.find((e) => e.id === 'manifest.file_count')?.value).toBe(1);
   });
 });
