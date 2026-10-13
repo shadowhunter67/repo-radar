@@ -60,7 +60,12 @@ describe('malicious registry metadata', () => {
   });
 
   it('control characters, ANSI escapes and bidi overrides in names never reach the terminal', async () => {
-    const hostile = 'al\u001b[31mice‮\u0007\u0000';
+    const hostile = [
+      'al',
+      String.fromCharCode(0x1b),
+      '[31mice',
+      String.fromCharCode(0x202e, 7, 0),
+    ].join('');
     const s = goodRepo({
       registry: Object.fromEntries(
         ['bullmq', 'redis', 'lodash'].map((n) => [
@@ -89,9 +94,9 @@ describe('malicious registry metadata', () => {
       depsDev: false,
     });
     const text = renderText(r, { ascii: true, verbose: true });
-    expect(text).not.toMatch(/\u001b|\u0007|\u0000|‮/);
+    expect([...text].some((c) => [0x1b, 0x07, 0x00, 0x202e].includes(c.charCodeAt(0)))).toBe(false);
     const json = JSON.stringify(r);
-    expect(json).not.toMatch(/\\u001b|\\u202e|\\u0007/);
+    expect(json).not.toMatch(/\u001b|\u202e|\u0007/);
     expect(
       r.dependency_registry_intel.packages.some((p) =>
         p.maintainers.names.some((m) => m.suspicious),
