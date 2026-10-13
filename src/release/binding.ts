@@ -1,4 +1,4 @@
-import type { SlsaProperties } from '../trust/model.js';
+import type { SlsaProperties, Verification } from '../trust/model.js';
 import type { Provenance, Release, Signature } from './model.js';
 
 /**
@@ -10,6 +10,20 @@ import type { Provenance, Release, Signature } from './model.js';
 export interface TagInfoLite {
   kind: 'lightweight' | 'annotated' | 'unresolved';
   verification?: { verified?: unknown; reason?: unknown } | null;
+  /** repo-radar's own check of the tag signature against the user's trusted keys, when one was run. */
+  local?: Verification | undefined;
+}
+
+export function signatureBasis(s: {
+  state: Signature['state'];
+  verified_by: Signature['verified_by'];
+  local_state: Signature['local_state'];
+}): NonNullable<Signature['basis']> {
+  if (s.local_state === 'verified') return 'local_crypto_verified';
+  if (s.state === 'verified' && s.verified_by === 'github') return 'github_api_verified';
+  if (s.state === 'present_unverified' && s.local_state === 'present_unverified')
+    return 'present_unverified';
+  return 'not_verified';
 }
 
 const BAD_REASONS = new Set([
@@ -23,8 +37,8 @@ const BAD_REASONS = new Set([
 
 /**
  * GitHub's verification of an annotated tag signature, kept as GitHub's ASSERTION (`trust_root: github_api_assertion`).
- * It is never presented as a local check: `local_state` stays `verification_unavailable` because no public key is pinned
- * and no GPG verification is run here.
+ * It is never presented as a local check: `local_state` is `verification_unavailable` unless the user configured a trusted
+ * key and repo-radar verified the signature itself (`local`), in which case the local result is reported beside it.
  */
 export function tagSignature(tag: TagInfoLite | undefined): Signature | undefined {
   if (tag?.kind !== 'annotated') return undefined;
@@ -40,15 +54,18 @@ export function tagSignature(tag: TagInfoLite | undefined): Signature | undefine
       : BAD_REASONS.has(reason)
         ? 'invalid'
         : 'verification_unavailable';
-  return {
+  const local = tag.local;
+  const sig = {
     subject: 'tag',
-    kind: 'gpg',
+    kind: 'gpg' as const,
     state,
-    trust_root: 'github_api_assertion',
-    verified_by: 'github',
-    local_state: 'verification_unavailable',
+    trust_root: 'github_api_assertion' as const,
+    verified_by: 'github' as const,
+    local_state: local?.state ?? ('verification_unavailable' as const),
+    ...(local ? { local_detail: local } : {}),
     reason,
   };
+  return { ...sig, basis: signatureBasis(sig) };
 }
 
 export interface BindingInput {

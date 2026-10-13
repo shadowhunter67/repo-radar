@@ -8,6 +8,11 @@ import {
 import { parseDigestString } from '../../release/checksums.js';
 import type { Provenance, ReleaseIntel } from '../../release/model.js';
 import { verifyAssets, type AssetVerifyLimits } from '../../release/verify-assets.js';
+import { sigKind, signedAsset } from '../../release/analyze.js';
+import { repositoryKeyFiles, verifySignatureAssets } from '../../release/verify-signatures.js';
+import { EMPTY_TRUST, type TrustConfig } from '../../trust/config.js';
+import { verifyGpgDetached } from '../../trust/gpg.js';
+import type { Verification } from '../../trust/model.js';
 import { loadSigstoreVerifier, verifyBundle, type BundleVerifier } from '../../trust/sigstore.js';
 import type { Release } from '../../release/model.js';
 import { provenanceFromAttestationResponse } from '../../release/provenance.js';
@@ -44,6 +49,49 @@ export function isSafeAssetUrl(url: unknown, owner: string, repo: string): url i
   return !u.pathname.split('/').some((p) => p === '..' || p === '.');
 }
 
+/**
+ * Local check of an annotated tag signature against the USER's trusted GPG keys. GitHub's `verification` object carries the
+ * armored signature and the exact signed payload, so the check needs no clone and no host keyring. Without a trusted key,
+ * or for a signature format this version cannot check (SSH, S/MIME), the local state is `verification_unavailable`, and
+ * GitHub's assertion stays what it is: GitHub's word.
+ */
+async function localTagVerification(
+  t: { verification?: { signature?: unknown; payload?: unknown } } | undefined,
+  tag: string,
+  trust: TrustConfig,
+): Promise<{ local?: Verification }> {
+  const v = t?.verification;
+  const sig = typeof v?.signature === 'string' ? v.signature : '';
+  const payload = typeof v?.payload === 'string' ? v.payload : '';
+  if (!sig || !payload) return {};
+  const subject = `tag ${tag}`.slice(0, 300);
+  const unavailable = (detail: string): { local: Verification } => ({
+    local: {
+      state: 'verification_unavailable',
+      trust_root: 'none',
+      verified_by: 'none',
+      engine: 'none',
+      subject,
+      detail,
+      identity: null,
+    },
+  });
+  if (!/^-----BEGIN PGP SIGNATURE-----/.test(sig.trimStart()))
+    return unavailable(
+      'the tag signature is not an OpenPGP signature; other formats are not verified',
+    );
+  if (!trust.keys.some((k) => k.kind === 'gpg'))
+    return unavailable('a signed tag is present but no trusted GPG key was supplied');
+  return {
+    local: await verifyGpgDetached({
+      signature: sig,
+      data: Buffer.from(payload, 'utf8'),
+      keys: trust.keys,
+      subject,
+    }),
+  };
+}
+
 interface RawAssetWithUrl {
   name?: unknown;
   browser_download_url?: unknown;
@@ -66,6 +114,10 @@ export async function collectReleases(opts: {
   /** Download a few small assets and compare their bytes with published digests (opt-in, bounded). */
   verifyAssets?: boolean;
   assetLimits?: Partial<AssetVerifyLimits>;
+  /** Keys and identity the USER trusts (never read from the repository). Enables OpenPGP / minisign checks. */
+  trust?: TrustConfig;
+  /** Repository tree paths, to report committed public keys as evidence (`key_present_in_repository`). */
+  treePaths?: string[];
 }): Promise<ReleaseIntel> {
   const { http, base, headers } = opts;
   if (!opts.releases)
@@ -110,6 +162,18 @@ export async function collectReleases(opts: {
   const assetChecks = new Map<string, Release['asset_checks']>();
   let verifier: BundleVerifier | undefined = opts.verifier;
   let verifierLoaded = opts.verifier !== undefined;
+  const trust = opts.trust ?? EMPTY_TRUST;
+  const signatureChecks = new Map<string, Map<string, Verification>>();
+  const downloaded = new Map<string, Buffer>();
+  let signaturesRan = false;
+  const sigstoreVerifier = async (): Promise<BundleVerifier | undefined> => {
+    if (!verifierLoaded) {
+      verifier = await loadSigstoreVerifier();
+      verifierLoaded = true;
+      if (!verifier) limits.push('sigstore verifier unavailable: attestations were not verified');
+    }
+    return verifier;
+  };
 
   // Detail (checksums, attestations) goes to the newest STABLE release among those inspected; nightlies and pre-releases
   // would otherwise take the slot.
@@ -130,13 +194,19 @@ export async function collectReleases(opts: {
       const t = (await getJson(`/git/tags/${obj.sha}`)) as
         | {
             object?: { type?: string; sha?: string };
-            verification?: { verified?: unknown; reason?: unknown };
+            verification?: {
+              verified?: unknown;
+              reason?: unknown;
+              signature?: unknown;
+              payload?: unknown;
+            };
           }
         | undefined;
       tags.set(tag, {
         kind: 'annotated',
         commit: t?.object?.type === 'commit' ? (t.object.sha ?? null) : null,
         ...(t?.verification ? { verification: t.verification } : {}),
+        ...(await localTagVerification(t, tag, trust)),
       });
     } else tags.set(tag, { kind: 'unresolved', commit: null });
 
@@ -200,11 +270,7 @@ export async function collectReleases(opts: {
       );
     if (unreadable > 0) limits.push(`${unreadable} attestation bundle(s) could not be parsed`);
     if (opts.verifyCrypto && recs.length > 0) {
-      if (!verifierLoaded) {
-        verifier = await loadSigstoreVerifier();
-        verifierLoaded = true;
-        if (!verifier) limits.push('sigstore verifier unavailable: attestations were not verified');
-      }
+      await sigstoreVerifier();
       for (const [i, rec] of recs.entries()) {
         const v = await verifyBundle(verifier, recBundles[i]);
         rec.verification = v.state;
@@ -229,8 +295,62 @@ export async function collectReleases(opts: {
         ...(opts.assetLimits ? { limits: opts.assetLimits } : {}),
         isSafeUrl: (u) => isSafeAssetUrl(u, opts.owner, opts.repo),
         budgetOk,
+        onBytes: (name, bytes) => downloaded.set(name, bytes),
       });
       if (checks.length > 0) assetChecks.set(tag, checks.slice(0, 10));
+    }
+    // 4) detached signatures (Sigstore blob bundles, OpenPGP, minisign) against the user's trust roots
+    {
+      const hasGpg = trust.keys.some((k) => k.kind === 'gpg');
+      const hasMini = trust.keys.some((k) => k.kind === 'minisign');
+      const byName = new Map(assets.map((a) => [typeof a.name === 'string' ? a.name : '', a]));
+      const names = new Set(byName.keys());
+      const wantedSigs = assets.flatMap((a) => {
+        const name = typeof a.name === 'string' ? a.name : '';
+        if (!name || classifyAsset(name) !== 'signature') return [];
+        const kind = sigKind(name);
+        const usable =
+          (kind === 'sigstore' && opts.verifyCrypto === true) ||
+          (kind === 'gpg' && hasGpg) ||
+          (kind === 'minisign' && hasMini);
+        if (!usable) return [];
+        const targetName = signedAsset(name, names);
+        const target = targetName ? byName.get(targetName) : undefined;
+        return [
+          {
+            name,
+            url: typeof a.browser_download_url === 'string' ? a.browser_download_url : null,
+            kind,
+            target: target
+              ? {
+                  name: targetName as string,
+                  size:
+                    typeof (target as { size?: unknown }).size === 'number'
+                      ? (target as { size: number }).size
+                      : null,
+                  url:
+                    typeof target.browser_download_url === 'string'
+                      ? target.browser_download_url
+                      : null,
+                }
+              : null,
+          },
+        ];
+      });
+      if (wantedSigs.length > 0) {
+        signaturesRan = true;
+        const checks = await verifySignatureAssets({
+          http,
+          signatures: wantedSigs,
+          trust,
+          sigstore: sigstoreVerifier,
+          isSafeUrl: (u) => isSafeAssetUrl(u, opts.owner, opts.repo),
+          budgetOk,
+          known: downloaded,
+          alreadyDownloaded: [...downloaded.values()].reduce((n, b) => n + b.length, 0),
+        });
+        signatureChecks.set(tag, checks);
+      }
     }
   }
   if (published.length > RELEASE_LIMITS.tagReleases)
@@ -248,7 +368,11 @@ export async function collectReleases(opts: {
       verificationRun: {
         attestations: opts.verifyCrypto === true,
         assets: opts.verifyAssets === true,
+        signatures: signaturesRan || trust.keys.length > 0,
+        trusted_keys: trust.keys.length,
       },
+      signatureChecks,
+      repositoryKeys: repositoryKeyFiles(opts.treePaths ?? []),
       requests,
       limits_hit: limits,
     },

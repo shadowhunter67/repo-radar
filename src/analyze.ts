@@ -13,6 +13,7 @@ import {
 } from './deps/depsdev.js';
 import type { AssetVerifyLimits } from './release/verify-assets.js';
 import type { BundleVerifier } from './trust/sigstore.js';
+import type { TrustConfig } from './trust/config.js';
 import { buildTimeline } from './events/build.js';
 import { BUILTIN_PATTERNS } from './events/correlate.js';
 import { hintKey, PRIORITY_POINTS, type PriorityHints } from './registry/dependency-priority.js';
@@ -113,6 +114,8 @@ export interface AnalyzeOptions {
   /** Download up to a few small release assets and compare their bytes with published digests (opt-in). */
   verifyAssets?: boolean;
   assetLimits?: Partial<AssetVerifyLimits>;
+  /** Public keys and signer identity YOU trust (never read from the analyzed repository). Enables OpenPGP / minisign / identity checks. */
+  trust?: TrustConfig;
   /** Look up the packages this repository publishes in their registries (default true). */
   registry?: boolean;
   /** Look up the registries of the repository's dependencies, under a budget (default true; needs `registry`). */
@@ -172,6 +175,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       ...(opts.verifier ? { verifier: opts.verifier } : {}),
       ...(opts.verifyAssets ? { verifyAssets: true } : {}),
       ...(opts.assetLimits ? { assetLimits: opts.assetLimits } : {}),
+      ...(opts.trust ? { trust: opts.trust } : {}),
       ...(opts.retrievalBudget ? { retrievalBudget: opts.retrievalBudget } : {}),
       ...(opts.ref ? { ref: parseGitRef(opts.ref) } : {}),
     }),
@@ -498,6 +502,8 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
               : false,
           verify_crypto: opts.verifyCrypto === true,
           verify_assets: opts.verifyAssets === true,
+          trusted_keys: opts.trust?.keys.length ?? 0,
+          expected_identity: !!opts.trust?.expectedIdentity,
           limits: LIMITS,
         }),
       ),

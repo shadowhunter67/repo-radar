@@ -74,6 +74,18 @@ export const SignatureSchema = z.object({
    * for a git tag there is no pinned public key here, so it stays `verification_unavailable`.
    */
   local_state: z.enum(VERIFICATION_STATES),
+  /** The full local result (engine, trust root, subject) when repo-radar ran its own check; absent otherwise. */
+  local_detail: VerificationSchema.nullable().optional(),
+  /**
+   * The strongest kind of evidence behind this signature:
+   *  - `local_crypto_verified`: repo-radar verified it with a configured trust root;
+   *  - `github_api_verified`: only GitHub's API said so (an assertion, not a local check);
+   *  - `present_unverified`: the signature exists and nobody verified it;
+   *  - `not_verified`: a check ran and did not accept it, or could not decide.
+   */
+  basis: z
+    .enum(['local_crypto_verified', 'github_api_verified', 'present_unverified', 'not_verified'])
+    .optional(),
   reason: z.string().max(100),
 });
 export type Signature = z.infer<typeof SignatureSchema>;
@@ -207,8 +219,30 @@ export const ReleaseIntelSchema = z.object({
   releases_total: z.number().int().min(0),
   requests: z.number().int().min(0),
   limits_hit: z.array(z.string().max(200)).max(10),
+  /**
+   * Public keys found committed in the repository. EVIDENCE ONLY: `trusted` is always false; repository content never
+   * becomes a trust root (see src/trust/config.ts).
+   */
+  key_material_in_repository: z
+    .array(
+      z.object({
+        path: z.string().max(300),
+        kind: z.enum(['gpg', 'minisign', 'unknown']),
+        state: z.literal('key_present_in_repository'),
+        trusted: z.literal(false),
+      }),
+    )
+    .max(10)
+    .optional(),
   /** Which opt-in verifications ran. Facts about verification are emitted only for those that did: not run is unknown. */
-  verification_run: z.object({ attestations: z.boolean(), assets: z.boolean() }),
+  verification_run: z.object({
+    attestations: z.boolean(),
+    assets: z.boolean(),
+    /** Detached signatures (Sigstore blob, OpenPGP, minisign) were checked against the configured trust roots. */
+    signatures: z.boolean().optional(),
+    /** How many trusted keys the user configured for this run (the keys themselves are never recorded). */
+    trusted_keys: z.number().int().min(0).optional(),
+  }),
 });
 export type ReleaseIntel = z.infer<typeof ReleaseIntelSchema>;
 

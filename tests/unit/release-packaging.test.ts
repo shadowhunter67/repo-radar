@@ -100,7 +100,7 @@ describe('GitHub Action release packaging', () => {
       target: 'node20',
       outfile: out,
       banner: {
-        js: "import{createRequire}from'module';const require=createRequire(import.meta.url);",
+        js: "import{createRequire as __rrCreateRequire}from'module';const require=__rrCreateRequire(import.meta.url);",
       },
       logLevel: 'silent',
     });

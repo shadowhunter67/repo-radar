@@ -10,10 +10,14 @@ export const TRUST_ROOTS = [
   'github_api_assertion',
   /** Sigstore public-good instance: Fulcio CA + Rekor key material fetched through the Sigstore TUF root. */
   'sigstore_public_good',
-  /** A public key the user supplied for this run. */
-  'user_supplied_key',
-  /** A key pinned by the project (for example committed in the repository) and accepted by policy. */
-  'project_pinned_key',
+  /** An OpenPGP public key the USER supplied for this run (command line or API). Never read from the analyzed repository. */
+  'user_supplied_gpg_key',
+  /** An OpenPGP public key pinned in a trust configuration the user maintains OUTSIDE the analyzed repository. */
+  'project_pinned_gpg_key',
+  /** A minisign public key the user supplied for this run. */
+  'user_supplied_minisign_key',
+  /** A minisign public key pinned in a user-maintained trust configuration. */
+  'project_pinned_minisign_key',
   /** The operating system trust store (X.509 chains). */
   'system_trust_store',
   /** No trust material was available or applicable. */
@@ -33,6 +37,8 @@ export const VERIFICATION_STATES = [
   'invalid',
   /** The verifier could not reach a decision (timeout, network, malformed or oversized input). Not a rejection, not a pass. */
   'verification_failed',
+  /** A resource limit (bundle, certificate, log-entry, subject or artifact size) stopped verification BEFORE a decision. */
+  'verification_skipped_resource_limit',
   /** The needed verifier or trust material is not available here. */
   'verification_unavailable',
 ] as const;
@@ -48,10 +54,23 @@ export const SignerIdentitySchema = z.object({
 });
 export type SignerIdentity = z.infer<typeof SignerIdentitySchema>;
 
+/** Who performed the check. `github_api` is GitHub's assertion; the others run inside repo-radar. */
+export const VERIFICATION_ENGINES = [
+  'none',
+  'github_api',
+  'sigstore',
+  'openpgp',
+  'minisign',
+] as const;
+
 export const VerificationSchema = z.object({
   state: z.enum(VERIFICATION_STATES),
   trust_root: z.enum(TRUST_ROOTS),
   verified_by: z.enum(['none', 'github', 'local']),
+  /** The verification engine: a maintained library, or the platform crypto for the minisign container format. */
+  engine: z.enum(VERIFICATION_ENGINES).default('none'),
+  /** What was verified: an asset name, `tag <name>` or a digest. Sanitized, capped. */
+  subject: z.string().max(300).nullable().default(null),
   detail: z.string().max(240),
   identity: SignerIdentitySchema.nullable(),
 });
@@ -64,6 +83,8 @@ export const unverified = (
   state,
   trust_root: 'none',
   verified_by: 'none',
+  engine: 'none',
+  subject: null,
   detail: detail.slice(0, 240),
   identity: null,
 });

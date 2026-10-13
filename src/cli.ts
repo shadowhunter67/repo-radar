@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { readFileSync, realpathSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync, statSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { analyzeRepository, toolVersion } from './analyze.js';
+import { analyzeRepository, toolVersion, type AnalyzeOptions } from './analyze.js';
 import { RepoNotFoundError } from './collectors/github/collector.js';
 import { buildRepositoryModel, summarizeModel } from './model/index.js';
 import { buildTrustGraph, summarizeGraph } from './graph/trust.js';
@@ -12,6 +12,16 @@ import { listProfiles, loadProfile, UnknownProfileError } from './profiles/load.
 import { compareRevisions, compareSnapshots, renderHistoricalText } from './history/index.js';
 import { renderDiffText } from './report/diff.js';
 import { REPORT_SCHEMA_VERSION, ReportSchema } from './report/schema.js';
+import type { DepRegistryBudget } from './registry/dependency-model.js';
+import {
+  EMPTY_TRUST,
+  gpgKey,
+  loadTrustFile,
+  mergeTrust,
+  minisignKey,
+  readKeyFile,
+  type TrustConfig,
+} from './trust/config.js';
 import { renderText } from './report/text.js';
 import { parseMinimums } from './scoring/policy.js';
 import { loadRuleSet } from './scoring/rules.js';
@@ -56,7 +66,15 @@ Options for analyze:
   --snapshot-revision        On a conflict with a stored snapshot, keep both: store a content-addressed revision
   --verify-crypto            Cryptographically verify release attestations (Sigstore public-good root; contacts the Sigstore TUF repository)
   --verify-assets            Download up to 3 small release assets (<= 8 MiB each) and compare their bytes with published digests
-  --no-registry              Skip npm / PyPI / crates.io lookups for the packages this repository publishes
+  --no-registry              Skip npm / PyPI / crates.io lookups (own packages and dependencies)
+  --no-dep-registry          Skip registry lookups for DEPENDENCIES only
+  --dep-registry-max <n>     Look up at most n dependency packages, highest priority first (default 25)
+  --dep-registry-requests <n>  Registry request budget for dependencies (default 60)
+  --dep-registry-time <sec>  Time budget for dependency registry lookups (default 45)
+  --trust-config <file>      JSON trust file YOU maintain (public keys, expected signer identity); never read from the repository
+  --trust-gpg-key <file>     OpenPGP public key to trust for tag and release signatures; repeatable
+  --trust-minisign-key <key|file>  minisign public key to trust for .minisig release signatures; repeatable
+  --expect-signer <owner/repo>  Sigstore signatures must come from a GitHub workflow of this repository, else they are invalid
   --no-releases              Skip release asset / checksum / signature / provenance metadata
   --no-targeted-tree         Do not walk priority directories when the recursive git tree is truncated or too large
   --no-sbom                  Do not discover or ingest SBOM files in the repository
@@ -89,6 +107,54 @@ function useAscii(flag: boolean): boolean {
   );
 }
 
+function positiveInt(v: string | undefined, name: string, max: number): number | undefined {
+  if (v === undefined) return undefined;
+  const n = Number(v);
+  if (!Number.isInteger(n) || n < 1 || n > max)
+    throw new RepoRefError(`--${name} must be an integer from 1 to ${max}`);
+  return n;
+}
+
+/** Budget and trust options shared by `analyze` and `diff --from`. Trust comes only from the user's own flags and files. */
+function registryAndTrustOptions(values: {
+  'no-dep-registry': boolean;
+  'dep-registry-max'?: string | undefined;
+  'dep-registry-requests'?: string | undefined;
+  'dep-registry-time'?: string | undefined;
+  'trust-config'?: string | undefined;
+  'trust-gpg-key'?: string[] | undefined;
+  'trust-minisign-key'?: string[] | undefined;
+  'expect-signer'?: string | undefined;
+}): Pick<AnalyzeOptions, 'dependencyRegistry' | 'dependencyRegistryBudget' | 'trust'> {
+  const budget: Partial<DepRegistryBudget> = {};
+  const max = positiveInt(values['dep-registry-max'], 'dep-registry-max', 200);
+  const req = positiveInt(values['dep-registry-requests'], 'dep-registry-requests', 1000);
+  const sec = positiveInt(values['dep-registry-time'], 'dep-registry-time', 600);
+  if (max) budget.maxDependencies = max;
+  if (req) budget.maxRequests = req;
+  if (sec) budget.maxElapsedMs = sec * 1000;
+  let trust: TrustConfig = values['trust-config']
+    ? loadTrustFile(values['trust-config'])
+    : EMPTY_TRUST;
+  const extra: TrustConfig = {
+    keys: [
+      ...(values['trust-gpg-key'] ?? []).map((f) => gpgKey(readKeyFile(f))),
+      ...(values['trust-minisign-key'] ?? []).map((k) =>
+        minisignKey(existsSync(k) ? readKeyFile(k) : k),
+      ),
+    ],
+    ...(values['expect-signer']
+      ? { expectedIdentity: { sourceRepository: values['expect-signer'] } }
+      : {}),
+  };
+  trust = mergeTrust(trust, extra);
+  return {
+    dependencyRegistry: !values['no-dep-registry'],
+    ...(Object.keys(budget).length > 0 ? { dependencyRegistryBudget: budget } : {}),
+    ...(trust.keys.length > 0 || trust.expectedIdentity ? { trust } : {}),
+  };
+}
+
 export async function main(
   argv: string[],
   stdout: (s: string) => void = (s) => process.stdout.write(s),
@@ -114,6 +180,14 @@ export async function main(
         'no-targeted-tree': { type: 'boolean', default: false },
         'no-releases': { type: 'boolean', default: false },
         'no-registry': { type: 'boolean', default: false },
+        'no-dep-registry': { type: 'boolean', default: false },
+        'dep-registry-max': { type: 'string' },
+        'dep-registry-requests': { type: 'string' },
+        'dep-registry-time': { type: 'string' },
+        'trust-config': { type: 'string' },
+        'trust-gpg-key': { type: 'string', multiple: true },
+        'trust-minisign-key': { type: 'string', multiple: true },
+        'expect-signer': { type: 'string' },
         'verify-crypto': { type: 'boolean', default: false },
         'snapshot-dir': { type: 'string' },
         'snapshot-revision': { type: 'boolean', default: false },
@@ -231,6 +305,7 @@ export async function main(
           verifyCrypto: values['verify-crypto'],
           verifyAssets: values['verify-assets'],
           codeScan: !values['no-scan'],
+          ...registryAndTrustOptions(values),
         },
         (a, b) => {
           if (values['snapshot-dir']) {
@@ -331,6 +406,7 @@ export async function main(
       verifyCrypto: values['verify-crypto'],
       verifyAssets: values['verify-assets'],
       codeScan: !values['no-scan'],
+      ...registryAndTrustOptions(values),
       ...(values.ref ? { ref: values.ref } : {}),
     });
     const snap = values['snapshot-dir']

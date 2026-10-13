@@ -2679,6 +2679,7 @@
                         "verified",
                         "invalid",
                         "verification_failed",
+                        "verification_skipped_resource_limit",
                         "verification_unavailable"
                       ]
                     },
@@ -2687,8 +2688,10 @@
                       "enum": [
                         "github_api_assertion",
                         "sigstore_public_good",
-                        "user_supplied_key",
-                        "project_pinned_key",
+                        "user_supplied_gpg_key",
+                        "project_pinned_gpg_key",
+                        "user_supplied_minisign_key",
+                        "project_pinned_minisign_key",
                         "system_trust_store",
                         "none",
                         "unknown"
@@ -2710,7 +2713,163 @@
                         "verified",
                         "invalid",
                         "verification_failed",
+                        "verification_skipped_resource_limit",
                         "verification_unavailable"
+                      ]
+                    },
+                    "local_detail": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "state": {
+                              "type": "string",
+                              "enum": [
+                                "not_present",
+                                "present_unverified",
+                                "verified",
+                                "invalid",
+                                "verification_failed",
+                                "verification_skipped_resource_limit",
+                                "verification_unavailable"
+                              ]
+                            },
+                            "trust_root": {
+                              "type": "string",
+                              "enum": [
+                                "github_api_assertion",
+                                "sigstore_public_good",
+                                "user_supplied_gpg_key",
+                                "project_pinned_gpg_key",
+                                "user_supplied_minisign_key",
+                                "project_pinned_minisign_key",
+                                "system_trust_store",
+                                "none",
+                                "unknown"
+                              ]
+                            },
+                            "verified_by": {
+                              "type": "string",
+                              "enum": [
+                                "none",
+                                "github",
+                                "local"
+                              ]
+                            },
+                            "engine": {
+                              "default": "none",
+                              "type": "string",
+                              "enum": [
+                                "none",
+                                "github_api",
+                                "sigstore",
+                                "openpgp",
+                                "minisign"
+                              ]
+                            },
+                            "subject": {
+                              "default": null,
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "maxLength": 300
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "detail": {
+                              "type": "string",
+                              "maxLength": 240
+                            },
+                            "identity": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "issuer": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "maxLength": 200
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "subject_alternative_name": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "maxLength": 400
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "source_repository": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "maxLength": 200
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "workflow_ref": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "maxLength": 300
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "issuer",
+                                    "subject_alternative_name",
+                                    "source_repository",
+                                    "workflow_ref"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "state",
+                            "trust_root",
+                            "verified_by",
+                            "engine",
+                            "subject",
+                            "detail",
+                            "identity"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "basis": {
+                      "type": "string",
+                      "enum": [
+                        "local_crypto_verified",
+                        "github_api_verified",
+                        "present_unverified",
+                        "not_verified"
                       ]
                     },
                     "reason": {
@@ -2833,6 +2992,7 @@
                         "verified",
                         "invalid",
                         "verification_failed",
+                        "verification_skipped_resource_limit",
                         "verification_unavailable"
                       ]
                     },
@@ -2849,6 +3009,7 @@
                                 "verified",
                                 "invalid",
                                 "verification_failed",
+                                "verification_skipped_resource_limit",
                                 "verification_unavailable"
                               ]
                             },
@@ -2857,8 +3018,10 @@
                               "enum": [
                                 "github_api_assertion",
                                 "sigstore_public_good",
-                                "user_supplied_key",
-                                "project_pinned_key",
+                                "user_supplied_gpg_key",
+                                "project_pinned_gpg_key",
+                                "user_supplied_minisign_key",
+                                "project_pinned_minisign_key",
                                 "system_trust_store",
                                 "none",
                                 "unknown"
@@ -2870,6 +3033,29 @@
                                 "none",
                                 "github",
                                 "local"
+                              ]
+                            },
+                            "engine": {
+                              "default": "none",
+                              "type": "string",
+                              "enum": [
+                                "none",
+                                "github_api",
+                                "sigstore",
+                                "openpgp",
+                                "minisign"
+                              ]
+                            },
+                            "subject": {
+                              "default": null,
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "maxLength": 300
+                                },
+                                {
+                                  "type": "null"
+                                }
                               ]
                             },
                             "detail": {
@@ -2944,6 +3130,8 @@
                             "state",
                             "trust_root",
                             "verified_by",
+                            "engine",
+                            "subject",
                             "detail",
                             "identity"
                           ],
@@ -3280,6 +3468,42 @@
             "maxLength": 200
           }
         },
+        "key_material_in_repository": {
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "gpg",
+                  "minisign",
+                  "unknown"
+                ]
+              },
+              "state": {
+                "type": "string",
+                "const": "key_present_in_repository"
+              },
+              "trusted": {
+                "type": "boolean",
+                "const": false
+              }
+            },
+            "required": [
+              "path",
+              "kind",
+              "state",
+              "trusted"
+            ],
+            "additionalProperties": false
+          }
+        },
         "verification_run": {
           "type": "object",
           "properties": {
@@ -3288,6 +3512,14 @@
             },
             "assets": {
               "type": "boolean"
+            },
+            "signatures": {
+              "type": "boolean"
+            },
+            "trusted_keys": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
             }
           },
           "required": [

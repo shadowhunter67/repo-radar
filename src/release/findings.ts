@@ -214,7 +214,7 @@ export function deriveReleaseFacts(intel: ReleaseIntel, g: Governance): Fact[] {
       );
       f(
         'release.signature_assets.present',
-        latest.signatures.some((s) => s.verified_by === 'none'),
+        latest.signatures.some((s) => s.verified_by !== 'github'),
         from,
         'release',
       );
@@ -250,6 +250,36 @@ export function deriveReleaseFacts(intel: ReleaseIntel, g: Governance): Fact[] {
         'release',
         0.9,
       );
+    }
+    if (intel.verification_run.signatures === true) {
+      // Local cryptographic checks against keys the USER configured. Not run = unknown, so no fact is emitted otherwise.
+      const sigs = latest.signatures;
+      f(
+        'release.signatures.locally_verified',
+        sigs.some((s) => s.local_state === 'verified'),
+        from,
+        'release',
+        0.9,
+      );
+      f(
+        'release.signatures.invalid',
+        sigs.some(
+          (s) =>
+            s.local_state === 'invalid' || (s.verified_by !== 'github' && s.state === 'invalid'),
+        ),
+        from,
+        'release',
+        0.9,
+      );
+      const tagSig = sigs.find((s) => s.subject === 'tag');
+      if (tagSig && (intel.verification_run.trusted_keys ?? 0) > 0)
+        f(
+          'release.tag.signature_locally_verified',
+          tagSig.local_state === 'verified',
+          from,
+          'release',
+          0.9,
+        );
     }
     if (intel.verification_run.assets && latest.asset_checks.length > 0)
       f(

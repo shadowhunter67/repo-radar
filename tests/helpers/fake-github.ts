@@ -20,7 +20,7 @@ export interface FakeReleaseDetail {
   commit: string;
   /** annotated tags are resolved through /git/tags/<sha> */
   annotated?: boolean;
-  verification?: { verified: boolean; reason: string };
+  verification?: { verified: boolean; reason: string; signature?: string; payload?: string };
   publishedBy?: string;
   /** name -> content (checksum files are served; other contents are only hashed) */
   assets: Record<string, string>;

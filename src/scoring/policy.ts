@@ -97,7 +97,12 @@ export function effectiveBlocks(profile: Pick<Profile, 'block' | 'require'>): Bl
       | 'verified_provenance'
       | 'verified_source_binding'
       | 'registry_repository_match'
-      | 'publisher_stability',
+      | 'publisher_stability'
+      | 'locally_verified_signature'
+      | 'dependency_registry_match'
+      | 'dependency_publisher_stability'
+      | 'dependency_provenance_reported'
+      | 'no_dependency_takeover_indicators',
     description: string,
     when: Block['when'],
   ): void => {
@@ -157,6 +162,36 @@ export function effectiveBlocks(profile: Pick<Profile, 'block' | 'require'>): Bl
     {
       fact: { id: 'registry.publisher_stable', equals: false },
     },
+  );
+  mk(
+    'locally_verified_signature',
+    'A release signature verified against a key you configured is required but none was verified',
+    { fact: { id: 'release.signatures.locally_verified', equals: false } },
+  );
+  mk(
+    'dependency_registry_match',
+    'A dependency points to conflicting or missing source repositories',
+    {
+      any: [
+        { fact: { id: 'registry.deps.repository_match', equals: 'conflicting' } },
+        { fact: { id: 'registry.deps.repository_match', equals: 'missing' } },
+      ],
+    } as Block['when'],
+  );
+  mk(
+    'dependency_publisher_stability',
+    'A dependency has a version published by an account new to its sampled publish history',
+    { fact: { id: 'registry.deps.publisher_changed', equals: true } },
+  );
+  mk(
+    'dependency_provenance_reported',
+    'A looked-up npm dependency reports no provenance for its latest version',
+    { fact: { id: 'registry.deps.provenance_reported', equals: false } },
+  );
+  mk(
+    'no_dependency_takeover_indicators',
+    'A dependency shows takeover indicators in its publish history',
+    { fact: { id: 'registry.deps.takeover_indicators', equals: true } },
   );
   return out;
 }

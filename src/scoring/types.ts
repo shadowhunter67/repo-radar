@@ -174,6 +174,16 @@ export const ProfileSchema = z.object({
       registry_repository_match: RequireValue.optional(),
       /** No recent version was published by an account new to the sampled history. */
       publisher_stability: RequireValue.optional(),
+      /** A release signature was verified by repo-radar against a key YOU configured (unknown without --trust-* keys). */
+      locally_verified_signature: RequireValue.optional(),
+      /** No looked-up dependency points to conflicting or missing source repositories. */
+      dependency_registry_match: RequireValue.optional(),
+      /** No looked-up dependency was published by an account new to its sampled history. Unknown never blocks unless `strict`. */
+      dependency_publisher_stability: RequireValue.optional(),
+      /** Every looked-up npm dependency reports provenance for its latest version (registry-reported, not verified). */
+      dependency_provenance_reported: RequireValue.optional(),
+      /** No dependency shows takeover indicators (long gap / new publisher followed by an install script or lost provenance). */
+      no_dependency_takeover_indicators: RequireValue.optional(),
     })
     .strict()
     .default({}),

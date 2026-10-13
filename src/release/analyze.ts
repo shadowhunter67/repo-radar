@@ -6,7 +6,8 @@ import {
   isWeak,
   type ChecksumFile,
 } from './checksums.js';
-import { evaluateBinding, tagSignature } from './binding.js';
+import { evaluateBinding, signatureBasis, tagSignature } from './binding.js';
+import type { Verification } from '../trust/model.js';
 import type {
   ArtifactDigest,
   Provenance,
@@ -38,6 +39,8 @@ export interface TagInfo {
   commit: string | null;
   /** GitHub's own verification of an annotated tag signature (`verification` object), when present. */
   verification?: { verified?: unknown; reason?: unknown } | null;
+  /** repo-radar's own check of that signature against the user's trusted keys. */
+  local?: Verification;
 }
 export interface ReleaseInputs {
   releases: RawRelease[];
@@ -51,7 +54,11 @@ export interface ReleaseInputs {
   assetChecks: Map<string, Release['asset_checks']>;
   /** owner/repo of the analyzed repository. */
   repository: string;
-  verificationRun?: { attestations: boolean; assets: boolean };
+  verificationRun?: ReleaseIntel['verification_run'];
+  /** Local verification of detached signature assets, by release tag then signature asset name. */
+  signatureChecks?: Map<string, Map<string, Verification>>;
+  /** Public keys committed in the repository: evidence only. */
+  repositoryKeys?: NonNullable<ReleaseIntel['key_material_in_repository']>;
   requests: number;
   limits_hit: string[];
 }
@@ -84,7 +91,7 @@ export function classifyAsset(name: string): ReleaseAsset['kind'] {
 }
 
 /** Which asset a signature file refers to: `foo.tar.gz.asc` -> `foo.tar.gz`. */
-function signedAsset(sigName: string, names: Set<string>): string | null {
+export function signedAsset(sigName: string, names: Set<string>): string | null {
   for (const [re] of SIG_EXT) {
     const base = sigName.replace(re, '');
     if (base !== sigName && names.has(base)) return base;
@@ -92,7 +99,7 @@ function signedAsset(sigName: string, names: Set<string>): string | null {
   return null;
 }
 
-function sigKind(name: string): Signature['kind'] {
+export function sigKind(name: string): Signature['kind'] {
   return SIG_EXT.find(([re]) => re.test(name))?.[1] ?? 'unknown';
 }
 
@@ -183,18 +190,21 @@ function releaseOf(
   for (const a of assets) {
     if (a.kind !== 'signature') continue;
     const target = signedAsset(a.name, names);
-    signatures.push({
+    // Without a local check the signature file only exists; with one, the verifier's full result is kept.
+    const local = inputs.signatureChecks?.get(tag)?.get(a.name);
+    const sig: Signature = {
       subject: target ?? a.name,
       kind: sigKind(a.name),
-      // The signature file exists; repo-radar does not verify it.
-      state: 'present_unverified',
-      trust_root: 'none',
-      verified_by: 'none',
-      local_state: 'present_unverified',
+      state: local?.state ?? 'present_unverified',
+      trust_root: local?.trust_root ?? 'none',
+      verified_by: local?.verified_by ?? 'none',
+      local_state: local?.state ?? 'present_unverified',
+      ...(local ? { local_detail: local } : {}),
       reason: target
         ? 'signature asset next to its target'
         : 'signature asset without a matching target',
-    });
+    };
+    signatures.push({ ...sig, basis: signatureBasis(sig) });
   }
 
   const provenance = inputs.provenance.get(tag) ?? [];
@@ -258,5 +268,8 @@ export function buildReleaseIntel(
     requests: inputs.requests,
     limits_hit: inputs.limits_hit.slice(0, 10),
     verification_run: inputs.verificationRun ?? { attestations: false, assets: false },
+    ...(inputs.repositoryKeys && inputs.repositoryKeys.length > 0
+      ? { key_material_in_repository: inputs.repositoryKeys.slice(0, 10) }
+      : {}),
   };
 }

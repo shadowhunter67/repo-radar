@@ -43,6 +43,8 @@ export async function verifyAssets(opts: {
   limits?: Partial<AssetVerifyLimits>;
   isSafeUrl: (u: unknown) => boolean;
   budgetOk: () => boolean;
+  /** Receives the bytes of every asset that was downloaded, so a later signature check can reuse them. */
+  onBytes?: (name: string, bytes: Buffer) => void;
 }): Promise<Check[]> {
   const lim = { ...ASSET_VERIFY_LIMITS, ...opts.limits };
   const fromFile = new Map<string, { algorithm: string; value: string }>();
@@ -102,6 +104,7 @@ export async function verifyAssets(opts: {
       }
       const bytes = Buffer.from(r.body, 'latin1');
       total += bytes.length;
+      opts.onBytes?.(a.name, bytes);
       let mismatch: { algorithm: string; value: string; actual: string } | undefined;
       let actualShown: string | null = null;
       for (const e of expected) {

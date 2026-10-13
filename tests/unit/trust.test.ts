@@ -175,7 +175,7 @@ describe('verification vocabulary: presence is not verification', () => {
       verify: async () => (called++, {}),
     };
     const big = await verifyBundle(v, { chain: 'x'.repeat(300 * 1024) });
-    expect(big.state).toBe('verification_failed');
+    expect(big.state).toBe('verification_skipped_resource_limit');
     expect(big.detail).toMatch(/size limit/);
     expect((await verifyBundle(v, undefined)).state).toBe('verification_failed');
     expect(called).toBe(0);
@@ -254,6 +254,8 @@ describe('binding logic (pure)', () => {
       state: 'verified',
       trust_root: 'sigstore_public_good',
       verified_by: 'local',
+      engine: 'sigstore',
+      subject: null,
       detail: 'ok',
       identity: {
         issuer: 'i',

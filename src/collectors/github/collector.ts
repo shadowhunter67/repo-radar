@@ -9,6 +9,7 @@ import { analyzeReadme } from './readme.js';
 import { analyzeTree, isStaticallyTyped, type TreeEntry } from './tree.js';
 import type { BlobCache } from './blobcache.js';
 import { collectReleases } from './releases.js';
+import type { TrustConfig } from '../../trust/config.js';
 import type { AssetVerifyLimits } from '../../release/verify-assets.js';
 import type { BundleVerifier } from '../../trust/sigstore.js';
 import type { GovernanceInput } from '../../governance/temporal.js';
@@ -97,6 +98,8 @@ export async function collectGithub(
     /** Download a few small assets and compare their bytes with published digests. */
     verifyAssets?: boolean;
     assetLimits?: Partial<AssetVerifyLimits>;
+    /** Keys and identity the user trusts (never read from the repository). */
+    trust?: TrustConfig;
   } = {},
 ): Promise<GithubCollection & CollectorResult> {
   const b = new EvidenceBuilder('github', clock);
@@ -800,6 +803,11 @@ export async function collectGithub(
           ...(options.verifier ? { verifier: options.verifier } : {}),
           ...(options.verifyAssets ? { verifyAssets: true } : {}),
           ...(options.assetLimits ? { assetLimits: options.assetLimits } : {}),
+          ...(options.trust ? { trust: options.trust } : {}),
+          treePaths: entries
+            .filter((e) => e.type === 'blob')
+            .map((e) => e.path)
+            .slice(0, 100_000),
           note: (code, message) => b.diag('info', code, message),
         });
 

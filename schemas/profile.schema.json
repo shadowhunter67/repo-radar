@@ -186,6 +186,61 @@
               "const": "strict"
             }
           ]
+        },
+        "locally_verified_signature": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "dependency_registry_match": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "dependency_publisher_stability": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "dependency_provenance_reported": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "no_dependency_takeover_indicators": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
         }
       },
       "additionalProperties": false

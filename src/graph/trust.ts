@@ -28,6 +28,8 @@ export const GRAPH_NODE_KINDS = [
   'Attestation',
   'Signature',
   'ExternalDomain',
+  'TrustRoot',
+  'Registry',
   'Capability',
   'Finding',
 ] as const;
@@ -43,6 +45,10 @@ export const GRAPH_EDGE_TYPES = [
   'SOURCED_FROM',
   'RELEASED_BY',
   'CONNECTS_TO',
+  'VERIFIED_BY',
+  'USES_TRUST_ROOT',
+  'PUBLISHED_IN',
+  'CORRESPONDS_TO',
   'HAS_CAPABILITY',
   'INTRODUCED_CAPABILITY',
   'HAS_FINDING',
@@ -56,7 +62,10 @@ export const TEMPORAL_SCOPES = [
 export const GRAPH_SOURCES = [
   'dependency_intel',
   'registry',
+  'dependency_registry',
   'release',
+  'trust',
+  'domains',
   'governance',
   'code_analysis',
   'findings',
@@ -78,6 +87,9 @@ export const GraphEdgeSchema = z.object({
   temporal_scope: z.enum(TEMPORAL_SCOPES),
   source: z.enum(GRAPH_SOURCES),
   at: z.string().nullable(),
+  /** When the relation first held / stopped holding, when a source states it. Never invented: absent when unknown. */
+  introduced_at: z.string().nullable().optional(),
+  removed_at: z.string().nullable().optional(),
 });
 export const TrustGraphSchema = z.object({
   version: z.literal('1'),
@@ -92,7 +104,16 @@ export type TrustGraph = z.infer<typeof TrustGraphSchema>;
 export type GraphEdge = z.infer<typeof GraphEdgeSchema>;
 export type GraphNode = z.infer<typeof GraphNodeSchema>;
 
-export const GRAPH_LIMITS = { nodes: 3000, edges: 9000, dependencies: 200 } as const;
+export const GRAPH_LIMITS = {
+  nodes: 3000,
+  edges: 9000,
+  dependencies: 200,
+  /** Dependency registry packages that get nodes, and how many of their newest versions are linked to publishers. */
+  dependencyPackages: 100,
+  versionsPerDependency: 3,
+  maintainersPerPackage: 5,
+  domains: 300,
+} as const;
 
 const clean = (s: string, n = 120): string =>
   [...s]
@@ -120,6 +141,14 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
     }
     return id;
   };
+  const trustRootNode = (root: string): string =>
+    node(`trustroot:${root}`, 'TrustRoot', root, {
+      origin: /^project_pinned/.test(root)
+        ? 'project_pinned'
+        : /^user_supplied/.test(root)
+          ? 'user_supplied'
+          : 'public_infrastructure',
+    });
   const edge = (
     from: string,
     to: string,
@@ -129,6 +158,7 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
     scope: GraphEdge['temporal_scope'],
     source: GraphEdge['source'],
     at: string | null = null,
+    when: { introduced_at?: string | null; removed_at?: string | null } = {},
   ): void => {
     const ev = evidence
       .map((e) => clean(e, 160))
@@ -152,6 +182,8 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
       temporal_scope: scope,
       source,
       at,
+      ...(when.introduced_at !== undefined ? { introduced_at: when.introduced_at } : {}),
+      ...(when.removed_at !== undefined ? { removed_at: when.removed_at } : {}),
     });
   };
 
@@ -217,6 +249,8 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
         trust_root: s.trust_root,
         verified_by: s.verified_by,
         local_state: s.local_state,
+        engine: s.local_detail?.engine ?? 'none',
+        basis: s.basis ?? null,
       });
       edge(
         rid,
@@ -228,6 +262,26 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
         'release',
         r.published_at,
       );
+      // the trust root a check relied on, preferring repo-radar's own check over GitHub's assertion
+      const local = s.local_detail;
+      const root = local && local.trust_root !== 'none' ? local.trust_root : s.trust_root;
+      if (root !== 'none') {
+        const tr = trustRootNode(root);
+        const ok =
+          local && local.trust_root !== 'none'
+            ? local.state === 'verified'
+            : s.state === 'verified';
+        edge(
+          sid,
+          tr,
+          ok ? 'VERIFIED_BY' : 'USES_TRUST_ROOT',
+          [tagEv],
+          ok ? 0.9 : 0.5,
+          'release_time',
+          'trust',
+          r.published_at,
+        );
+      }
     });
     r.provenance.forEach((p, i) => {
       const pid = node(`attestation:${r.tag}/${i}`, 'Attestation', p.predicate_type, {
@@ -246,6 +300,19 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
         'release',
         r.published_at,
       );
+      const attRoot = p.verification_detail?.trust_root;
+      if (attRoot && attRoot !== 'none') {
+        edge(
+          pid,
+          trustRootNode(attRoot),
+          p.verification === 'verified' ? 'VERIFIED_BY' : 'USES_TRUST_ROOT',
+          [tagEv],
+          p.verification === 'verified' ? 0.95 : 0.5,
+          'release_time',
+          'trust',
+          r.published_at,
+        );
+      }
       if (p.source_revision) {
         const c = node(`commit:${p.source_revision}`, 'Commit', p.source_revision.slice(0, 12), {});
         edge(
@@ -317,6 +384,117 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
     }
   }
 
+  // ---- dependency registry packages: who publishes what this repository relies on ----------------------------------------
+  const ECO: Record<string, string> = { npm: 'npm', pypi: 'PyPI', 'crates.io': 'crates.io' };
+  const depReg = report.dependency_registry_intel;
+  for (const p of depReg.packages.slice(0, GRAPH_LIMITS.dependencyPackages)) {
+    if (p.status !== 'ok' && p.status !== 'partial') continue;
+    const key = `${p.registry}:${p.name}`;
+    const pev = `depregistry:${p.registry}:${clean(p.name, 80)}`;
+    const pkg = node(`package:${key}`, 'Package', p.name, {
+      registry: p.registry,
+      status: p.status,
+      latest: p.latest_version,
+      dependency: true,
+      repository_match: p.repository.match,
+    });
+    const reg = node(`registry:${p.registry}`, 'Registry', p.registry);
+    edge(
+      pkg,
+      reg,
+      'PUBLISHED_IN',
+      [pev],
+      0.9,
+      'current_state',
+      'dependency_registry',
+      p.observed_at,
+    );
+    const depId = node(`dep:${ECO[p.registry]}:${p.name}`, 'Dependency', p.name, {
+      ecosystem: ECO[p.registry] ?? p.registry,
+      version: p.resolved_versions[0] ?? null,
+      resolution: p.resolved_versions.length > 0 ? 'resolved' : 'unresolved',
+    });
+    edge(
+      depId,
+      pkg,
+      'CORRESPONDS_TO',
+      [pev, ...p.dependency_ids.slice(0, 2)],
+      p.resolved_versions.length > 0 ? 0.9 : 0.6,
+      'revision',
+      'dependency_registry',
+    );
+    if (p.repository.normalized) {
+      const src = node(`repo:${p.repository.normalized}`, 'Repository', p.repository.normalized, {
+        analyzed: false,
+      });
+      edge(
+        pkg,
+        src,
+        'SOURCED_FROM',
+        [pev],
+        p.repository.match === 'confirmed' ? 0.8 : p.repository.match === 'likely' ? 0.5 : 0.2,
+        'current_state',
+        'dependency_registry',
+        p.observed_at,
+      );
+    }
+    for (const v of p.versions.slice(0, GRAPH_LIMITS.versionsPerDependency)) {
+      if (!v.publisher) continue;
+      const vid = node(`version:${key}@${v.version}`, 'PackageVersion', v.version, {
+        has_provenance: v.has_provenance,
+        provenance_verified: false,
+        dependency: true,
+      });
+      edge(
+        pkg,
+        vid,
+        'RELEASES',
+        [pev],
+        0.9,
+        'publish_history',
+        'dependency_registry',
+        v.published_at,
+      );
+      const pub = node(
+        `publisher:${p.registry}:${v.publisher.name}`,
+        'Publisher',
+        v.publisher.name,
+        {
+          suspicious: v.publisher.suspicious,
+        },
+      );
+      const evIds = depReg.events
+        .filter((e) => e.package === p.name && e.registry === p.registry && e.version === v.version)
+        .map((e) => e.id);
+      edge(
+        vid,
+        pub,
+        'PUBLISHED_BY',
+        [pev, ...evIds.slice(0, 3)],
+        0.9,
+        'publish_history',
+        'dependency_registry',
+        v.published_at,
+      );
+    }
+    for (const m of p.maintainers.names.slice(0, GRAPH_LIMITS.maintainersPerPackage)) {
+      const mid = node(`maintainer:${p.registry}:${m.name}`, 'Maintainer', m.name, {
+        suspicious: m.suspicious,
+        scope: 'current_state',
+      });
+      edge(
+        pkg,
+        mid,
+        'MAINTAINED_BY',
+        [pev],
+        0.8,
+        'current_state',
+        'dependency_registry',
+        p.observed_at,
+      );
+    }
+  }
+
   // ---- capabilities and findings ----------------------------------------------------------------------------------
   for (const c of report.code_analysis.capabilities.summary.filter(
     (x) => x.observed && x.mode !== 'POSSIBLE',
@@ -372,9 +550,10 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
     truncated,
     dropped_without_evidence: dropped,
     not_represented: [
-      'ExternalDomain nodes and CONNECTS_TO edges: domains are not extracted yet',
-      'PUBLISHED_BY for packages that are dependencies of this repository: registry lookups cover only the packages this repository publishes',
+      'dependencies beyond the registry lookup budget, and PyPI publishers (the API does not expose them)',
+      'registry provenance of dependency versions is reported, not verified: PackageVersion nodes carry provenance_verified=false',
       'package ownership transfers: registries expose the current owner set only',
+      'domains of dependencies: dependency tarballs are never fetched',
     ],
   };
 }
