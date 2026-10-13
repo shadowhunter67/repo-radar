@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { analyzeRepository } from '../../src/analyze.js';
 import { CAPABILITIES, PERSISTENCE_KINDS } from '../../src/analysis/types.js';
 import { LIMITS } from '../../src/limits.js';
+import { REPORT_SCHEMA_VERSION } from '../../src/report/schema.js';
 import { packageRoot } from '../../src/util/paths.js';
 import { fakeFetch, fixedClock } from '../helpers/fake-github.js';
 import { installerRepo } from '../helpers/code-scenarios.js';
@@ -58,5 +59,12 @@ describe('0.2 documentation matches the code', () => {
         /\bdetects? malware\b|\bmalware[- ]free\b|\bfully compliant\b|\b100% secure\b/i,
       );
     }
+  });
+});
+
+describe('hosted CI asserts the current schema version', () => {
+  it('.github/workflows/ci.yml checks the schema version the code emits (a bump must not leave the Action matrix red)', () => {
+    const ci = readFileSync(join(packageRoot(), '.github', 'workflows', 'ci.yml'), 'utf8');
+    expect(ci).toContain(`r.schema_version === '${REPORT_SCHEMA_VERSION}'`);
   });
 });
