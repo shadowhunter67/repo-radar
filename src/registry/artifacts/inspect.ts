@@ -194,7 +194,9 @@ export function inspectArtifact(
 ): ArtifactInspection {
   const algorithm =
     opts.algorithm ?? (opts.expectedDigest?.startsWith('sha512-') ? 'sha512' : 'sha256');
-  const actual = createHash(algorithm).update(bytes).digest('base64');
+  const actual = createHash(algorithm)
+    .update(bytes)
+    .digest(algorithm === 'sha256' ? 'hex' : 'base64');
   const expected = opts.expectedDigest?.replace(/^sha(?:256|512)-/, '').trim();
   const digest = expected
     ? { algorithm, expected, actual, verified: actual === expected }

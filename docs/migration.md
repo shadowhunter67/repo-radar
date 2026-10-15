@@ -1,5 +1,9 @@
 # Migration notes
 
+## 0.8 -> 0.9
+
+The report schema and package version are now 0.9/0.9.0. Reports add `dependency_artifacts`; inspection is opt-in and unavailable artifacts remain unknown. Methodology remains 0.4.
+
 ## 0.6 -> 0.7 (report schema 0.7, methodology 0.4)
 
 Additive except the items marked **changed**. 86 rules in total (unchanged); scoring semantics untouched, so the fresh holdout of methodology 0.4 stays valid and no new holdout is required. Not accepted: schema `0.6` reports by tools that only know 0.7 (the `model` and `graph` commands ask for a re-run).

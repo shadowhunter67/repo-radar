@@ -7,7 +7,13 @@ import { HttpError, RateLimitError, TooLargeError } from '../util/http.js';
 import type { ParsedManifest } from './manifests/parse.js';
 
 /** Hosts the registry client may reach (redirects included). Registry-provided URLs are never followed elsewhere. */
-export const REGISTRY_HOSTS = ['registry.npmjs.org', 'pypi.org', 'crates.io'];
+export const REGISTRY_HOSTS = [
+  'registry.npmjs.org',
+  'pypi.org',
+  'crates.io',
+  'files.pythonhosted.org',
+  'static.crates.io',
+];
 
 export const REGISTRY_LIMITS = {
   maxPackages: 4,

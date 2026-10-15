@@ -21,7 +21,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "0.8"
+      "const": "0.9"
     },
     "methodology": {
       "type": "object",
@@ -4030,6 +4030,45 @@
                         "type": "string",
                         "maxLength": 100
                       }
+                    },
+                    "artifact_url": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 500
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "artifact_digest": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "algorithm": {
+                              "type": "string",
+                              "enum": [
+                                "sha256",
+                                "sha512"
+                              ]
+                            },
+                            "value": {
+                              "type": "string",
+                              "maxLength": 300
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "value"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -4672,6 +4711,45 @@
                         "type": "string",
                         "maxLength": 100
                       }
+                    },
+                    "artifact_url": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 500
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "artifact_digest": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "algorithm": {
+                              "type": "string",
+                              "enum": [
+                                "sha256",
+                                "sha512"
+                              ]
+                            },
+                            "value": {
+                              "type": "string",
+                              "maxLength": 300
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "value"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -5034,6 +5112,216 @@
         "requests",
         "bytes",
         "elapsed_ms",
+        "limits_hit",
+        "not_available"
+      ],
+      "additionalProperties": false
+    },
+    "dependency_artifacts": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "1"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "disabled",
+            "analyzed"
+          ]
+        },
+        "eligible": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "candidates": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "downloaded": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "digest_verified": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "inspected": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "skipped": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "artifacts": {
+          "maxItems": 20,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "registry": {
+                "type": "string",
+                "enum": [
+                  "npm",
+                  "pypi",
+                  "crates.io"
+                ]
+              },
+              "package": {
+                "type": "string",
+                "maxLength": 214
+              },
+              "version": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 500
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "state": {
+                "type": "string",
+                "enum": [
+                  "verified",
+                  "verification_unavailable",
+                  "invalid",
+                  "unsupported",
+                  "failed",
+                  "skipped"
+                ]
+              },
+              "entries": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "total_size": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "hooks": {
+                "maxItems": 20,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string",
+                      "maxLength": 65536
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "text"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "domains": {
+                "maxItems": 100,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 253
+                }
+              },
+              "mismatches": {
+                "maxItems": 20,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 200
+                }
+              },
+              "reason": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "evidence": {
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 160
+                }
+              }
+            },
+            "required": [
+              "registry",
+              "package",
+              "version",
+              "url",
+              "state",
+              "entries",
+              "total_size",
+              "hooks",
+              "domains",
+              "mismatches",
+              "reason",
+              "evidence"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "limits_hit": {
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "not_available": {
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        }
+      },
+      "required": [
+        "version",
+        "status",
+        "eligible",
+        "candidates",
+        "downloaded",
+        "digest_verified",
+        "inspected",
+        "skipped",
+        "artifacts",
         "limits_hit",
         "not_available"
       ],
@@ -7176,6 +7464,7 @@
     "release_intel",
     "registry_intel",
     "dependency_registry_intel",
+    "dependency_artifacts",
     "external_domains",
     "timeline",
     "governance",

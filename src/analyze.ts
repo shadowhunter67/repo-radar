@@ -74,6 +74,8 @@ import type { RetrievalBudget } from './collectors/github/retrieval.js';
 import { LIMITS } from './limits.js';
 import { loadProfile, validateProfileAgainstRules } from './profiles/load.js';
 import { REPORT_SCHEMA_VERSION, type Report } from './report/schema.js';
+import { EMPTY_DEPENDENCY_ARTIFACTS } from './registry/artifacts/model.js';
+import { inspectDownloadedArtifacts } from './registry/artifacts/download.js';
 import { evaluate } from './scoring/engine.js';
 import {
   effectiveBlocks,
@@ -126,6 +128,7 @@ export interface AnalyzeOptions {
   domains?: boolean;
   /** Look up the registries of the repository's dependencies, under a budget (default true; needs `registry`). */
   dependencyRegistry?: boolean;
+  inspectDependencyArtifacts?: boolean;
   /** Override the dependency-registry budget (packages, requests, time, versions, bytes). */
   dependencyRegistryBudget?: Partial<DepRegistryBudget>;
   /** Collect release/provenance metadata (default true). */
@@ -259,6 +262,20 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
           note: (code, message) =>
             depRegistryDiag.push({ source: 'registry', level: 'warn', code, message }),
         });
+  const dependencyArtifacts = opts.inspectDependencyArtifacts
+    ? await inspectDownloadedArtifacts({
+        http: registryHttp,
+        candidates: depRegistry.packages.flatMap((p) =>
+          p.versions.slice(0, 2).map((v) => ({
+            registry: p.registry,
+            package: p.name,
+            version: v.version,
+            url: v.artifact_url ?? null,
+            digest: v.artifact_digest ?? null,
+          })),
+        ),
+      })
+    : EMPTY_DEPENDENCY_ARTIFACTS;
 
   const identity = await classifier.classify(github.snapshot);
   identity.confidence_semantics ??= 'heuristic_uncalibrated';
@@ -545,6 +562,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     release_intel: github.releaseIntel,
     registry_intel: registryIntel,
     dependency_registry_intel: depRegistry,
+    dependency_artifacts: dependencyArtifacts,
     external_domains: externalDomains,
     timeline,
     governance,

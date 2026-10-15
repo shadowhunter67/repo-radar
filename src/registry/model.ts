@@ -51,6 +51,12 @@ export const RegistryVersionSchema = z.object({
   has_install_script: z.boolean().optional(),
   /** Maintainers the registry recorded WITH this version at publish time (npm). Historical, unlike the package-level set. */
   maintainers: z.array(z.string().max(100)).max(12).optional(),
+  /** Registry-controlled artifact location and digest; never a trust root. */
+  artifact_url: z.string().max(500).nullable().optional(),
+  artifact_digest: z
+    .object({ algorithm: z.enum(['sha256', 'sha512']), value: z.string().max(300) })
+    .nullable()
+    .optional(),
 });
 export type RegistryVersion = z.infer<typeof RegistryVersionSchema>;
 

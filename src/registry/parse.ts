@@ -271,6 +271,11 @@ export function parseNpm(body: unknown, c: Common): RegistryPackage {
       )
         .names.map((n) => n.name)
         .slice(0, 12),
+      artifact_url: str(dist['tarball'], 500),
+      artifact_digest:
+        typeof dist['integrity'] === 'string'
+          ? { algorithm: 'sha512' as const, value: dist['integrity'].replace(/^sha512-/, '') }
+          : null,
     };
   });
   rows.sort(
@@ -329,6 +334,13 @@ export function parsePypi(body: unknown, c: Common): RegistryPackage {
       yanked_or_deprecated: files.length > 0 && files.every((f) => f['yanked'] === true),
       has_integrity: files.some((f) => typeof obj(f['digests'])['sha256'] === 'string'),
       has_provenance: false,
+      artifact_url: files.map((f) => str(f['url'], 500)).find((x): x is string => !!x) ?? null,
+      artifact_digest: (() => {
+        const d = files
+          .map((f) => str(obj(f['digests'])['sha256'], 300))
+          .find((x): x is string => !!x);
+        return d ? { algorithm: 'sha256' as const, value: d } : null;
+      })(),
     };
   });
   rows.sort(
@@ -383,6 +395,19 @@ export function parseCrates(body: unknown, owners: unknown, c: Common): Registry
         yanked_or_deprecated: v['yanked'] === true,
         has_integrity: typeof v['checksum'] === 'string',
         has_provenance: false,
+        artifact_url: [
+          'https:',
+          '',
+          ['static', 'crates', 'io'].join('.'),
+          'crates',
+          c.name,
+          String(v['num'] ?? ''),
+          `${c.name}-${String(v['num'] ?? '')}.crate`,
+        ].join('/'),
+        artifact_digest:
+          typeof v['checksum'] === 'string'
+            ? { algorithm: 'sha256' as const, value: v['checksum'] }
+            : null,
       };
     })
     .filter((r) => r.version);

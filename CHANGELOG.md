@@ -5,6 +5,10 @@ methodology are versioned separately (`schema_version`, `methodology.version`) a
 
 ## [0.7.0] - unreleased
 
+## [0.9.0] - unreleased
+
+Report schema 0.9 and package 0.9.0. Adds bounded, opt-in dependency artifact inspection contracts with digest-first verification and hostile archive handling. Methodology remains 0.4.
+
 ## [0.8.0] - unreleased
 
 Report schema 0.8, custom Sigstore trust roots for GitHub attestations, and bounded npm dependency-attestation verification states. Methodology remains 0.4 and shipped profiles remain unchanged.

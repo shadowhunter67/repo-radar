@@ -81,6 +81,7 @@ Options for analyze:
   --no-registry              Skip npm / PyPI / crates.io lookups (own packages and dependencies)
   --no-dep-registry          Skip registry lookups for DEPENDENCIES only
   --no-domains               Skip extraction of the external hostnames the repository's files refer to
+  --inspect-dependency-artifacts  Download and inspect selected dependency artifacts within strict budgets
   --dep-registry-max <n>     Look up at most n dependency packages, highest priority first (default 25)
   --dep-registry-requests <n>  Registry request budget for dependencies (default 60)
   --dep-registry-time <sec>  Time budget for dependency registry lookups (default 45)
@@ -202,6 +203,7 @@ export async function main(
         'no-dep-registry': { type: 'boolean', default: false },
         'no-dep-attestations': { type: 'boolean', default: false },
         'no-domains': { type: 'boolean', default: false },
+        'inspect-dependency-artifacts': { type: 'boolean', default: false },
         'dep-registry-max': { type: 'string' },
         'dep-registry-requests': { type: 'string' },
         'dep-registry-time': { type: 'string' },
@@ -396,6 +398,7 @@ export async function main(
           verifyAssets: values['verify-assets'],
           codeScan: !values['no-scan'],
           domains: !values['no-domains'],
+          inspectDependencyArtifacts: values['inspect-dependency-artifacts'],
           ...registryAndTrustOptions(values),
         },
         (a, b) => {
@@ -498,6 +501,7 @@ export async function main(
       verifyAssets: values['verify-assets'],
       codeScan: !values['no-scan'],
       domains: !values['no-domains'],
+      inspectDependencyArtifacts: values['inspect-dependency-artifacts'],
       ...registryAndTrustOptions(values),
       ...(values.ref ? { ref: values.ref } : {}),
     });
