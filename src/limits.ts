@@ -30,4 +30,11 @@ export const LIMITS = {
   maxDomainsTracked: 600,
   maxDomainsReported: 300,
   maxDomainsPerFile: 80,
+  /** Dependency artifact inspection limits. */
+  maxArtifactsPerRun: 5,
+  maxArtifactCompressedBytes: 4 * 1024 * 1024,
+  maxArtifactTotalCompressedBytes: 12 * 1024 * 1024,
+  maxArtifactEntries: 20_000,
+  maxArtifactMetadataBytes: 16 * 1024 * 1024,
+  maxArtifactFileBytes: 64 * 1024,
 } as const;
