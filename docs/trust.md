@@ -75,3 +75,8 @@ The first run exposed three defects, since fixed with tests: a Sigstore bundle n
 ## Limitations
 
 GitHub's own (private-instance) trust root is not implemented, so its release attestations stay `verification_failed`; no certificate revocation checking; SSH and S/MIME tag signatures, cosign key-based signatures and X.509 signature files are not verified; dependency attestations are not verified (registries only REPORT provenance); verification is per release asset, not a verification of the whole release; `--verify-crypto` reaches `tuf-repo-cdn.sigstore.dev`. There is no custom cryptography: Sigstore through `sigstore`, OpenPGP through `openpgp` (LGPL-3.0-or-later, used unmodified as a library), Ed25519 and hashes through `node:crypto`; the minisign container format is parsed in `src/trust/minisign.ts`.
+# GitHub attestation instance trust root
+
+GitHub release attestations are verified only against the separately supplied `github_attestation_instance` trusted root, selected from a user-provided trusted-root JSONL file by the Fulcio CA URI `fulcio.githubapp.com`. The fixture in `tests/fixtures/attestations/github-trusted-root.jsonl` is test data only and is never loaded by production code.
+
+This instance is verified with `ctlogThreshold: 0`, `tlogThreshold: 0`, and `timestampThreshold: 1`. GitHub-instance certificates carry no SCT and these release bundles use signed timestamps rather than Rekor inclusion proofs. Consequently, verification does not establish transparency-log inclusion; trust rests on GitHub's timestamp authority and CA. The certificate-bound SAN, issuer, workflow/repository identity, ref, and commit are retained only when exposed cryptographically by the verifier; unsigned statement claims remain `claimed`.

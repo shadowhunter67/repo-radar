@@ -376,9 +376,12 @@ export function verifyBundleWithRoot(
         trust_root: root.label,
         detail: 'blob verification needs artifact bytes',
       };
-    const signer = new Verifier(toTrustMaterial(root.root)).verify(
-      toSignedEntity(parsed, options.data),
-    );
+    const signer = new Verifier(
+      toTrustMaterial(root.root),
+      root.label === 'github_attestation_instance'
+        ? { ctlogThreshold: 0, tlogThreshold: 0, timestampThreshold: 1 }
+        : undefined,
+    ).verify(toSignedEntity(parsed, options.data));
     const id = parseWorkflowIdentity(
       signer.identity?.subjectAlternativeName,
       signer.identity?.extensions?.issuer,
