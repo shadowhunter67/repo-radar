@@ -185,6 +185,8 @@ export const ProfileSchema = z.object({
       dependency_publisher_stability: RequireValue.optional(),
       /** Every looked-up npm dependency reports provenance for its latest version (registry-reported, not verified). */
       dependency_provenance_reported: RequireValue.optional(),
+      dependency_verified_provenance: RequireValue.optional(),
+      dependency_verified_source_binding: RequireValue.optional(),
       /** No dependency shows takeover indicators (long gap / new publisher followed by an install script or lost provenance). */
       no_dependency_takeover_indicators: RequireValue.optional(),
     })

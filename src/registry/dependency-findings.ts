@@ -104,6 +104,20 @@ export function buildDependencyRegistryFindings(
       remediation:
         'Compare the package name, publisher and source URLs before relying on it; prefer a package whose registry and index metadata agree.',
     });
+    for (const [version, state] of Object.entries(p.attestation_states)) {
+      if (state !== 'source_binding_conflict') continue;
+      out.push({
+        ...base,
+        id: id(),
+        title: 'A dependency attestation conflicts with registry source metadata',
+        severity: 'low',
+        confidence: 0.8,
+        evidence_ids: [`depregistry:${p.registry}:${safe(p.name)}`],
+        summary: `${p.registry}:${safe(p.name)}@${safe(version)} has a verified attestation whose bound source does not match the registry declaration. Intent is undetermined.`,
+        remediation:
+          'Compare the attestation identity and registry source metadata before relying on this version.',
+      });
+    }
   }
   // Events: events that happened AFTER the resolved version cannot have affected the analyzed revision.
   const events = [...relevantEvents(intel)].sort(
@@ -207,5 +221,22 @@ export function deriveDependencyRegistryFacts(
       npm.every((p) => p.versions[0]?.has_provenance === true),
       0.7,
     );
+  const reporting = npm.filter((p) => p.versions.some((v) => v.has_provenance));
+  const verified =
+    reporting.length > 0 &&
+    reporting.every((p) =>
+      Object.values(p.attestation_states).some(
+        (s) => s === 'provenance_verified' || s === 'source_binding_verified',
+      ),
+    );
+  const sourceBound =
+    reporting.length > 0 &&
+    reporting.every((p) =>
+      Object.values(p.attestation_states).some((s) => s === 'source_binding_verified'),
+    );
+  if (complete && reporting.length > 0) {
+    f('registry.deps.provenance_verified', verified, 0.85);
+    f('registry.deps.source_binding_verified', sourceBound, 0.85);
+  }
   return facts;
 }

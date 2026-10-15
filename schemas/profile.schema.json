@@ -231,6 +231,28 @@
             }
           ]
         },
+        "dependency_verified_provenance": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "dependency_verified_source_binding": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
         "no_dependency_takeover_indicators": {
           "anyOf": [
             {

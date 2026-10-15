@@ -5,6 +5,10 @@ methodology are versioned separately (`schema_version`, `methodology.version`) a
 
 ## [0.7.0] - unreleased
 
+## [0.8.0] - unreleased
+
+Report schema 0.8, custom Sigstore trust roots for GitHub attestations, and bounded npm dependency-attestation verification states. Methodology remains 0.4 and shipped profiles remain unchanged.
+
 Report schema 0.7, methodology 0.4 (rules unchanged: 86 -> 86 rules; scoring semantics untouched, so the fresh holdout of methodology 0.4 stays valid; the new outputs are facts, findings, events, trust states and policy inputs). Migration notes: [docs/migration.md](docs/migration.md). Design: [dependency registry](docs/dependency-registry.md), [trust](docs/trust.md), [domains](docs/domains.md), [retrieval](docs/retrieval.md), [governance](docs/governance.md), [history](docs/history.md), [snapshots and graph](docs/snapshots.md), [policy](docs/policy.md), [security model](docs/security-model.md).
 
 ### Added

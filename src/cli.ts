@@ -13,7 +13,7 @@ import {
   domainsIntroducedAfter,
   GraphIndex,
   publishTimes,
-  versionsWithoutVerifiedProvenance,
+  dependenciesWithUnverifiedProvenance,
 } from './graph/query.js';
 import { evaluateHistoryBlocks } from './scoring/policy.js';
 import { listProfiles, loadProfile, UnknownProfileError } from './profiles/load.js';
@@ -319,8 +319,11 @@ export async function main(
         else if (name === 'domains-after' && arg) {
           const [iso, days] = arg.split(/,(?=\d+$)/);
           rows = domainsIntroducedAfter(idx, iso as string, days ? Number(days) : undefined);
-        } else if (name === 'without-verified-provenance')
-          rows = versionsWithoutVerifiedProvenance(idx);
+        } else if (
+          name === 'without-verified-provenance' ||
+          name === 'dependencies-with-unverified-provenance'
+        )
+          rows = dependenciesWithUnverifiedProvenance(idx);
         else if (name === 'publish-times' && arg) rows = publishTimes(idx, arg);
         else {
           stderr(

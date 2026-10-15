@@ -253,6 +253,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
           dependencies: depsStatic.deps,
           clock,
           hints: priorityHints,
+          trust: opts.trust,
           ...(opts.dependencyRegistryBudget ? { budget: opts.dependencyRegistryBudget } : {}),
           note: (code, message) =>
             depRegistryDiag.push({ source: 'registry', level: 'warn', code, message }),

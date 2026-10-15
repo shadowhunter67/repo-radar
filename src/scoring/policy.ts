@@ -102,6 +102,8 @@ export function effectiveBlocks(profile: Pick<Profile, 'block' | 'require'>): Bl
       | 'dependency_registry_match'
       | 'dependency_publisher_stability'
       | 'dependency_provenance_reported'
+      | 'dependency_verified_provenance'
+      | 'dependency_verified_source_binding'
       | 'no_dependency_takeover_indicators',
     description: string,
     when: Block['when'],
@@ -188,6 +190,12 @@ export function effectiveBlocks(profile: Pick<Profile, 'block' | 'require'>): Bl
     'A looked-up npm dependency reports no provenance for its latest version',
     { fact: { id: 'registry.deps.provenance_reported', equals: false } },
   );
+  mk('dependency_verified_provenance', 'A looked-up dependency has verified provenance', {
+    fact: { id: 'registry.deps.provenance_verified', equals: false },
+  });
+  mk('dependency_verified_source_binding', 'A looked-up dependency has verified source binding', {
+    fact: { id: 'registry.deps.source_binding_verified', equals: false },
+  });
   mk(
     'no_dependency_takeover_indicators',
     'A dependency shows takeover indicators in its publish history',

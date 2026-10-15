@@ -211,6 +211,8 @@ export function versionsWithoutVerifiedProvenance(idx: GraphIndex): VersionRow[]
   return rows.sort((a, b) => cmp(a.package, b.package) || cmp(a.version, b.version));
 }
 
+export const dependenciesWithUnverifiedProvenance = versionsWithoutVerifiedProvenance;
+
 export interface PublishEdgeRow {
   package: string;
   version: string;

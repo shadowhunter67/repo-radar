@@ -12,6 +12,7 @@ import { verifyAssets, type AssetVerifyLimits } from '../../release/verify-asset
 import { sigKind, signedAsset } from '../../release/analyze.js';
 import { repositoryKeyFiles, verifySignatureAssets } from '../../release/verify-signatures.js';
 import { EMPTY_TRUST, type TrustConfig } from '../../trust/config.js';
+import { verifyBundleWithRoot } from '../../trust/sigstore.js';
 import { verifyGpgDetached } from '../../trust/gpg.js';
 import type { Verification } from '../../trust/model.js';
 import { loadSigstoreVerifier, verifyBundle, type BundleVerifier } from '../../trust/sigstore.js';
@@ -416,9 +417,28 @@ export async function collectReleases(opts: {
       await sigstoreVerifier();
       for (const [i, rec] of recs.entries()) {
         if (rec.verification === 'verification_skipped_resource_limit') continue; // nothing to verify: it was not downloaded
-        const v = await verifyBundle(verifier, recBundles[i]);
-        rec.verification = v.state;
-        rec.verification_detail = v;
+        const roots = trust.trustedRoots ?? [];
+        const custom =
+          roots.length > 0
+            ? roots.map((root) =>
+                verifyBundleWithRoot(recBundles[i], root, {
+                  expectedIdentity: { sourceRepository: `${opts.owner}/${opts.repo}` },
+                  expectedSubjectDigest: rec.subject.find((s) => s.algorithm === 'sha256')?.digest,
+                }),
+              )
+            : [];
+        const v =
+          custom.find((x) => x.state === 'verified_github_attestation' || x.state === 'verified') ??
+          custom.find((x) => x.trust_root === 'github_attestation_instance') ??
+          custom[0];
+        if (v) {
+          rec.verification = v.state === 'verified_github_attestation' ? 'verified' : v.state;
+          rec.verification_detail = v;
+        } else {
+          const fallback = await verifyBundle(verifier, recBundles[i]);
+          rec.verification = fallback.state;
+          rec.verification_detail = fallback;
+        }
       }
     }
     if (recs.length > 0) provenance.set(tag, recs);

@@ -3995,6 +3995,17 @@
                     "has_integrity": {
                       "type": "boolean"
                     },
+                    "integrity": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 200
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "has_provenance": {
                       "type": "boolean"
                     },
@@ -4625,6 +4636,17 @@
                     },
                     "has_integrity": {
                       "type": "boolean"
+                    },
+                    "integrity": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 200
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     },
                     "has_provenance": {
                       "type": "boolean"

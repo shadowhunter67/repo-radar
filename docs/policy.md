@@ -17,6 +17,8 @@ require:                       # compiled into blocks
   dependency_registry_match: true             # a queried dependency has conflicting or missing source pointers
   dependency_publisher_stability: true        # a relevant dependency version by an account new to its history
   dependency_provenance_reported: true        # every queried npm dependency REPORTS provenance (not verified)
+  dependency_verified_provenance: true        # verified provenance for every queried reporting dependency
+  dependency_verified_source_binding: true    # verified certificate-bound source repository matches registry metadata
   no_dependency_takeover_indicators: strict   # a takeover pattern on one dependency
 block:                         # conditions over facts, findings, capabilities (as before)
   - { id: no-install-time-remote-execution, description: '...', when: { fact: { id: execution.chain.install_time, equals: true } } }

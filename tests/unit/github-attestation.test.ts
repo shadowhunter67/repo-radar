@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parseTrustedRootLines } from '../../src/trust/github-root.js';
-import { provenanceFromAttestationResponse } from '../../src/release/provenance.js';
 import { verifyBundleWithRoot } from '../../src/trust/sigstore.js';
 
 const fixture = (name: string): unknown =>
@@ -12,14 +11,14 @@ const roots = parseTrustedRootLines(
 
 describe('custom Sigstore roots', () => {
   it('verifies npm provenance with the public-good root and rejects a changed digest', () => {
-    const response = provenanceFromAttestationResponse(
-      fixture('npm-sigstore-3.1.0.attestations.json'),
-    );
+    const raw = fixture('npm-sigstore-3.1.0.attestations.json') as {
+      attestations: Array<{ predicateType: string; bundle: unknown }>;
+    };
     const root = roots.find((r) => r.label === 'sigstore_public_good');
     expect(root).toBeDefined();
-    const bundle = response.bundles.find((b) =>
-      JSON.stringify(b).includes('slsa.dev/provenance/v1'),
-    );
+    const bundle = raw.attestations.find(
+      (a) => a.predicateType === 'https://slsa.dev/provenance/v1',
+    )?.bundle;
     expect(bundle).toBeDefined();
     const verified = verifyBundleWithRoot(bundle, root!, {
       expectedSubjectDigest: 'not-the-registry-digest',

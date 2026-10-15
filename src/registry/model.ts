@@ -42,6 +42,7 @@ export const RegistryVersionSchema = z.object({
   yanked_or_deprecated: z.boolean(),
   /** Registry-side integrity metadata exists for the artifact (npm dist.integrity, crates checksum, PyPI digests). */
   has_integrity: z.boolean(),
+  integrity: z.string().max(200).nullable().optional(),
   /** The registry reports a provenance attestation for this version (npm dist.attestations). Not verified here. */
   has_provenance: z.boolean(),
   /** Source repository this VERSION declares (normalized owner/repo for GitHub, else a capped lowercase URL). npm only. */

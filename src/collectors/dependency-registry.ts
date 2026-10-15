@@ -18,6 +18,8 @@ import type { RegistryPackage } from '../registry/model.js';
 import type { HttpClient } from '../util/http.js';
 import { HttpError } from '../util/http.js';
 import { fetchRegistryPackage, makeRegistryGet } from './registry.js';
+import { fetchNpmAttestation } from '../registry/attestation.js';
+import type { TrustConfig } from '../trust/config.js';
 
 /**
  * Registry lookups for the analyzed repository's dependencies, under an explicit budget.
@@ -41,6 +43,7 @@ export async function collectDependencyRegistry(opts: {
   budget?: Partial<DepRegistryBudget>;
   hints?: PriorityHints;
   note: (code: string, message: string) => void;
+  trust?: TrustConfig;
 }): Promise<DependencyRegistryIntel> {
   const budget: DepRegistryBudget = { ...DEP_REGISTRY_BUDGET_DEFAULTS, ...opts.budget };
   const budgetOut = {
@@ -90,6 +93,7 @@ export async function collectDependencyRegistry(opts: {
   const limits: string[] = [];
   let requests = 0;
   let bytes = 0;
+  let attestationsUsed = 0;
   const elapsed = (): number => Math.max(0, opts.clock.now().getTime() - started);
   const stop = (): SkipReason | null =>
     elapsed() > budget.maxElapsedMs
@@ -189,14 +193,52 @@ export async function collectDependencyRegistry(opts: {
       continue;
     }
     const repository = correspondDependency(r, c.corroboration);
+    const attestationStates: Record<
+      string,
+      | 'no_provenance'
+      | 'provenance_reported'
+      | 'provenance_present_unverified'
+      | 'provenance_verified'
+      | 'source_binding_verified'
+      | 'source_binding_conflict'
+      | 'verification_failed'
+      | 'verification_unavailable'
+      | 'verification_skipped_resource_limit'
+      | 'unknown'
+    > = Object.fromEntries(
+      r.versions.map((v) => [
+        v.version,
+        v.has_provenance ? 'provenance_reported' : 'no_provenance',
+      ]),
+    );
+    if (c.registry === 'npm' && budget.maxAttestations === 0) {
+      for (const version of r.versions.filter((v) => v.has_provenance))
+        attestationStates[version.version] = 'unknown';
+    } else if (c.registry === 'npm' && budget.maxAttestations > 0) {
+      for (const version of r.versions
+        .filter((v) => c.resolvedVersions.includes(v.version))
+        .slice(0, 2)) {
+        if (!version.has_provenance) continue;
+        if (attestationsUsed >= budget.maxAttestations) {
+          attestationStates[version.version] = 'unknown';
+          continue;
+        }
+        const result = await fetchNpmAttestation({
+          http: opts.http,
+          name: c.name,
+          version: version.version,
+          versionDoc: version,
+          publicGoodRoot: opts.trust?.trustedRoots?.find((x) => x.label === 'sigstore_public_good'),
+        });
+        requests++;
+        attestationsUsed++;
+        const state = result[0]?.state;
+        if (state) attestationStates[version.version] = state;
+      }
+    }
     const pkg: DependencyRegistryPackage = {
       ...r,
-      attestation_states: Object.fromEntries(
-        r.versions.map((v) => [
-          v.version,
-          v.has_provenance ? 'provenance_reported' : 'no_provenance',
-        ]),
-      ),
+      attestation_states: attestationStates,
       declared_by: (c.dependencyIds[0] ?? 'dependency').slice(0, 300),
       repository,
       dependency_ids: c.dependencyIds,

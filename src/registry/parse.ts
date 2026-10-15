@@ -255,6 +255,7 @@ export function parseNpm(body: unknown, c: Common): RegistryPackage {
       publisher: publisher(obj(vo['_npmUser'])['name']),
       yanked_or_deprecated: typeof vo['deprecated'] === 'string' && vo['deprecated'].length > 0,
       has_integrity: typeof dist['integrity'] === 'string' || typeof dist['shasum'] === 'string',
+      integrity: typeof dist['integrity'] === 'string' ? dist['integrity'].slice(0, 200) : null,
       has_provenance: Object.keys(att).length > 0,
       repository: vrepoUrl
         ? (normalizeRepoUrl(vrepoUrl) ?? vrepoUrl.trim().toLowerCase().slice(0, 120))

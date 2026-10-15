@@ -1,5 +1,8 @@
 import { createHash, verify as verifySignature } from 'node:crypto';
 import type { RegistryVersion } from './model.js';
+import type { HttpClient } from '../util/http.js';
+import type { TrustedRootDocument } from '../trust/github-root.js';
+import { verifyBundleWithRoot } from '../trust/sigstore.js';
 
 export const DEPENDENCY_ATTESTATION_STATES = [
   'no_provenance',
@@ -65,4 +68,134 @@ export function verifyNpmPublishSignature(input: {
 
 export function sha512Integrity(data: Buffer): string {
   return `sha512-${createHash('sha512').update(data).digest('base64')}`;
+}
+
+export async function fetchNpmAttestation(input: {
+  http: HttpClient;
+  name: string;
+  version: string;
+  versionDoc: RegistryVersion;
+  publicGoodRoot?: TrustedRootDocument;
+}): Promise<AttestationResult[]> {
+  if (!input.versionDoc.has_provenance)
+    return [
+      {
+        source: 'npm',
+        state: 'no_provenance',
+        detail: 'the registry did not report an attestation',
+      },
+    ];
+  const url = `https://registry.npmjs.org/-/npm/v1/attestations/${encodeURIComponent(input.name)}@${encodeURIComponent(input.version)}`;
+  try {
+    const response = await input.http.request(url, { maxBytes: 1024 * 1024 });
+    if (response.status !== 200)
+      return [
+        {
+          source: 'npm',
+          state: 'verification_unavailable',
+          detail: `attestation endpoint returned HTTP ${response.status}`,
+        },
+      ];
+    let body: { attestations?: Array<{ predicateType?: string; bundle?: unknown }> };
+    try {
+      body = JSON.parse(response.body) as typeof body;
+    } catch {
+      return [
+        {
+          source: 'npm',
+          state: 'verification_unavailable',
+          detail: 'attestation response was malformed JSON',
+        },
+      ];
+    }
+    const out: AttestationResult[] = [];
+    for (const a of body.attestations ?? []) {
+      if (!a.bundle) {
+        out.push({
+          source: 'npm',
+          state: 'verification_failed',
+          detail: 'attestation had no bundle',
+        });
+        continue;
+      }
+      if (!input.publicGoodRoot) {
+        out.push({
+          source: 'npm',
+          state: 'verification_unavailable',
+          detail: 'public-good trusted root was not supplied',
+        });
+        continue;
+      }
+      const v = verifyBundleWithRoot(a.bundle, input.publicGoodRoot);
+      if (v.state !== 'verified') {
+        out.push({ source: 'npm', state: 'verification_failed', detail: v.detail });
+        continue;
+      }
+      const payload = (a.bundle as { dsseEnvelope?: { payload?: string } }).dsseEnvelope?.payload;
+      const statement = payload
+        ? (JSON.parse(Buffer.from(payload, 'base64').toString('utf8')) as {
+            subject?: Array<{ name?: string; digest?: Record<string, string> }>;
+          })
+        : {};
+      const subject = statement.subject?.[0];
+      if (
+        !subject ||
+        !npmSubjectMatches(input.name, input.version, subject, input.versionDoc.integrity ?? '')
+      ) {
+        out.push({
+          source: 'npm',
+          state: 'source_binding_conflict',
+          detail:
+            'attestation subject does not match the exact npm package, version and registry integrity',
+        });
+        continue;
+      }
+      const boundRepo = v.identity?.source_repository;
+      if (
+        input.versionDoc.repository &&
+        boundRepo &&
+        boundRepo.toLowerCase() !== input.versionDoc.repository.toLowerCase()
+      ) {
+        out.push({
+          source: 'npm',
+          state: 'source_binding_conflict',
+          detail: 'certificate-bound repository differs from the registry-declared repository',
+          verifiedBy: 'sigstore_public_good',
+          subject: { name: subject.name ?? '', sha512: subject.digest?.sha512 ?? '' },
+          repository: { value: boundRepo, binding: 'cryptographically_bound' },
+        });
+        continue;
+      }
+      out.push({
+        source: 'npm',
+        state:
+          input.versionDoc.repository && boundRepo
+            ? 'source_binding_verified'
+            : 'provenance_verified',
+        detail: 'SLSA provenance verified against the Sigstore public-good root',
+        verifiedBy: 'sigstore_public_good',
+        subject: { name: subject.name ?? '', sha512: subject.digest?.sha512 ?? '' },
+        ...(boundRepo
+          ? { repository: { value: boundRepo, binding: 'cryptographically_bound' as const } }
+          : {}),
+      });
+    }
+    return out.length > 0
+      ? out
+      : [
+          {
+            source: 'npm',
+            state: 'verification_failed',
+            detail: 'no usable attestations were returned',
+          },
+        ];
+  } catch (e) {
+    return [
+      {
+        source: 'npm',
+        state: 'verification_unavailable',
+        detail: e instanceof Error ? e.message.slice(0, 200) : 'attestation request failed',
+      },
+    ];
+  }
 }

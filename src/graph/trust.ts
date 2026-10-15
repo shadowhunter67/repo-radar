@@ -439,10 +439,13 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
       );
     }
     for (const v of p.versions.slice(0, GRAPH_LIMITS.versionsPerDependency)) {
-      if (!v.publisher) continue;
+      const attestationState = p.attestation_states[v.version] ?? 'unknown';
       const vid = node(`version:${key}@${v.version}`, 'PackageVersion', v.version, {
         has_provenance: v.has_provenance,
-        provenance_verified: false,
+        provenance_verified:
+          attestationState === 'provenance_verified' ||
+          attestationState === 'source_binding_verified',
+        attestation_state: attestationState,
         dependency: true,
       });
       edge(
@@ -455,27 +458,47 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
         'dependency_registry',
         v.published_at,
       );
-      const pub = node(
-        `publisher:${p.registry}:${v.publisher.name}`,
-        'Publisher',
-        v.publisher.name,
-        {
-          suspicious: v.publisher.suspicious,
-        },
-      );
-      const evIds = depReg.events
-        .filter((e) => e.package === p.name && e.registry === p.registry && e.version === v.version)
-        .map((e) => e.id);
-      edge(
-        vid,
-        pub,
-        'PUBLISHED_BY',
-        [pev, ...evIds.slice(0, 3)],
-        0.9,
-        'publish_history',
-        'dependency_registry',
-        v.published_at,
-      );
+      if (v.publisher) {
+        const pub = node(
+          `publisher:${p.registry}:${v.publisher.name}`,
+          'Publisher',
+          v.publisher.name,
+          {
+            suspicious: v.publisher.suspicious,
+          },
+        );
+        const evIds = depReg.events
+          .filter(
+            (e) => e.package === p.name && e.registry === p.registry && e.version === v.version,
+          )
+          .map((e) => e.id);
+        edge(
+          vid,
+          pub,
+          'PUBLISHED_BY',
+          [pev, ...evIds.slice(0, 3)],
+          0.9,
+          'publish_history',
+          'dependency_registry',
+          v.published_at,
+        );
+      }
+      if (
+        attestationState === 'provenance_verified' ||
+        attestationState === 'source_binding_verified'
+      ) {
+        const root = trustRootNode('sigstore_public_good');
+        edge(
+          vid,
+          root,
+          'VERIFIED_BY',
+          [`depregistry:${p.registry}:${p.name}`],
+          0.9,
+          'publish_history',
+          'dependency_registry',
+          v.published_at,
+        );
+      }
     }
     for (const m of p.maintainers.names.slice(0, GRAPH_LIMITS.maintainersPerPackage)) {
       const mid = node(`maintainer:${p.registry}:${m.name}`, 'Maintainer', m.name, {
