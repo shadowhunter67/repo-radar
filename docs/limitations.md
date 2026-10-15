@@ -74,6 +74,11 @@ See [bias](bias.md). In addition:
 - The current report records artifact-domain hostnames and the pure same-package version event builder is available for revision workflows. A single analysis cannot establish introduction/removal time, so it emits no temporal event for one artifact alone.
 - Artifact candidates are currently taken from the dependency-registry versions selected by the existing registry budget; a separate artifact-specific priority expansion is not yet implemented. Skipped or unavailable candidates remain unknown and do not emit absence facts.
 
+## Package-name intelligence (0.9)
+
+- Comparisons are bounded heuristics over the repository dependency set, declared package names, and the checked-in popular-name seed. The seed is not a registry popularity feed and is intentionally incomplete.
+- The comparator supports registry-normalized names and reports independent signals; it does not establish ownership or intent. Registry-history/deprecation suppression is available to callers supplying those metadata records, while the default repository pipeline does not yet hydrate every registry rename/deprecation relationship into candidate metadata.
+
 - No caching: each run re-fetches everything. Not suitable yet for scanning thousands of repositories.
 - No historical tracking: reports are point-in-time.
 - Reports are reproducible only if the repository and the external services have not changed; evidence carries `observed_at` and the commit `ref`.
