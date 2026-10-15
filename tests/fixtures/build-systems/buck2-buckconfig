@@ -1,0 +1,25 @@
+[cells]
+gh_facebook_buck2 = .
+gh_facebook_buck2_shims_meta = shim
+
+[cell_aliases]
+root = gh_facebook_buck2
+
+[oss]
+internal_cell = fbcode
+stripped_root_dirs = buck2
+
+[project]
+ignore = \
+    app/buck2_explain, \
+    app/buck2_trailcam, \
+    app_dep_graph_rules, \
+    examples, \
+    integrations/rust-project/tests, \
+    tests, \
+    .jj, \
+    .git, \
+    target
+
+[rust]
+default_edition = 2024
