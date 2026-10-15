@@ -234,7 +234,18 @@ export function deriveDependencyRegistryFacts(
     reporting.every((p) =>
       Object.values(p.attestation_states).some((s) => s === 'source_binding_verified'),
     );
-  if (complete && reporting.length > 0) {
+  // `false` means "a verifier ran and did not accept it": it is emitted only when EVERY reporting package reached a decided
+  // state. Not run, unavailable, skipped by budget or only reported are unknown, so a policy `true` never blocks on them.
+  const DECIDED = new Set([
+    'provenance_verified',
+    'source_binding_verified',
+    'source_binding_conflict',
+    'verification_failed',
+  ]);
+  const decided =
+    reporting.length > 0 &&
+    reporting.every((p) => Object.values(p.attestation_states).some((s) => DECIDED.has(s)));
+  if (complete && decided) {
     f('registry.deps.provenance_verified', verified, 0.85);
     f('registry.deps.source_binding_verified', sourceBound, 0.85);
   }

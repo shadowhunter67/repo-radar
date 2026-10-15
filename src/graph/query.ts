@@ -190,9 +190,12 @@ export interface VersionRow {
 export function versionsWithoutVerifiedProvenance(idx: GraphIndex): VersionRow[] {
   const rows: VersionRow[] = [];
   for (const v of idx.ofKind('PackageVersion')) {
-    const verified = idx
-      .outgoing(v.id, 'ATTESTED_BY')
-      .some((e) => idx.nodes.get(e.to)?.attrs['verification'] === 'verified');
+    const verified =
+      idx
+        .outgoing(v.id, 'ATTESTED_BY')
+        .some((e) => idx.nodes.get(e.to)?.attrs['verification'] === 'verified') ||
+      // an accepted verification of a registry package version (dependency attestations)
+      idx.outgoing(v.id, 'VERIFIED_BY').length > 0;
     if (verified) continue;
     const pkg = idx
       .incoming(v.id, 'RELEASES')
