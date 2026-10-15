@@ -1,4 +1,4 @@
-import { createHash, verify as verifySignature } from 'node:crypto';
+import { createHash, createPublicKey, verify as verifySignature } from 'node:crypto';
 import type { RegistryVersion } from './model.js';
 import type { HttpClient } from '../util/http.js';
 import type { TrustedRootDocument } from '../trust/github-root.js';
@@ -56,6 +56,43 @@ export function npmReportedState(version: RegistryVersion): DependencyAttestatio
   return version.has_provenance ? 'provenance_reported' : 'no_provenance';
 }
 
+const ATTESTATION_RANK: Record<DependencyAttestationState, number> = {
+  source_binding_conflict: 100,
+  source_binding_verified: 90,
+  provenance_verified: 80,
+  provenance_reported: 30,
+  provenance_present_unverified: 20,
+  verification_failed: 10,
+  verification_unavailable: 5,
+  verification_skipped_resource_limit: 4,
+  unknown: 1,
+  no_provenance: 0,
+};
+
+export function aggregateAttestationResults(results: AttestationResult[]): AttestationResult {
+  const best = [...results].sort(
+    (a, b) => ATTESTATION_RANK[b.state] - ATTESTATION_RANK[a.state],
+  )[0] ?? {
+    source: 'npm' as const,
+    state: 'verification_failed' as const,
+    detail: 'no attestation result',
+  };
+  const failures = results.filter(
+    (r) =>
+      r !== best && (r.state === 'verification_failed' || r.state === 'verification_unavailable'),
+  );
+  return failures.length > 0
+    ? {
+        ...best,
+        detail:
+          `${best.detail}; other attestation results: ${failures.map((f) => f.detail).join(' | ')}`.slice(
+            0,
+            500,
+          ),
+      }
+    : best;
+}
+
 /** Verify npm's detached publish signature over DSSE PAE using registry-supplied public keys only. */
 export function verifyNpmPublishSignature(input: {
   payloadType: string;
@@ -63,10 +100,24 @@ export function verifyNpmPublishSignature(input: {
   signature: Buffer;
   publicKey: string;
 }): boolean {
-  const pae = Buffer.from(
-    `DSSEv1 ${input.payloadType.length} ${input.payloadType} ${input.payload.length} ${input.payload.toString('utf8')}`,
-  );
-  return verifySignature(null, pae, input.publicKey, input.signature);
+  const type = Buffer.from(input.payloadType, 'utf8');
+  const length = Buffer.from(String(input.payload.length), 'ascii');
+  const pae = Buffer.concat([
+    Buffer.from('DSSEv1 ', 'ascii'),
+    Buffer.from(String(type.length), 'ascii'),
+    Buffer.from(' ', 'ascii'),
+    type,
+    Buffer.from(' ', 'ascii'),
+    length,
+    Buffer.from(' ', 'ascii'),
+    input.payload,
+  ]);
+  const key = createPublicKey({
+    key: Buffer.from(input.publicKey, 'base64'),
+    format: 'der',
+    type: 'spki',
+  });
+  return verifySignature('sha256', pae, key, input.signature);
 }
 
 export function sha512Integrity(data: Buffer): string {
@@ -112,12 +163,128 @@ export async function fetchNpmAttestation(input: {
       ];
     }
     const out: AttestationResult[] = [];
+    let npmKeys: Array<{ keyid?: string; key?: string; expires?: string | null }> | undefined;
     for (const a of body.attestations ?? []) {
       if (!a.bundle) {
         out.push({
           source: 'npm',
           state: 'verification_failed',
           detail: 'attestation had no bundle',
+        });
+        continue;
+      }
+      const predicateType = a.predicateType ?? '';
+      const envelope = (
+        a.bundle as {
+          dsseEnvelope?: {
+            payload?: string;
+            payloadType?: string;
+            signatures?: Array<{ sig?: string; keyid?: string }>;
+          };
+        }
+      ).dsseEnvelope;
+      if (/github\.com\/npm\/attestation\/.*publish\/v0\.1/.test(predicateType)) {
+        if (!npmKeys) {
+          const keysResponse = await input.http.request(
+            'https://registry.npmjs.org/-/npm/v1/keys',
+            { maxBytes: 1024 * 1024 },
+          );
+          if (keysResponse.status !== 200) {
+            out.push({
+              source: 'npm',
+              state: 'verification_unavailable',
+              detail: `npm key endpoint returned HTTP ${keysResponse.status}`,
+            });
+            continue;
+          }
+          try {
+            npmKeys =
+              (
+                JSON.parse(keysResponse.body) as {
+                  keys?: Array<{ keyid?: string; key?: string; expires?: string | null }>;
+                }
+              ).keys ?? [];
+          } catch {
+            out.push({
+              source: 'npm',
+              state: 'verification_unavailable',
+              detail: 'npm key response was malformed JSON',
+            });
+            continue;
+          }
+        }
+        const signature = envelope?.signatures?.[0];
+        const key = npmKeys.find((k) => k.keyid === signature?.keyid);
+        const integrated = Number(
+          (
+            a.bundle as {
+              verificationMaterial?: { tlogEntries?: Array<{ integratedTime?: string }> };
+            }
+          ).verificationMaterial?.tlogEntries?.[0]?.integratedTime,
+        );
+        if (!key || !signature?.sig || !envelope?.payload || !envelope.payloadType) {
+          out.push({
+            source: 'npm',
+            state: 'verification_failed',
+            detail: 'npm publish signature key was not found',
+          });
+          continue;
+        }
+        if (!Number.isFinite(integrated)) {
+          out.push({
+            source: 'npm',
+            state: 'verification_unavailable',
+            detail: 'npm publish attestation has no signed integration time',
+          });
+          continue;
+        }
+        if (key.expires && integrated * 1000 > Date.parse(key.expires)) {
+          out.push({
+            source: 'npm',
+            state: 'verification_failed',
+            detail: 'npm registry signing key was expired at the attestation time',
+          });
+          continue;
+        }
+        const payloadBytes = Buffer.from(envelope.payload, 'base64');
+        if (
+          !verifyNpmPublishSignature({
+            payloadType: envelope.payloadType,
+            payload: payloadBytes,
+            signature: Buffer.from(signature.sig, 'base64'),
+            publicKey: key.key ?? '',
+          })
+        ) {
+          out.push({
+            source: 'npm',
+            state: 'verification_failed',
+            detail: 'npm publish DSSE signature was not accepted by the registry key',
+          });
+          continue;
+        }
+        const statement = JSON.parse(payloadBytes.toString('utf8')) as {
+          subject?: Array<{ name?: string; digest?: Record<string, string> }>;
+        };
+        const subject = statement.subject?.[0];
+        if (
+          !subject ||
+          !npmSubjectMatches(input.name, input.version, subject, input.versionDoc.integrity ?? '')
+        ) {
+          out.push({
+            source: 'npm',
+            state: 'source_binding_conflict',
+            detail:
+              'npm publish attestation subject does not match the exact package version and integrity',
+          });
+          continue;
+        }
+        out.push({
+          source: 'npm',
+          state: 'provenance_verified',
+          detail:
+            'npm publish attestation verified with the registry-published signing key; no source repository is bound',
+          verifiedBy: 'npm_registry_keys',
+          subject: { name: subject.name ?? '', sha512: subject.digest?.sha512 ?? '' },
         });
         continue;
       }
@@ -184,7 +351,7 @@ export async function fetchNpmAttestation(input: {
       });
     }
     return out.length > 0
-      ? out
+      ? [aggregateAttestationResults(out), ...out]
       : [
           {
             source: 'npm',

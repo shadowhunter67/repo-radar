@@ -44,6 +44,7 @@ export async function collectDependencyRegistry(opts: {
   hints?: PriorityHints;
   note: (code: string, message: string) => void;
   trust?: TrustConfig;
+  verifyCrypto?: boolean;
 }): Promise<DependencyRegistryIntel> {
   const budget: DepRegistryBudget = { ...DEP_REGISTRY_BUDGET_DEFAULTS, ...opts.budget };
   const budgetOut = {
@@ -211,7 +212,10 @@ export async function collectDependencyRegistry(opts: {
         v.has_provenance ? 'provenance_reported' : 'no_provenance',
       ]),
     );
-    if (c.registry === 'npm' && budget.maxAttestations === 0) {
+    if (!opts.verifyCrypto && c.registry === 'npm') {
+      for (const version of r.versions.filter((v) => v.has_provenance))
+        attestationStates[version.version] = 'provenance_present_unverified';
+    } else if (c.registry === 'npm' && budget.maxAttestations === 0) {
       for (const version of r.versions.filter((v) => v.has_provenance))
         attestationStates[version.version] = 'unknown';
     } else if (c.registry === 'npm' && budget.maxAttestations > 0) {

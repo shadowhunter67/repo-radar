@@ -68,24 +68,54 @@ const clean = (x: string | null | undefined, n: number): string | null =>
 export function parseWorkflowIdentity(
   san: string | undefined | null,
   issuer: string | undefined | null,
+  extensions?: Array<{ oid?: { id?: number[] }; value?: Uint8Array }>,
 ): SignerIdentity {
   const s = clean(san, 400);
   const m = s
     ? /^https:\/\/github\.com\/([\w.-]+\/[\w.-]+)\/(\.github\/workflows\/[^@]+@.+)$/.exec(s)
     : null;
+  const ext = new Map(
+    (extensions ?? []).map((x) => [
+      x.oid?.id?.join('.'),
+      x.value ? Buffer.from(x.value).toString('utf8') : '',
+    ]),
+  );
+  const normalizeExtension = (v: string | undefined, n: number): string | null =>
+    clean(v?.replace(/^[\s'"]+|[\s'"]+$/g, ''), n);
+  const repo = normalizeExtension(
+    ext.get('1.3.6.1.4.1.57264.1.12') ?? ext.get('1.3.6.1.4.1.57264.1.15'),
+    200,
+  );
+  const ref = normalizeExtension(
+    ext.get('1.3.6.1.4.1.57264.1.14') ?? ext.get('1.3.6.1.4.1.57264.1.16'),
+    300,
+  );
+  const commit = normalizeExtension(ext.get('1.3.6.1.4.1.57264.1.17'), 100);
   return {
     issuer: clean(issuer, 200),
     subject_alternative_name: s,
-    source_repository: m ? (m[1] as string).toLowerCase() : null,
-    workflow_ref: m ? (m[2] as string).slice(0, 300) : null,
-    commit: null,
-    ref: null,
-    runner_build_identity: null,
+    source_repository: repo
+      ? repo
+          .replace(/^https:\/\/github\.com\//i, '')
+          .replace(/\.git$/, '')
+          .toLowerCase()
+      : m
+        ? (m[1] as string).toLowerCase()
+        : null,
+    workflow_ref: ref ?? (m ? (m[2] as string).slice(0, 300) : null),
+    commit: commit ?? null,
+    ref: ref ?? null,
+    runner_build_identity: clean(ext.get('1.3.6.1.4.1.57264.1.20'), 400),
     binding: {
       issuer: 'cryptographically_bound',
       subject_alternative_name: 'cryptographically_bound',
-      source_repository: m ? 'cryptographically_bound' : 'claimed',
-      workflow_ref: m ? 'cryptographically_bound' : 'claimed',
+      source_repository: repo || m ? 'cryptographically_bound' : 'claimed',
+      workflow_ref: ref || m ? 'cryptographically_bound' : 'claimed',
+      commit: commit ? 'cryptographically_bound' : 'claimed',
+      ref: ref ? 'cryptographically_bound' : 'claimed',
+      runner_build_identity: ext.has('1.3.6.1.4.1.57264.1.20')
+        ? 'cryptographically_bound'
+        : 'claimed',
     },
   };
 }
@@ -385,6 +415,7 @@ export function verifyBundleWithRoot(
     const id = parseWorkflowIdentity(
       signer.identity?.subjectAlternativeName,
       signer.identity?.extensions?.issuer,
+      signer.identity?.oids,
     );
     if (options.expectedIdentity) {
       const mismatch = identityMatches(id, options.expectedIdentity);

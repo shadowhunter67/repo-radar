@@ -111,4 +111,35 @@ describe('dependency attestation binding', () => {
       }),
     ).toThrow();
   });
+
+  it('REAL fixture: npm publish attestation verifies with registry-published key material', async () => {
+    const d = (n: string) => join(import.meta.dirname, '..', 'fixtures', 'attestations', n);
+    const version = JSON.parse(
+      readFileSync(d('npm-sigstore-3.1.0.version.json'), 'utf8'),
+    ) as Record<string, unknown>;
+    const attestation = readFileSync(d('npm-sigstore-3.1.0.attestations.json'), 'utf8');
+    const keys = readFileSync(d('npm-registry-keys.json'), 'utf8');
+    const http = new HttpClient({
+      allowedHosts: ['registry.npmjs.org'],
+      fetch: (async (url: string) =>
+        new Response(url.endsWith('/keys') ? keys : attestation, { status: 200 })) as never,
+    });
+    const roots = parseTrustedRootLines(readFileSync(d('github-trusted-root.jsonl'), 'utf8'));
+    const parsed = parseNpm(
+      { name: 'sigstore', versions: { '3.1.0': version }, time: { '3.1.0': '2025-01-01' } },
+      { name: 'sigstore', declaredBy: 'x', observedAt: '2026-01-01' },
+    );
+    const results = await fetchNpmAttestation({
+      http,
+      name: 'sigstore',
+      version: '3.1.0',
+      versionDoc: parsed.versions[0]!,
+      publicGoodRoot: roots.find((r) => r.label === 'sigstore_public_good'),
+    });
+    expect(
+      results.some(
+        (r) => r.verifiedBy === 'npm_registry_keys' && r.state === 'provenance_verified',
+      ),
+    ).toBe(true);
+  });
 });
