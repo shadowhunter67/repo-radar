@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v1",
+  "case_id": "npm-eslint-config-eslint-history",
+  "package": "eslint-config-eslint",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-eslint-config-eslint.json",
+  "incident_window": {
+    "from": "2021-10-01T00:00:00Z",
+    "to": "2022-12-31T00:00:00Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2021-10-01T00:00:00Z"
+  },
+  "resolved_version_candidates": ["12.0.0", "13.0.0", "14.0.0"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

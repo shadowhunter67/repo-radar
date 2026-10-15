@@ -171,3 +171,7 @@ First working MVP. Schema 0.1, methodology 0.1.
 - Canonical JSON report with generated JSON Schemas; text report.
 - GitHub Action (composite, bundled), CI, Dependabot, issue/PR templates.
 - Documentation: architecture, methodology, evidence schema, bias, limitations, security model, roadmap, standards authoring.
+## [0.8.0] - Unreleased
+
+- Add phase-1 offline supply-chain incident calibration corpus, evaluator, and blind review packets.
+- Document threshold measurement and limitations; methodology remains 0.4 and shipped policy profiles are unchanged.

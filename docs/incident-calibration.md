@@ -1,0 +1,46 @@
+# Incident calibration (0.8, phase 1)
+
+Phase 1 measures registry-history observations and the dependency takeover patterns against a pinned, offline corpus. It changes no score, rule, shipped profile or trust root (methodology stays 0.4). Raw npm packuments and crates.io responses saved on 2026-10-15 in `calibration/incidents/raw/` are the only registry evidence; the production parsers, event analysis and correlation engine are used.
+
+## Corpus (`calibration/incidents/cases.json`, schema in the README there)
+
+31 cases over 27 packages: 12 incident-labelled (10 npm packages involved in public incidents) and 19 benign handoffs/controls (npm and crates.io). Each case has hand-written `expected_events` read from the raw file, per-label observations (`true` / `false` / `unknown`), an incident window and a known-good window, a conclusion kept separate from the observations, and sources.
+
+**Splits are decided by package (ecosystem + name), not by case id.** A first version split by case id and put the same registry history in development and in the holdout (event-stream, express, ua-parser-js); that leak was found in review and removed. Resulting split: development 21 cases (9 incident), validation 6 (1 incident), holdout 4 (2 incident, 2 benign). Validation therefore has a single incident case: validation numbers for incident detection are not meaningful. This is stated rather than re-rolled after looking at results.
+
+Labels are single AI-assisted and **not independently validated**; no reviewer is recorded. Blind review packets (`calibration/incidents/review/`) hide labels and conclusions for a future human reviewer; gate 14 stays MANUAL.
+
+## What registry history can and cannot show
+
+Malicious npm versions are usually removed after an incident, so the pinned packument often does not list them. `install_script_introduced`, `external_domain_introduced` and cadence cannot be decided for most incidents: those labels abstain. Pattern expectations for incident cases are therefore `null` (abstention) and are **not** counted in precision or recall: the patterns need an install script or a domain that registry metadata cannot show for these incidents.
+
+## Measured results (development + validation; holdout not evaluated)
+
+Raw observation labels (n = cases with a decided label; accuracy / precision / recall / benign FPR):
+
+| Observation | n | Accuracy | Precision | Recall | Benign FPR |
+| ----------- | - | -------- | --------- | ------ | ---------- |
+| publisher change | 27 | 0.70 | 0.65 | 0.85 | 0.35 |
+| maintainer change | 27 | 0.96 | 1.00 | 0.95 | 0.00 |
+| repository change | 27 | 0.48 | 0.86 | 0.32 | 0.06 |
+| dormancy end | 27 | 0.74 | 1.00 | 0.68 | 0.00 |
+| install script introduced | 27 | 1.00 | 1.00 | 1.00 | 0.00 |
+| provenance changed | 27 | 0.89 | 1.00 | 0.25 | 0.00 |
+| cadence change, external domain | 0 | - | - | - | - |
+
+Patterns (the real correlation engine over the events inside each case window; 17 decided benign cases, 10 incident cases abstain):
+
+| Pattern | Benign false-positive rate | Incident cases fired |
+| ------- | -------------------------- | -------------------- |
+| `dependency-takeover-indicators` | **5 of 17 (29%)**: chalk, left-pad (twice), minimist, mkdirp | 0 of 10 |
+| `dependency-dormancy-publisher-hook` | 0 of 17 | 0 of 10 (needs an install script the registry cannot show) |
+
+Window sensitivity (`within_days` 7 to 180): no change in either pattern. The false positives come from the second step alternatives `dependency_repository_changed` and `dependency_provenance_removed`, which occur in benign histories after a dormancy or maintainer change; the window is not the problem.
+
+## Decisions
+
+No threshold was changed: no window shows a stable validation gain. Dormancy, cadence and new-publisher thresholds were not gridded because the event-level expectations were authored against the current definitions (a grid would be circular). **Finding to act on, not hidden:** the `dependency-takeover-indicators` pattern is too weak when its second step is a repository change or lost provenance without an install script; it fires on legitimate maintainer handoffs. It remains an indicator ("intent undetermined"), is not enabled by any shipped profile, and should be narrowed (an install script or new domain required) in a later change measured on fresh cases. The publisher-change observation has a 35% benign false-positive rate, consistent with legitimate hand-overs being common.
+
+## Limits
+
+27 packages, mostly npm; one validation incident; incident versions removed from registries; benign-labelled cases are labelled from the raw history only where confident; labels are single AI-assisted. The numbers describe this corpus, not the world. `--final` evaluates the holdout once and writes `calibration/incidents/results/final-holdout.json`; it has not been run.

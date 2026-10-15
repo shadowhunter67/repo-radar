@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v1",
+  "case_id": "npm-ua-parser-js-history",
+  "package": "ua-parser-js",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-ua-parser-js.json",
+  "incident_window": {
+    "from": "2021-10-01T00:00:00Z",
+    "to": "2022-12-31T00:00:00Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2021-10-01T00:00:00Z"
+  },
+  "resolved_version_candidates": ["2.0.8", "2.0.9", "2.0.10"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

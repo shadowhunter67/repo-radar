@@ -8,3 +8,4 @@ calibration/results
 calibration/runs
 calibration/pins.json
 .tmp
+calibration/incidents/raw

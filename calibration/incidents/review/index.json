@@ -1,0 +1,54 @@
+{
+  "packet_version": 1,
+  "blind": true,
+  "packets": [
+    {
+      "case_id": "npm-coa-history",
+      "packet": "packets/npm-coa-history.json"
+    },
+    {
+      "case_id": "npm-colors-history",
+      "packet": "packets/npm-colors-history.json"
+    },
+    {
+      "case_id": "npm-eslint-config-eslint-history",
+      "packet": "packets/npm-eslint-config-eslint-history.json"
+    },
+    {
+      "case_id": "npm-eslint-scope-history",
+      "packet": "packets/npm-eslint-scope-history.json"
+    },
+    {
+      "case_id": "npm-event-stream-history",
+      "packet": "packets/npm-event-stream-history.json"
+    },
+    {
+      "case_id": "npm-faker-history",
+      "packet": "packets/npm-faker-history.json"
+    },
+    {
+      "case_id": "npm-flatmap-stream-history",
+      "packet": "packets/npm-flatmap-stream-history.json"
+    },
+    {
+      "case_id": "npm-node-ipc-history",
+      "packet": "packets/npm-node-ipc-history.json"
+    },
+    {
+      "case_id": "npm-rc-history",
+      "packet": "packets/npm-rc-history.json"
+    },
+    {
+      "case_id": "npm-ua-parser-js-history",
+      "packet": "packets/npm-ua-parser-js-history.json"
+    },
+    {
+      "case_id": "npm-event-stream-history-incident-window",
+      "packet": "packets/npm-event-stream-history-incident-window.json"
+    },
+    {
+      "case_id": "npm-ua-parser-js-history-incident-window",
+      "packet": "packets/npm-ua-parser-js-history-incident-window.json"
+    }
+  ]
+}

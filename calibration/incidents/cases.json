@@ -1,0 +1,2686 @@
+[
+  {
+    "id": "crates.io-rand-history",
+    "package": "rand",
+    "ecosystem": "crates.io",
+    "raw_file": "raw/crates-rand.json",
+    "split": "validation",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2024-02-18T17:52:19.981921Z",
+      "to": "2024-02-18T17:52:19.981921Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2024-02-18T17:52:19.981921Z"
+    },
+    "resolved_version_candidates": ["0.1.3", "0.1.2", "0.1.1"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "false",
+      "repository_change": "false",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "0.9.0-alpha.0",
+        "date": "2024-02-18T17:52:19.981921Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://crates.io/crates/rand"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "crates.io-serde-history",
+    "package": "serde",
+    "ecosystem": "crates.io",
+    "raw_file": "raw/crates-serde.json",
+    "split": "development",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2015-01-01T00:00:00Z",
+      "to": "2026-01-01T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-01-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["0.2.1", "0.2.0", "0.0.0"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "false",
+      "repository_change": "false",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://crates.io/crates/serde"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "crates.io-tokio-history",
+    "package": "tokio",
+    "ecosystem": "crates.io",
+    "raw_file": "raw/crates-tokio.json",
+    "split": "validation",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2018-02-07T21:30:22.157279Z",
+      "to": "2020-12-25T21:20:37.345132Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2018-02-07T21:30:22.157279Z"
+    },
+    "resolved_version_candidates": ["0.1.1", "0.1.0", "0.0.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "false",
+      "repository_change": "false",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "0.1.0",
+        "date": "2018-02-07T21:30:22.157279Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.2.16",
+        "date": "2020-04-04T00:02:32.803058Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.3.6",
+        "date": "2020-12-14T22:03:41.922497Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.0.1",
+        "date": "2020-12-25T21:20:37.345132Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://crates.io/crates/tokio"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-async-history",
+    "package": "async",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-async.json",
+    "split": "development",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2015-05-19T08:45:57.198Z",
+      "to": "2023-11-03T22:11:06.054Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-05-19T08:45:57.198Z"
+    },
+    "resolved_version_candidates": ["3.2.4", "3.2.5", "3.2.6"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.9.2",
+        "date": "2015-05-19T08:45:57.198Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.9.2",
+        "date": "2015-05-19T08:45:57.198Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "0.9.2",
+        "date": "2015-05-19T08:45:57.198Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.0.0",
+        "date": "2015-05-20T23:40:05.710Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.0",
+        "date": "2015-05-20T23:40:05.710Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.4.0",
+        "date": "2015-07-20T02:11:50.089Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.4.0",
+        "date": "2015-07-20T02:11:50.089Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.6.0",
+        "date": "2017-11-07T02:45:53.140Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "3.2.1",
+        "date": "2021-08-05T23:19:42.272Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.6.4",
+        "date": "2022-04-13T23:07:35.444Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "3.2.5",
+        "date": "2023-11-03T22:11:06.054Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/async"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-bluebird-history",
+    "package": "bluebird",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-bluebird.json",
+    "split": "development",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2015-01-01T00:00:00Z",
+      "to": "2026-01-01T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-01-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["3.7.0", "3.7.1", "3.7.2"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "false",
+      "repository_change": "false",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/bluebird"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-chalk-history",
+    "package": "chalk",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-chalk.json",
+    "split": "development",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2015-02-23T07:41:35.421Z",
+      "to": "2025-09-08T14:47:54.486Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-02-23T07:41:35.421Z"
+    },
+    "resolved_version_candidates": ["5.6.2", "6.0.0", "6.0.1"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.0.0",
+        "date": "2015-02-23T07:41:35.421Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.0",
+        "date": "2015-07-01T13:32:13.906Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.1.0",
+        "date": "2015-07-01T13:32:13.906Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.1.1",
+        "date": "2015-08-19T20:10:58.495Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.1.2",
+        "date": "2016-03-28T23:32:04.003Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.2",
+        "date": "2016-03-28T23:32:04.003Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "2.0.0",
+        "date": "2017-06-29T23:49:22.932Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.4.2",
+        "date": "2019-01-05T15:45:52.349Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "5.4.0",
+        "date": "2024-12-18T18:00:41.792Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "5.6.2",
+        "date": "2025-09-08T14:47:54.486Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/chalk"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-coa-history",
+    "package": "coa",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-coa.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2021-10-01T00:00:00Z",
+      "to": "2022-12-31T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2021-10-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["2.0.0", "2.0.1", "2.0.2"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "false",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.2.1",
+        "date": "2011-11-09T15:25:27.265Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.0.2",
+        "date": "2017-05-23T11:17:52.640Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.2",
+        "date": "2017-05-23T11:17:52.640Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "1.0.2",
+        "date": "2017-05-23T11:17:52.640Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "medium",
+    "sources": ["https://www.npmjs.com/package/coa"],
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+  },
+  {
+    "id": "npm-colors-history",
+    "package": "colors",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-colors.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2021-10-01T00:00:00Z",
+      "to": "2022-12-31T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2021-10-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["1.3.2", "1.3.3", "1.4.0"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.5.0",
+        "date": "2011-03-15T10:12:18.245Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.6.1",
+        "date": "2013-07-26T05:49:48.513Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "0.6.1",
+        "date": "2013-07-26T05:49:48.513Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "1.0.0",
+        "date": "2014-10-01T11:29:39.467Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.2.0-rc0",
+        "date": "2018-02-16T22:45:09.148Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.2.0-rc0",
+        "date": "2018-02-16T22:45:09.148Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "1.2.0-rc0",
+        "date": "2018-02-16T22:45:09.148Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      }
+    },
+    "conclusion": "insufficient_evidence",
+    "incident_confidence": "medium",
+    "sources": ["https://www.npmjs.com/package/colors"],
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+  },
+  {
+    "id": "npm-core-js-history",
+    "package": "core-js",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-core-js.json",
+    "split": "development",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2015-06-09T03:02:09.944Z",
+      "to": "2026-08-05T08:54:45.261Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-06-09T03:02:09.944Z"
+    },
+    "resolved_version_candidates": ["3.49.0", "4.0.0-alpha.1", "3.50.0"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "true",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.9.15",
+        "date": "2015-06-09T03:02:09.944Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "2.5.0",
+        "date": "2017-08-06T14:30:22.262Z"
+      },
+      {
+        "type": "dependency_install_hook_introduced",
+        "version": "2.6.6",
+        "date": "2019-05-19T18:55:23.988Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.7.0",
+        "date": "2020-11-06T15:11:17.855Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.17.3",
+        "date": "2021-09-09T08:41:33.288Z"
+      },
+      {
+        "type": "dependency_install_hook_introduced",
+        "version": "3.50.0",
+        "date": "2026-08-05T08:54:45.261Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/core-js"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-debug-history",
+    "package": "debug",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-debug.json",
+    "split": "validation",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2016-11-07T17:40:37.812Z",
+      "to": "2025-05-13T20:56:36.431Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2016-11-07T17:40:37.812Z"
+    },
+    "resolved_version_candidates": ["4.4.0", "4.4.1", "4.4.3"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.3.0",
+        "date": "2016-11-07T17:40:37.812Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.3.0",
+        "date": "2016-11-07T17:40:37.812Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "2.3.0",
+        "date": "2016-11-07T17:40:37.812Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.4.2",
+        "date": "2016-12-14T19:40:21.566Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.0.0",
+        "date": "2017-08-08T21:55:59.088Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.2.0",
+        "date": "2018-09-11T06:19:14.567Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.2.0",
+        "date": "2018-09-11T06:19:14.567Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.1.1",
+        "date": "2018-12-22T16:40:22.538Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "4.2.0",
+        "date": "2020-05-19T09:51:27.149Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "4.3.3",
+        "date": "2021-11-27T13:14:24.425Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "4.3.5",
+        "date": "2024-05-31T11:40:15.895Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.4.1",
+        "date": "2025-05-13T20:56:36.431Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/debug"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-eslint-config-eslint-history",
+    "package": "eslint-config-eslint",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-eslint-config-eslint.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2021-10-01T00:00:00Z",
+      "to": "2022-12-31T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2021-10-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["12.0.0", "13.0.0", "14.0.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.1",
+        "date": "2015-10-15T16:58:31.573Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.0",
+        "date": "2016-01-15T22:13:01.505Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.0.0",
+        "date": "2017-02-20T17:49:16.127Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "4.0.0",
+        "date": "2017-02-20T17:49:16.127Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "5.0.0",
+        "date": "2018-07-08T20:57:13.562Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "6.0.0",
+        "date": "2019-12-20T21:05:48.948Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "6.0.0",
+        "date": "2019-12-20T21:05:48.948Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "6.0.0",
+        "date": "2019-12-20T21:05:48.948Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "7.0.0",
+        "date": "2021-02-05T21:42:17.051Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "8.0.0",
+        "date": "2023-06-30T20:37:39.630Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "14.0.0",
+        "date": "2026-03-06T22:37:51.748Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "medium",
+    "sources": ["https://www.npmjs.com/package/eslint-config-eslint"],
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+  },
+  {
+    "id": "npm-eslint-scope-history",
+    "package": "eslint-scope",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-eslint-scope.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2021-10-01T00:00:00Z",
+      "to": "2022-12-31T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2021-10-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["9.1.0", "9.1.1", "9.1.2"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.7.1",
+        "date": "2017-04-12T21:13:31.158Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "4.0.0-alpha.0",
+        "date": "2018-04-28T01:47:18.036Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.7.3",
+        "date": "2018-07-12T17:41:22.504Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "5.1.0",
+        "date": "2020-06-04T11:24:47.993Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "5.1.0",
+        "date": "2020-06-04T11:24:47.993Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "5.1.1",
+        "date": "2020-09-12T18:29:01.228Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.0.0",
+        "date": "2021-11-16T06:23:14.044Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "7.2.2",
+        "date": "2023-07-28T15:20:07.242Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "8.1.0",
+        "date": "2024-09-27T14:55:50.098Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "9.0.0",
+        "date": "2025-11-10T16:30:18.599Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "9.0.0",
+        "date": "2025-11-10T16:30:18.599Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "medium",
+    "sources": ["https://www.npmjs.com/package/eslint-scope"],
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+  },
+  {
+    "id": "npm-event-stream-history",
+    "package": "event-stream",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-event-stream.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2018-09-01T00:00:00Z",
+      "to": "2018-12-01T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2018-09-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["3.3.5", "4.0.0", "4.0.1"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "true",
+      "repository_change": "false",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.3.5",
+        "date": "2018-09-05T05:27:47.219Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "3.3.5",
+        "date": "2018-09-05T05:27:47.219Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.0.0",
+        "date": "2018-09-16T11:20:20.938Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "medium",
+    "sources": ["https://www.npmjs.com/package/event-stream"],
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+  },
+  {
+    "id": "npm-express-history",
+    "package": "express",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-express.json",
+    "split": "holdout",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2015-05-18T04:06:45.934Z",
+      "to": "2026-09-14T06:46:38.631Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-05-18T04:06:45.934Z"
+    },
+    "resolved_version_candidates": ["4.22.2", "4.22.3", "5.3.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.20.3",
+        "date": "2015-05-18T04:06:45.934Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.13.4",
+        "date": "2016-01-22T02:15:21.453Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "4.13.4",
+        "date": "2016-01-22T02:15:21.453Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.14.0",
+        "date": "2016-06-16T16:43:30.648Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "4.14.1",
+        "date": "2017-01-28T22:33:15.950Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.17.0",
+        "date": "2019-05-17T01:57:40.690Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "4.17.2",
+        "date": "2021-12-17T03:48:56.946Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.18.3",
+        "date": "2024-02-29T11:50:55.579Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.18.3",
+        "date": "2024-02-29T11:50:55.579Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "4.18.3",
+        "date": "2024-02-29T11:50:55.579Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.19.0",
+        "date": "2024-03-20T15:14:37.159Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.20.0",
+        "date": "2024-09-10T02:07:55.590Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.21.2",
+        "date": "2024-12-05T22:31:40.945Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.21.2",
+        "date": "2024-12-05T22:31:40.945Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "5.1.0",
+        "date": "2025-03-31T14:01:22.509Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.22.0",
+        "date": "2025-12-01T16:23:07.582Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.22.3",
+        "date": "2026-09-14T06:46:38.631Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "4.22.3",
+        "date": "2026-09-14T06:46:38.631Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/express"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-faker-history",
+    "package": "faker",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-faker.json",
+    "split": "holdout",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2021-10-01T00:00:00Z",
+      "to": "2022-12-31T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2021-10-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["5.5.2", "5.5.3", "6.6.6"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.0.0",
+        "date": "2014-09-30T00:02:49.301Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.0",
+        "date": "2014-09-30T00:02:49.301Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.1.4",
+        "date": "2015-06-04T18:57:29.764Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.0.0",
+        "date": "2015-07-10T02:06:13.779Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "5.0.0",
+        "date": "2020-08-23T14:33:14.894Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      }
+    },
+    "conclusion": "insufficient_evidence",
+    "incident_confidence": "medium",
+    "sources": ["https://www.npmjs.com/package/faker"],
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+  },
+  {
+    "id": "npm-flatmap-stream-history",
+    "package": "flatmap-stream",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-flatmap-stream.json",
+    "split": "holdout",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2021-10-01T00:00:00Z",
+      "to": "2022-12-31T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2021-10-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["0.0.1-security"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "false",
+      "repository_change": "false",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "medium",
+    "sources": ["https://www.npmjs.com/package/flatmap-stream"],
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+  },
+  {
+    "id": "npm-got-history",
+    "package": "got",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-got.json",
+    "split": "validation",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2015-04-21T14:08:22.947Z",
+      "to": "2025-10-16T16:26:22.954Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-04-21T14:08:22.947Z"
+    },
+    "resolved_version_candidates": ["15.1.0", "16.0.0", "16.1.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.8.1",
+        "date": "2015-04-21T14:08:22.947Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.9.0",
+        "date": "2015-04-26T15:55:52.739Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.0.0",
+        "date": "2015-05-06T06:30:58.538Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "6.5.0",
+        "date": "2016-09-14T09:02:20.690Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.0.0",
+        "date": "2017-05-29T08:02:02.304Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "9.0.0",
+        "date": "2018-08-04T06:43:48.207Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "9.3.0",
+        "date": "2018-10-30T09:01:56.256Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "10.0.0-alpha.1.1",
+        "date": "2019-09-17T10:42:44.167Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "10.0.3",
+        "date": "2019-12-09T18:46:37.644Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "14.6.0",
+        "date": "2025-10-16T16:26:22.954Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/got"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-left-pad-history",
+    "package": "left-pad",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-left-pad.json",
+    "split": "development",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2016-03-22T21:51:19.774Z",
+      "to": "2017-11-17T05:48:38.934Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2016-03-22T21:51:19.774Z"
+    },
+    "resolved_version_candidates": ["1.1.3", "1.2.0", "1.3.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.0.3",
+        "date": "2016-03-22T21:51:19.774Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.0.3",
+        "date": "2016-03-22T21:51:19.774Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.0.1",
+        "date": "2016-03-23T00:00:19.758Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.2",
+        "date": "2016-04-13T16:59:21.924Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.1.0",
+        "date": "2016-05-01T11:06:11.595Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.0",
+        "date": "2016-05-01T11:06:11.595Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.1.0",
+        "date": "2016-05-01T11:06:11.595Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "1.2.0",
+        "date": "2017-11-17T05:48:38.934Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/left-pad"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-lodash-history",
+    "package": "lodash",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-lodash.json",
+    "split": "validation",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2015-01-26T15:09:31.198Z",
+      "to": "2020-08-13T16:53:54.152Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-01-26T15:09:31.198Z"
+    },
+    "resolved_version_candidates": ["4.17.23", "4.18.0", "4.18.1"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.0.0",
+        "date": "2015-01-26T15:09:31.198Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "3.0.0",
+        "date": "2015-01-26T15:09:31.198Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.0.1",
+        "date": "2015-01-30T09:33:51.621Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.0.2",
+        "date": "2015-03-30T15:58:01.337Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.7.0",
+        "date": "2015-04-16T15:47:35.770Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.4.2",
+        "date": "2015-04-26T21:04:49.443Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.8.0",
+        "date": "2015-05-01T15:45:44.760Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.0.0",
+        "date": "2016-01-12T23:13:20.539Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.4.0",
+        "date": "2016-02-16T07:10:16.856Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.11.2",
+        "date": "2016-05-02T15:01:02.189Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.16.5",
+        "date": "2016-10-31T06:49:14.797Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "4.17.5",
+        "date": "2018-02-04T00:34:41.111Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.17.20",
+        "date": "2020-08-13T16:53:54.152Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.17.20",
+        "date": "2020-08-13T16:53:54.152Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/lodash"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-minimist-history",
+    "package": "minimist",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-minimist.json",
+    "split": "development",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2020-03-10T18:06:04.936Z",
+      "to": "2023-02-09T20:11:17.634Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2020-03-10T18:06:04.936Z"
+    },
+    "resolved_version_candidates": ["0.2.3", "1.2.8", "0.2.4"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.2.1",
+        "date": "2020-03-10T18:06:04.936Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "1.2.1",
+        "date": "2020-03-10T18:06:04.936Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "1.2.6",
+        "date": "2022-03-22T02:50:30.352Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.2.7",
+        "date": "2022-10-11T01:21:52.310Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.2.7",
+        "date": "2022-10-11T01:21:52.310Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.2.3",
+        "date": "2023-02-09T20:11:17.634Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/minimist"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-mkdirp-history",
+    "package": "mkdirp",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-mkdirp.json",
+    "split": "development",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2015-05-14T02:27:01.553Z",
+      "to": "2023-01-16T04:21:36.027Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-05-14T02:27:01.553Z"
+    },
+    "resolved_version_candidates": ["2.1.6", "3.0.0", "3.0.1"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.5.1",
+        "date": "2015-05-14T02:27:01.553Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "0.5.1",
+        "date": "2015-05-14T02:27:01.553Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.0",
+        "date": "2020-01-24T20:18:42.630Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.0.0",
+        "date": "2020-01-24T20:18:42.630Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "1.0.0",
+        "date": "2020-01-24T20:18:42.630Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.5.2",
+        "date": "2020-03-17T16:27:28.746Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.5.4",
+        "date": "2020-03-23T17:53:03.257Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.0.4",
+        "date": "2020-04-03T17:03:08.825Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.5.5",
+        "date": "2020-04-03T17:12:26.436Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "0.5.6",
+        "date": "2022-03-22T23:48:15.108Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.0",
+        "date": "2023-01-16T04:21:36.027Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/mkdirp"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-moment-history",
+    "package": "moment",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-moment.json",
+    "split": "development",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2016-07-04T05:11:00.066Z",
+      "to": "2026-09-15T01:07:26.131Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2016-07-04T05:11:00.066Z"
+    },
+    "resolved_version_candidates": ["2.30.0", "2.30.1", "2.31.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.14.0",
+        "date": "2016-07-04T05:11:00.066Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.15.0",
+        "date": "2016-09-12T09:27:34.034Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.15.2",
+        "date": "2016-10-24T06:49:41.735Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.19.3",
+        "date": "2017-11-29T16:28:22.840Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.19.3",
+        "date": "2017-11-29T16:28:22.840Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "2.25.0",
+        "date": "2020-05-01T01:27:04.984Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "2.29.2",
+        "date": "2022-04-03T13:18:14.359Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "2.30.0",
+        "date": "2023-12-26T19:36:16.236Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.31.0",
+        "date": "2026-09-15T01:07:26.131Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.31.0",
+        "date": "2026-09-15T01:07:26.131Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.31.0",
+        "date": "2026-09-15T01:07:26.131Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.31.0",
+        "date": "2026-09-15T01:07:26.131Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/moment"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-node-ipc-history",
+    "package": "node-ipc",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-node-ipc.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2022-03-01T00:00:00Z",
+      "to": "2022-04-01T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2022-03-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["11.1.0", "12.0.0", "14.0.0"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.2",
+        "date": "2015-09-27T10:37:34.737Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.1.0",
+        "date": "2015-12-03T16:53:23.754Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "8.1.0",
+        "date": "2016-08-02T19:36:47.523Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "8.10.0",
+        "date": "2016-12-22T03:18:44.316Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "8.10.1",
+        "date": "2016-12-22T03:50:52.017Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "9.1.1",
+        "date": "2017-08-25T07:24:15.723Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "9.1.2",
+        "date": "2020-11-11T22:50:45.386Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "9.1.2",
+        "date": "2020-11-11T22:50:45.386Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "14.0.0",
+        "date": "2026-08-24T22:17:14.926Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      }
+    },
+    "conclusion": "insufficient_evidence",
+    "incident_confidence": "medium",
+    "sources": ["https://www.npmjs.com/package/node-ipc"],
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+  },
+  {
+    "id": "npm-rc-history",
+    "package": "rc",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-rc.json",
+    "split": "validation",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2021-10-01T00:00:00Z",
+      "to": "2022-12-31T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2021-10-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["1.2.6", "1.2.7", "1.2.8"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "false",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.0.5",
+        "date": "2012-08-21T16:49:51.668Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.1.0",
+        "date": "2015-07-25T20:11:29.561Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "1.1.7",
+        "date": "2017-02-17T09:15:19.960Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "medium",
+    "sources": ["https://www.npmjs.com/package/rc"],
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+  },
+  {
+    "id": "npm-request-history",
+    "package": "request",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-request.json",
+    "split": "development",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2015-03-24T22:01:04.401Z",
+      "to": "2020-02-11T16:35:36.122Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-03-24T22:01:04.401Z"
+    },
+    "resolved_version_candidates": ["2.87.0", "2.88.0", "2.88.2"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.54.0",
+        "date": "2015-03-24T22:01:04.401Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.54.0",
+        "date": "2015-03-24T22:01:04.401Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.56.0",
+        "date": "2015-05-28T18:03:06.887Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "2.88.2",
+        "date": "2020-02-11T16:35:36.122Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/request"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-ua-parser-js-history",
+    "package": "ua-parser-js",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-ua-parser-js.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2021-10-01T00:00:00Z",
+      "to": "2022-12-31T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2021-10-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["2.0.8", "2.0.9", "2.0.10"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "false",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.7.0",
+        "date": "2014-06-25T07:47:33.048Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.7.10",
+        "date": "2015-12-12T12:12:29.429Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.0-alpha.3",
+        "date": "2023-08-17T04:44:30.527Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.7.36",
+        "date": "2023-09-09T13:59:29.197Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.0-beta.1",
+        "date": "2023-10-05T12:44:05.105Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.7.37",
+        "date": "2023-10-27T12:47:26.646Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.0-beta.2",
+        "date": "2024-02-01T04:28:05.574Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.7.38",
+        "date": "2024-05-28T14:23:45.560Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.0-beta.3",
+        "date": "2024-06-07T18:23:00.158Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.7.39",
+        "date": "2024-09-11T13:55:19.323Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.0-rc.1",
+        "date": "2024-10-29T15:38:30.987Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.7.40",
+        "date": "2024-12-21T07:56:57.181Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.1",
+        "date": "2025-02-04T14:57:01.927Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.7.41",
+        "date": "2025-08-19T12:44:58.278Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.5",
+        "date": "2025-09-09T13:56:40.283Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      }
+    },
+    "conclusion": "insufficient_evidence",
+    "incident_confidence": "medium",
+    "sources": ["https://www.npmjs.com/package/ua-parser-js"],
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+  },
+  {
+    "id": "npm-underscore-history",
+    "package": "underscore",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-underscore.json",
+    "split": "development",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2018-04-18T18:40:09.494Z",
+      "to": "2024-07-24T20:39:20.856Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2018-04-18T18:40:09.494Z"
+    },
+    "resolved_version_candidates": ["1.13.6", "1.13.7", "1.13.8"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "true",
+      "repository_change": "false",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "true",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.9.0",
+        "date": "2018-04-18T18:40:09.494Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "1.9.0",
+        "date": "2018-04-18T18:40:09.494Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "1.9.2",
+        "date": "2020-01-06T21:27:53.199Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.12.0",
+        "date": "2020-11-24T01:01:38.593Z"
+      },
+      {
+        "type": "dependency_install_hook_introduced",
+        "version": "1.13.5",
+        "date": "2022-09-23T19:16:35.921Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.13.7",
+        "date": "2024-07-24T20:39:20.856Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "1.13.7",
+        "date": "2024-07-24T20:39:20.856Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/underscore"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-event-stream-history-incident-window",
+    "package": "event-stream",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-event-stream.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2018-11-01T00:00:00Z",
+      "to": "2018-12-01T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2018-09-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["3.3.5", "4.0.0", "4.0.1"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "true",
+      "repository_change": "false",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.3.5",
+        "date": "2018-09-05T05:27:47.219Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "3.3.5",
+        "date": "2018-09-05T05:27:47.219Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.0.0",
+        "date": "2018-09-16T11:20:20.938Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "medium",
+    "sources": ["https://www.npmjs.com/package/event-stream"],
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+  },
+  {
+    "id": "npm-ua-parser-js-history-incident-window",
+    "package": "ua-parser-js",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-ua-parser-js.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2021-10-22T00:00:00Z",
+      "to": "2021-11-01T00:00:00Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2021-10-01T00:00:00Z"
+    },
+    "resolved_version_candidates": ["2.0.8", "2.0.9", "2.0.10"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "false",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.7.0",
+        "date": "2014-06-25T07:47:33.048Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.7.10",
+        "date": "2015-12-12T12:12:29.429Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.0-alpha.3",
+        "date": "2023-08-17T04:44:30.527Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.7.36",
+        "date": "2023-09-09T13:59:29.197Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.0-beta.1",
+        "date": "2023-10-05T12:44:05.105Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.7.37",
+        "date": "2023-10-27T12:47:26.646Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.0-beta.2",
+        "date": "2024-02-01T04:28:05.574Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.7.38",
+        "date": "2024-05-28T14:23:45.560Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.0-beta.3",
+        "date": "2024-06-07T18:23:00.158Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.7.39",
+        "date": "2024-09-11T13:55:19.323Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.0-rc.1",
+        "date": "2024-10-29T15:38:30.987Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.7.40",
+        "date": "2024-12-21T07:56:57.181Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.1",
+        "date": "2025-02-04T14:57:01.927Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.7.41",
+        "date": "2025-08-19T12:44:58.278Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.5",
+        "date": "2025-09-09T13:56:40.283Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Not decidable from registry history alone: these patterns need an install script or a new domain, which the pinned registry metadata cannot show for this incident (malicious versions are usually removed). Excluded from precision/recall, counted as abstention."
+      }
+    },
+    "conclusion": "insufficient_evidence",
+    "incident_confidence": "medium",
+    "sources": ["https://www.npmjs.com/package/ua-parser-js"],
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+  },
+  {
+    "id": "npm-express-history-control-window",
+    "package": "express",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-express.json",
+    "split": "holdout",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2015-05-18T04:06:45.934Z",
+      "to": "2026-09-14T06:46:38.631Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-05-18T04:06:45.934Z"
+    },
+    "resolved_version_candidates": ["4.22.2", "4.22.3", "5.3.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.20.3",
+        "date": "2015-05-18T04:06:45.934Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.13.4",
+        "date": "2016-01-22T02:15:21.453Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "4.13.4",
+        "date": "2016-01-22T02:15:21.453Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.14.0",
+        "date": "2016-06-16T16:43:30.648Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "4.14.1",
+        "date": "2017-01-28T22:33:15.950Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.17.0",
+        "date": "2019-05-17T01:57:40.690Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "4.17.2",
+        "date": "2021-12-17T03:48:56.946Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.18.3",
+        "date": "2024-02-29T11:50:55.579Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.18.3",
+        "date": "2024-02-29T11:50:55.579Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "4.18.3",
+        "date": "2024-02-29T11:50:55.579Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.19.0",
+        "date": "2024-03-20T15:14:37.159Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.20.0",
+        "date": "2024-09-10T02:07:55.590Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.21.2",
+        "date": "2024-12-05T22:31:40.945Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.21.2",
+        "date": "2024-12-05T22:31:40.945Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "5.1.0",
+        "date": "2025-03-31T14:01:22.509Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.22.0",
+        "date": "2025-12-01T16:23:07.582Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.22.3",
+        "date": "2026-09-14T06:46:38.631Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "4.22.3",
+        "date": "2026-09-14T06:46:38.631Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/express"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-left-pad-history-control-window",
+    "package": "left-pad",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-left-pad.json",
+    "split": "development",
+    "kind": "benign_handoff",
+    "incident_window": {
+      "from": "2016-03-22T21:51:19.774Z",
+      "to": "2017-11-17T05:48:38.934Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2016-03-22T21:51:19.774Z"
+    },
+    "resolved_version_candidates": ["1.1.3", "1.2.0", "1.3.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "true",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.0.3",
+        "date": "2016-03-22T21:51:19.774Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.0.3",
+        "date": "2016-03-22T21:51:19.774Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.0.1",
+        "date": "2016-03-23T00:00:19.758Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.2",
+        "date": "2016-04-13T16:59:21.924Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.1.0",
+        "date": "2016-05-01T11:06:11.595Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.0",
+        "date": "2016-05-01T11:06:11.595Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.1.0",
+        "date": "2016-05-01T11:06:11.595Z"
+      },
+      {
+        "type": "dependency_dormancy_ended",
+        "version": "1.2.0",
+        "date": "2017-11-17T05:48:38.934Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control or handoff; no incident conclusion is inferred from registry history."
+      }
+    },
+    "conclusion": "known_benign_handoff",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/left-pad"],
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v1",
+  "case_id": "npm-event-stream-history",
+  "package": "event-stream",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-event-stream.json",
+  "incident_window": {
+    "from": "2018-09-01T00:00:00Z",
+    "to": "2018-12-01T00:00:00Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2018-09-01T00:00:00Z"
+  },
+  "resolved_version_candidates": ["3.3.5", "4.0.0", "4.0.1"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v1",
+  "case_id": "npm-coa-history-window",
+  "package": "coa",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-coa.json",
+  "incident_window": {
+    "from": "2019-01-01T00:00:00Z",
+    "to": "2020-01-01T00:00:00Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2017-12-31T23:59:59Z"
+  },
+  "resolved_version_candidates": ["2.0.2"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

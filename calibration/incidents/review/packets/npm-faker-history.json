@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v1",
+  "case_id": "npm-faker-history",
+  "package": "faker",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-faker.json",
+  "incident_window": {
+    "from": "2021-10-01T00:00:00Z",
+    "to": "2022-12-31T00:00:00Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2021-10-01T00:00:00Z"
+  },
+  "resolved_version_candidates": ["5.5.2", "5.5.3", "6.6.6"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

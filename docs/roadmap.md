@@ -84,3 +84,6 @@ Done: dependency registry and publisher intelligence with a priority model and b
 5. A remote snapshot store with a concurrent-writer protocol, built on the `SnapshotStore` seam and `copySnapshots`.
 6. Bazel / Nix / Buck declared-path readers for retrieval, and cheaper per-request costs for the largest repositories.
 7. Reading README / docs for domains (documentation context is empty today because those files are not fetched).
+### Incident calibration phase 1
+
+The 0.8.0 phase-1 corpus measures registry-history observations and temporal indicators on development and validation cases. Holdout output is frozen and gated; labels are AI-assisted single labels, not independently validated. No threshold or policy change is planned without stable validation evidence.
