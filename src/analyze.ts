@@ -403,6 +403,31 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...deriveReleaseFacts(github.releaseIntel, governance),
     ...deriveRegistryFacts(registryIntel),
     ...deriveDependencyRegistryFacts(depRegistry, timeline.correlations),
+    ...(dependencyArtifacts.status === 'analyzed' &&
+    dependencyArtifacts.artifacts.some((a) => a.domains.length > 0)
+      ? [
+          {
+            id: 'registry.deps.install_domain_present',
+            value: true,
+            confidence: 0.75,
+            scope: 'registry' as const,
+            derived_from: dependencyArtifacts.artifacts.flatMap((a) => a.evidence),
+            derived_by: 'dependency-artifacts@0.1',
+          },
+        ]
+      : dependencyArtifacts.status === 'analyzed' &&
+          dependencyArtifacts.inspected === dependencyArtifacts.eligible
+        ? [
+            {
+              id: 'registry.deps.install_domain_present',
+              value: false,
+              confidence: 0.7,
+              scope: 'registry' as const,
+              derived_from: [],
+              derived_by: 'dependency-artifacts@0.1',
+            },
+          ]
+        : []),
     ...deriveDomainFacts(externalDomains, scanReliable),
   ];
   if (

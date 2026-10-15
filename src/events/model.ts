@@ -36,6 +36,9 @@ export const EVENT_TYPES = [
   'dependency_provenance_added',
   'dependency_provenance_removed',
   'dependency_install_hook_introduced',
+  'dependency_external_domain_introduced',
+  'dependency_external_domain_removed',
+  'dependency_external_domain_context_changed',
   // revision-to-revision changes of the analyzed repository (schema 0.7)
   'external_domain_removed',
   'external_domain_context_changed',

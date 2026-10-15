@@ -68,6 +68,12 @@ See [bias](bias.md). In addition:
 
 ## Operational
 
+## Dependency artifact domains (0.9)
+
+- Artifact domain extraction is opt-in, bounded, and static. It reads only selected registry artifacts after digest comparison; it never executes package hooks or contacts an observed domain.
+- The current report records artifact-domain hostnames and the pure same-package version event builder is available for revision workflows. A single analysis cannot establish introduction/removal time, so it emits no temporal event for one artifact alone.
+- Artifact candidates are currently taken from the dependency-registry versions selected by the existing registry budget; a separate artifact-specific priority expansion is not yet implemented. Skipped or unavailable candidates remain unknown and do not emit absence facts.
+
 - No caching: each run re-fetches everything. Not suitable yet for scanning thousands of repositories.
 - No historical tracking: reports are point-in-time.
 - Reports are reproducible only if the repository and the external services have not changed; evidence carries `observed_at` and the commit `ref`.

@@ -45,6 +45,9 @@ export const DOMAIN_CONTEXTS = [
   'test',
   'docs',
   'comment',
+  'dependency_install',
+  'dependency_build',
+  'dependency_runtime',
 ] as const;
 export type DomainContext = (typeof DOMAIN_CONTEXTS)[number];
 export const ACTIVE_CONTEXTS: ReadonlySet<DomainContext> = new Set([
@@ -54,6 +57,9 @@ export const ACTIVE_CONTEXTS: ReadonlySet<DomainContext> = new Set([
   'ci',
   'container',
   'runtime',
+  'dependency_install',
+  'dependency_build',
+  'dependency_runtime',
 ]);
 export const contextRank = (c: DomainContext): number => DOMAIN_CONTEXTS.indexOf(c);
 

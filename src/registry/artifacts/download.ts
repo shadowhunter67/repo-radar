@@ -3,6 +3,7 @@ import { LIMITS } from '../../limits.js';
 import { inspectArtifact } from './inspect.js';
 import type { DependencyArtifacts } from './model.js';
 import { extractStaticFacts } from './static.js';
+import { artifactDomains } from './domains.js';
 
 export const ARTIFACT_HOSTS = new Set([
   'registry.npmjs.org',
@@ -90,7 +91,7 @@ export async function inspectDownloadedArtifacts(opts: {
         i.state === 'invalid'
           ? { hooks: [], domains: [], mismatches: [] }
           : extractStaticFacts(i, { name: c.package, version: c.version });
-      artifacts.push({
+      const record = {
         registry: c.registry,
         package: c.package,
         version: c.version,
@@ -103,7 +104,10 @@ export async function inspectDownloadedArtifacts(opts: {
         mismatches: facts.mismatches,
         reason: i.state === 'invalid' ? 'digest_mismatch' : null,
         evidence: [],
-      });
+      };
+      const domains = artifactDomains(record);
+      record.domains = [...new Set([...facts.domains, ...domains.domains.map((d) => d.hostname)])];
+      artifacts.push(record);
     } catch {
       skip('fetch_failed');
     }

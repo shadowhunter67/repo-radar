@@ -290,6 +290,9 @@ const BASE_CONFIDENCE: Record<DomainContext, number> = {
   test: 0.2,
   docs: 0.2,
   comment: 0.1,
+  dependency_install: 0.85,
+  dependency_build: 0.7,
+  dependency_runtime: 0.6,
 };
 
 const TEST_PATH =
