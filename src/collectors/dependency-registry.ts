@@ -49,6 +49,8 @@ export async function collectDependencyRegistry(opts: {
     max_elapsed_ms: budget.maxElapsedMs,
     max_versions: budget.maxVersions,
     max_bytes: budget.maxBytes,
+    max_attestations: budget.maxAttestations,
+    max_attestation_bytes: budget.maxAttestationBytes,
   };
   const { ranked, ineligible } = selectCandidates(opts.dependencies, opts.hints);
   const skippedCounts: Record<string, number> = {};
@@ -189,6 +191,12 @@ export async function collectDependencyRegistry(opts: {
     const repository = correspondDependency(r, c.corroboration);
     const pkg: DependencyRegistryPackage = {
       ...r,
+      attestation_states: Object.fromEntries(
+        r.versions.map((v) => [
+          v.version,
+          v.has_provenance ? 'provenance_reported' : 'no_provenance',
+        ]),
+      ),
       declared_by: (c.dependencyIds[0] ?? 'dependency').slice(0, 300),
       repository,
       dependency_ids: c.dependencyIds,

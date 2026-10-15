@@ -1,5 +1,8 @@
 import { createHash } from 'node:crypto';
 import type { SignerIdentity, Verification } from './model.js';
+import { bundleFromJSON } from '@sigstore/bundle';
+import { toSignedEntity, toTrustMaterial, Verifier } from '@sigstore/verify';
+import type { TrustedRootDocument } from './github-root.js';
 
 /**
  * Sigstore bundle verification through the maintained `sigstore` library (no custom cryptography). The library checks the
@@ -75,6 +78,15 @@ export function parseWorkflowIdentity(
     subject_alternative_name: s,
     source_repository: m ? (m[1] as string).toLowerCase() : null,
     workflow_ref: m ? (m[2] as string).slice(0, 300) : null,
+    commit: null,
+    ref: null,
+    runner_build_identity: null,
+    binding: {
+      issuer: 'cryptographically_bound',
+      subject_alternative_name: 'cryptographically_bound',
+      source_repository: m ? 'cryptographically_bound' : 'claimed',
+      workflow_ref: m ? 'cryptographically_bound' : 'claimed',
+    },
   };
 }
 
@@ -197,6 +209,7 @@ export interface VerifyBundleOptions {
   expectedIdentity?: ExpectedIdentity;
   /** What is being verified (asset name or digest), recorded in the result. */
   subject?: string;
+  expectedSubjectDigest?: string;
 }
 
 const subjectOf = (o: VerifyBundleOptions): string | null =>
@@ -329,5 +342,89 @@ export async function verifyBundle(
     return { ...base, state, trust_root: trustRoot, verified_by: 'local', detail: msg };
   } finally {
     if (timer) clearTimeout(timer);
+  }
+}
+
+/** Verify against one explicitly supplied root. No TUF/network access occurs here. */
+export function verifyBundleWithRoot(
+  bundle: unknown,
+  root: TrustedRootDocument,
+  options: VerifyBundleOptions = {},
+): Verification {
+  const subject = subjectOf(options);
+  const base = {
+    verified_by: 'local' as const,
+    engine: 'sigstore' as const,
+    subject,
+    identity: null,
+  };
+  try {
+    const raw = JSON.stringify(bundle);
+    if (!raw || Buffer.byteLength(raw) > SIGSTORE_LIMITS.maxBundleBytes)
+      return {
+        ...base,
+        state: 'verification_skipped_resource_limit',
+        trust_root: root.label,
+        detail: 'bundle exceeds the size limit',
+      };
+    const parsed = bundleFromJSON(bundle as Parameters<typeof bundleFromJSON>[0]);
+    const shape = inspectBundle(bundle);
+    if (shape.kind === 'blob' && !options.data)
+      return {
+        ...base,
+        state: 'verification_unavailable',
+        trust_root: root.label,
+        detail: 'blob verification needs artifact bytes',
+      };
+    const signer = new Verifier(toTrustMaterial(root.root)).verify(
+      toSignedEntity(parsed, options.data),
+    );
+    const id = parseWorkflowIdentity(
+      signer.identity?.subjectAlternativeName,
+      signer.identity?.extensions?.issuer,
+    );
+    if (options.expectedIdentity) {
+      const mismatch = identityMatches(id, options.expectedIdentity);
+      if (mismatch)
+        return {
+          ...base,
+          state: 'identity_mismatch',
+          trust_root: root.label,
+          detail: mismatch,
+          identity: id,
+        };
+    }
+    if (options.expectedSubjectDigest && shape.kind === 'attestation') {
+      const payload = (bundle as { dsseEnvelope?: { payload?: string } }).dsseEnvelope?.payload;
+      const statement = payload
+        ? (JSON.parse(Buffer.from(payload, 'base64').toString('utf8')) as {
+            subject?: Array<{ digest?: Record<string, string> }>;
+          })
+        : {};
+      const digests = (statement.subject ?? []).flatMap((s) => Object.values(s.digest ?? {}));
+      if (!digests.some((d) => d.toLowerCase() === options.expectedSubjectDigest?.toLowerCase()))
+        return {
+          ...base,
+          state: 'verified_digest_only',
+          trust_root: root.label,
+          detail: 'signature verified but subject digest did not match',
+          identity: id,
+        };
+    }
+    return {
+      ...base,
+      state:
+        root.label === 'github_attestation_instance' ? 'verified_github_attestation' : 'verified',
+      trust_root: root.label,
+      detail: 'certificate chain, signature and transparency-log evidence accepted',
+      identity: id,
+    };
+  } catch (e) {
+    return {
+      ...base,
+      state: 'verification_failed',
+      trust_root: root.label,
+      detail: (e instanceof Error ? e.message : 'verification failed').slice(0, 240),
+    };
   }
 }

@@ -1,4 +1,4 @@
-# Dependency registry and publisher intelligence (0.7)
+# Dependency registry and publisher intelligence (0.8)
 
 `registry_intel` ([registry.md](registry.md)) answers "who publishes what THIS repository ships". `dependency_registry_intel` answers "who publishes what this repository RELIES on": the classic path of a supply-chain compromise is a dependency whose publisher, maintainers or source repository changed, not the repository itself.
 
@@ -45,7 +45,7 @@ Publish time, version publisher (npm `_npmUser`, crates.io `published_by`), the 
 
 | Registry | Version history | Per-version publisher | Maintainers at publish time | Source repository per version | Install script | Provenance |
 | -------- | --------------- | --------------------- | --------------------------- | ------------------------------ | -------------- | ---------- |
-| npm | yes | yes | yes | yes | yes | reported (NOT verified) |
+| npm | yes | yes | yes | yes | yes | reported; bounded verification state is recorded per version |
 | PyPI | yes (upload times) | **no** (`publisher_history: unavailable`) | no | no | no | not read |
 | crates.io | yes | yes | no (current owners only) | no | no | not read |
 

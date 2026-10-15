@@ -155,3 +155,6 @@ an empty array: the pipeline fills it after the scan.
 ### Reading the new evidence ids
 
 `derived_from` ids in a fact may point at evidence ids, or at ids inside `code_analysis` (`CAP-*`, `CHAIN-*`, `HOOK-*`, `SEC-*`).
+## 0.7 -> 0.8 (report schema 0.8, methodology 0.4)
+
+Dependency registry packages now carry bounded per-version attestation states and the dependency budget records attestation limits. Existing reports must be re-run; scoring and shipped profiles are unchanged.

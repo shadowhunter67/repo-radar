@@ -51,6 +51,7 @@ export const RegistryVersionSchema = z.object({
   /** Maintainers the registry recorded WITH this version at publish time (npm). Historical, unlike the package-level set. */
   maintainers: z.array(z.string().max(100)).max(12).optional(),
 });
+export type RegistryVersion = z.infer<typeof RegistryVersionSchema>;
 
 export const RegistryPackageSchema = z.object({
   registry: z.enum(REGISTRIES),

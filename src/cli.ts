@@ -30,6 +30,7 @@ import {
   readKeyFile,
   type TrustConfig,
 } from './trust/config.js';
+import { loadTrustedRoots } from './trust/github-root.js';
 import { renderText } from './report/text.js';
 import { parseMinimums } from './scoring/policy.js';
 import { loadRuleSet } from './scoring/rules.js';
@@ -133,6 +134,8 @@ function registryAndTrustOptions(values: {
   'dep-registry-max'?: string | undefined;
   'dep-registry-requests'?: string | undefined;
   'dep-registry-time'?: string | undefined;
+  'no-dep-attestations': boolean;
+  'trusted-root'?: string | undefined;
   'trust-config'?: string | undefined;
   'trust-gpg-key'?: string[] | undefined;
   'trust-minisign-key'?: string[] | undefined;
@@ -145,6 +148,7 @@ function registryAndTrustOptions(values: {
   if (max) budget.maxDependencies = max;
   if (req) budget.maxRequests = req;
   if (sec) budget.maxElapsedMs = sec * 1000;
+  if (values['no-dep-attestations']) budget.maxAttestations = 0;
   let trust: TrustConfig = values['trust-config']
     ? loadTrustFile(values['trust-config'])
     : EMPTY_TRUST;
@@ -155,6 +159,7 @@ function registryAndTrustOptions(values: {
         minisignKey(existsSync(k) ? readKeyFile(k) : k),
       ),
     ],
+    ...(values['trusted-root'] ? { trustedRoots: loadTrustedRoots(values['trusted-root']) } : {}),
     ...(values['expect-signer']
       ? { expectedIdentity: { sourceRepository: values['expect-signer'] } }
       : {}),
@@ -163,7 +168,9 @@ function registryAndTrustOptions(values: {
   return {
     dependencyRegistry: !values['no-dep-registry'],
     ...(Object.keys(budget).length > 0 ? { dependencyRegistryBudget: budget } : {}),
-    ...(trust.keys.length > 0 || trust.expectedIdentity ? { trust } : {}),
+    ...(trust.keys.length > 0 || trust.expectedIdentity || trust.trustedRoots?.length
+      ? { trust }
+      : {}),
   };
 }
 
@@ -193,11 +200,13 @@ export async function main(
         'no-releases': { type: 'boolean', default: false },
         'no-registry': { type: 'boolean', default: false },
         'no-dep-registry': { type: 'boolean', default: false },
+        'no-dep-attestations': { type: 'boolean', default: false },
         'no-domains': { type: 'boolean', default: false },
         'dep-registry-max': { type: 'string' },
         'dep-registry-requests': { type: 'string' },
         'dep-registry-time': { type: 'string' },
         'trust-config': { type: 'string' },
+        'trusted-root': { type: 'string' },
         'trust-gpg-key': { type: 'string', multiple: true },
         'trust-minisign-key': { type: 'string', multiple: true },
         'expect-signer': { type: 'string' },

@@ -9,3 +9,4 @@ calibration/runs
 calibration/pins.json
 .tmp
 calibration/incidents/raw
+tests/fixtures/attestations

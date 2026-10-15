@@ -21,7 +21,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "0.7"
+      "const": "0.8"
     },
     "methodology": {
       "type": "object",
@@ -2835,7 +2835,12 @@
                         "invalid",
                         "verification_failed",
                         "verification_skipped_resource_limit",
-                        "verification_unavailable"
+                        "verification_unavailable",
+                        "verified_github_attestation",
+                        "verified_source_binding",
+                        "verified_digest_only",
+                        "identity_mismatch",
+                        "source_revision_mismatch"
                       ]
                     },
                     "trust_root": {
@@ -2843,6 +2848,7 @@
                       "enum": [
                         "github_api_assertion",
                         "sigstore_public_good",
+                        "github_attestation_instance",
                         "user_supplied_gpg_key",
                         "project_pinned_gpg_key",
                         "user_supplied_minisign_key",
@@ -2869,7 +2875,12 @@
                         "invalid",
                         "verification_failed",
                         "verification_skipped_resource_limit",
-                        "verification_unavailable"
+                        "verification_unavailable",
+                        "verified_github_attestation",
+                        "verified_source_binding",
+                        "verified_digest_only",
+                        "identity_mismatch",
+                        "source_revision_mismatch"
                       ]
                     },
                     "local_detail": {
@@ -2886,7 +2897,12 @@
                                 "invalid",
                                 "verification_failed",
                                 "verification_skipped_resource_limit",
-                                "verification_unavailable"
+                                "verification_unavailable",
+                                "verified_github_attestation",
+                                "verified_source_binding",
+                                "verified_digest_only",
+                                "identity_mismatch",
+                                "source_revision_mismatch"
                               ]
                             },
                             "trust_root": {
@@ -2894,6 +2910,7 @@
                               "enum": [
                                 "github_api_assertion",
                                 "sigstore_public_good",
+                                "github_attestation_instance",
                                 "user_supplied_gpg_key",
                                 "project_pinned_gpg_key",
                                 "user_supplied_minisign_key",
@@ -2986,6 +3003,52 @@
                                           "type": "null"
                                         }
                                       ]
+                                    },
+                                    "commit": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "maxLength": 100
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "ref": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "maxLength": 300
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "runner_build_identity": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "maxLength": 400
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "binding": {
+                                      "type": "object",
+                                      "propertyNames": {
+                                        "type": "string"
+                                      },
+                                      "additionalProperties": {
+                                        "type": "string",
+                                        "enum": [
+                                          "cryptographically_bound",
+                                          "claimed"
+                                        ]
+                                      }
                                     }
                                   },
                                   "required": [
@@ -3148,7 +3211,12 @@
                         "invalid",
                         "verification_failed",
                         "verification_skipped_resource_limit",
-                        "verification_unavailable"
+                        "verification_unavailable",
+                        "verified_github_attestation",
+                        "verified_source_binding",
+                        "verified_digest_only",
+                        "identity_mismatch",
+                        "source_revision_mismatch"
                       ]
                     },
                     "verification_detail": {
@@ -3165,7 +3233,12 @@
                                 "invalid",
                                 "verification_failed",
                                 "verification_skipped_resource_limit",
-                                "verification_unavailable"
+                                "verification_unavailable",
+                                "verified_github_attestation",
+                                "verified_source_binding",
+                                "verified_digest_only",
+                                "identity_mismatch",
+                                "source_revision_mismatch"
                               ]
                             },
                             "trust_root": {
@@ -3173,6 +3246,7 @@
                               "enum": [
                                 "github_api_assertion",
                                 "sigstore_public_good",
+                                "github_attestation_instance",
                                 "user_supplied_gpg_key",
                                 "project_pinned_gpg_key",
                                 "user_supplied_minisign_key",
@@ -3265,6 +3339,52 @@
                                           "type": "null"
                                         }
                                       ]
+                                    },
+                                    "commit": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "maxLength": 100
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "ref": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "maxLength": 300
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "runner_build_identity": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "maxLength": 400
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "binding": {
+                                      "type": "object",
+                                      "propertyNames": {
+                                        "type": "string"
+                                      },
+                                      "additionalProperties": {
+                                        "type": "string",
+                                        "enum": [
+                                          "cryptographically_bound",
+                                          "claimed"
+                                        ]
+                                      }
                                     }
                                   },
                                   "required": [
@@ -4157,6 +4277,16 @@
               "type": "integer",
               "minimum": -9007199254740991,
               "maximum": 9007199254740991
+            },
+            "max_attestations": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "max_attestation_bytes": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
             }
           },
           "required": [
@@ -4164,7 +4294,9 @@
             "max_requests",
             "max_elapsed_ms",
             "max_versions",
-            "max_bytes"
+            "max_bytes",
+            "max_attestations",
+            "max_attestation_bytes"
           ],
           "additionalProperties": false
         },
@@ -4619,6 +4751,29 @@
                   "maxLength": 200
                 }
               },
+              "attestation_states": {
+                "default": {},
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "enum": [
+                    "no_provenance",
+                    "provenance_reported",
+                    "provenance_present_unverified",
+                    "provenance_verified",
+                    "source_binding_verified",
+                    "source_binding_conflict",
+                    "verification_failed",
+                    "verification_unavailable",
+                    "verification_skipped_resource_limit",
+                    "unknown"
+                  ]
+                }
+              },
               "dependency_ids": {
                 "maxItems": 10,
                 "type": "array",
@@ -4698,6 +4853,7 @@
               "provenance",
               "observed_at",
               "limits",
+              "attestation_states",
               "dependency_ids",
               "resolved_versions",
               "priority",

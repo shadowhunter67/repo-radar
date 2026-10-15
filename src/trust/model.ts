@@ -10,6 +10,7 @@ export const TRUST_ROOTS = [
   'github_api_assertion',
   /** Sigstore public-good instance: Fulcio CA + Rekor key material fetched through the Sigstore TUF root. */
   'sigstore_public_good',
+  'github_attestation_instance',
   /** An OpenPGP public key the USER supplied for this run (command line or API). Never read from the analyzed repository. */
   'user_supplied_gpg_key',
   /** An OpenPGP public key pinned in a trust configuration the user maintains OUTSIDE the analyzed repository. */
@@ -41,6 +42,11 @@ export const VERIFICATION_STATES = [
   'verification_skipped_resource_limit',
   /** The needed verifier or trust material is not available here. */
   'verification_unavailable',
+  'verified_github_attestation',
+  'verified_source_binding',
+  'verified_digest_only',
+  'identity_mismatch',
+  'source_revision_mismatch',
 ] as const;
 export type VerificationState = (typeof VERIFICATION_STATES)[number];
 
@@ -51,6 +57,10 @@ export const SignerIdentitySchema = z.object({
   source_repository: z.string().max(200).nullable(),
   /** `.github/workflows/x.yml@refs/tags/v1` part of the identity. */
   workflow_ref: z.string().max(300).nullable(),
+  commit: z.string().max(100).nullable().optional(),
+  ref: z.string().max(300).nullable().optional(),
+  runner_build_identity: z.string().max(400).nullable().optional(),
+  binding: z.record(z.string(), z.enum(['cryptographically_bound', 'claimed'])).optional(),
 });
 export type SignerIdentity = z.infer<typeof SignerIdentitySchema>;
 

@@ -2,6 +2,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, isAbsolute, resolve } from 'node:path';
 import { z } from 'zod';
 import type { ExpectedIdentity } from './sigstore.js';
+import { loadTrustedRoots, type TrustedRootDocument } from './github-root.js';
 
 /**
  * Trust configuration: the ONLY place a public key becomes trusted.
@@ -27,6 +28,7 @@ export interface TrustedKey {
 
 export interface TrustConfig {
   keys: TrustedKey[];
+  trustedRoots?: TrustedRootDocument[];
   expectedIdentity?: ExpectedIdentity;
 }
 export const EMPTY_TRUST: TrustConfig = { keys: [] };
@@ -113,6 +115,7 @@ const TrustFile = z
   .object({
     keys: z.array(KeyEntry).max(TRUST_LIMITS.maxKeys).default([]),
     expected_identity: IdentityEntry.optional(),
+    trusted_roots: z.array(z.string().max(500)).max(8).optional(),
   })
   .strict();
 
@@ -149,8 +152,17 @@ export function loadTrustFile(path: string): TrustConfig {
     };
   });
   const id = parsed.data.expected_identity;
+  const roots = parsed.data.trusted_roots?.flatMap((p) => {
+    try {
+      // Imported lazily to keep key-only users from loading protobuf code.
+      return loadTrustedRoots(resolve(dirname(abs), p), 'project_pinned');
+    } catch {
+      return [];
+    }
+  });
   return {
     keys,
+    ...(roots && roots.length > 0 ? { trustedRoots: roots } : {}),
     ...(id
       ? {
           expectedIdentity: {
@@ -168,6 +180,9 @@ export function mergeTrust(a: TrustConfig, b: TrustConfig): TrustConfig {
   const expectedIdentity = { ...(a.expectedIdentity ?? {}), ...(b.expectedIdentity ?? {}) };
   return {
     keys,
+    ...(a.trustedRoots || b.trustedRoots
+      ? { trustedRoots: [...(a.trustedRoots ?? []), ...(b.trustedRoots ?? [])].slice(0, 8) }
+      : {}),
     ...(Object.keys(expectedIdentity).length > 0 ? { expectedIdentity } : {}),
   };
 }

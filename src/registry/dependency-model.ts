@@ -24,6 +24,8 @@ export const DEP_REGISTRY_BUDGET_DEFAULTS = {
   maxVersions: 20,
   /** Sum of response bodies. */
   maxBytes: 48 * 1024 * 1024,
+  maxAttestations: 8,
+  maxAttestationBytes: 1024 * 1024,
   /** Parallel lookups. */
   concurrency: 4,
 } as const;
@@ -62,6 +64,23 @@ export const PrioritySchema = z.object({
 export type Priority = z.infer<typeof PrioritySchema>;
 
 export const DependencyRegistryPackageSchema = RegistryPackageSchema.extend({
+  attestation_states: z
+    .record(
+      z.string().max(100),
+      z.enum([
+        'no_provenance',
+        'provenance_reported',
+        'provenance_present_unverified',
+        'provenance_verified',
+        'source_binding_verified',
+        'source_binding_conflict',
+        'verification_failed',
+        'verification_unavailable',
+        'verification_skipped_resource_limit',
+        'unknown',
+      ]),
+    )
+    .default({}),
   /** Dependency ids (dependency_intel) this package serves; one package can be requested from several manifests. */
   dependency_ids: z.array(z.string().max(160)).max(10),
   /** Exact versions the analyzed revision resolved for it (lockfile / SBOM / pin). May be empty. */
@@ -120,6 +139,8 @@ export const DependencyRegistryIntelSchema = z.object({
     max_elapsed_ms: z.number().int(),
     max_versions: z.number().int(),
     max_bytes: z.number().int(),
+    max_attestations: z.number().int(),
+    max_attestation_bytes: z.number().int(),
   }),
   coverage: z.object({
     /** Distinct (registry, package) pairs that could be looked up at all. */
@@ -159,6 +180,8 @@ export const EMPTY_DEP_REGISTRY_INTEL: DependencyRegistryIntel = {
     max_elapsed_ms: 0,
     max_versions: 0,
     max_bytes: 0,
+    max_attestations: 0,
+    max_attestation_bytes: 0,
   },
   coverage: {
     eligible: 0,
