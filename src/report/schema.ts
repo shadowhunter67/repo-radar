@@ -16,6 +16,7 @@ import { ReleaseIntelSchema } from '../release/model.js';
 import { CoverageMapSchema, TreeRetrievalSchema } from './coverage.js';
 import { DIMENSIONS } from '../scoring/types.js';
 import { DependencyArtifactsSchema } from '../registry/artifacts/model.js';
+import { NameIntelligenceSchema } from '../registry/name-model.js';
 
 export const REPORT_SCHEMA_VERSION = '0.9';
 
@@ -163,6 +164,7 @@ export const ReportSchema = z.object({
   /** Registry history of the DEPENDENCIES (priority, budget, coverage, publisher / maintainer / repository events). Schema 0.7. */
   dependency_registry_intel: DependencyRegistryIntelSchema,
   dependency_artifacts: DependencyArtifactsSchema,
+  name_intelligence: NameIntelligenceSchema,
   /** Hostnames the repository's own files refer to, by context (install, build, CI, runtime, docs...). Static; nothing is resolved or contacted. Schema 0.7. */
   external_domains: ExternalDomainsSchema,
   /** Unified temporal events (git, releases, registry) and the patterns they form. Indicators only. */

@@ -104,7 +104,8 @@ export function effectiveBlocks(profile: Pick<Profile, 'block' | 'require'>): Bl
       | 'dependency_provenance_reported'
       | 'dependency_verified_provenance'
       | 'dependency_verified_source_binding'
-      | 'no_dependency_takeover_indicators',
+      | 'no_dependency_takeover_indicators'
+      | 'no_dependency_name_confusion',
     description: string,
     when: Block['when'],
   ): void => {
@@ -200,6 +201,13 @@ export function effectiveBlocks(profile: Pick<Profile, 'block' | 'require'>): Bl
     'no_dependency_takeover_indicators',
     'A dependency shows takeover indicators in its publish history',
     { fact: { id: 'registry.deps.takeover_indicators', equals: true } },
+  );
+  mk(
+    'no_dependency_name_confusion',
+    'A dependency has a possible package-name confusion indicator',
+    {
+      fact: { id: 'registry.deps.name_confusion_present', equals: true },
+    },
   );
   return out;
 }

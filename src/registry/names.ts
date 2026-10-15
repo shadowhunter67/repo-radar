@@ -7,15 +7,23 @@ export type NameSignal =
   | 'homoglyph'
   | 'scope_confusion'
   | 'prefix_suffix_trick';
+export interface NameHistory {
+  sameRepositoryNames?: string[];
+  deprecatedUse?: string | null;
+}
 export interface NameComparison {
   left: string;
   right: string;
   ecosystem: NameEcosystem;
+  normalized_left: string;
+  normalized_right: string;
+  skeleton_left: string;
+  skeleton_right: string;
+  distance: number | null;
   signals: NameSignal[];
-  distance: number;
-  legitimate: boolean;
+  suppressed: boolean;
+  suppression_reason: 'same_repository_history' | 'deprecated_use' | null;
 }
-
 const CONFUSABLES: Record<string, string> = {
   а: 'a',
   е: 'e',
@@ -34,71 +42,175 @@ const CONFUSABLES: Record<string, string> = {
   Χ: 'x',
 };
 const KEYBOARD = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+const MAX_DISTANCE_LENGTH = 80;
+export const POPULAR_PACKAGE_SEEDS: Record<NameEcosystem, string[]> = {
+  npm: [
+    'react',
+    'lodash',
+    'express',
+    'chalk',
+    'axios',
+    'typescript',
+    'webpack',
+    'esbuild',
+    'jest',
+    'vite',
+    'vue',
+    'eslint',
+    'prettier',
+    'core-js',
+    'colors',
+    'sigstore',
+  ],
+  pypi: [
+    'requests',
+    'urllib3',
+    'numpy',
+    'pandas',
+    'setuptools',
+    'pip',
+    'six',
+    'pyyaml',
+    'flask',
+    'django',
+    'pytest',
+    'click',
+    'cryptography',
+  ],
+  'crates.io': [
+    'serde',
+    'serde-json',
+    'tokio',
+    'rand',
+    'clap',
+    'regex',
+    'reqwest',
+    'anyhow',
+    'thiserror',
+    'itoa',
+    'log',
+    'tracing',
+  ],
+};
 export function normalizePackageName(name: string, ecosystem: NameEcosystem): string {
   const n = name.normalize('NFKC').toLowerCase();
   if (ecosystem === 'pypi') return n.replace(/[_.-]+/g, '-');
   if (ecosystem === 'crates.io') return n.replace(/[-_]+/g, '-');
   return n;
 }
-function skeleton(n: string): string {
-  return [...n].map((c) => CONFUSABLES[c] ?? c).join('');
+export function confusableSkeleton(name: string): string {
+  return [...name.normalize('NFKC').toLowerCase()].map((c) => CONFUSABLES[c] ?? c).join('');
 }
-function distance(a: string, b: string): number {
-  if (Math.abs(a.length - b.length) > 3) return 4;
-  const d = Array.from({ length: a.length + 1 }, (_, i) => Array<number>(b.length + 1).fill(i));
-  for (let j = 0; j <= b.length; j++) d[0]![j] = j;
-  for (let i = 1; i <= a.length; i++)
-    for (let j = 1; j <= b.length; j++)
-      d[i]![j] = Math.min(
-        d[i - 1]![j]! + 1,
-        d[i]![j - 1]! + 1,
-        d[i - 1]![j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1),
-        i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]
-          ? d[i - 2]![j - 2]! + 1
-          : 99,
-      );
-  return d[a.length]![b.length]!;
+export function damerauLevenshtein(a: string, b: string, max = 3): number | null {
+  if (
+    a.length > MAX_DISTANCE_LENGTH ||
+    b.length > MAX_DISTANCE_LENGTH ||
+    Math.abs(a.length - b.length) > max
+  )
+    return null;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i),
+    prev2: number[] | null = null;
+  for (let i = 1; i <= a.length; i++) {
+    const row = [i];
+    let rowMin = i;
+    for (let j = 1; j <= b.length; j++) {
+      const sub = prev[j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1);
+      let v = Math.min(prev[j]! + 1, row[j - 1]! + 1, sub);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1])
+        v = Math.min(v, prev2![j - 2]! + 1);
+      row[j] = v;
+      rowMin = Math.min(rowMin, v);
+    }
+    if (rowMin > max) return null;
+    prev2 = prev;
+    prev = row;
+  }
+  return prev[b.length] ?? null;
 }
-function adjacent(a: string, b: string): boolean {
-  return (
-    a.length === b.length &&
-    [...a].every(
-      (c, i) =>
-        c === b[i] ||
-        KEYBOARD.some((r) => r.includes(c) && Math.abs(r.indexOf(c) - r.indexOf(b[i] ?? '')) === 1),
-    )
-  );
+function singleKeyboardSubstitution(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let changes = 0;
+  for (let i = 0; i < a.length; i++)
+    if (a[i] !== b[i]) {
+      changes++;
+      if (
+        changes > 1 ||
+        !KEYBOARD.some(
+          (r) => r.includes(a[i]!) && Math.abs(r.indexOf(a[i]!) - r.indexOf(b[i]!)) === 1,
+        )
+      )
+        return false;
+    }
+  return changes === 1;
+}
+function suppression(
+  left: string,
+  right: string,
+  history?: NameHistory,
+): NameComparison['suppression_reason'] {
+  if (!history) return null;
+  if (history.sameRepositoryNames?.some((x) => x.toLowerCase() === right.toLowerCase()))
+    return 'same_repository_history';
+  if (
+    history.deprecatedUse &&
+    normalizePackageName(history.deprecatedUse, 'npm') === normalizePackageName(right, 'npm')
+  )
+    return 'deprecated_use';
+  return null;
 }
 export function comparePackageNames(
   left: string,
   right: string,
   ecosystem: NameEcosystem,
-  legitimate = false,
+  history?: NameHistory,
 ): NameComparison {
-  const a = normalizePackageName(left, ecosystem),
+  const rawA = left.normalize('NFKC').toLowerCase(),
+    rawB = right.normalize('NFKC').toLowerCase(),
+    a = normalizePackageName(left, ecosystem),
     b = normalizePackageName(right, ecosystem),
-    signals: NameSignal[] = [];
-  const sa = skeleton(a),
-    sb = skeleton(b),
-    d = distance(a, b);
-  if (d > 0 && d <= Math.max(2, Math.floor(Math.min(a.length, b.length) / 3)))
+    sa = confusableSkeleton(a),
+    sb = confusableSkeleton(b),
+    signals: NameSignal[] = [],
+    distance = damerauLevenshtein(a, b);
+  if (
+    distance !== null &&
+    distance > 0 &&
+    distance <= Math.max(1, Math.floor(Math.min(a.length, b.length) / 3))
+  )
     signals.push('edit_distance');
-  if (adjacent(a, b)) signals.push('keyboard_adjacency');
-  if (a.replace(/[-_.]/g, '') === b.replace(/[-_.]/g, '') && a !== b)
+  if (singleKeyboardSubstitution(a, b)) signals.push('keyboard_adjacency');
+  if (rawA.replace(/[-_.]/g, '') === rawB.replace(/[-_.]/g, '') && rawA !== rawB)
     signals.push('separator_variation');
   if (sa === sb && a !== b) signals.push('homoglyph');
-  if (a.replace(/(.)\1/g, '$1') === b || b.replace(/(.)\1/g, '$1') === a)
+  if (a !== b && (a.replace(/(.)\1/g, '$1') === b || b.replace(/(.)\1/g, '$1') === a))
     signals.push('duplication_or_omission');
   if (a.startsWith('@') !== b.startsWith('@') || a.split('/').length !== b.split('/').length)
     signals.push('scope_confusion');
-  if ((a.startsWith(b) || b.startsWith(a)) && Math.min(a.length, b.length) >= 3)
+  if (a !== b && (a.startsWith(b) || b.startsWith(a)) && Math.min(a.length, b.length) >= 3)
     signals.push('prefix_suffix_trick');
+  if (a === b && rawA === rawB) signals.length = 0;
+  const reason = suppression(left, right, history);
   return {
     left,
     right,
     ecosystem,
-    signals: legitimate ? [] : [...new Set(signals)],
-    distance: d,
-    legitimate,
+    normalized_left: a,
+    normalized_right: b,
+    skeleton_left: sa,
+    skeleton_right: sb,
+    distance,
+    signals,
+    suppressed: reason !== null,
+    suppression_reason: reason,
   };
+}
+export function compareCandidates(
+  target: { name: string; ecosystem: NameEcosystem },
+  candidates: { name: string; ecosystem: NameEcosystem; history?: NameHistory }[],
+): NameComparison[] {
+  return candidates
+    .filter((c) => c.ecosystem === target.ecosystem && c.name !== target.name)
+    .map((c) => comparePackageNames(target.name, c.name, target.ecosystem, c.history))
+    .filter((c) => c.signals.length > 0 && !c.suppressed)
+    .slice(0, 100);
 }

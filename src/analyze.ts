@@ -76,6 +76,8 @@ import { loadProfile, validateProfileAgainstRules } from './profiles/load.js';
 import { REPORT_SCHEMA_VERSION, type Report } from './report/schema.js';
 import { EMPTY_DEPENDENCY_ARTIFACTS } from './registry/artifacts/model.js';
 import { inspectDownloadedArtifacts } from './registry/artifacts/download.js';
+import { analyzeNames, EMPTY_NAME_INTELLIGENCE } from './registry/name-model.js';
+import { buildNameFindings, deriveNameFacts } from './registry/name-findings.js';
 import { evaluate } from './scoring/engine.js';
 import {
   effectiveBlocks,
@@ -129,6 +131,7 @@ export interface AnalyzeOptions {
   /** Look up the registries of the repository's dependencies, under a budget (default true; needs `registry`). */
   dependencyRegistry?: boolean;
   inspectDependencyArtifacts?: boolean;
+  nameIntelligence?: boolean;
   /** Override the dependency-registry budget (packages, requests, time, versions, bytes). */
   dependencyRegistryBudget?: Partial<DepRegistryBudget>;
   /** Collect release/provenance metadata (default true). */
@@ -276,6 +279,29 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
         ),
       })
     : EMPTY_DEPENDENCY_ARTIFACTS;
+  const nameIntelligence = opts.nameIntelligence
+    ? analyzeNames(
+        depsStatic.deps.slice(0, 25).map((d) => ({
+          name: d.package.name,
+          ecosystem:
+            d.package.ecosystem === 'PyPI'
+              ? 'pypi'
+              : d.package.ecosystem === 'crates.io'
+                ? 'crates.io'
+                : 'npm',
+          evidence: d.id,
+        })),
+        depsStatic.deps.slice(0, 25).map((d) => ({
+          name: d.package.name,
+          ecosystem:
+            d.package.ecosystem === 'PyPI'
+              ? 'pypi'
+              : d.package.ecosystem === 'crates.io'
+                ? 'crates.io'
+                : 'npm',
+        })),
+      )
+    : EMPTY_NAME_INTELLIGENCE;
 
   const identity = await classifier.classify(github.snapshot);
   identity.confidence_semantics ??= 'heuristic_uncalibrated';
@@ -403,6 +429,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...deriveReleaseFacts(github.releaseIntel, governance),
     ...deriveRegistryFacts(registryIntel),
     ...deriveDependencyRegistryFacts(depRegistry, timeline.correlations),
+    ...deriveNameFacts(nameIntelligence),
     ...(dependencyArtifacts.status === 'analyzed' &&
     dependencyArtifacts.artifacts.some((a) => a.domains.length > 0)
       ? [
@@ -491,6 +518,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...buildReleaseFindings(github.releaseIntel),
     ...buildRegistryFindings(registryIntel),
     ...buildDependencyRegistryFindings(depRegistry, timeline.correlations),
+    ...buildNameFindings(nameIntelligence),
     ...buildDomainFindings(externalDomains),
     ...buildGovernanceFindings(governance),
   ];
@@ -588,6 +616,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     registry_intel: registryIntel,
     dependency_registry_intel: depRegistry,
     dependency_artifacts: dependencyArtifacts,
+    name_intelligence: nameIntelligence,
     external_domains: externalDomains,
     timeline,
     governance,

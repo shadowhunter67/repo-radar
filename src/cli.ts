@@ -82,6 +82,7 @@ Options for analyze:
   --no-dep-registry          Skip registry lookups for DEPENDENCIES only
   --no-domains               Skip extraction of the external hostnames the repository's files refer to
   --inspect-dependency-artifacts  Download and inspect selected dependency artifacts within strict budgets
+  --name-intelligence         Compare dependency names against bounded candidates
   --dep-registry-max <n>     Look up at most n dependency packages, highest priority first (default 25)
   --dep-registry-requests <n>  Registry request budget for dependencies (default 60)
   --dep-registry-time <sec>  Time budget for dependency registry lookups (default 45)
@@ -204,6 +205,7 @@ export async function main(
         'no-dep-attestations': { type: 'boolean', default: false },
         'no-domains': { type: 'boolean', default: false },
         'inspect-dependency-artifacts': { type: 'boolean', default: false },
+        'name-intelligence': { type: 'boolean', default: false },
         'dep-registry-max': { type: 'string' },
         'dep-registry-requests': { type: 'string' },
         'dep-registry-time': { type: 'string' },
@@ -399,6 +401,7 @@ export async function main(
           codeScan: !values['no-scan'],
           domains: !values['no-domains'],
           inspectDependencyArtifacts: values['inspect-dependency-artifacts'],
+          nameIntelligence: values['name-intelligence'],
           ...registryAndTrustOptions(values),
         },
         (a, b) => {
@@ -502,6 +505,7 @@ export async function main(
       codeScan: !values['no-scan'],
       domains: !values['no-domains'],
       inspectDependencyArtifacts: values['inspect-dependency-artifacts'],
+      nameIntelligence: values['name-intelligence'],
       ...registryAndTrustOptions(values),
       ...(values.ref ? { ref: values.ref } : {}),
     });
