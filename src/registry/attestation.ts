@@ -34,8 +34,11 @@ export function npmSubjectMatches(
   integrity: string,
 ): boolean {
   const expected = `pkg:npm/${name}@${version}`;
-  const sha512 = typeof subject.digest?.sha512 === 'string' ? subject.digest.sha512 : '';
-  return subject.name === expected && `sha512-${sha512}` === integrity;
+  // in-toto subject digests are HEX; npm `dist.integrity` is `sha512-<base64>`: compare the decoded bytes, never the strings
+  const hex = typeof subject.digest?.sha512 === 'string' ? subject.digest.sha512.toLowerCase() : '';
+  const m = /^sha512-([A-Za-z0-9+/]{86}==)$/.exec(integrity);
+  const fromIntegrity = m ? Buffer.from(m[1] as string, 'base64').toString('hex') : '';
+  return subject.name === expected && /^[0-9a-f]{128}$/.test(hex) && hex === fromIntegrity;
 }
 
 export function unsupportedAttestation(registry: 'pypi' | 'crates.io'): AttestationResult {
