@@ -175,18 +175,25 @@ export function comparePackageNames(
   if (
     distance !== null &&
     distance > 0 &&
+    // names under 5 characters differ by one edit all the time (abc/abd): too noisy to mean anything
+    Math.min(a.length, b.length) >= 5 &&
     distance <= Math.max(1, Math.floor(Math.min(a.length, b.length) / 3))
   )
     signals.push('edit_distance');
-  if (singleKeyboardSubstitution(a, b)) signals.push('keyboard_adjacency');
+  if (Math.min(a.length, b.length) >= 5 && singleKeyboardSubstitution(a, b))
+    signals.push('keyboard_adjacency');
   if (rawA.replace(/[-_.]/g, '') === rawB.replace(/[-_.]/g, '') && rawA !== rawB)
     signals.push('separator_variation');
   if (sa === sb && a !== b) signals.push('homoglyph');
-  if (a !== b && (a.replace(/(.)\1/g, '$1') === b || b.replace(/(.)\1/g, '$1') === a))
+  if (
+    Math.min(a.length, b.length) >= 5 &&
+    a !== b &&
+    (a.replace(/(.)\1/g, '$1') === b || b.replace(/(.)\1/g, '$1') === a)
+  )
     signals.push('duplication_or_omission');
   if (a.startsWith('@') !== b.startsWith('@') || a.split('/').length !== b.split('/').length)
     signals.push('scope_confusion');
-  if (a !== b && (a.startsWith(b) || b.startsWith(a)) && Math.min(a.length, b.length) >= 3)
+  if (a !== b && (a.startsWith(b) || b.startsWith(a)) && Math.min(a.length, b.length) >= 5)
     signals.push('prefix_suffix_trick');
   if (a === b && rawA === rawB) signals.length = 0;
   const reason = suppression(left, right, history);

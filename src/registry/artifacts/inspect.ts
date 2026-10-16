@@ -169,7 +169,12 @@ function entriesZip(raw: Uint8Array): {
       const lxl = r[lo + 28] | (r[lo + 29] << 8);
       const body = raw.subarray(lo + 30 + lnl + lxl, lo + 30 + lnl + lxl + csize);
       try {
-        content = method === 0 ? body.slice() : method === 8 ? inflateRawSync(body) : undefined;
+        content =
+          method === 0
+            ? body.slice()
+            : method === 8
+              ? inflateRawSync(body, { maxOutputLength: LIMITS.maxArtifactFileBytes })
+              : undefined;
       } catch {
         diagnostics.push('corrupt_entry');
       }
@@ -225,16 +230,18 @@ export function inspectArtifact(
   let format: 'tar' | 'zip' | 'unknown' = 'unknown';
   if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
     try {
-      raw = gunzipSync(bytes);
+      raw = gunzipSync(bytes, { maxOutputLength: LIMITS.maxArtifactMetadataBytes });
       format = 'tar';
-    } catch {
+    } catch (e) {
+      // Node reports an output over the cap as ERR_BUFFER_TOO_LARGE: that is a decompression bomb (or simply too large), never inspected
+      const big = (e as { code?: string }).code === 'ERR_BUFFER_TOO_LARGE';
       return {
         state: 'failed',
         format,
         entries: [],
         totalSize: 0,
-        limitsHit: [],
-        diagnostics: ['corrupt_gzip'],
+        limitsHit: big ? ['uncompressed_size'] : [],
+        diagnostics: [big ? 'decompression_bomb' : 'corrupt_gzip'],
         digest,
       };
     }

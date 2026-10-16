@@ -28,10 +28,7 @@ describe('package-name intelligence', () => {
     expect(comparePackageNames('colors', 'colour', 'npm').signals).toEqual(['edit_distance']);
   });
   it('detects a Cyrillic homoglyph and suppresses legitimate rename/deprecation history', () => {
-    expect(comparePackageNames('аbc', 'abc', 'npm').signals).toEqual([
-      'edit_distance',
-      'homoglyph',
-    ]);
+    expect(comparePackageNames('аbc', 'abc', 'npm').signals).toEqual(['homoglyph']);
     expect(
       comparePackageNames('old-name', 'new-name', 'npm', { sameRepositoryNames: ['new-name'] })
         .suppression_reason,
@@ -57,5 +54,12 @@ describe('package-name intelligence', () => {
       id: 'registry.deps.name_confusion_present',
       value: false,
     });
+  });
+});
+
+describe('package-name intelligence: short names', () => {
+  it('names under five characters get no edit-distance, prefix or keyboard noise', () => {
+    expect(comparePackageNames('abc', 'abd', 'npm').signals).toEqual([]);
+    expect(comparePackageNames('jest', 'jes', 'npm').signals).toEqual([]);
   });
 });

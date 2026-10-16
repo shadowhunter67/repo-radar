@@ -84,3 +84,16 @@ describe('dependency artifacts: pinned fixtures', () => {
     expect(inspectArtifact(tar).diagnostics).toContain('unsupported_archive');
   });
 });
+
+describe('dependency artifacts: decompression bombs', () => {
+  it('a small gzip that inflates past the cap is failed as a bomb, never inspected', async () => {
+    const { gzipSync } = await import('node:zlib');
+    const bomb = gzipSync(Buffer.alloc(40 * 1024 * 1024)); // 40 MiB of zeros, a few KiB compressed
+    expect(bomb.length).toBeLessThan(200 * 1024);
+    const r = inspectArtifact(bomb, {});
+    expect(r.state).toBe('failed');
+    expect(r.limitsHit).toEqual(['uncompressed_size']);
+    expect(r.diagnostics).toEqual(['decompression_bomb']);
+    expect(r.entries).toEqual([]);
+  });
+});
