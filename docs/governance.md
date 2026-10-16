@@ -46,3 +46,6 @@ A pattern with `same_entity: true` only matches events that share an `entity`: a
 ## Provenance, signature and correspondence events
 
 In a revision diff or a comparison of saved reports ([history.md](history.md)): `provenance_added` / `provenance_removed`, `provenance_verification_changed` (only when both analyses ran the verifier), `source_binding_changed`, `signature_state_changed`, `registry_repository_correspondence_changed` (never to or from `unknown`). They carry the release's publication time when they attach to a release, otherwise the later analysis time marked `observed`; a change with no usable time is listed in the diff but is not a timeline event.
+# Dependency temporal indicators (0.9)
+
+Dependency publisher/provenance/domain and artifact-hook sequences are dated observations tied to the same registry entity where required. Correlations state that intent is undetermined and do not establish maliciousness.

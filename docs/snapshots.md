@@ -32,3 +32,6 @@ A projection of a report (optionally a revision diff) onto nodes - Repository, C
 ### Queries (`src/graph/query.ts`, `graph report.json --query <q>`)
 
 Deterministic, sorted, each row with its evidence: `published-by:<account>` (dependencies with a sampled version published by that account, with dates), `publish-times:<account>`, `bound-to-commit:<sha>` (assets tied to a commit by the tag or by an attestation), `domains-after:<iso>[,<days>]` (only edges that HAVE an introduction time can answer), `without-verified-provenance` (every registry version, since none is verified here).
+# Graph additions (0.9)
+
+Graph projections include `DependencyArtifact`, `PackageNameSignal`, and `BuildSource` nodes plus evidence-bearing `HAS_ARTIFACT`, `FETCHES_FROM`, `SIMILAR_TO_PACKAGE`, and `DECLARED_BY` vocabulary. Queries include dependency publisher changes, unverified provenance, new install domains, name confusions, and artifact/source bindings.

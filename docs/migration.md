@@ -162,3 +162,6 @@ an empty array: the pipeline fills it after the scan.
 ## 0.7 -> 0.8 (report schema 0.8, methodology 0.4)
 
 Dependency registry packages now carry bounded per-version attestation states and the dependency budget records attestation limits. Existing reports must be re-run; scoring and shipped profiles are unchanged.
+# 0.8 to 0.9
+
+Package and report schema versions are now 0.9.0 and 0.9; methodology remains 0.4. Consumers must accept the required `dependency_artifacts`, `name_intelligence`, and `build_sources` sections. New inspection, name, build-source, graph, batch, and policy features are opt-in; shipped profiles are unchanged. Reports from 0.8 should be re-generated rather than edited in place.

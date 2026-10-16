@@ -133,3 +133,4 @@ See [bias](bias.md). In addition:
 ## 0.9 batch foundation
 
 - **Batch** is sequential and bounded at 25 repositories. Failures are isolated and aggregate counts are descriptive, not an organization score. Snapshot reuse uses the immutable local snapshot index for the requested repository; a separate preflight head-resolution request is not performed, so callers should refresh or clear the store when repository heads may have changed.
+- **Artifact probe measurements** are one offline Windows run and are not stable performance guarantees; production digest verification requires registry metadata supplied by the collector.

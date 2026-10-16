@@ -80,3 +80,6 @@ GitHub's own (private-instance) trust root is not implemented, so its release at
 GitHub release attestations are verified only against the separately supplied `github_attestation_instance` trusted root, selected from a user-provided trusted-root JSONL file by the Fulcio CA URI `fulcio.githubapp.com`. The fixture in `tests/fixtures/attestations/github-trusted-root.jsonl` is test data only and is never loaded by production code.
 
 This instance is verified with `ctlogThreshold: 0`, `tlogThreshold: 0`, and `timestampThreshold: 1`. GitHub-instance certificates carry no SCT and these release bundles use signed timestamps rather than Rekor inclusion proofs. Consequently, verification does not establish transparency-log inclusion; trust rests on GitHub's timestamp authority and CA. The certificate-bound SAN, issuer, workflow/repository identity, ref, and commit are retained only when exposed cryptographically by the verifier; unsigned statement claims remain `claimed`.
+# Artifact trust boundary (0.9)
+
+An artifact digest is verified against registry-provided metadata before static inspection. A verified digest authenticates bytes, not publisher intent, source reproducibility, or safety. Repository-controlled URLs and files never define trust roots.

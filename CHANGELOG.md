@@ -9,6 +9,8 @@ methodology are versioned separately (`schema_version`, `methodology.version`) a
 
 Report schema 0.9 and package 0.9.0. Adds bounded, opt-in dependency artifact inspection contracts with digest-first verification and hostile archive handling. Methodology remains 0.4.
 
+Also adds package-name intelligence, Bazel/Nix/Buck structural sources, dependency artifact/name/build-source graph projections and queries, same-entity temporal indicators, opt-in policy keys, and bounded batch summaries. Shipped profiles and methodology remain unchanged.
+
 ## [0.8.0] - unreleased
 
 Report schema 0.8, custom Sigstore trust roots for GitHub attestations, and bounded npm dependency-attestation verification states. Methodology remains 0.4 and shipped profiles remain unchanged.

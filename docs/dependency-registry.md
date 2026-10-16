@@ -114,3 +114,6 @@ Dependency packages become `Package`, `PackageVersion`, `Publisher`, `Maintainer
 - `ua-parser-js` 0.7.29 (resolved) is no longer listed by npm, so its events are `unknown` relative to it: the registry cannot say where the removed version sat in time.
 
 Known limits: the sample is the newest 20 versions; an attacker who publishes a new package name (typosquatting) is not a publisher change; no check that a repository back-links to the package; no verification of dependency attestations; maintainers of PyPI and owner history of any registry do not exist in the APIs.
+# Artifact and name extensions (0.9)
+
+Resolved dependency artifacts and package-name comparisons are opt-in and budgeted. Digest verification precedes archive inspection; name signals are separate heuristic observations and never prove intent.

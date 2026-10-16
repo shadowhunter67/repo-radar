@@ -87,3 +87,6 @@ Done: dependency registry and publisher intelligence with a priority model and b
 ### Incident calibration phase 1
 
 The 0.8.0 phase-1 corpus measures registry-history observations and temporal indicators on development and validation cases. Holdout output is frozen and gated; labels are AI-assisted single labels, not independently validated. No threshold or policy change is planned without stable validation evidence.
+# Current release direction
+
+Version 0.9 completes bounded artifact, dependency-name, build-source, graph/policy, and batch foundations. Future work includes a separately authorized head-resolution backend for batch reuse, richer registry history, and broader language-aware build parsing. These are not inferred by the current bounded readers.

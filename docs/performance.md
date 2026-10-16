@@ -1,5 +1,20 @@
 # Cost and limits of the 0.7 subsystems
 
+## Offline dependency-artifact probe (2026-10-16)
+
+Measured by `node scripts/probe-artifacts.mjs` after `npm run build`, Node `v24.16.0`, Windows workstation. The probe reads only pinned files under `tests/fixtures/artifacts`; it performs no network access. Times are one run and machine-dependent.
+
+| Fixture | Compressed bytes | Entries | Metadata bytes | State | Hooks | ms |
+| --- | ---: | ---: | ---: | --- | --- | ---: |
+| crate-itoa-1.0.11.crate | 10,563 | 13 | 32,245 | verification_unavailable | none | 2.275 |
+| npm-colors-1.4.0.tgz | 11,266 | 21 | 39,506 | verification_unavailable | none | 0.460 |
+| npm-core-js-3.37.0.tgz | 287,797 | 3,487 | 1,227,519 | verification_unavailable | postinstall | 26.171 |
+| npm-esbuild-0.28.2.tgz | 34,207 | 7 | 115,434 | verification_unavailable | postinstall | 0.671 |
+| npm-sigstore-3.1.0.tgz | 10,123 | 9 | 37,213 | verification_unavailable | none | 0.295 |
+| pypi-six-1.16.0-py2.py3-none-any.whl | 11,053 | 6 | 37,959 | verification_unavailable | none | 0.871 |
+
+`verification_unavailable` is expected here because this offline probe does not supply registry digest expectations; the inspection still measures archive parsing and metadata extraction. The production path verifies a supplied digest before inspection.
+
 Numbers come from `scripts/probe-performance.mjs`, `probe-retrieval.mjs`, `probe-crypto.mjs` and `probe-dep-registry.mjs` (results in `calibration/results/`, 2026-10-13, one Windows machine, real network). Wall-clock time includes the network and varies between runs; request counts, bytes and caps are exact. Nothing here is a benchmark of the machine-independent kind.
 
 ## Ordinary repositories

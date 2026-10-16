@@ -9,7 +9,7 @@ Given `owner/repo`, repo-radar answers three questions, and shows the evidence b
 3. **What can it do on my machine, and what runs when I install it?** (static capability, install-time execution, persistence and secret analysis; capability is never treated as intent)
 4. **Is it a fit for my situation?** (profiles: `default`, `startup`, `enterprise`)
 
-> Status: v0.7 (unreleased, private repository), report schema `0.7`, methodology `0.4`. Upgrading: [migration notes](docs/migration.md). Scores are **not calibrated** against labelled data yet; see [limitations](docs/limitations.md) before relying on any number.
+> Status: v0.9.0 (private repository), report schema `0.9`, methodology `0.4`. Upgrading: [migration notes](docs/migration.md). Scores are **not calibrated** against labelled data yet; see [limitations](docs/limitations.md) before relying on any number.
 
 ## Why
 
@@ -62,9 +62,13 @@ repo-radar analyze owner/repo --trust-gpg-key key.asc --trust-minisign-key RWQ..
 repo-radar analyze owner/repo --no-dep-registry --dep-registry-max 10 --no-domains                           # dependency registry budget / switches (docs/dependency-registry.md, docs/domains.md)
 repo-radar profiles
 repo-radar rules security
+repo-radar analyze owner/repo --inspect-dependency-artifacts --name-intelligence
+repo-radar batch --list repos.txt --org-summary --snapshot-dir ./snapshots
 ```
 
 Exit codes: `0` ok, `1` internal error, `2` policy floor not met (or not verifiable), `3` repository not found, `4` GitHub unavailable or rate limited, `64` usage error.
+
+Additional design notes: [dependency artifacts](docs/dependency-artifacts.md), [name intelligence](docs/name-intelligence.md), [build systems](docs/build-systems.md), and [batch](docs/batch.md).
 
 ## Sample reports (real runs on 2026-10-10 with a GitHub token, default profile)
 
