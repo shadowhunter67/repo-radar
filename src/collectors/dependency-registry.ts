@@ -73,6 +73,12 @@ export async function collectDependencyRegistry(opts: {
         ok: 0,
         failed: 0,
         skipped: 0,
+        metadata_observed: 0,
+        fetched: 0,
+        verified: 0,
+        attestation_failed: 0,
+        unavailable: 0,
+        unsupported: 0,
         direct_eligible: 0,
         direct_queried: 0,
         ratio: null,
@@ -284,6 +290,7 @@ export async function collectDependencyRegistry(opts: {
     return c?.direct === true && c.primary;
   }).length;
   events.sort((a, b) => Date.parse(a.at) - Date.parse(b.at) || (a.id < b.id ? -1 : 1));
+  const states = packages.flatMap((p) => Object.values(p.attestation_states));
   return {
     version: '1',
     status: 'analyzed',
@@ -294,6 +301,15 @@ export async function collectDependencyRegistry(opts: {
       ok,
       failed: packages.length - ok,
       skipped: ranked.length - packages.length,
+      metadata_observed: packages.length,
+      fetched: states.filter((s) => s !== 'no_provenance' && s !== 'provenance_reported').length,
+      verified: states.filter((s) => s === 'provenance_verified' || s === 'source_binding_verified')
+        .length,
+      attestation_failed: states.filter(
+        (s) => s === 'verification_failed' || s === 'source_binding_conflict',
+      ).length,
+      unavailable: states.filter((s) => s === 'verification_unavailable').length,
+      unsupported: ranked.filter((p) => p.registry !== 'npm').length,
       direct_eligible: directEligible,
       direct_queried: directQueried,
       ratio: ranked.length === 0 ? null : packages.length / ranked.length,

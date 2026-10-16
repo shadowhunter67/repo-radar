@@ -117,3 +117,4 @@ Known limits: the sample is the newest 20 versions; an attacker who publishes a 
 # Artifact and name extensions (0.9)
 
 Resolved dependency artifacts and package-name comparisons are opt-in and budgeted. Digest verification precedes archive inspection; name signals are separate heuristic observations and never prove intent.
+Attestation coverage is exposed in `coverage`: eligible packages, metadata observed, attestation fetches, verified results, failed results, unavailable results, and unsupported ecosystems. These are counts, not a safety score; skipped or unavailable packages remain unknown.
