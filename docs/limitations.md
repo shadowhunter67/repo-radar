@@ -129,3 +129,7 @@ See [bias](bias.md). In addition:
 - **Historical diff**: release data is current state, so provenance deltas need two reports made at different times; domain and capability removals are inconclusive on incomplete trees.
 - **Trust graph**: references, not connections; no graph database; the projection is regenerated, never stored.
 - `openpgp` is LGPL-3.0-or-later (used unmodified through its public API): review the licence fit with counsel before any public release.
+
+## 0.9 batch foundation
+
+- **Batch** is sequential and bounded at 25 repositories. Failures are isolated and aggregate counts are descriptive, not an organization score. Snapshot reuse uses the immutable local snapshot index for the requested repository; a separate preflight head-resolution request is not performed, so callers should refresh or clear the store when repository heads may have changed.

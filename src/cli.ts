@@ -41,6 +41,7 @@ import { loadRuleSet } from './scoring/rules.js';
 import { HttpError, RateLimitError } from './util/http.js';
 import { RepoRefError } from './util/repo-ref.js';
 import { redactSecrets, sanitizeForTerminal } from './util/text.js';
+import { runBatch } from './batch.js';
 
 export const EXIT = {
   OK: 0,
@@ -62,6 +63,7 @@ Usage:
   repo-radar graph --snapshot-dir <dir> --repo owner/repo [--commit <sha>] [--query <q>]  Project a STORED snapshot (the graph is regenerated, never stored)
     queries: published-by:<account> | bound-to-commit:<sha> | domains-after:<iso>[,<days>] | without-verified-provenance | publish-times:<account>
   repo-radar snapshots --snapshot-dir <dir> [--repo owner/repo] List stored immutable snapshots
+  repo-radar batch --list <repos.txt> [--org-summary]  Analyze a bounded repository list sequentially
   repo-radar snapshots --snapshot-dir <dir> --export-to <dir2> | --import-from <dir2>   Copy snapshots between stores (hashes verified, nothing overwritten)
   repo-radar profiles                 List scoring profiles
   repo-radar rules [dimension]        List scoring rules (weights, evidence ids)
@@ -235,6 +237,11 @@ export async function main(
         ascii: { type: 'boolean', default: false },
         help: { type: 'boolean', short: 'h', default: false },
         version: { type: 'boolean', short: 'v', default: false },
+        list: { type: 'string' },
+        'org-summary': { type: 'boolean', default: false },
+        'max-repos': { type: 'string' },
+        'max-requests': { type: 'string' },
+        'max-minutes': { type: 'string' },
       },
     });
   } catch (e) {
@@ -350,6 +357,26 @@ export async function main(
         return EXIT.OK;
       }
       stdout(values.format === 'json' ? JSON.stringify(g, null, 2) + '\n' : summarizeGraph(g));
+      return EXIT.OK;
+    }
+    if (cmd === 'batch') {
+      const list = values.list;
+      if (typeof list !== 'string') {
+        stderr('error: batch needs --list repos.txt\n');
+        return EXIT.USAGE;
+      }
+      const n = (value: string | undefined): number | undefined =>
+        value === undefined ? undefined : Number(value);
+      const result = await runBatch({
+        listFile: list,
+        snapshotDir: values['snapshot-dir'],
+        orgSummary: values['org-summary'],
+        maxRepos: n(values['max-repos']),
+        maxRequests: n(values['max-requests']),
+        maxMinutes: n(values['max-minutes']),
+        token: process.env['GITHUB_TOKEN'],
+      });
+      stdout(JSON.stringify(result, null, 2) + '\n');
       return EXIT.OK;
     }
     if (cmd === 'snapshots') {
