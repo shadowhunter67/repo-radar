@@ -12,6 +12,7 @@ export const ARTIFACT_HOSTS = new Set([
   'crates.io',
 ]);
 export function safeArtifactUrl(raw: string, ecosystem: 'npm' | 'pypi' | 'crates.io'): boolean {
+  if (raw.length > 4096) return false;
   try {
     const u = new URL(raw);
     const allowed =
