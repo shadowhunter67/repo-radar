@@ -83,6 +83,61 @@ async function run(
 }
 
 describe('new require keys', () => {
+  it('every 0.9 requirement has exact true, false, unknown and strict semantics', () => {
+    const cases: [string, string, unknown][] = [
+      ['sbom', 'deps.sbom.present', false],
+      ['signed_release', 'release.tag.signature_verified', false],
+      ['provenance', 'release.provenance.present', false],
+      ['checksums', 'release.checksums.published', false],
+      ['verified_provenance', 'release.provenance.verified', false],
+      ['verified_source_binding', 'release.source_binding_verified', false],
+      ['registry_repository_match', 'registry.repository_match', 'missing'],
+      ['publisher_stability', 'registry.publisher_stable', false],
+      ['locally_verified_signature', 'release.signatures.locally_verified', false],
+      ['dependency_registry_match', 'registry.deps.repository_match', 'missing'],
+      ['dependency_publisher_stability', 'registry.deps.publisher_changed', true],
+      ['dependency_provenance_reported', 'registry.deps.provenance_reported', false],
+      ['dependency_verified_provenance', 'registry.deps.provenance_verified', false],
+      ['dependency_verified_source_binding', 'registry.deps.source_binding_verified', false],
+      ['no_dependency_takeover_indicators', 'registry.deps.takeover_indicators', true],
+      ['no_dependency_name_confusion', 'registry.deps.name_confusion_present', true],
+      ['no_dependency_install_domains', 'registry.deps.install_domain_present', true],
+      ['dependency_artifacts_inspected', 'registry.deps.artifacts_inspected', false],
+    ];
+    for (const [key, fact, bad] of cases) {
+      const evaluate = (value: unknown, mode: true | 'strict' = true) =>
+        evaluateBlocks(effectiveBlocks(profile({ require: { [key]: mode } })), {
+          fact: (id: string) => {
+            if (
+              value !== undefined &&
+              (id === fact ||
+                (key === 'signed_release' && id === 'release.signature_assets.present'))
+            )
+              return { value, confidence: 1 };
+            return undefined;
+          },
+        } as unknown as ComplianceContext);
+      const expectedEvidence =
+        key === 'signed_release' ? [fact, 'release.signature_assets.present'] : [fact];
+      const expectedId = `require-${key.replace(/_/g, '-')}`;
+      expect(evaluate(bad).map((v) => [v.id, v.reason, v.evidence])).toEqual([
+        [expectedId, 'condition_true', expectedEvidence],
+      ]);
+      expect(
+        evaluate(
+          key === 'registry_repository_match' || key === 'dependency_registry_match'
+            ? 'matched'
+            : !bad,
+        ),
+      ).toEqual([]);
+      const expectedMissing =
+        key === 'signed_release' ? [fact, 'release.signature_assets.present'] : [fact];
+      expect(evaluate(undefined, 'strict').map((v) => [v.id, v.reason, v.missing])).toEqual([
+        [expectedId, 'undecidable', expectedMissing],
+      ]);
+    }
+  });
+
   it('compile to blocks whose unknown handling follows the value: true ignores unknown, strict blocks it', () => {
     const p = profile({
       require: {

@@ -650,6 +650,13 @@ describe('trust graph', () => {
       ],
       truncated: false,
       dropped_without_evidence: 0,
+      limits: {
+        nodes_emitted: 1,
+        nodes_skipped: 0,
+        edges_emitted: 0,
+        edges_skipped: 0,
+        stopped_by: 'complete' as const,
+      },
       not_represented: [],
     };
     expect(validateGraph(g).join(' ')).toMatch(

@@ -104,6 +104,13 @@ export const TrustGraphSchema = z.object({
   edges: z.array(GraphEdgeSchema),
   truncated: z.boolean(),
   dropped_without_evidence: z.number().int().min(0),
+  limits: z.object({
+    nodes_emitted: z.number().int().min(0),
+    nodes_skipped: z.number().int().min(0),
+    edges_emitted: z.number().int().min(0),
+    edges_skipped: z.number().int().min(0),
+    stopped_by: z.enum(['complete', 'node_budget', 'edge_budget']),
+  }),
   /** What the graph cannot represent yet (stated, not guessed). */
   not_represented: z.array(z.string().max(160)),
 });
@@ -133,6 +140,9 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
   const edges: GraphEdge[] = [];
   let truncated = false;
   let dropped = 0;
+  let nodesSkipped = 0;
+  let edgesSkipped = 0;
+  let stoppedBy: 'complete' | 'node_budget' | 'edge_budget' = 'complete';
   const node = (
     id: string,
     kind: GraphNode['kind'],
@@ -142,6 +152,8 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
     if (!nodes.has(id)) {
       if (nodes.size >= GRAPH_LIMITS.nodes) {
         truncated = true;
+        nodesSkipped++;
+        stoppedBy = 'node_budget';
         return id;
       }
       nodes.set(id, { id: clean(id, 240), kind, name: clean(name, 200), attrs });
@@ -175,9 +187,14 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
       dropped++; // no evidence, no edge
       return;
     }
-    if (!nodes.has(from) || !nodes.has(to)) return;
+    if (!nodes.has(from) || !nodes.has(to)) {
+      edgesSkipped++;
+      return;
+    }
     if (edges.length >= GRAPH_LIMITS.edges) {
       truncated = true;
+      edgesSkipped++;
+      stoppedBy = 'edge_budget';
       return;
     }
     edges.push({
@@ -733,6 +750,13 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
     edges,
     truncated,
     dropped_without_evidence: dropped,
+    limits: {
+      nodes_emitted: nodes.size,
+      nodes_skipped: nodesSkipped,
+      edges_emitted: edges.length,
+      edges_skipped: edgesSkipped,
+      stopped_by: stoppedBy,
+    },
     not_represented: [
       'dependencies beyond the registry lookup budget, and PyPI publishers (the API does not expose them)',
       'registry provenance of dependency versions is reported, not verified: PackageVersion nodes carry provenance_verified=false',

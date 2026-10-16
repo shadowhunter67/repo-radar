@@ -12,6 +12,40 @@ const root = join(process.cwd(), 'tests/fixtures/build-systems');
 const fixture = (name: string): string => readFileSync(join(root, name), 'utf8');
 
 describe('Bazel, Nix and Buck structural parsing', () => {
+  it('does not treat commented rules or documentation strings as dependencies', () => {
+    const bazel = parseBuildSource(
+      'MODULE.bazel',
+      [
+        '# bazel_dep(name = "commented")',
+        'DOC = "bazel_dep(name = \'in-doc\')"',
+        'unused = "http_archive(name=\'unused\')"',
+      ].join('\n'),
+    );
+    expect(bazel.dependencies.map((d) => d.name)).toEqual([]);
+
+    const nix = parseBuildSource(
+      'flake.nix',
+      [
+        '# fetchgit { url = "https://commented.invalid/x"; }',
+        'description = "fetchurl { url = \'https://docs.invalid/x\'; }"',
+        '{',
+        '  inputs.real.url = "github:owner/project";',
+        '}',
+      ].join('\n'),
+    );
+    expect(nix.dependencies.map((d) => d.name)).toEqual(['real']);
+
+    const buck = parseBuildSource(
+      'BUCK',
+      [
+        '# http_archive(name = "commented", url = "https://commented.invalid")',
+        'DOC = "git_repository(name=\'in-doc\')"',
+        'unused = "http_archive(name=\'unused\')"',
+      ].join('\n'),
+    );
+    expect(buck.dependencies.map((d) => d.name)).toEqual([]);
+  });
+
   it('parses exact Bazel module dependency counts and overrides', () => {
     const skylib = parseBuildSource('MODULE.bazel', fixture('bazel-skylib-MODULE.bazel'));
     expect(skylib.system).toBe('bazel');

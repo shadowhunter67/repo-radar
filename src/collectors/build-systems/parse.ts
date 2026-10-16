@@ -2,12 +2,19 @@ import { BuildSourcesSchema, type BuildSources, type BuildDependency } from './m
 const cap = (s: string): string => s.slice(0, 256);
 const dynamic = (s: string): number =>
   [...s.matchAll(/\b(?:load|macro|let|import)\b|\$\{|\+\s*["']/g)].length;
+/** Remove whole-line comments before structural matching. A comment is repository text, not a declaration. */
+const withoutCommentLines = (s: string): string =>
+  s
+    .split(/\r?\n/)
+    .map((line) => (/^\s*#/.test(line) ? '' : line))
+    .join('\n');
 function bazel(path: string, text: string): BuildSources['files'][number] {
   const deps: BuildDependency[] = [];
-  for (const m of text
+  const sourceText = withoutCommentLines(text);
+  for (const m of sourceText
     .slice(0, 1024 * 1024)
     .matchAll(
-      /bazel_dep\s*\(\s*name\s*=\s*["']([^"']+)["'](?:[^)]*?version\s*=\s*["']([^"']*)["'])?/g,
+      /(?:^|\n)\s*bazel_dep\s*\(\s*name\s*=\s*["']([^"']+)["'](?:[^)]*?version\s*=\s*["']([^"']*)["'])?/g,
     ))
     deps.push({
       name: m[1]!,
@@ -17,8 +24,8 @@ function bazel(path: string, text: string): BuildSources['files'][number] {
       mutable_ref: false,
       dynamic: false,
     });
-  for (const m of text.matchAll(
-    /(?:http_archive|http_file|git_repository|new_git_repository|local_repository)\s*\(([\s\S]{0,2000}?)\)/g,
+  for (const m of sourceText.matchAll(
+    /(?:^|\n)\s*(?:http_archive|http_file|git_repository|new_git_repository|local_repository)\s*\(([\s\S]{0,2000}?)\)/g,
   )) {
     const b = m[1]!;
     const name = /name\s*=\s*["']([^"']+)/.exec(b)?.[1] ?? 'unnamed';
@@ -34,7 +41,7 @@ function bazel(path: string, text: string): BuildSources['files'][number] {
       dynamic: dynamic(b) > 0,
     });
   }
-  const targets = [...text.matchAll(/^\s*([\w.]+)\s*\(/gm)]
+  const targets = [...sourceText.matchAll(/^\s*([\w.]+)\s*\(/gm)]
     .map((m) => m[1]!)
     .filter(
       (x) =>
@@ -61,6 +68,7 @@ function bazel(path: string, text: string): BuildSources['files'][number] {
 }
 function nix(path: string, text: string): BuildSources['files'][number] {
   const deps: BuildDependency[] = [];
+  const sourceText = withoutCommentLines(text);
   let json: unknown;
   try {
     json = JSON.parse(text);
@@ -88,7 +96,7 @@ function nix(path: string, text: string): BuildSources['files'][number] {
       });
     }
   }
-  for (const m of text.matchAll(/inputs\.([\w-]+)\.url\s*=\s*["']([^"']+)/g))
+  for (const m of sourceText.matchAll(/inputs\.([\w-]+)\.url\s*=\s*["']([^"']+)/g))
     deps.push({
       name: m[1]!,
       source: cap(m[2]!),
@@ -97,7 +105,9 @@ function nix(path: string, text: string): BuildSources['files'][number] {
       mutable_ref: /(?:branch|main|latest|master)/i.test(m[2]!),
       dynamic: false,
     });
-  for (const m of text.matchAll(/\b(fetchurl|fetchFromGitHub|fetchzip|fetchgit)\b([\s\S]{0,500})/g))
+  for (const m of sourceText.matchAll(
+    /(?:^|\n)\s*(fetchurl|fetchFromGitHub|fetchzip|fetchgit)\b([\s\S]{0,500})/g,
+  ))
     deps.push({
       name: m[1]!,
       source: null,
@@ -120,7 +130,10 @@ function nix(path: string, text: string): BuildSources['files'][number] {
 }
 function buck(path: string, text: string): BuildSources['files'][number] {
   const deps: BuildDependency[] = [];
-  for (const m of text.matchAll(/(http_archive|git_repository)\s*\(([\s\S]{0,1500}?)\)/g)) {
+  const sourceText = withoutCommentLines(text);
+  for (const m of sourceText.matchAll(
+    /(?:^|\n)\s*(http_archive|git_repository)\s*\(([\s\S]{0,1500}?)\)/g,
+  )) {
     const b = m[2]!;
     deps.push({
       name: /name\s*=\s*["']([^"']+)/.exec(b)?.[1] ?? m[1]!,
@@ -131,7 +144,7 @@ function buck(path: string, text: string): BuildSources['files'][number] {
       dynamic: dynamic(b) > 0,
     });
   }
-  const targets = [...text.matchAll(/^\s*([\w.]+)\s*\(/gm)].map((m) => m[1]!);
+  const targets = [...sourceText.matchAll(/^\s*([\w.]+)\s*\(/gm)].map((m) => m[1]!);
   return {
     system: 'buck',
     support: 'structural',

@@ -236,9 +236,23 @@ describe('trust graph: dependency registry, trust roots and domains', () => {
       credentials_in_url: false,
       notes: [],
     }));
+    const release = big.release_intel.releases[0];
+    if (release) {
+      big.release_intel.releases = Array.from({ length: 4000 }, (_, i) => ({
+        ...release,
+        tag: `hostile-${i}`,
+        assets: release.assets.map((a) => ({ ...a, name: `asset-${i}-${a.name}` })),
+      }));
+    }
     const g = buildTrustGraph(big);
     expect(g.nodes.length).toBeLessThanOrEqual(GRAPH_LIMITS.nodes);
     expect(g.edges.length).toBeLessThanOrEqual(GRAPH_LIMITS.edges);
+    expect(g.limits.nodes_emitted).toBe(g.nodes.length);
+    expect(g.limits.edges_emitted).toBe(g.edges.length);
+    expect(g.limits.nodes_skipped + g.limits.edges_skipped).toBeGreaterThan(0);
+    expect(g.limits.stopped_by).toMatch(/node_budget|edge_budget/);
+    expect(g.truncated).toBe(true);
+    expect(validateGraph(g)).toEqual([]);
     expect(g.nodes.filter((n) => n.kind === 'ExternalDomain').length).toBeLessThanOrEqual(
       GRAPH_LIMITS.domains,
     );
