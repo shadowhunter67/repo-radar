@@ -21,7 +21,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "0.9"
+      "const": "0.10"
     },
     "methodology": {
       "type": "object",
@@ -85,6 +85,120 @@
     },
     "generated_at": {
       "type": "string"
+    },
+    "analysis_manifest": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "commit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "revision_kind": {
+          "type": "string",
+          "enum": [
+            "immutable",
+            "moving"
+          ]
+        },
+        "tool_version": {
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "string"
+        },
+        "feature_flags": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "collector_versions": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "external_sources": {
+          "maxItems": 30,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string"
+              },
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "revision_bound",
+                  "historical_event",
+                  "current_state",
+                  "retrieved_snapshot"
+                ]
+              },
+              "retrieved_at": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "classification",
+              "retrieved_at"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "trust_roots": {
+          "maxItems": 20,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "budgets": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "coverage": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "repository",
+        "commit",
+        "revision_kind",
+        "tool_version",
+        "schema_version",
+        "feature_flags",
+        "collector_versions",
+        "external_sources",
+        "trust_roots",
+        "budgets",
+        "coverage"
+      ],
+      "additionalProperties": false
     },
     "subject": {
       "type": "object",
@@ -7764,6 +7878,7 @@
     "methodology",
     "profile",
     "generated_at",
+    "analysis_manifest",
     "subject",
     "identity",
     "identity_v2",

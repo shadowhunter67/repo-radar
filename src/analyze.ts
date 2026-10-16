@@ -586,6 +586,39 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   const report: Omit<Report, 'integrity'> = {
     tool: { name: 'repo-radar', version: toolVersion(root) },
     schema_version: REPORT_SCHEMA_VERSION,
+    analysis_manifest: {
+      repository: `${ref.owner}/${ref.repo}`,
+      commit: github.snapshot.ref ?? null,
+      revision_kind: opts.ref && /^[0-9a-f]{40}$/i.test(opts.ref) ? 'immutable' : 'moving',
+      tool_version: toolVersion(root),
+      schema_version: REPORT_SCHEMA_VERSION,
+      feature_flags: {
+        verify_crypto: opts.verifyCrypto === true,
+        verify_assets: opts.verifyAssets === true,
+        compliance: complianceOn,
+        dependency_registry: opts.dependencyRegistry !== false && opts.registry !== false,
+        dependency_artifacts: opts.inspectDependencyArtifacts === true,
+      },
+      collector_versions: { github: '0.9', registry: '0.7', dependency_registry: '0.7' },
+      external_sources: [
+        {
+          source: 'github',
+          classification: 'revision_bound',
+          retrieved_at: clock.now().toISOString(),
+        },
+        {
+          source: 'registry',
+          classification: 'current_state',
+          retrieved_at: clock.now().toISOString(),
+        },
+      ],
+      trust_roots: opts.trust?.trustedRoots?.map((r) => r.label) ?? [],
+      budgets: {
+        max_scan_bytes: LIMITS.maxScanTotalBytes,
+        max_artifacts: LIMITS.maxArtifactsPerRun,
+      },
+      coverage: { evidence: store.size, files: github.files.length },
+    },
     methodology: {
       version: ruleSet.methodology,
       rules_digest: ruleSet.digest,

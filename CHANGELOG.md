@@ -185,3 +185,6 @@ First working MVP. Schema 0.1, methodology 0.1.
 
 - Add phase-1 offline supply-chain incident calibration corpus, evaluator, and blind review packets.
 - Document threshold measurement and limitations; methodology remains 0.4 and shipped policy profiles are unchanged.
+## [0.10.0] - unreleased
+
+Report schema 0.10 adds an analysis manifest for replay and external-data classification. Methodology remains 0.4.

@@ -2,6 +2,8 @@
 
 ## Offline dependency-artifact probe (2026-10-16)
 
+H4 rerun (Node v24.16.0, pinned fixtures, offline): six fixtures completed in approximately 24.5 ms total; the largest fixture (`npm-core-js-3.37.0.tgz`) took 20.183 ms in the recorded run. The prior recorded largest-fixture time was 26.171 ms; no regression was observed in this probe. Batch moving-target analyses now add exactly one allowlisted head-resolution request per repository with a snapshot store; explicit immutable SHA entries add zero head-resolution requests.
+
 Measured by `node scripts/probe-artifacts.mjs` after `npm run build`, Node `v24.16.0`, Windows workstation. The probe reads only pinned files under `tests/fixtures/artifacts`; it performs no network access. Times are one run and machine-dependent.
 
 | Fixture | Compressed bytes | Entries | Metadata bytes | State | Hooks | ms |

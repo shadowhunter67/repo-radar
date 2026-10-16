@@ -19,7 +19,7 @@ import { DependencyArtifactsSchema } from '../registry/artifacts/model.js';
 import { NameIntelligenceSchema } from '../registry/name-model.js';
 import { BuildSourcesSchema } from '../collectors/build-systems/model.js';
 
-export const REPORT_SCHEMA_VERSION = '0.9';
+export const REPORT_SCHEMA_VERSION = '0.10';
 
 const SufficiencySchema = z.enum(['sufficient', 'low', 'insufficient']);
 
@@ -82,6 +82,32 @@ export const ReportSchema = z.object({
   }),
   profile: z.object({ id: z.string(), version: z.string(), title: z.string() }),
   generated_at: z.string(),
+  analysis_manifest: z.object({
+    repository: z.string(),
+    commit: z.string().nullable(),
+    revision_kind: z.enum(['immutable', 'moving']),
+    tool_version: z.string(),
+    schema_version: z.string(),
+    feature_flags: z.record(z.string(), z.boolean()),
+    collector_versions: z.record(z.string(), z.string()),
+    external_sources: z
+      .array(
+        z.object({
+          source: z.string(),
+          classification: z.enum([
+            'revision_bound',
+            'historical_event',
+            'current_state',
+            'retrieved_snapshot',
+          ]),
+          retrieved_at: z.string(),
+        }),
+      )
+      .max(30),
+    trust_roots: z.array(z.string()).max(20),
+    budgets: z.record(z.string(), z.number()),
+    coverage: z.record(z.string(), z.number()),
+  }),
   subject: z.object({
     owner: z.string(),
     repo: z.string(),

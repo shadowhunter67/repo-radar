@@ -9,7 +9,7 @@ Given `owner/repo`, repo-radar answers three questions, and shows the evidence b
 3. **What can it do on my machine, and what runs when I install it?** (static capability, install-time execution, persistence and secret analysis; capability is never treated as intent)
 4. **Is it a fit for my situation?** (profiles: `default`, `startup`, `enterprise`)
 
-> Status: v0.9.0 (private repository), report schema `0.9`, methodology `0.4`. Upgrading: [migration notes](docs/migration.md). Scores are **not calibrated** against labelled data yet; see [limitations](docs/limitations.md) before relying on any number.
+> Status: v0.10.0 (private repository), report schema `0.10`, methodology `0.4`. Upgrading: [migration notes](docs/migration.md). Scores are **not calibrated** against labelled data yet; see [limitations](docs/limitations.md) before relying on any number.
 
 ## Why
 

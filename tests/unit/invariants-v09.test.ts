@@ -3,6 +3,9 @@ import { inspectArtifact } from '../../src/registry/artifacts/inspect.js';
 import { artifactDomains } from '../../src/registry/artifacts/domains.js';
 import { comparePackageNames } from '../../src/registry/names.js';
 import { correlate } from '../../src/events/correlate.js';
+import { analyzeRepository } from '../../src/analyze.js';
+import { fixedClock, fakeFetch } from '../helpers/fake-github.js';
+import { goodRepo } from '../helpers/scenarios.js';
 
 describe('v0.9 cross-subsystem invariants', () => {
   it('skipped artifact inspection cannot create install-hook or domain absence claims', () => {
@@ -91,5 +94,19 @@ describe('v0.9 cross-subsystem invariants', () => {
     expect(c.normalized_left).toBe(c.normalized_right);
     expect(c.signals).toEqual(['separator_variation']);
     expect(comparePackageNames('rеquests', 'requests', 'pypi').signals).toContain('homoglyph');
+  });
+
+  it('fixed inputs and clock produce byte-identical reports', async () => {
+    const spec = goodRepo();
+    const options = {
+      fetch: fakeFetch(spec),
+      clock: fixedClock,
+      scorecard: false,
+      osv: false,
+      depsDev: false,
+    };
+    const a = await analyzeRepository('acme/widget', options);
+    const b = await analyzeRepository('acme/widget', { ...options, fetch: fakeFetch(spec) });
+    expect(JSON.stringify(a)).toBe(JSON.stringify(b));
   });
 });

@@ -262,7 +262,7 @@ describe('artifact classification and identity layers', () => {
 describe('report versioning and integrity', () => {
   it('records every component version and a verifiable tamper-evidence digest', async () => {
     const r = await run(goodRepo());
-    expect(r.schema_version).toBe('0.9');
+    expect(r.schema_version).toBe('0.10');
     expect(r.methodology).toMatchObject({
       version: '0.4',
       taxonomy_version: '0.2',
