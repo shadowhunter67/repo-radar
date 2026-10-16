@@ -598,6 +598,20 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
         compliance: complianceOn,
         dependency_registry: opts.dependencyRegistry !== false && opts.registry !== false,
         dependency_artifacts: opts.inspectDependencyArtifacts === true,
+        dependency_attestations:
+          opts.dependencyRegistry !== false &&
+          opts.registry !== false &&
+          opts.dependencyRegistryBudget?.maxAttestations !== 0,
+        name_intelligence: opts.nameIntelligence === true,
+        registry: opts.registry !== false,
+        scorecard: opts.scorecard !== false,
+        osv: opts.osv !== false,
+        deps_dev: opts.depsDev !== false,
+        sbom: opts.sbom !== false,
+        domains: opts.domains !== false,
+        releases: opts.releases !== false,
+        code_scan: opts.codeScan !== false,
+        trusted_root_identity: !!opts.trust?.expectedIdentity,
       },
       collector_versions: { github: '0.9', registry: '0.7', dependency_registry: '0.7' },
       external_sources: [
@@ -654,9 +668,16 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
               : false,
           verify_crypto: opts.verifyCrypto === true,
           verify_assets: opts.verifyAssets === true,
+          inspect_dependency_artifacts: opts.inspectDependencyArtifacts === true,
+          name_intelligence: opts.nameIntelligence === true,
+          dependency_attestations:
+            opts.dependencyRegistry !== false &&
+            opts.registry !== false &&
+            opts.dependencyRegistryBudget?.maxAttestations !== 0,
           domains: opts.domains !== false,
           trusted_keys: opts.trust?.keys.length ?? 0,
           expected_identity: !!opts.trust?.expectedIdentity,
+          trusted_root_identity: opts.trust?.trustedRoots?.map((r) => r.label).sort() ?? [],
           limits: LIMITS,
         }),
       ),

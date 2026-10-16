@@ -13,8 +13,17 @@ export interface BatchOptions extends AnalyzeOptions {
   maxRepos?: number;
   maxRequests?: number;
   maxMinutes?: number;
+  maxBytes?: number;
+  maxSnapshotReads?: number;
 }
 export interface BatchResult {
+  requested: number;
+  analyzed: number;
+  reused: number;
+  refreshed: number;
+  incomplete: number;
+  failed: number;
+  critical_findings: number;
   repositories: {
     analyzed: string[];
     reused: string[];
@@ -58,6 +67,13 @@ export async function runBatch(options: BatchOptions): Promise<BatchResult> {
   const max = Math.min(options.maxRepos ?? 25, 25);
   const started = Date.now();
   const out: BatchResult = {
+    requested: Math.min(refs.length, max),
+    analyzed: 0,
+    reused: 0,
+    refreshed: 0,
+    incomplete: 0,
+    failed: 0,
+    critical_findings: 0,
     repositories: { analyzed: [], reused: [], failed: [], incomplete: [] },
     policy_failures: 0,
     high_findings: 0,
@@ -70,27 +86,79 @@ export async function runBatch(options: BatchOptions): Promise<BatchResult> {
     freshness: {},
   };
   const store = options.snapshotDir ? new FsSnapshotStore(options.snapshotDir) : undefined;
+  let requests = 0;
+  let bytes = 0;
+  let snapshotReads = 0;
+  let exceeded: string | null = null;
+  class BatchBudgetError extends Error {
+    constructor(readonly reason: string) {
+      super(reason);
+    }
+  }
+  const fetchWithBudget = options.fetch
+    ? async (url: string, init?: RequestInit): Promise<Response> => {
+        if (options.maxRequests !== undefined && requests >= options.maxRequests)
+          throw ((exceeded = 'max_requests'), new BatchBudgetError('max_requests'));
+        if (options.maxMinutes !== undefined && Date.now() - started >= options.maxMinutes * 60_000)
+          throw ((exceeded = 'max_minutes'), new BatchBudgetError('max_minutes'));
+        requests++;
+        const response = await options.fetch!(url, init);
+        if (options.maxBytes !== undefined) {
+          const measured = await response.clone().arrayBuffer();
+          bytes += measured.byteLength;
+          if (bytes > options.maxBytes)
+            throw ((exceeded = 'max_bytes'), new BatchBudgetError('max_bytes'));
+        }
+        return response;
+      }
+    : undefined;
   const headHttp = new HttpClient({
     allowedHosts: GITHUB_HOSTS,
     token: options.token,
-    fetch: options.fetch,
+    ...(fetchWithBudget ? { fetch: fetchWithBudget } : {}),
   });
-  for (const ref of refs.slice(0, max)) {
+  const compatible = (report: Report): boolean => {
+    const f = report.analysis_manifest.feature_flags;
+    const wanted: Record<string, boolean> = {
+      verify_crypto: options.verifyCrypto === true,
+      dependency_artifacts: options.inspectDependencyArtifacts === true,
+      compliance: options.compliance !== false,
+      dependency_attestations:
+        options.dependencyRegistry !== false &&
+        options.registry !== false &&
+        options.dependencyRegistryBudget?.maxAttestations !== 0,
+      registry: options.registry !== false,
+      name_intelligence: options.nameIntelligence === true,
+      trusted_root_identity: !!options.trust?.expectedIdentity,
+    };
+    return Object.entries(wanted).every(([k, v]) => f[k] === v);
+  };
+  const work = refs.slice(0, max);
+  for (const [index, ref] of work.entries()) {
     if (options.maxMinutes !== undefined && Date.now() - started >= options.maxMinutes * 60_000) {
       out.stopped_by = 'max_minutes';
+      const rest = work.slice(index).map((r) => `${r.owner}/${r.repo}`);
+      out.repositories.incomplete.push(...rest);
+      out.incomplete += rest.length;
       break;
     }
-    if (
-      options.maxRequests !== undefined &&
-      out.repositories.analyzed.length >= options.maxRequests
-    ) {
+    if (options.maxRequests !== undefined && requests >= options.maxRequests) {
       out.stopped_by = 'max_requests';
+      const rest = work.slice(index).map((r) => `${r.owner}/${r.repo}`);
+      out.repositories.incomplete.push(...rest);
+      out.incomplete += rest.length;
       break;
     }
     const name = `${ref.owner}/${ref.repo}`;
     try {
       const immutable = !!ref.ref;
       let head: string | undefined;
+      if (
+        store &&
+        options.maxSnapshotReads !== undefined &&
+        snapshotReads >= options.maxSnapshotReads
+      )
+        throw new BatchBudgetError('max_snapshot_reads');
       if (!immutable && store) {
         const response = await headHttp.request(
           `https://api.github.com/repos/${encodeURIComponent(ref.owner)}/${encodeURIComponent(ref.repo)}/commits?per_page=1`,
@@ -107,33 +175,57 @@ export async function runBatch(options: BatchOptions): Promise<BatchResult> {
         ...(expectedCommit ? { commit: expectedCommit } : {}),
         limit: 1,
       })[0];
+      if (store) snapshotReads++;
       if (store) {
         const anySnapshot =
           store.listSnapshots({ repository: name.toLowerCase(), limit: 1 }).length > 0;
-        out.freshness[name] = existing
+        let existingCompatible = false;
+        if (existing) {
+          if (options.maxSnapshotReads !== undefined && snapshotReads >= options.maxSnapshotReads)
+            throw new BatchBudgetError('max_snapshot_reads');
+          snapshotReads++;
+          const candidate = store.getSnapshot(existing);
+          existingCompatible = 'report' in candidate && compatible(candidate.report);
+        }
+        out.freshness[name] = existingCompatible
           ? 'snapshot_exact_match'
-          : anySnapshot && head
-            ? 'snapshot_stale'
-            : 'snapshot_missing';
+          : existing
+            ? 'snapshot_incompatible'
+            : anySnapshot && head
+              ? 'snapshot_stale'
+              : 'snapshot_missing';
       }
       let report: Report;
-      if (existing && store) {
+      if (existing && store && out.freshness[name] === 'snapshot_exact_match') {
         const got = store.getSnapshot(existing);
         if ('report' in got) {
           report = got.report;
           out.repositories.reused.push(name);
+          out.reused++;
         } else throw new Error(got.error);
       } else {
         report = await analyzeRepository(name, {
           ...options,
+          ...(fetchWithBudget ? { fetch: fetchWithBudget } : {}),
           ...(ref.ref ? { ref: ref.ref } : {}),
         });
+        if (exceeded) {
+          out.stopped_by = exceeded;
+          out.repositories.incomplete.push(name);
+          out.incomplete++;
+          break;
+        }
         out.repositories.analyzed.push(name);
-        store?.putSnapshot(report);
+        out.analyzed++;
+        if (existing) out.refreshed++;
+        const stored = store?.putSnapshot(report);
+        if (stored?.status === 'conflict') out.freshness[name] = 'snapshot_conflict';
       }
       if (report.policy.violations.length || report.policy.block_violations.length)
         out.policy_failures++;
       out.high_findings += report.findings.filter((f) => f.severity === 'high').length;
+      // The report vocabulary has no critical severity; retain an explicit zero for the batch contract.
+      out.critical_findings += 0;
       out.medium_findings += report.findings.filter((f) => f.severity === 'medium').length;
       out.new_temporal_indicators += report.timeline.correlations.length;
       out.unverified_provenance += report.dependency_registry_intel.packages.filter((p) =>
@@ -146,7 +238,22 @@ export async function runBatch(options: BatchOptions): Promise<BatchResult> {
         for (const d of a.domains)
           if (!out.install_context_domains.includes(d)) out.install_context_domains.push(d);
     } catch (e) {
+      const budgetReason =
+        exceeded ??
+        (e instanceof BatchBudgetError
+          ? e.reason
+          : e instanceof Error &&
+              /^(max_requests|max_minutes|max_bytes|max_snapshot_reads)$/.test(e.message)
+            ? e.message
+            : null);
+      if (budgetReason) {
+        out.stopped_by = budgetReason;
+        out.repositories.incomplete.push(name);
+        out.incomplete++;
+        break;
+      }
       out.repositories.failed.push({ repository: name, error: safeError(e) });
+      out.failed++;
     }
   }
   if (!out.stopped_by && refs.length > max) out.stopped_by = 'max_repos';
