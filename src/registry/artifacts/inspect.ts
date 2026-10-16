@@ -1,6 +1,40 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// Binary archive offsets are validated at runtime; indexed byte access is intentionally unchecked here.
-// @ts-nocheck
+/** Checked binary access for hostile archive bytes. */
+export class BoundedBinaryReader {
+  constructor(private readonly bytes: Uint8Array) {}
+  canRead(offset: number, length: number): boolean {
+    return (
+      Number.isSafeInteger(offset) &&
+      Number.isSafeInteger(length) &&
+      offset >= 0 &&
+      length >= 0 &&
+      offset <= this.bytes.length - length
+    );
+  }
+  readUInt16LE(offset: number): number | undefined {
+    return this.canRead(offset, 2)
+      ? (this.bytes[offset] ?? 0) + (this.bytes[offset + 1] ?? 0) * 0x100
+      : undefined;
+  }
+  readUInt32LE(offset: number): number | undefined {
+    return this.canRead(offset, 4)
+      ? (this.bytes[offset] ?? 0) +
+          (this.bytes[offset + 1] ?? 0) * 0x100 +
+          (this.bytes[offset + 2] ?? 0) * 0x10000 +
+          (this.bytes[offset + 3] ?? 0) * 0x1000000
+      : undefined;
+  }
+  readUInt32BE(offset: number): number | undefined {
+    return this.canRead(offset, 4)
+      ? (this.bytes[offset] ?? 0) * 0x1000000 +
+          (this.bytes[offset + 1] ?? 0) * 0x10000 +
+          (this.bytes[offset + 2] ?? 0) * 0x100 +
+          (this.bytes[offset + 3] ?? 0)
+      : undefined;
+  }
+  slice(offset: number, length: number): Uint8Array | undefined {
+    return this.canRead(offset, length) ? this.bytes.slice(offset, offset + length) : undefined;
+  }
+}
 import { createHash } from 'node:crypto';
 import { inflateRawSync, gunzipSync } from 'node:zlib';
 import { LIMITS } from '../../limits.js';
@@ -28,9 +62,11 @@ export interface ArtifactInspection {
 }
 
 const text = (b: Uint8Array): string => new TextDecoder('utf-8', { fatal: false }).decode(b);
-const oct = (b: Uint8Array): number => {
+const oct = (b: Uint8Array): number | undefined => {
   const s = text(b).replace(/\0.*$/, '').trim();
-  return s ? parseInt(s, 8) || 0 : 0;
+  if (!/^[0-7]*$/.test(s)) return undefined;
+  const value = s ? parseInt(s, 8) : 0;
+  return Number.isSafeInteger(value) ? value : undefined;
 };
 const unsafePath = (p: string): boolean => {
   const n = p.replaceAll('\\', '/');
@@ -71,7 +107,7 @@ function entriesTar(raw: Uint8Array): {
     longName = undefined;
     const size = oct(h.subarray(124, 136));
     const type = h[156];
-    if (off + size > raw.length) {
+    if (size === undefined || size > raw.length - off) {
       diagnostics.push('truncated_entry');
       break;
     }
@@ -108,82 +144,84 @@ function entriesZip(raw: Uint8Array): {
   limits: string[];
   diagnostics: string[];
 } {
-  const r = raw as unknown as { [index: number]: number };
+  const r = new BoundedBinaryReader(raw);
   const entries: ArtifactEntry[] = [];
   const seen = new Set<string>();
   const limits: string[] = [];
   const diagnostics: string[] = [];
   let eocd = -1;
-  for (let i = raw.length - 22; i >= Math.max(0, raw.length - 65557); i--)
-    if (r[i] === 0x50 && r[i + 1] === 0x4b && r[i + 2] === 5 && r[i + 3] === 6) {
+  for (let i = Math.max(0, raw.length - 65557); i <= raw.length - 22; i++)
+    if (r.readUInt32LE(i) === 0x06054b50) {
       eocd = i;
       break;
     }
   if (eocd < 0) return { entries, total: 0, limits, diagnostics: ['missing_zip_end_record'] };
-  // ZIP fields are bounds-checked by the surrounding central-directory validation.
-  // @ts-expect-error indexed binary fields are known present after the bounds check
-  const count = r[eocd + 10] | (r[eocd + 11] << 8);
-  const cdSize = r[eocd + 12] | (r[eocd + 13] << 8) | (r[eocd + 14] << 16) | (r[eocd + 15] << 24);
-  const cdOff = r[eocd + 16] | (r[eocd + 17] << 8) | (r[eocd + 18] << 16) | (r[eocd + 19] << 24);
-  if (count === 0xffff || cdSize < 0 || cdOff < 0 || cdOff + cdSize > raw.length)
-    return { entries, total: 0, limits, diagnostics: ['unsupported_or_invalid_zip64'] };
+  const count = r.readUInt16LE(eocd + 10),
+    cdSize = r.readUInt32LE(eocd + 12),
+    cdOff = r.readUInt32LE(eocd + 16);
+  if (
+    count === undefined ||
+    cdSize === undefined ||
+    cdOff === undefined ||
+    count === 0xffff ||
+    !r.canRead(cdOff, cdSize)
+  )
+    return { entries, total: 0, limits, diagnostics: ['zip64_unsupported'] };
   let p = cdOff,
     total = 0;
   for (let i = 0; i < count && entries.length < LIMITS.maxArtifactEntries; i++) {
+    if (!r.canRead(p, 46) || r.readUInt32LE(p) !== 0x02014b50) {
+      diagnostics.push('truncated_central_directory');
+      break;
+    }
+    const method = r.readUInt16LE(p + 10),
+      csize = r.readUInt32LE(p + 20),
+      usize = r.readUInt32LE(p + 24),
+      nl = r.readUInt16LE(p + 28),
+      xl = r.readUInt16LE(p + 30),
+      cl = r.readUInt16LE(p + 32),
+      lo = r.readUInt32LE(p + 42);
     if (
-      p + 46 > raw.length ||
-      r[p] !== 0x50 ||
-      r[p + 1] !== 0x4b ||
-      r[p + 2] !== 1 ||
-      r[p + 3] !== 2
+      [method, csize, usize, nl, xl, cl, lo].some((v) => v === undefined) ||
+      !r.canRead(p + 46, (nl ?? 0) + (xl ?? 0) + (cl ?? 0))
     ) {
       diagnostics.push('truncated_central_directory');
       break;
     }
-    // @ts-expect-error indexed binary fields are known present after the bounds check
-    const method = r[p + 10] | (r[p + 11] << 8);
-    const csize = r[p + 20] | (r[p + 21] << 8) | (r[p + 22] << 16) | (r[p + 23] << 24);
-    const usize = r[p + 24] | (r[p + 25] << 8) | (r[p + 26] << 16) | (r[p + 27] << 24);
-    const nl = r[p + 28] | (r[p + 29] << 8);
-    const xl = r[p + 30] | (r[p + 31] << 8);
-    const cl = r[p + 32] | (r[p + 33] << 8);
-    const lo = r[p + 42] | (r[p + 43] << 8) | (r[p + 44] << 16) | (r[p + 45] << 24);
-    const name = text(raw.subarray(p + 46, p + 46 + nl));
-    p += 46 + nl + xl + cl;
+    const name = text(r.slice(p + 46, nl ?? 0) ?? new Uint8Array());
+    p += 46 + (nl ?? 0) + (xl ?? 0) + (cl ?? 0);
     const dir = name.endsWith('/');
     const duplicate = seen.has(name);
     seen.add(name);
     const unsafe = unsafePath(name);
     let content: Uint8Array | undefined;
-    // @ts-expect-error indexed binary fields are known present after the bounds check
     if (
       !dir &&
-      usize <= LIMITS.maxArtifactFileBytes &&
-      lo + 30 <= raw.length &&
-      r[lo] === 0x50 &&
-      r[lo + 1] === 0x4b &&
-      r[lo + 2] === 3 &&
-      r[lo + 3] === 4
+      (usize ?? 0) <= LIMITS.maxArtifactFileBytes &&
+      r.readUInt32LE(lo ?? 0) === 0x04034b50
     ) {
-      const lnl = r[lo + 26] | (r[lo + 27] << 8);
-      const lxl = r[lo + 28] | (r[lo + 29] << 8);
-      const body = raw.subarray(lo + 30 + lnl + lxl, lo + 30 + lnl + lxl + csize);
+      const lnl = r.readUInt16LE((lo ?? 0) + 26),
+        lxl = r.readUInt16LE((lo ?? 0) + 28);
+      const body =
+        lnl !== undefined && lxl !== undefined
+          ? r.slice((lo ?? 0) + 30 + lnl + lxl, csize ?? 0)
+          : undefined;
       try {
         content =
-          method === 0
+          method === 0 && body
             ? body.slice()
-            : method === 8
+            : method === 8 && body
               ? inflateRawSync(body, { maxOutputLength: LIMITS.maxArtifactFileBytes })
               : undefined;
       } catch {
         diagnostics.push('corrupt_entry');
       }
     }
-    total += Math.min(usize, LIMITS.maxArtifactFileBytes);
+    total += Math.min(usize ?? 0, LIMITS.maxArtifactFileBytes);
     entries.push({
       path: name.slice(0, 300),
       kind: dir ? 'directory' : 'file',
-      size: usize,
+      size: usize ?? 0,
       unsafe,
       duplicate,
       ...(content ? { content } : {}),

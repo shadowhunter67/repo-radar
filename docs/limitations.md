@@ -116,6 +116,7 @@ See [bias](bias.md). In addition:
 - **Registry**: only the packages this repository publishes; PyPI exposes no per-version publisher or maintainers; ownership history does not exist in any of the three registries; maintainers are current-state; npm provenance is "reported", not verified; crates.io and PyPI provenance are not read.
 - **Cryptographic verification**: Sigstore public-good root only; blob bundles, GPG/minisign/SSH signatures, local tag signature verification, certificate revocation, GitHub's private-instance trust root and large non-inlined bundles are not covered. `--verify-crypto` needs network access to the Sigstore TUF repository.
 - **Asset checks** download at most 3 assets (8 MiB each); everything else is "skipped for resource limit". Binary metadata is a header read, not analysis.
+- Dependency artifact reports omit raw artifact URLs, including signed or temporary URLs; ZIP64 archives are reported as unsupported.
 - **Timeline**: no external-domain events, no maintainer or ownership history; correlations are indicators over small samples.
 - **Snapshots** are a local directory with an append-only index: no concurrent-writer protocol beyond atomic file creation, no remote store.
 

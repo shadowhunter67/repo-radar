@@ -93,3 +93,4 @@ The only network access outside `src/util/http.ts` remains the Sigstore TUF clie
 # Artifact and batch threat rows (0.9)
 
 Archive threats include traversal, links, duplicate paths, corrupt headers, zip/tar bombs, oversized metadata, nested archives, and hostile Unicode. URL threats include credentials, ports, redirects, and private hosts. ReDoS is bounded by input and entry caps. Batch threats include unsafe list entries, budget exhaustion, failure isolation, and immutable snapshot conflicts.
+Dependency artifact retrieval keeps registry/package/version and digest outcomes only; raw signed or temporary artifact URLs are not persisted, and redirects are accepted only when the destination remains on the ecosystem allowlist.

@@ -1,9 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { inspectArtifact } from '../../src/registry/artifacts/inspect.js';
+import { HttpClient } from '../../src/util/http.js';
+import { BoundedBinaryReader, inspectArtifact } from '../../src/registry/artifacts/inspect.js';
 import { extractStaticFacts } from '../../src/registry/artifacts/static.js';
-import { safeArtifactUrl } from '../../src/registry/artifacts/download.js';
+import {
+  inspectDownloadedArtifacts,
+  safeArtifactUrl,
+} from '../../src/registry/artifacts/download.js';
 
 const root = join(process.cwd(), 'tests/fixtures/artifacts');
 const bytes = (name: string): Uint8Array => readFileSync(join(root, name));
@@ -11,6 +15,17 @@ const digest = (name: string): string =>
   readFileSync(join(root, name), 'utf8').trim().split(/\s+/)[0]!;
 
 describe('dependency artifacts: pinned fixtures', () => {
+  it('bounds binary reads and reports ZIP64 without interpreting wrapped fields', () => {
+    const reader = new BoundedBinaryReader(new Uint8Array([1, 2, 3, 4]));
+    expect(reader.readUInt32LE(0)).toBe(0x04030201);
+    expect(reader.readUInt32BE(0)).toBe(0x01020304);
+    expect(reader.readUInt32LE(1)).toBeUndefined();
+    const zip = new Uint8Array(22);
+    zip.set([0x50, 0x4b, 5, 6], 0);
+    zip[10] = 0xff;
+    zip[11] = 0xff;
+    expect(inspectArtifact(zip).diagnostics).toContain('zip64_unsupported');
+  });
   it('extracts the exact esbuild lifecycle script', () => {
     const i = inspectArtifact(bytes('npm-esbuild-0.28.2.tgz'));
     const f = extractStaticFacts(i, { name: 'esbuild', version: '0.28.2', hasInstallScript: true });
@@ -82,6 +97,24 @@ describe('dependency artifacts: pinned fixtures', () => {
     const i = inspectArtifact(new Uint8Array([0x1f, 0x8b, 0x08]));
     expect(i.state).toBe('failed');
     expect(inspectArtifact(tar).diagnostics).toContain('unsupported_archive');
+  });
+
+  it('does not persist raw artifact URLs after an allowlisted download', async () => {
+    const result = await inspectDownloadedArtifacts({
+      http: new HttpClient({
+        allowedHosts: ['registry.npmjs.org'],
+        fetch: async () => new Response(''),
+      }),
+      candidates: [
+        {
+          registry: 'npm',
+          package: 'x',
+          version: '1.0.0',
+          url: 'https://registry.npmjs.org/x/-/x.tgz',
+        },
+      ],
+    });
+    expect(result.artifacts[0]?.url).toBeNull();
   });
 });
 
