@@ -91,6 +91,9 @@ export function parseStatement(
       );
     }
   } else problems.push('predicate is not SLSA provenance');
+  // GitHub's release-attestation predicate is in-toto rather than SLSA. Its repository
+  // claim is still useful for source binding, but it does not carry a commit revision.
+  if (!slsa) repo = s(pred['repository']) ?? repo;
   if (revision && !/^[0-9a-f]{40}$/i.test(revision)) {
     problems.push('source revision is not a full commit sha');
     revision = null;

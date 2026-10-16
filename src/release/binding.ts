@@ -98,7 +98,9 @@ export function evaluateBinding(i: BindingInput): {
   const sourceBound = (p: Provenance): boolean =>
     !!p.source_revision && !!i.tagCommit && p.source_revision === i.tagCommit;
   const ciIdentity = (p: Provenance): boolean =>
-    sameRepo(p.verification_detail?.identity?.source_repository, i.repository);
+    sameRepo(p.verification_detail?.identity?.source_repository, i.repository) ||
+    (p.verification_detail?.trust_root === 'github_attestation_instance' &&
+      sameRepo(p.source_repository, i.repository));
 
   if (verified.some((p) => ciIdentity(p) && sourceBound(p))) {
     correspondence = 'verified_source_binding';

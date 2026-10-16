@@ -422,7 +422,9 @@ export async function collectReleases(opts: {
           roots.length > 0
             ? roots.map((root) =>
                 verifyBundleWithRoot(recBundles[i], root, {
-                  expectedIdentity: { sourceRepository: `${opts.owner}/${opts.repo}` },
+                  ...(root.label === 'github_attestation_instance'
+                    ? {}
+                    : { expectedIdentity: { sourceRepository: `${opts.owner}/${opts.repo}` } }),
                   expectedSubjectDigest: rec.subject.find((s) => s.algorithm === 'sha256')?.digest,
                 }),
               )
