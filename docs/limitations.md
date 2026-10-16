@@ -79,6 +79,11 @@ See [bias](bias.md). In addition:
 - Comparisons are bounded heuristics over the repository dependency set, declared package names, and the checked-in popular-name seed. The seed is not a registry popularity feed and is intentionally incomplete.
 - The comparator supports registry-normalized names and reports independent signals; it does not establish ownership or intent. Registry-history/deprecation suppression is available to callers supplying those metadata records, while the default repository pipeline does not yet hydrate every registry rename/deprecation relationship into candidate metadata.
 
+## Build-system sources (0.9)
+
+- Bazel, Nix, and Buck support is structural and bounded: macros, imports, dynamic string construction, and evaluation are counted or marked unparsed rather than resolved.
+- Build-source facts describe declared remote inputs only. They do not prove that a build fetched or used a source, and a missing source is reported as unknown unless every discovered file was parsed within the limits.
+
 - No caching: each run re-fetches everything. Not suitable yet for scanning thousands of repositories.
 - No historical tracking: reports are point-in-time.
 - Reports are reproducible only if the repository and the external services have not changed; evidence carries `observed_at` and the commit `ref`.

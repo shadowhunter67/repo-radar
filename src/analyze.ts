@@ -78,6 +78,9 @@ import { EMPTY_DEPENDENCY_ARTIFACTS } from './registry/artifacts/model.js';
 import { inspectDownloadedArtifacts } from './registry/artifacts/download.js';
 import { analyzeNames, EMPTY_NAME_INTELLIGENCE } from './registry/name-model.js';
 import { buildNameFindings, deriveNameFacts } from './registry/name-findings.js';
+import { EMPTY_BUILD_SOURCES } from './collectors/build-systems/model.js';
+import { parseBuildSources } from './collectors/build-systems/parse.js';
+import { buildSourceFindings, deriveBuildFacts } from './collectors/build-systems/findings.js';
 import { evaluate } from './scoring/engine.js';
 import {
   effectiveBlocks,
@@ -302,6 +305,17 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
         })),
       )
     : EMPTY_NAME_INTELLIGENCE;
+  const buildSources = github.scanned
+    ? parseBuildSources(
+        github.files
+          .filter((f) =>
+            /(?:MODULE\.bazel|WORKSPACE(?:\.bazel)?|BUILD(?:\.bazel)?|flake\.lock|flake\.nix|default\.nix|shell\.nix|BUCK2?|\.buckconfig)$/i.test(
+              f.path,
+            ),
+          )
+          .map((f) => ({ path: f.path, content: f.content })),
+      )
+    : EMPTY_BUILD_SOURCES;
 
   const identity = await classifier.classify(github.snapshot);
   identity.confidence_semantics ??= 'heuristic_uncalibrated';
@@ -430,6 +444,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...deriveRegistryFacts(registryIntel),
     ...deriveDependencyRegistryFacts(depRegistry, timeline.correlations),
     ...deriveNameFacts(nameIntelligence),
+    ...deriveBuildFacts(buildSources),
     ...(dependencyArtifacts.status === 'analyzed' &&
     dependencyArtifacts.artifacts.some((a) => a.domains.length > 0)
       ? [
@@ -519,6 +534,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...buildRegistryFindings(registryIntel),
     ...buildDependencyRegistryFindings(depRegistry, timeline.correlations),
     ...buildNameFindings(nameIntelligence),
+    ...buildSourceFindings(buildSources),
     ...buildDomainFindings(externalDomains),
     ...buildGovernanceFindings(governance),
   ];
@@ -617,6 +633,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     dependency_registry_intel: depRegistry,
     dependency_artifacts: dependencyArtifacts,
     name_intelligence: nameIntelligence,
+    build_sources: buildSources,
     external_domains: externalDomains,
     timeline,
     governance,

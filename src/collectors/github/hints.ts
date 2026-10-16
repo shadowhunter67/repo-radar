@@ -11,7 +11,7 @@ import { isSafeTreePath } from './tree.js';
  * counted in `rejected` and never followed. The number of paths one file may name is capped.
  */
 export const HINT_FILE_RE =
-  /^(?:package\.json|pnpm-workspace\.yaml|lerna\.json|rush\.json|Cargo\.toml|pyproject\.toml|go\.work|settings\.gradle(?:\.kts)?|pom\.xml|CMakeLists\.txt|Makefile\.am|meson\.build|Makefile|Kbuild|[\w.-]{1,80}\.sln)$/;
+  /^(?:package\.json|pnpm-workspace\.yaml|lerna\.json|rush\.json|Cargo\.toml|pyproject\.toml|go\.work|settings\.gradle(?:\.kts)?|pom\.xml|CMakeLists\.txt|Makefile\.am|meson\.build|Makefile|Kbuild|MODULE\.bazel|WORKSPACE(?:\.bazel)?|BUILD(?:\.bazel)?|flake\.nix|flake\.lock|default\.nix|shell\.nix|BUCK2?|\.buckconfig|[\w.-]{1,80}\.sln)$/;
 
 export interface HintDirs {
   /** Directories named exactly (relative to the repository root). */
@@ -145,6 +145,24 @@ export function extractHints(fileName: string, dirOf: string, text: string): Hin
       for (const m of t.matchAll(/^(?:[\w-]+-y|obj-y|obj-\$\([\w]+\))\s*[:+]?=\s*([^\n\\]+)/gm))
         for (const d of (m[1] as string).split(/\s+/))
           if (/^[\w.-]+\/$/.test(d)) globToHint(dirOf, d.slice(0, -1), out);
+      break;
+    case 'MODULE.bazel':
+    case 'WORKSPACE':
+    case 'WORKSPACE.bazel':
+    case 'BUILD':
+    case 'BUILD.bazel':
+      for (const m of t.matchAll(/(?:local_path_override|path)\s*=\s*["']([^"']+)["']/g))
+        norm(dirOf, m[1] as string, out);
+      break;
+    case 'flake.nix':
+      for (const m of t.matchAll(/\bpath\s*[:=]\s*["']([^"']+)["']/g))
+        norm(dirOf, m[1] as string, out);
+      break;
+    case 'BUCK':
+    case 'BUCK2':
+    case '.buckconfig':
+      for (const m of t.matchAll(/\b(?:cell|path|buildfile)\s*[=:]\s*["']?([^\s"']+)/gi))
+        norm(dirOf, m[1] as string, out);
       break;
     case 'meson.build':
       for (const m of t.matchAll(/\bsubdir\s*\(\s*['"]([^'"]+)['"]/g))

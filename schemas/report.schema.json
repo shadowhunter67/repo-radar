@@ -5441,6 +5441,176 @@
       ],
       "additionalProperties": false
     },
+    "build_sources": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "1"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "analyzed",
+            "not_scanned",
+            "disabled"
+          ]
+        },
+        "files": {
+          "maxItems": 40,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "system": {
+                "type": "string",
+                "enum": [
+                  "bazel",
+                  "nix",
+                  "buck"
+                ]
+              },
+              "path": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "dependencies": {
+                "maxItems": 500,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    "source": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 500
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "checksum": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 300
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "pinned": {
+                      "type": "boolean"
+                    },
+                    "mutable_ref": {
+                      "type": "boolean"
+                    },
+                    "dynamic": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "source",
+                    "checksum",
+                    "pinned",
+                    "mutable_ref",
+                    "dynamic"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "target_count": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "rule_kinds": {
+                "maxItems": 100,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 80
+                }
+              },
+              "remote_source_count": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "unparsed_dynamic": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "signals": {
+                "maxItems": 20,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 100
+                }
+              }
+            },
+            "required": [
+              "system",
+              "path",
+              "dependencies",
+              "target_count",
+              "rule_kinds",
+              "remote_source_count",
+              "unparsed_dynamic",
+              "signals"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "remote_source_unpinned": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "declared_paths": {
+          "maxItems": 100,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 300
+          }
+        },
+        "rejected_paths": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "not_available": {
+          "maxItems": 8,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        }
+      },
+      "required": [
+        "version",
+        "status",
+        "files",
+        "remote_source_unpinned",
+        "declared_paths",
+        "rejected_paths",
+        "not_available"
+      ],
+      "additionalProperties": false
+    },
     "external_domains": {
       "type": "object",
       "properties": {
@@ -7592,6 +7762,7 @@
     "dependency_registry_intel",
     "dependency_artifacts",
     "name_intelligence",
+    "build_sources",
     "external_domains",
     "timeline",
     "governance",
