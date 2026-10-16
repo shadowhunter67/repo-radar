@@ -135,3 +135,7 @@ See [bias](bias.md). In addition:
 
 - **Batch** is sequential and bounded at 25 repositories. Failures are isolated and aggregate counts are descriptive, not an organization score. Snapshot reuse uses the immutable local snapshot index for the requested repository; a separate preflight head-resolution request is not performed, so callers should refresh or clear the store when repository heads may have changed.
 - **Artifact probe measurements** are one offline Windows run and are not stable performance guarantees; production digest verification requires registry metadata supplied by the collector.
+
+## H5 audit boundary (2026-10-16)
+
+The following H5 follow-ups remain explicitly unclaimed and require separate review work: memory-pressure assertions for every decompressor/import path; exhaustive timed ReDoS coverage for every Phase 0.9 regex; full batch budget/summary expansion; hostile snapshot-import corpus for duplicate/prototype/index cases; the Goreleaser GitHub-instance attestation end-to-end fixture; complete trust-root negative tests for every source type; dependency-attestation coverage counters; graph property tests and hostile graph-limit cases; exhaustive policy truth-table coverage; and the full Bazel/Nix/Buck comment/string/macro corpus. The current cycle added bounded PAX parsing, invalid-UTF-8/duplicate-key/traversal tests, and foreign-redirect rejection, but these do not constitute completion of the remaining items. No item is represented as verified solely because a fixture is absent.

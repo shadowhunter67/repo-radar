@@ -62,6 +62,13 @@ export interface ArtifactInspection {
 }
 
 const text = (b: Uint8Array): string => new TextDecoder('utf-8', { fatal: false }).decode(b);
+const strictText = (b: Uint8Array): string | undefined => {
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(b);
+  } catch {
+    return undefined;
+  }
+};
 const oct = (b: Uint8Array): number | undefined => {
   const s = text(b).replace(/\0.*$/, '').trim();
   if (!/^[0-7]*$/.test(s)) return undefined;
@@ -98,12 +105,14 @@ function entriesTar(raw: Uint8Array): {
   const diagnostics: string[] = [];
   let off = 0,
     total = 0,
-    longName: string | undefined;
+    longName: string | undefined,
+    longLink: string | undefined,
+    pax: Record<string, string> = {};
   while (off + 512 <= raw.length && entries.length < LIMITS.maxArtifactEntries) {
     const h = raw.subarray(off, off + 512);
     off += 512;
     if (h.every((x) => x === 0)) break;
-    const name = longName ?? text(h.subarray(0, 100)).replace(/\0.*$/, '');
+    const name = pax.path ?? longName ?? text(h.subarray(0, 100)).replace(/\0.*$/, '');
     longName = undefined;
     const size = oct(h.subarray(124, 136));
     const type = h[156];
@@ -113,26 +122,75 @@ function entriesTar(raw: Uint8Array): {
     }
     const body = raw.subarray(off, off + size);
     off += Math.ceil(size / 512) * 512;
+    if (type === 'x'.charCodeAt(0) || type === 'g'.charCodeAt(0)) {
+      if (size > 256 * 1024) {
+        diagnostics.push('pax_block_limit');
+        continue;
+      }
+      const paxText = strictText(body);
+      if (paxText === undefined) {
+        diagnostics.push('invalid_utf8');
+        continue;
+      }
+      for (const record of paxText.split('\n')) {
+        if (!record) continue;
+        const space = record.indexOf(' ');
+        const eq = record.indexOf('=', space + 1);
+        const length = Number(space > 0 ? record.slice(0, space) : 'NaN');
+        if (!Number.isSafeInteger(length) || length !== record.length + 1 || eq <= space + 1) {
+          diagnostics.push('invalid_pax_record');
+          continue;
+        }
+        const key = record.slice(space + 1, eq);
+        if (!['path', 'linkpath', 'size'].includes(key)) continue;
+        if (Object.hasOwn(pax, key)) diagnostics.push('duplicate_pax_key');
+        pax[key] = record.slice(eq + 1);
+      }
+      continue;
+    }
     if (name === '././@LongLink' || type === 'L'.charCodeAt(0)) {
       longName = text(body).replace(/\0.*$/, '');
       continue;
     }
+    if (type === 'K'.charCodeAt(0)) {
+      longLink = text(body).replace(/\0.*$/, '');
+      continue;
+    }
+    const effectiveSize = pax.size === undefined ? size : Number(pax.size);
+    if (
+      !Number.isSafeInteger(effectiveSize) ||
+      effectiveSize < 0 ||
+      effectiveSize > LIMITS.maxArtifactMetadataBytes
+    ) {
+      diagnostics.push('invalid_pax_size');
+      pax = {};
+      continue;
+    }
+    const effectiveLink = pax.linkpath ?? longLink;
+    if (name.length > 300 || (effectiveLink !== undefined && effectiveLink.length > 300))
+      diagnostics.push('path_limit');
     const kind: ArtifactEntryKind =
       type === 5 ? 'directory' : type === 2 ? 'symlink' : type === 1 ? 'hardlink' : 'file';
     const duplicate = seen.has(name);
     seen.add(name);
-    const unsafe = unsafePath(name) || kind === 'symlink' || kind === 'hardlink';
+    const unsafe =
+      unsafePath(name) ||
+      (effectiveLink !== undefined && unsafePath(effectiveLink)) ||
+      kind === 'symlink' ||
+      kind === 'hardlink';
     if (unsafe && (kind === 'symlink' || kind === 'hardlink'))
       diagnostics.push('link_not_followed');
-    total += Math.min(size, LIMITS.maxArtifactFileBytes);
+    total += Math.min(effectiveSize, LIMITS.maxArtifactFileBytes);
     entries.push({
       path: name.slice(0, 300),
       kind,
-      size,
+      size: effectiveSize,
       unsafe,
       duplicate,
       ...(kind === 'file' && size <= LIMITS.maxArtifactFileBytes ? { content: body.slice() } : {}),
     });
+    pax = {};
+    longLink = undefined;
   }
   if (entries.length >= LIMITS.maxArtifactEntries) limits.push('entry_limit');
   return { entries, total, limits, diagnostics };

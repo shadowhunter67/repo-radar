@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { gzipSync } from 'node:zlib';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { HttpClient } from '../../src/util/http.js';
@@ -15,6 +16,36 @@ const digest = (name: string): string =>
   readFileSync(join(root, name), 'utf8').trim().split(/\s+/)[0]!;
 
 describe('dependency artifacts: pinned fixtures', () => {
+  it('bounds and validates PAX path/linkpath/size records', () => {
+    const block = (name: string, body: Uint8Array, type = '0'): Uint8Array => {
+      const h = new Uint8Array(512);
+      h.set(new TextEncoder().encode(name).slice(0, 100), 0);
+      h.set(new TextEncoder().encode(body.length.toString(8).padStart(11, '0') + '\0'), 124);
+      h[156] = type.charCodeAt(0);
+      return new Uint8Array([...h, ...body, ...new Uint8Array((512 - (body.length % 512)) % 512)]);
+    };
+    const paxRecord = (key: string, value: string): Uint8Array => {
+      let length = key.length + value.length + 3;
+      while (String(length).length + key.length + value.length + 3 !== length) length++;
+      return new TextEncoder().encode(`${length} ${key}=${value}\n`);
+    };
+    const pax = new Uint8Array([
+      ...paxRecord('path', '../escape'),
+      ...paxRecord('path', '../escape'),
+    ]);
+    const raw = new Uint8Array([
+      ...block('PaxHeader', pax, 'x'),
+      ...block('target', new Uint8Array([1])),
+    ]);
+    const result = inspectArtifact(gzipSync(raw));
+    expect(result.entries[0]?.unsafe).toBe(true);
+    expect(result.diagnostics).toContain('duplicate_pax_key');
+    const invalid = new Uint8Array([
+      ...block('PaxHeader', new Uint8Array([5, 32, 112, 97, 116, 104, 61, 255]), 'x'),
+      ...block('target', new Uint8Array()),
+    ]);
+    expect(inspectArtifact(gzipSync(invalid)).diagnostics).toContain('invalid_utf8');
+  });
   it('bounds binary reads and reports ZIP64 without interpreting wrapped fields', () => {
     const reader = new BoundedBinaryReader(new Uint8Array([1, 2, 3, 4]));
     expect(reader.readUInt32LE(0)).toBe(0x04030201);
@@ -115,6 +146,31 @@ describe('dependency artifacts: pinned fixtures', () => {
       ],
     });
     expect(result.artifacts[0]?.url).toBeNull();
+  });
+
+  it('refuses a foreign redirect before artifact inspection', async () => {
+    let inspected = false;
+    const result = await inspectDownloadedArtifacts({
+      http: new HttpClient({
+        allowedHosts: ['registry.npmjs.org'],
+        fetch: async () =>
+          new Response(null, {
+            status: 302,
+            headers: { location: 'https://evil.example/payload.tgz' },
+          }),
+      }),
+      candidates: [
+        {
+          registry: 'npm',
+          package: 'x',
+          version: '1.0.0',
+          url: 'https://registry.npmjs.org/x.tgz',
+        },
+      ],
+    });
+    inspected = result.artifacts[0]?.entries !== 0;
+    expect(result.artifacts[0]?.reason).toBe('fetch_failed');
+    expect(inspected).toBe(false);
   });
 });
 
