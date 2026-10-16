@@ -470,6 +470,18 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
             },
           ]
         : []),
+    ...(dependencyArtifacts.status === 'analyzed'
+      ? [
+          {
+            id: 'registry.deps.artifacts_inspected',
+            value: dependencyArtifacts.inspected === dependencyArtifacts.eligible,
+            confidence: 0.9,
+            scope: 'registry' as const,
+            derived_from: dependencyArtifacts.artifacts.flatMap((a) => a.evidence),
+            derived_by: 'dependency-artifacts@0.1',
+          },
+        ]
+      : []),
     ...deriveDomainFacts(externalDomains, scanReliable),
   ];
   if (

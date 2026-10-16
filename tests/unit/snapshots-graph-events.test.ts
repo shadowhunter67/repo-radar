@@ -9,6 +9,12 @@ import { BUILTIN_PATTERNS, correlate } from '../../src/events/correlate.js';
 import type { TimelineEvent } from '../../src/events/model.js';
 import { EMPTY_GOVERNANCE } from '../../src/governance/temporal.js';
 import { buildTrustGraph, GRAPH_EDGE_TYPES, validateGraph } from '../../src/graph/trust.js';
+import {
+  GraphIndex,
+  dependenciesWithNewInstallDomain,
+  possibleNameConfusions,
+  dependencyArtifactsBoundToSource,
+} from '../../src/graph/query.js';
 import { EMPTY_REGISTRY_INTEL } from '../../src/registry/model.js';
 import { EMPTY_RELEASE_INTEL } from '../../src/release/model.js';
 import type { Report } from '../../src/report/schema.js';
@@ -24,6 +30,106 @@ const run = (s: FakeSpec, extra: Parameters<typeof analyzeRepository>[1] = {}): 
   analyzeRepository(`${s.owner}/${s.repo}`, { fetch: fakeFetch(s), clock: fixedClock, ...extra });
 /** goodRepo's fake serves a head commit sha; make the key explicit and the integrity digest consistent. */
 const pinned = async (s: FakeSpec = goodRepo()): Promise<Report> => run(s);
+
+describe('sub-phase E graph and dependency patterns', () => {
+  it('keeps same-entity temporal patterns separate and includes dated sequence text', () => {
+    const events: TimelineEvent[] = [
+      {
+        id: 'a',
+        type: 'dependency_publisher_changed',
+        at: '2026-01-01T00:00:00.000Z',
+        subject: 'npm:x@1',
+        source: 'dependency_registry',
+        detail: 'publisher changed',
+        confidence: 0.9,
+        evidence: ['ev-a'],
+        entity: 'npm:x',
+      },
+      {
+        id: 'b',
+        type: 'dependency_install_hook_introduced',
+        at: '2026-01-02T00:00:00.000Z',
+        subject: 'npm:x@2',
+        source: 'dependency_registry',
+        detail: 'hook',
+        confidence: 0.9,
+        evidence: ['ev-b'],
+        entity: 'npm:x',
+      },
+      {
+        id: 'c',
+        type: 'dependency_install_hook_introduced',
+        at: '2026-01-02T00:00:00.000Z',
+        subject: 'npm:y@2',
+        source: 'dependency_registry',
+        detail: 'hook',
+        confidence: 0.9,
+        evidence: ['ev-c'],
+        entity: 'npm:y',
+      },
+    ];
+    const hit = correlate(events, BUILTIN_PATTERNS).find(
+      (x) => x.pattern_id === 'dependency-artifact-hook-after-publisher-change',
+    );
+    expect(hit?.entity).toBe('npm:x');
+    expect(hit?.start).toBe('2026-01-01T00:00:00.000Z');
+    expect(hit?.end).toBe('2026-01-02T00:00:00.000Z');
+    expect(hit?.statement).toContain('Intent is undetermined');
+  });
+
+  it('projects artifact and name nodes with evidence-bearing edges and answers queries', async () => {
+    const report = await pinned();
+    const changed = JSON.parse(JSON.stringify(report)) as Report;
+    changed.dependency_artifacts = {
+      ...changed.dependency_artifacts,
+      status: 'analyzed',
+      inspected: 1,
+      artifacts: [
+        {
+          registry: 'npm',
+          package: 'colors',
+          version: '1.4.0',
+          url: null,
+          state: 'verified',
+          entries: 1,
+          total_size: 10,
+          hooks: [],
+          domains: ['example.invalid'],
+          mismatches: [],
+          reason: null,
+          evidence: ['artifact:colors'],
+        },
+      ],
+    };
+    changed.name_intelligence = {
+      ...changed.name_intelligence,
+      status: 'analyzed',
+      signals: [
+        {
+          target: 'colors',
+          candidate: 'colour',
+          ecosystem: 'npm',
+          signals: ['edit_distance'],
+          distance: 1,
+          suppressed: false,
+          suppression_reason: null,
+          evidence: ['name:colors'],
+        },
+      ],
+    };
+    const graph = buildTrustGraph(changed);
+    expect(validateGraph(graph)).toEqual([]);
+    expect(graph.nodes.map((n) => n.kind)).toContain('DependencyArtifact');
+    expect(graph.nodes.map((n) => n.kind)).toContain('PackageNameSignal');
+    expect(
+      graph.edges.filter((e) => e.type === 'HAS_ARTIFACT').every((e) => e.evidence_ids.length > 0),
+    ).toBe(true);
+    const idx = new GraphIndex(graph);
+    expect(dependenciesWithNewInstallDomain(idx)).toEqual(['colors@1.4.0']);
+    expect(possibleNameConfusions(idx)).toEqual(['colors ~ colour']);
+    expect(dependencyArtifactsBoundToSource(idx)).toEqual(['colors@1.4.0']);
+  });
+});
 
 let dir = '';
 beforeEach(() => {

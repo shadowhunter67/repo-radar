@@ -5919,6 +5919,7 @@
                   "dependency_external_domain_introduced",
                   "dependency_external_domain_removed",
                   "dependency_external_domain_context_changed",
+                  "dependency_name_confusion",
                   "external_domain_removed",
                   "external_domain_context_changed",
                   "provenance_added",

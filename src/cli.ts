@@ -14,6 +14,10 @@ import {
   GraphIndex,
   publishTimes,
   dependenciesWithUnverifiedProvenance,
+  dependenciesWithPublisherChange,
+  dependenciesWithNewInstallDomain,
+  possibleNameConfusions,
+  dependencyArtifactsBoundToSource,
 } from './graph/query.js';
 import { evaluateHistoryBlocks } from './scoring/policy.js';
 import { listProfiles, loadProfile, UnknownProfileError } from './profiles/load.js';
@@ -328,6 +332,13 @@ export async function main(
           name === 'dependencies-with-unverified-provenance'
         )
           rows = dependenciesWithUnverifiedProvenance(idx);
+        else if (name === 'dependencies-with-publisher-change')
+          rows = dependenciesWithPublisherChange(idx);
+        else if (name === 'dependencies-with-new-install-domain')
+          rows = dependenciesWithNewInstallDomain(idx);
+        else if (name === 'possible-name-confusions') rows = possibleNameConfusions(idx);
+        else if (name === 'dependency-artifacts-bound-to-source')
+          rows = dependencyArtifactsBoundToSource(idx);
         else if (name === 'publish-times' && arg) rows = publishTimes(idx, arg);
         else {
           stderr(

@@ -117,6 +117,36 @@ export const BUILTIN_PATTERNS: TemporalPattern[] = [
     within_days: 30,
   },
   {
+    id: 'dependency-publisher-provenance-domain',
+    description:
+      'A dependency publisher change or provenance loss is followed by a new install-time domain',
+    steps: [
+      { any_of: ['dependency_publisher_changed'] },
+      { any_of: ['dependency_provenance_removed'] },
+      { any_of: ['dependency_external_domain_introduced'] },
+    ],
+    within_days: 90,
+    same_entity: true,
+  },
+  {
+    id: 'dependency-artifact-hook-after-publisher-change',
+    description: 'A dependency publisher change is followed by an artifact install hook',
+    steps: [
+      { any_of: ['dependency_publisher_changed'] },
+      { any_of: ['dependency_install_hook_introduced'] },
+    ],
+    within_days: 90,
+    same_entity: true,
+  },
+  {
+    id: 'dependency-name-confusion-new-dependency',
+    description:
+      'A possible package-name confusion indicator is observed on a newly introduced dependency',
+    steps: [{ any_of: ['dependency_change'] }, { any_of: ['dependency_name_confusion'] }],
+    within_days: 90,
+    same_entity: true,
+  },
+  {
     id: 'provenance-loss-then-release',
     description:
       'Verified provenance or source binding is lost or changes, and a release or publication follows closely',

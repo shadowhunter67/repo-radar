@@ -216,6 +216,41 @@ export function versionsWithoutVerifiedProvenance(idx: GraphIndex): VersionRow[]
 
 export const dependenciesWithUnverifiedProvenance = versionsWithoutVerifiedProvenance;
 
+export function dependenciesWithPublisherChange(idx: GraphIndex): string[] {
+  return idx
+    .ofKind('Dependency')
+    .filter((d) =>
+      idx
+        .outgoing(d.id, 'CORRESPONDS_TO')
+        .some((e) => e.evidence_ids.some((x) => x.includes('publisher_changed'))),
+    )
+    .map((d) => d.name)
+    .sort();
+}
+
+export function dependenciesWithNewInstallDomain(idx: GraphIndex): string[] {
+  return idx
+    .ofKind('DependencyArtifact')
+    .filter((a) => idx.outgoing(a.id, 'FETCHES_FROM').length > 0)
+    .map((a) => a.name)
+    .sort();
+}
+
+export function possibleNameConfusions(idx: GraphIndex): string[] {
+  return idx
+    .ofKind('PackageNameSignal')
+    .map((n) => n.name)
+    .sort();
+}
+
+export function dependencyArtifactsBoundToSource(idx: GraphIndex): string[] {
+  return idx
+    .ofKind('DependencyArtifact')
+    .filter((a) => idx.incoming(a.id, 'HAS_ARTIFACT').length > 0)
+    .map((a) => a.name)
+    .sort();
+}
+
 export interface PublishEdgeRow {
   package: string;
   version: string;

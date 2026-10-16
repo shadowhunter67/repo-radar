@@ -190,6 +190,8 @@ export const ProfileSchema = z.object({
       /** No dependency shows takeover indicators (long gap / new publisher followed by an install script or lost provenance). */
       no_dependency_takeover_indicators: RequireValue.optional(),
       no_dependency_name_confusion: RequireValue.optional(),
+      no_dependency_install_domains: RequireValue.optional(),
+      dependency_artifacts_inspected: RequireValue.optional(),
     })
     .strict()
     .default({}),

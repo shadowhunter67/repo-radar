@@ -32,6 +32,9 @@ export const GRAPH_NODE_KINDS = [
   'Registry',
   'Capability',
   'Finding',
+  'DependencyArtifact',
+  'PackageNameSignal',
+  'BuildSource',
 ] as const;
 export const GRAPH_EDGE_TYPES = [
   'DEPENDS_ON',
@@ -52,6 +55,10 @@ export const GRAPH_EDGE_TYPES = [
   'HAS_CAPABILITY',
   'INTRODUCED_CAPABILITY',
   'HAS_FINDING',
+  'HAS_ARTIFACT',
+  'FETCHES_FROM',
+  'SIMILAR_TO_PACKAGE',
+  'DECLARED_BY',
 ] as const;
 export const TEMPORAL_SCOPES = [
   'revision',
@@ -514,6 +521,107 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
         'current_state',
         'dependency_registry',
         p.observed_at,
+      );
+    }
+  }
+
+  // ---- dependency artifacts, package-name signals and build sources ----------------------------------------------
+  for (const a of report.dependency_artifacts.artifacts) {
+    const aid = node(
+      `artifact:${a.registry}:${a.package}@${a.version}`,
+      'DependencyArtifact',
+      `${a.package}@${a.version}`,
+      {
+        registry: a.registry,
+        state: a.state,
+        url: a.url,
+      },
+    );
+    const vid = node(
+      `version:${a.registry}:${a.package}@${a.version}`,
+      'PackageVersion',
+      a.version,
+      { dependency: true },
+    );
+    edge(
+      vid,
+      aid,
+      'HAS_ARTIFACT',
+      a.evidence,
+      a.state === 'verified' ? 0.95 : 0.5,
+      'current_state',
+      'dependency_registry',
+    );
+    for (const domain of a.domains.slice(0, 20)) {
+      const did = node(`domain:${domain}`, 'ExternalDomain', domain, {
+        category: 'dependency_artifact',
+        strongest_context: 'dependency_install',
+        ambiguity: 'none',
+        display: null,
+      });
+      edge(aid, did, 'FETCHES_FROM', a.evidence, 0.5, 'current_state', 'domains');
+    }
+  }
+  for (const s of report.name_intelligence.signals.filter((x) => !x.suppressed).slice(0, 200)) {
+    const sid = node(
+      `name-signal:${s.ecosystem}:${s.target}:${s.candidate}`,
+      'PackageNameSignal',
+      `${s.target} ~ ${s.candidate}`,
+      { ecosystem: s.ecosystem, signals: s.signals.join(',') },
+    );
+    const target = node(`package:${s.ecosystem}:${s.target}`, 'Package', s.target, {
+      registry: s.ecosystem,
+    });
+    const candidate = node(`package:${s.ecosystem}:${s.candidate}`, 'Package', s.candidate, {
+      registry: s.ecosystem,
+    });
+    edge(
+      target,
+      sid,
+      'SIMILAR_TO_PACKAGE',
+      s.evidence,
+      0.6,
+      'current_state',
+      'dependency_registry',
+    );
+    edge(
+      sid,
+      candidate,
+      'SIMILAR_TO_PACKAGE',
+      s.evidence,
+      0.6,
+      'current_state',
+      'dependency_registry',
+    );
+  }
+  for (const f of report.build_sources.files) {
+    const bid = node(`build:${f.path}`, 'BuildSource', f.path, {
+      system: f.system,
+      dynamic: f.unparsed_dynamic > 0,
+    });
+    for (const d of f.dependencies.filter((x) => x.source).slice(0, 100)) {
+      const domain = (() => {
+        try {
+          return new URL(d.source as string).hostname;
+        } catch {
+          return null;
+        }
+      })();
+      if (!domain) continue;
+      const did = node(`domain:${domain}`, 'ExternalDomain', domain, {
+        category: 'build',
+        strongest_context: 'build',
+        ambiguity: 'none',
+        display: null,
+      });
+      edge(
+        bid,
+        did,
+        'FETCHES_FROM',
+        [`build:${f.path}`],
+        d.pinned ? 0.8 : 0.5,
+        'current_state',
+        'domains',
       );
     }
   }

@@ -274,6 +274,28 @@
               "const": "strict"
             }
           ]
+        },
+        "no_dependency_install_domains": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "dependency_artifacts_inspected": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -395,6 +417,7 @@
                               "dependency_external_domain_introduced",
                               "dependency_external_domain_removed",
                               "dependency_external_domain_context_changed",
+                              "dependency_name_confusion",
                               "external_domain_removed",
                               "external_domain_context_changed",
                               "provenance_added",
