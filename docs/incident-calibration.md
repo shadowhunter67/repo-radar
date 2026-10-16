@@ -44,3 +44,20 @@ No threshold was changed: no window shows a stable validation gain. Dormancy, ca
 ## Limits
 
 27 packages, mostly npm; one validation incident; incident versions removed from registries; benign-labelled cases are labelled from the raw history only where confident; labels are single AI-assisted. The numbers describe this corpus, not the world. `--final` evaluates the holdout once and writes `calibration/incidents/results/final-holdout.json`; it has not been run.
+
+## Final holdout (run once, 2026-10-16)
+
+`node scripts/calibrate-incidents.mjs --final` was run exactly once at HEAD 146f7ce, after the incident-related code, thresholds and corpus were frozen. The result file `calibration/incidents/results/final-holdout.json` is checked in and a second final run refuses to overwrite it. **Nothing was tuned after observing it, and nothing may be in this cycle.**
+
+Holdout split (by `ecosystem:package`): 3 packages, 4 cases (npm express twice: history and control window, npm faker, npm flatmap-stream).
+
+| Measure | Count |
+| --- | --- |
+| Benign controls (express x2) | 2; temporal patterns fired on 0/2 (benign false positives 0/2) |
+| Known compromise (flatmap-stream) | 1; patterns fired on 0/1 (recall 0/1); the registry history of the package itself shows no publisher, maintainer or repository event, so the signal was not observable in this evidence |
+| Insufficient evidence (faker) | 1; excluded from precision and recall; no pattern fired |
+| Precision of `dependency-takeover-indicators` | undefined (0 true positives, 0 false positives on holdout) |
+
+Caveats, stated plainly: four cases cannot support a rate; the incident case is one package whose compromise was delivered through a newly added dependency rather than a change of control of the package itself; the aggregate block of the result file mixes all three splits (the file lists every case with its `split`), so only the per-case rows above are holdout evidence. The development and validation finding is unchanged: `dependency-takeover-indicators` fired on 5 of 17 benign controls and on 0 of 10 incident cases. Labels remain single-reviewer, AI-assisted and are internal engineering evidence only; Gate 14 stays MANUAL.
+
+Weakness recorded for future work (not acted on here): the takeover pattern needs narrowing (for example requiring an install hook or a new external domain) and the corpus needs incidents that are visible in package registry history.
