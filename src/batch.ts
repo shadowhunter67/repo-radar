@@ -5,6 +5,7 @@ import { parseRepoRef, type RepoRef } from './util/repo-ref.js';
 import type { Report } from './report/schema.js';
 import { HttpClient } from './util/http.js';
 import { GITHUB_HOSTS } from './collectors/github/collector.js';
+import { redactSecrets } from './util/text.js';
 
 export interface BatchOptions extends AnalyzeOptions {
   listFile: string;
@@ -49,7 +50,7 @@ export interface BatchResult {
 }
 
 const safeError = (e: unknown): string =>
-  e instanceof Error ? e.message.slice(0, 200) : 'analysis failed';
+  e instanceof Error ? redactSecrets(e.message).slice(0, 200) : 'analysis failed';
 export function readBatchList(path: string): RepoRef[] {
   return readFileSync(path, 'utf8')
     .split(/\r?\n/)

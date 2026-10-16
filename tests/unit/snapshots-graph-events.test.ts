@@ -1,4 +1,12 @@
-import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  symlinkSync,
+  truncateSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -250,6 +258,38 @@ describe('snapshot store', () => {
         '{"repository":"../x/y","commit":"x"}\nnot json\n',
     );
     expect(store.listSnapshots()).toHaveLength(1);
+  });
+
+  it('rejects duplicate and prototype-key index entries without importing them', async () => {
+    const r = await pinned();
+    const store = new FsSnapshotStore(dir);
+    const put = store.putSnapshot(r);
+    const line = readFileSync(join(dir, 'index.jsonl'), 'utf8').trim();
+    writeFileSync(
+      join(dir, 'index.jsonl'),
+      `${line}\n${line}\n{"__proto__":{"repository":"evil"},"constructor":"evil"}\n`,
+    );
+    expect(store.listSnapshots()).toHaveLength(1);
+    const got = store.getSnapshot(put.key!);
+    expect('error' in got).toBe(false);
+  });
+
+  it('refuses a symlinked or oversized import index', () => {
+    const source = mkdtempSync(join(tmpdir(), 'rr-snapshot-hostile-'));
+    const target = join(source, 'real-index.jsonl');
+    writeFileSync(target, '{"repository":"acme/widget"}\n');
+    try {
+      symlinkSync(target, join(source, 'index.jsonl'));
+      expect(new FsSnapshotStore(source).listSnapshots()).toEqual([]);
+    } catch (e) {
+      expect((e as NodeJS.ErrnoException).code).toBe('EPERM');
+    }
+    rmSync(source, { recursive: true, force: true });
+    const large = mkdtempSync(join(tmpdir(), 'rr-snapshot-large-'));
+    writeFileSync(join(large, 'index.jsonl'), '');
+    truncateSync(join(large, 'index.jsonl'), 50 * 1024 * 1024 + 1);
+    expect(new FsSnapshotStore(large).listSnapshots()).toEqual([]);
+    rmSync(large, { recursive: true, force: true });
   });
 
   it('keyOf needs a full commit sha', async () => {

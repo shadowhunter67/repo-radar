@@ -274,17 +274,22 @@ export class FsSnapshotStore implements SnapshotStore {
     if (!existsSync(this.indexPath)) return [];
     let text: string;
     try {
+      if (lstatSync(this.indexPath).isSymbolicLink()) return [];
       if (statSync(this.indexPath).size > SNAPSHOT_LIMITS.maxBytes) return [];
       text = readFileSync(this.indexPath, 'utf8');
     } catch {
       return [];
     }
     const out: IndexEntry[] = [];
+    const seen = new Set<string>();
     for (const line of text.split('\n').slice(0, SNAPSHOT_LIMITS.maxIndexLines)) {
       if (!line) continue;
       try {
         const e = JSON.parse(line) as IndexEntry;
         if (!validKey(e) || typeof e.file !== 'string' || e.file.includes('..')) continue; // corrupt or hostile line
+        const identity = `${e.repository}\0${e.commit}\0${e.schema_version}\0${e.methodology}\0${e.config_digest}`;
+        if (seen.has(identity)) continue;
+        seen.add(identity);
         if (filter.repository && e.repository !== filter.repository.toLowerCase()) continue;
         if (filter.commit && e.commit !== filter.commit) continue;
         if (filter.schema_version && e.schema_version !== filter.schema_version) continue;

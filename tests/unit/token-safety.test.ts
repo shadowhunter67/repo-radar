@@ -1,8 +1,9 @@
-import { mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { analyzeRepository } from '../../src/analyze.js';
+import { runBatch } from '../../src/batch.js';
 import { FsSnapshotStore } from '../../src/store/snapshots.js';
 import { buildTrustGraph } from '../../src/graph/trust.js';
 import { fakeFetch, fixedClock, sha256, type Recorded } from '../helpers/fake-github.js';
@@ -77,5 +78,26 @@ describe('tokens never leave api.github.com and never reach reports, diagnostics
     });
     expect(JSON.stringify(r).includes(TOKEN)).toBe(false);
     expect(r.diagnostics.some((d) => d.code === 'fetch_failed')).toBe(true);
+  });
+
+  it('redacts the token from batch summaries and CLI-facing failure text', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'rr-batch-token-'));
+    const list = join(dir, 'repos.txt');
+    writeFileSync(list, 'acme/widget\n');
+    const result = await runBatch({
+      listFile: list,
+      fetch: async () => {
+        throw new Error(`fake transport failure ${TOKEN}`);
+      },
+      clock: fixedClock,
+      scorecard: false,
+      osv: false,
+      depsDev: false,
+    });
+    expect(JSON.stringify(result)).not.toContain(TOKEN);
+    expect(result.repositories.failed[0]?.error).toBe(
+      'network error: fake transport failure [REDACTED]',
+    );
+    rmSync(dir, { recursive: true, force: true });
   });
 });
