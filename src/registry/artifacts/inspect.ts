@@ -242,7 +242,15 @@ export function inspectArtifact(
     .digest(algorithm === 'sha256' ? 'hex' : 'base64');
   const expected = opts.expectedDigest?.replace(/^sha(?:256|512)-/, '').trim();
   const digest = expected
-    ? { algorithm, expected, actual, verified: actual === expected }
+    ? {
+        algorithm,
+        expected,
+        actual,
+        verified:
+          algorithm === 'sha256'
+            ? actual.toLowerCase() === expected.toLowerCase()
+            : actual === expected,
+      }
     : undefined;
   if (digest && !digest.verified)
     return {

@@ -49,6 +49,7 @@ function bazel(path: string, text: string): BuildSources['files'][number] {
     );
   return {
     system: 'bazel',
+    support: 'structural',
     path,
     dependencies: deps.slice(0, 500),
     target_count: targets.length,
@@ -107,6 +108,7 @@ function nix(path: string, text: string): BuildSources['files'][number] {
     });
   return {
     system: 'nix',
+    support: json ? 'structural' : 'unsupported_dynamic',
     path,
     dependencies: deps.slice(0, 500),
     target_count: 0,
@@ -132,6 +134,7 @@ function buck(path: string, text: string): BuildSources['files'][number] {
   const targets = [...text.matchAll(/^\s*([\w.]+)\s*\(/gm)].map((m) => m[1]!);
   return {
     system: 'buck',
+    support: 'structural',
     path,
     dependencies: deps.slice(0, 500),
     target_count: targets.length,
@@ -154,6 +157,7 @@ export function parseBuildSource(path: string, text: string): BuildSources['file
   if (text.length > 2 * 1024 * 1024)
     return {
       system: 'bazel',
+      support: 'unsupported_dynamic',
       path,
       dependencies: [],
       target_count: 0,

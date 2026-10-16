@@ -69,6 +69,15 @@ capabilities / dependency graph / execution graph -> applicability engine -> rul
 
 ## Module map
 
+Build-system parser coverage is intentionally explicit: npm uses semantic parsing; Bazel, Nix, and Buck are structural parsers. `flake.lock` structured nodes outrank `flake.nix` expressions; Nix interpolation, imports, and computed URLs remain unresolved rather than being presented as parsed dependencies.
+
+| Build system | Current support | Dynamic expressions |
+| --- | --- | --- |
+| npm | semantic | evaluated only through manifest/lockfile data |
+| Bazel | structural | macros/Starlark remain unresolved |
+| Nix | structural | interpolation/imports/computed URLs remain unresolved |
+| Buck | structural | macros remain unresolved |
+
 | Path                          | Responsibility                                                                                          |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `src/util/http.ts`            | The only network code: https-only, host allowlist, manual redirect checks, size caps, timeouts, token scoping |

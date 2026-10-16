@@ -5479,6 +5479,16 @@
                   "buck"
                 ]
               },
+              "support": {
+                "type": "string",
+                "enum": [
+                  "detected",
+                  "structural",
+                  "semantic_partial",
+                  "semantic",
+                  "unsupported_dynamic"
+                ]
+              },
               "path": {
                 "type": "string",
                 "maxLength": 300
@@ -5570,6 +5580,7 @@
             },
             "required": [
               "system",
+              "support",
               "path",
               "dependencies",
               "target_count",

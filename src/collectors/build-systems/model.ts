@@ -10,6 +10,13 @@ export const BuildDependencySchema = z.object({
 export type BuildDependency = z.infer<typeof BuildDependencySchema>;
 export const BuildSourceFileSchema = z.object({
   system: z.enum(['bazel', 'nix', 'buck']),
+  support: z.enum([
+    'detected',
+    'structural',
+    'semantic_partial',
+    'semantic',
+    'unsupported_dynamic',
+  ]),
   path: z.string().max(300),
   dependencies: z.array(BuildDependencySchema).max(500),
   target_count: z.number().int().min(0),
