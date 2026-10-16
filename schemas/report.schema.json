@@ -106,6 +106,14 @@
             "string",
             "null"
           ]
+        },
+        "revision_kind": {
+          "default": "moving",
+          "type": "string",
+          "enum": [
+            "immutable",
+            "moving"
+          ]
         }
       },
       "required": [
@@ -113,7 +121,8 @@
         "repo",
         "url",
         "default_branch",
-        "ref"
+        "ref",
+        "revision_kind"
       ],
       "additionalProperties": false
     },

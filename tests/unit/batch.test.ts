@@ -27,10 +27,12 @@ describe('batch foundation', () => {
     expect(first.repositories.failed).toEqual([]);
     expect(first.stopped_by).toBeNull();
     expect(first.policy_failures).toBe(0);
+    expect(first.freshness['acme/widget']).toBe('snapshot_missing');
     const second = await runBatch(options);
     expect(second.repositories.analyzed).toEqual([]);
     expect(second.repositories.reused).toEqual(['acme/widget']);
     expect(second.repositories.failed).toEqual([]);
+    expect(second.freshness['acme/widget']).toBe('snapshot_exact_match');
     rmSync(dir, { recursive: true, force: true });
   });
   it('stops at max-repos and isolates an analysis failure', async () => {

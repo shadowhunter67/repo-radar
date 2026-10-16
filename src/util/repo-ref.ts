@@ -1,6 +1,8 @@
 export interface RepoRef {
   owner: string;
   repo: string;
+  /** Optional batch-only immutable revision suffix (owner/repo@<full-sha>). */
+  ref?: string;
 }
 
 const REPO_SECTIONS = new Set([

@@ -2,6 +2,7 @@ import {
   appendFileSync,
   existsSync,
   linkSync,
+  lstatSync,
   mkdirSync,
   readFileSync,
   statSync,
@@ -226,6 +227,7 @@ export class FsSnapshotStore implements SnapshotStore {
 
   private readHash(path: string): string | undefined {
     try {
+      if (lstatSync(path).isSymbolicLink()) return undefined;
       if (statSync(path).size > SNAPSHOT_LIMITS.maxBytes) return undefined;
       const j = JSON.parse(readFileSync(path, 'utf8')) as {
         integrity?: { report_sha256?: unknown };
@@ -245,6 +247,7 @@ export class FsSnapshotStore implements SnapshotStore {
     const path = join(this.dirOf(key), fileName(key));
     if (!existsSync(path)) return { error: 'no snapshot stored under this key' };
     try {
+      if (lstatSync(path).isSymbolicLink()) return { error: 'stored snapshot is a symbolic link' };
       if (statSync(path).size > SNAPSHOT_LIMITS.maxBytes)
         return { error: 'stored file exceeds the size limit' };
       const raw = JSON.parse(readFileSync(path, 'utf8')) as unknown;

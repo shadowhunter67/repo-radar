@@ -89,6 +89,7 @@ export const ReportSchema = z.object({
     default_branch: z.string(),
     /** Commit the repository content was read at (when known). */
     ref: z.string().nullable(),
+    revision_kind: z.enum(['immutable', 'moving']).default('moving'),
   }),
   identity: SemanticIdentitySchema,
   /** Multi-axis identity (primary artifact, secondary roles, packaging, interfaces, deployment). The flat `identity` is kept for compatibility. */

@@ -3,6 +3,8 @@ import { analyzeRepository, type AnalyzeOptions } from './analyze.js';
 import { FsSnapshotStore } from './store/snapshots.js';
 import { parseRepoRef, type RepoRef } from './util/repo-ref.js';
 import type { Report } from './report/schema.js';
+import { HttpClient } from './util/http.js';
+import { GITHUB_HOSTS } from './collectors/github/collector.js';
 
 export interface BatchOptions extends AnalyzeOptions {
   listFile: string;
@@ -27,6 +29,14 @@ export interface BatchResult {
   dependency_publisher_changes: number;
   install_context_domains: string[];
   stopped_by: string | null;
+  freshness: Record<
+    string,
+    | 'snapshot_exact_match'
+    | 'snapshot_stale'
+    | 'snapshot_missing'
+    | 'snapshot_incompatible'
+    | 'snapshot_conflict'
+  >;
 }
 
 const safeError = (e: unknown): string =>
@@ -36,7 +46,12 @@ export function readBatchList(path: string): RepoRef[] {
     .split(/\r?\n/)
     .map((x) => x.trim())
     .filter(Boolean)
-    .map((x) => parseRepoRef(x));
+    .map((x) => {
+      const at = x.lastIndexOf('@');
+      if (at > x.indexOf('/') && /^[0-9a-f]{40}$/i.test(x.slice(at + 1)))
+        return { ...parseRepoRef(x.slice(0, at)), ref: x.slice(at + 1).toLowerCase() };
+      return parseRepoRef(x);
+    });
 }
 export async function runBatch(options: BatchOptions): Promise<BatchResult> {
   const refs = readBatchList(options.listFile);
@@ -52,8 +67,14 @@ export async function runBatch(options: BatchOptions): Promise<BatchResult> {
     dependency_publisher_changes: 0,
     install_context_domains: [],
     stopped_by: null,
+    freshness: {},
   };
   const store = options.snapshotDir ? new FsSnapshotStore(options.snapshotDir) : undefined;
+  const headHttp = new HttpClient({
+    allowedHosts: GITHUB_HOSTS,
+    token: options.token,
+    fetch: options.fetch,
+  });
   for (const ref of refs.slice(0, max)) {
     if (options.maxMinutes !== undefined && Date.now() - started >= options.maxMinutes * 60_000) {
       out.stopped_by = 'max_minutes';
@@ -68,7 +89,33 @@ export async function runBatch(options: BatchOptions): Promise<BatchResult> {
     }
     const name = `${ref.owner}/${ref.repo}`;
     try {
-      const existing = store?.listSnapshots({ repository: name.toLowerCase(), limit: 1 })[0];
+      const immutable = !!ref.ref;
+      let head: string | undefined;
+      if (!immutable && store) {
+        const response = await headHttp.request(
+          `https://api.github.com/repos/${encodeURIComponent(ref.owner)}/${encodeURIComponent(ref.repo)}/commits?per_page=1`,
+          { maxBytes: 64 * 1024 },
+        );
+        const parsed = JSON.parse(response.body) as { sha?: unknown }[];
+        head = typeof parsed[0]?.sha === 'string' ? parsed[0].sha : undefined;
+        if (!head || !/^[0-9a-f]{40}$/i.test(head))
+          throw new Error('head resolution did not return a full commit SHA');
+      }
+      const expectedCommit = ref.ref ?? head;
+      const existing = store?.listSnapshots({
+        repository: name.toLowerCase(),
+        ...(expectedCommit ? { commit: expectedCommit } : {}),
+        limit: 1,
+      })[0];
+      if (store) {
+        const anySnapshot =
+          store.listSnapshots({ repository: name.toLowerCase(), limit: 1 }).length > 0;
+        out.freshness[name] = existing
+          ? 'snapshot_exact_match'
+          : anySnapshot && head
+            ? 'snapshot_stale'
+            : 'snapshot_missing';
+      }
       let report: Report;
       if (existing && store) {
         const got = store.getSnapshot(existing);
@@ -77,7 +124,10 @@ export async function runBatch(options: BatchOptions): Promise<BatchResult> {
           out.repositories.reused.push(name);
         } else throw new Error(got.error);
       } else {
-        report = await analyzeRepository(name, options);
+        report = await analyzeRepository(name, {
+          ...options,
+          ...(ref.ref ? { ref: ref.ref } : {}),
+        });
         out.repositories.analyzed.push(name);
         store?.putSnapshot(report);
       }

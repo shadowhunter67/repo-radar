@@ -636,6 +636,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       url: github.snapshot.htmlUrl,
       default_branch: github.snapshot.defaultBranch,
       ref: github.snapshot.ref ?? null,
+      revision_kind: opts.ref && /^[0-9a-f]{40}$/i.test(opts.ref) ? 'immutable' : 'moving',
     },
     identity,
     identity_v2: identityV2,
