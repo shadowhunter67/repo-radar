@@ -52,6 +52,7 @@ export function loadIncidentCases(root: string): IncidentCase[] {
 export const PATTERN_IDS = [
   'dependency-takeover-indicators',
   'dependency-dormancy-publisher-hook',
+  'dependency-control-change-then-install-capability',
 ] as const;
 
 /** Run the REAL correlation engine over the case's events inside its window. `withinDays` overrides every pattern's window. */

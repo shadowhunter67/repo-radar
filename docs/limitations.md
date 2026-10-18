@@ -139,3 +139,7 @@ See [bias](bias.md). In addition:
 ## H5 audit boundary (2026-10-16)
 
 The following H5 follow-ups remain explicitly unclaimed and require separate review work: memory-pressure assertions for every decompressor/import path; exhaustive timed ReDoS coverage for every Phase 0.9 regex; full batch budget/summary expansion; hostile snapshot-import corpus for duplicate/prototype/index cases; the Goreleaser GitHub-instance attestation end-to-end fixture; complete trust-root negative tests for every source type; dependency-attestation coverage counters; graph property tests and hostile graph-limit cases; exhaustive policy truth-table coverage; and the full Bazel/Nix/Buck comment/string/macro corpus. The current cycle added bounded PAX parsing, invalid-UTF-8/duplicate-key/traversal tests, and foreign-redirect rejection, but these do not constitute completion of the remaining items. No item is represented as verified solely because a fixture is absent.
+
+## K3 dependency delta boundary (2026-10-18)
+
+The artifact delta comparator only emits behavior and external-domain changes when both versions are inspected and have verified digests. The current artifact model does not retain enough file-level execution, native-binary, `bin`, repository-host, or publisher-organization metadata to compare those dimensions; they remain `not_available` rather than being inferred. A single-version report therefore does not emit a delta event.

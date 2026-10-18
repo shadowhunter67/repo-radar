@@ -171,6 +171,7 @@ export function buildTimeline(i: TimelineInput): Timeline {
       'external_domain_* events need a revision comparison (diff): one analysis has no introduction time',
       'maintainer_change / ownership_change: current-state only; per-version maintainers exist for npm dependencies',
       'dependency domains: dependency tarballs are never fetched, so they are not observed',
+      'dependency behavior/trust-boundary deltas require two inspected artifacts with verified digests',
     ],
   };
 }

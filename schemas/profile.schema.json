@@ -440,6 +440,9 @@
                               "dependency_external_domain_removed",
                               "dependency_external_domain_context_changed",
                               "dependency_name_confusion",
+                              "dependency_behavior_introduced",
+                              "dependency_behavior_removed",
+                              "dependency_trust_boundary_changed",
                               "external_domain_removed",
                               "external_domain_context_changed",
                               "provenance_added",
@@ -465,6 +468,10 @@
                   },
                   "same_entity": {
                     "type": "boolean"
+                  },
+                  "superseded_by": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9-]{3,60}$"
                   }
                 },
                 "required": [

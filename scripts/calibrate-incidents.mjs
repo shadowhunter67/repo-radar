@@ -68,14 +68,14 @@ function patternMetrics(rowsIn) {
   const out = {};
   for (const pattern of PATTERN_IDS) {
     const decided = rowsIn.filter(
-      (r) => byId.get(r.id).pattern_expectations[pattern]?.should_fire !== null,
+      (r) => (byId.get(r.id).pattern_expectations[pattern]?.should_fire ?? null) !== null,
     );
-    const exp = (r) => byId.get(r.id).pattern_expectations[pattern].should_fire;
+    const exp = (r) => byId.get(r.id).pattern_expectations[pattern]?.should_fire ?? null;
     const tp = decided.filter((r) => r.patterns[pattern] && exp(r)).length;
     const fp = decided.filter((r) => r.patterns[pattern] && !exp(r)).length;
     const fn = decided.filter((r) => !r.patterns[pattern] && exp(r)).length;
     const benign = decided.filter((r) => byId.get(r.id).kind !== 'incident');
-    const incidents = rowsIn.filter((r) => byId.get(r.id).kind === 'incident');
+    const incidents = decided.filter((r) => byId.get(r.id).kind === 'incident');
     out[pattern] = {
       decided: decided.length,
       abstained: rowsIn.length - decided.length,

@@ -69,9 +69,11 @@ Raw observation metrics (decided n / abstentions):
 | provenance changed | 47 | 3 | 0.830 | 1.000 | 0.500 | 0.000 |
 | release cadence / external domain | 0 | 50 | — | — | — | — |
 
-Pattern metrics over development/validation: `dependency-takeover-indicators` decided 32, abstained 18, fired on 2 incident cases and 5 benign cases (benign FPR 5/32); `dependency-dormancy-publisher-hook` decided 32, abstained 18, fired on 0 incident and 0 benign cases. These are descriptive results only; no threshold or pattern was changed.
+Pattern metrics over development/validation: `dependency-takeover-indicators` decided 32, abstained 18, fired on 0 decided incident cases and 5 benign cases (benign FPR 5/32); `dependency-dormancy-publisher-hook` decided 32, abstained 18, fired on 0 incident and 0 benign cases. Abstained incident cases are excluded from the denominator. These are descriptive results only; no threshold or pattern was changed.
 
 The v2 final output is intentionally a separate, write-once `results/final-holdout-v2.json`. It must contain only non-spent holdout cases and holdout-only metrics when the reviewer authorizes the manual final run. The old v1 final result is spent and is not evidence for v2.
+
+K3 pattern replay: `dependency-control-change-then-install-capability` was evaluated on development/validation only and abstained on all 50 cases (0/0 decided benign, 0/0 decided incident). The registry-only corpus has no verified artifact pairs, so behavior/domain events cannot be replayed; no detection claim is made. The existing pattern remains comparable at 5 benign fires / 32 decided benign cases and 0 decided incident fires / 0 decided incident cases (18 incident cases abstained). Holdout was not inspected or run.
 
 | Measure | Count |
 | --- | --- |

@@ -40,6 +40,9 @@ export const EVENT_TYPES = [
   'dependency_external_domain_removed',
   'dependency_external_domain_context_changed',
   'dependency_name_confusion',
+  'dependency_behavior_introduced',
+  'dependency_behavior_removed',
+  'dependency_trust_boundary_changed',
   // revision-to-revision changes of the analyzed repository (schema 0.7)
   'external_domain_removed',
   'external_domain_context_changed',
@@ -77,6 +80,8 @@ export const TimelineEventSchema = z.object({
    * share it, so a publisher change of one dependency never combines with an install hook of another. Absent = the repository.
    */
   entity: z.string().max(240).optional(),
+  capability: z.string().max(120).optional(),
+  boundary: z.string().max(120).optional(),
 });
 export type TimelineEvent = z.infer<typeof TimelineEventSchema>;
 
@@ -93,6 +98,10 @@ export const TemporalPatternSchema = z
     within_days: z.number().min(0).max(3650),
     /** All matched events must be about the same entity (see `TimelineEvent.entity`). */
     same_entity: z.boolean().optional(),
+    superseded_by: z
+      .string()
+      .regex(/^[a-z0-9-]{3,60}$/)
+      .optional(),
   })
   .strict();
 export type TemporalPattern = z.infer<typeof TemporalPatternSchema>;

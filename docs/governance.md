@@ -10,6 +10,10 @@ Every observation with a time is one event: id, type, timestamp (or null), subje
 
 ## Correlation (`src/events/correlate.ts`)
 
+K3 design rationale, recorded before evaluation: the existing dependency takeover pattern is broad because repository and provenance changes are legitimate handoff signals; the v2 corpus measured 5 benign fires and 0 incident fires on decided cases. The replacement `dependency-control-change-then-install-capability` keeps same-entity and fixed 90-day constraints but requires a publisher/maintainer change followed by a verified artifact behavior or dependency install-domain event. It uses no package names or per-package thresholds. The old pattern remains registered as `superseded_by` for compatibility; when the replacement fires, it no longer creates the default medium dependency finding. Registry-only cases cannot produce behavior events, so the new pattern abstains rather than treating missing inspection as negative.
+
+K3 evaluation result: on the 50 development/validation cases, the replacement pattern had 0/0 decided benign cases and 0/0 decided incident cases, with 50 abstentions. This is expected because the corpus contains registry histories but no verified artifact pairs. It is not evidence of improved detection. The old pattern remains the only corpus-comparable result: 5 benign fires among 32 decided benign cases and 0 decided incident fires among 0 decided incident cases; 18 incident cases abstained. These metrics are descriptive and unchanged in threshold. Artifact-pair behavior evaluation is covered by offline unit tests and must be added to a future reviewed corpus rather than inferred from registry-only cases.
+
 A pattern is DATA: ordered steps, each satisfied by any of several event types, within a window. The engine finds the tightest match per pattern with a hard search budget. Built-in patterns:
 
 | Pattern | Steps | Window |

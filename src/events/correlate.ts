@@ -93,6 +93,24 @@ export const BUILTIN_PATTERNS: TemporalPattern[] = [
     ],
     within_days: 90,
     same_entity: true,
+    superseded_by: 'dependency-control-change-then-install-capability',
+  },
+  {
+    id: 'dependency-control-change-then-install-capability',
+    description:
+      'A dependency publisher or maintainer change is followed by a verified install-time capability or external domain change',
+    steps: [
+      { any_of: ['dependency_publisher_changed', 'dependency_maintainer_changed'] },
+      {
+        any_of: [
+          'dependency_install_hook_introduced',
+          'dependency_behavior_introduced',
+          'dependency_external_domain_introduced',
+        ],
+      },
+    ],
+    within_days: 90,
+    same_entity: true,
   },
   {
     id: 'dependency-dormancy-publisher-hook',

@@ -145,7 +145,14 @@ export function buildDependencyRegistryFindings(
       remediation: t.remediation,
     });
   }
-  for (const c of correlations.filter((x) => x.pattern_id.startsWith('dependency-'))) {
+  const hasRedesignedTakeover = correlations.some(
+    (x) => x.pattern_id === 'dependency-control-change-then-install-capability',
+  );
+  for (const c of correlations.filter(
+    (x) =>
+      x.pattern_id.startsWith('dependency-') &&
+      (!hasRedesignedTakeover || x.pattern_id !== 'dependency-takeover-indicators'),
+  )) {
     out.push({
       ...base,
       id: id(),
