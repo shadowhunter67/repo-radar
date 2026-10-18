@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { performance } from 'node:perf_hooks';
 import { describe, expect, it } from 'vitest';
 import { correlate } from '../../src/events/correlate.js';
 import { compareDependencyArtifacts } from '../../src/registry/artifacts/delta.js';
@@ -56,6 +57,17 @@ describe('dependency artifact deltas', () => {
         package: 'other',
       }).not_available,
     ).toHaveLength(1);
+  });
+
+  it('bounds pathological hook input without regex backtracking', () => {
+    const pathological = `${'x'.repeat(65536)}!`;
+    const start = performance.now();
+    const delta = compareDependencyArtifacts(
+      artifact('1', [pathological], []),
+      artifact('2', [pathological], []),
+    );
+    expect(performance.now() - start).toBeLessThan(250);
+    expect(delta.behavior).toEqual([]);
   });
 
   it('correlates only ordered, dated, same-entity control changes', () => {

@@ -51,7 +51,9 @@ No threshold was changed: no window shows a stable validation gain. Dormancy, ca
 
 Holdout split (by `ecosystem:package`): 3 packages, 4 cases (npm express twice: history and control window, npm faker, npm flatmap-stream).
 
-## Corpus v2 (0.10.x; holdout not run)
+## Corpus v2 (0.11.x; holdout not run)
+
+Evaluation results record `incident_model_version: 0.11.0`, independently of the report schema and methodology version.
 
 Corpus v2 is frozen at 62 cases: 40 development, 10 validation, and 12 holdout cases. It adds 25 histories (7 incident candidates and 18 benign controls) and 8 incident-window cases. The v1 holdout cases for `express`, `faker`, and `flatmap-stream` remain in the corpus with `holdout_spent: true` and are excluded from v2 holdout metrics. Review packets cover all 33 new v2 cases. Labels remain AI-assisted and unreviewed; Gate 14 remains MANUAL.
 

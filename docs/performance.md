@@ -21,6 +21,16 @@ Numbers come from `scripts/probe-performance.mjs`, `probe-retrieval.mjs`, `probe
 
 ## Ordinary repositories
 
+## K4 dependency-introduction and delta probe (2026-10-18)
+
+Added `scripts/probe-dependency-deltas.mjs`, which reads the pinned `colors` and
+`esbuild` archives and exercises the verified-pair guard and bounded comparison.
+Before K4 this path had no offline probe. In the post-K4 run it completed in
+under 1 ms on the same Windows workstation and emitted zero events because the
+offline fixtures have no supplied registry digest, with an explicit
+`not_available` result. This is a guard/overhead measurement, not a behavioral
+detection benchmark; verified-pair event coverage remains in unit tests.
+
 Cost of the new defaults, measured as a difference on the same repository in one run (`performance-probe.md`):
 
 | Repository | 0.7 defaults | `--no-dep-registry --no-domains` | Extra HTTP requests | Dependency registry | Domains | Trust graph |

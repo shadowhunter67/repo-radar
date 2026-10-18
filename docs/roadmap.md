@@ -114,6 +114,10 @@ Order decided 2026-10-18. Versions state intent, not dates.
 
 - Re-run development and validation, then a fresh incident holdout, then freeze the methodology. The 2026-10-16 holdout result is spent and may not be reused for tuning.
 
+## 0.11.x - Dependency intelligence
+
+- Done: bounded dependency introductions, age and parent-provenance facts, graph projections, verified artifact behavioral/trust-boundary deltas, and redesigned correlation. Human calibration and the incident holdout remain manual work.
+
 ## 1.0-RC
 
 - Gates green except explicitly external or legal items that have been resolved by people.

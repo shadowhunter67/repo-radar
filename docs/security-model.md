@@ -105,3 +105,5 @@ tested as refused when a hop leaves the allowlist.
 
 Archive threats include traversal, links, duplicate paths, corrupt headers, zip/tar bombs, oversized metadata, nested archives, and hostile Unicode. URL threats include credentials, ports, redirects, and private hosts. ReDoS is bounded by input and entry caps. Batch threats include unsafe list entries, budget exhaustion, failure isolation, and immutable snapshot conflicts.
 Dependency artifact retrieval keeps registry/package/version and digest outcomes only; raw signed or temporary artifact URLs are not persisted, and redirects are accepted only when the destination remains on the ecosystem allowlist.
+
+K4 adds two related controls: introduction history is emitted only from fetched revisions, and artifact deltas require verified same-package pairs. Missing history or unsupported metadata is unknown/not available, never negative evidence.

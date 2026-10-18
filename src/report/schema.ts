@@ -41,7 +41,7 @@ const DependencyIntroductionSchema = z.object({
   evidence_ids: z.array(z.string()),
 });
 
-export const REPORT_SCHEMA_VERSION = '0.10';
+export const REPORT_SCHEMA_VERSION = '0.11';
 
 const SufficiencySchema = z.enum(['sufficient', 'low', 'insufficient']);
 

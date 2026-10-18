@@ -21,7 +21,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "0.10"
+      "const": "0.11"
     },
     "methodology": {
       "type": "object",

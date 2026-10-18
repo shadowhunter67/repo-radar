@@ -11,6 +11,7 @@ import {
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'calibration', 'incidents');
 const args = process.argv.slice(2);
 const final = args.includes('--final');
+const incidentModelVersion = '0.11.0';
 const cases = loadIncidentCases(root);
 for (const c of cases)
   if (assignIncidentSplit(c.ecosystem, c.package) !== c.split)
@@ -117,6 +118,7 @@ const out = {
   version: 2,
   corpus: 'incident-calibration-v2',
   methodology: '0.4',
+  incident_model_version: incidentModelVersion,
   holdout: final,
   cases: rows,
   raw_observation_metrics: metrics,
