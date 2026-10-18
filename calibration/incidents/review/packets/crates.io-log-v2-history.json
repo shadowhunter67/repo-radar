@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "crates.io-log-v2-history",
+  "package": "log",
+  "ecosystem": "crates.io",
+  "raw_file": "raw/crates-log.json",
+  "incident_window": {
+    "from": "2014-12-13T22:10:19.971330Z",
+    "to": "2026-08-22T11:44:27.941626Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2014-12-13T22:10:19.971330Z"
+  },
+  "resolved_version_candidates": ["0.1.2", "0.1.1", "0.1.0"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

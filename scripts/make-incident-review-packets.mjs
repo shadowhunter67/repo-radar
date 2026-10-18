@@ -7,10 +7,12 @@ const cases = JSON.parse(readFileSync(join(root, 'cases.json'), 'utf8'));
 const out = join(root, 'review');
 mkdirSync(join(out, 'packets'), { recursive: true });
 const index = [];
-for (const c of cases.filter((x) => x.kind === 'incident')) {
+for (const c of cases.filter(
+  (x) => x.id.endsWith('-v2-history') || x.id.endsWith('-incident-window'),
+)) {
   const packet = {
     packet_version: 1,
-    corpus: 'incident-calibration-v1',
+    corpus: 'incident-calibration-v2',
     case_id: c.id,
     package: c.package,
     ecosystem: c.ecosystem,
@@ -31,6 +33,10 @@ for (const c of cases.filter((x) => x.kind === 'incident')) {
 }
 writeFileSync(
   join(out, 'index.json'),
-  JSON.stringify({ packet_version: 1, blind: true, packets: index }, null, 2) + '\n',
+  JSON.stringify(
+    { packet_version: 2, corpus: 'incident-calibration-v2', blind: true, packets: index },
+    null,
+    2,
+  ) + '\n',
 );
 process.stdout.write(`wrote ${index.length} blind incident packets\n`);

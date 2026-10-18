@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-cross-env-v2-history",
+  "package": "cross-env",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-cross-env.json",
+  "incident_window": {
+    "from": "2015-10-01T23:19:27.453Z",
+    "to": "2025-09-29T17:34:12.232Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2015-10-01T23:19:27.453Z"
+  },
+  "resolved_version_candidates": ["7.0.3", "10.0.0", "10.1.0"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

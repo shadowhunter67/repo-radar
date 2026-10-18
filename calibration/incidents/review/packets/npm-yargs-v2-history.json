@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-yargs-v2-history",
+  "package": "yargs",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-yargs.json",
+  "incident_window": {
+    "from": "2025-04-09T19:57:09.412Z",
+    "to": "2025-05-27T14:27:19.495Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2025-04-09T19:57:09.412Z"
+  },
+  "resolved_version_candidates": ["17.7.3", "18.1.0", "18.2.0"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

@@ -25,6 +25,7 @@ export type IncidentCase = {
   incident_confidence: 'low' | 'medium' | 'high';
   sources: string[];
   notes: string;
+  holdout_spent?: boolean;
 };
 
 export const INCIDENT_LABELS = [

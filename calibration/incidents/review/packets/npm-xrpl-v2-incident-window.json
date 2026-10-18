@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-xrpl-v2-incident-window",
+  "package": "xrpl",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-xrpl.json",
+  "incident_window": {
+    "from": "2023-02-16T19:27:06.695Z",
+    "to": "2025-10-29T00:30:19.025Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2023-02-16T19:27:06.695Z"
+  },
+  "resolved_version_candidates": ["4.7.0", "3.2.0", "2.15.0"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

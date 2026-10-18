@@ -1143,7 +1143,8 @@
     "conclusion": "known_benign_handoff",
     "incident_confidence": "low",
     "sources": ["https://www.npmjs.com/package/express"],
-    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence.",
+    "holdout_spent": true
   },
   {
     "id": "npm-faker-history",
@@ -1215,7 +1216,8 @@
     "conclusion": "insufficient_evidence",
     "incident_confidence": "medium",
     "sources": ["https://www.npmjs.com/package/faker"],
-    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history.",
+    "holdout_spent": true
   },
   {
     "id": "npm-flatmap-stream-history",
@@ -1261,7 +1263,8 @@
     "conclusion": "known_compromise",
     "incident_confidence": "medium",
     "sources": ["https://www.npmjs.com/package/flatmap-stream"],
-    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history."
+    "notes": "Registry snapshot may omit removed malicious versions; conclusions are limited to the pinned raw history.",
+    "holdout_spent": true
   },
   {
     "id": "npm-got-history",
@@ -2594,7 +2597,8 @@
     "conclusion": "known_benign_handoff",
     "incident_confidence": "low",
     "sources": ["https://www.npmjs.com/package/express"],
-    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+    "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence.",
+    "holdout_spent": true
   },
   {
     "id": "npm-left-pad-history-control-window",
@@ -2682,5 +2686,3770 @@
     "incident_confidence": "low",
     "sources": ["https://www.npmjs.com/package/left-pad"],
     "notes": "Expected events are independently read from the raw registry response; benign handoffs are not compromise evidence."
+  },
+  {
+    "id": "npm-@ledgerhq-connect-kit-v2-history",
+    "package": "@ledgerhq/connect-kit",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-ledgerhq-connect-kit.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2023-02-24T09:53:46.357Z",
+      "to": "2024-01-18T14:30:32.576Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2023-02-24T09:53:46.357Z"
+    },
+    "resolved_version_candidates": ["1.1.10", "1.1.11", "1.1.12"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "false",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.11",
+        "date": "2023-02-24T09:53:46.357Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.1-beta.0",
+        "date": "2023-08-01T08:06:33.397Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.8",
+        "date": "2023-12-14T13:18:35.208Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.1.9",
+        "date": "2024-01-18T14:30:32.576Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.9",
+        "date": "2024-01-18T14:30:32.576Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/@ledgerhq/connect-kit"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-@lottiefiles-lottie-player-v2-history",
+    "package": "@lottiefiles/lottie-player",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-lottiefiles-lottie-player.json",
+    "split": "validation",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2023-06-08T14:09:42.880Z",
+      "to": "2024-11-04T12:14:05.234Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2023-06-08T14:09:42.880Z"
+    },
+    "resolved_version_candidates": ["2.0.10", "2.0.11", "2.0.12"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "true",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.0.0",
+        "date": "2021-03-31T08:25:12.496Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.0",
+        "date": "2021-03-31T08:25:12.496Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.2",
+        "date": "2021-09-01T09:16:37.092Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.4.4",
+        "date": "2021-10-26T16:22:08.340Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.4.5",
+        "date": "2021-11-09T12:09:41.038Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.5.8",
+        "date": "2022-10-24T05:48:55.610Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.6.1",
+        "date": "2022-12-01T16:08:49.453Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.0",
+        "date": "2023-06-08T14:09:42.880Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.0.0",
+        "date": "2023-06-08T14:09:42.880Z"
+      },
+      {
+        "type": "dependency_install_hook_introduced",
+        "version": "2.0.0",
+        "date": "2023-06-08T14:09:42.880Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.2",
+        "date": "2023-06-09T08:05:46.504Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.3",
+        "date": "2024-01-22T11:51:00.894Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.8",
+        "date": "2024-10-30T22:58:50.389Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.0.8",
+        "date": "2024-10-30T22:58:50.389Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.0.9",
+        "date": "2024-11-01T00:04:58.184Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.12",
+        "date": "2024-11-04T12:14:05.234Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/@lottiefiles/lottie-player"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-xrpl-v2-history",
+    "package": "xrpl",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-xrpl.json",
+    "split": "holdout",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2023-02-16T19:27:06.695Z",
+      "to": "2025-10-29T00:30:19.025Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2023-02-16T19:27:06.695Z"
+    },
+    "resolved_version_candidates": ["4.7.0", "3.2.0", "2.15.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.0-beta.0",
+        "date": "2021-09-10T21:58:23.403Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.0.0-beta.0",
+        "date": "2021-09-10T21:58:23.403Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.0-beta.0",
+        "date": "2021-09-10T21:58:23.403Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.0-beta.1",
+        "date": "2021-09-24T23:00:58.676Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.10.0",
+        "date": "2021-09-24T23:31:37.427Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.10.0",
+        "date": "2021-09-24T23:31:37.427Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.0-beta.2",
+        "date": "2021-09-27T22:30:45.321Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.0-beta.2",
+        "date": "2021-09-27T22:30:45.321Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.0-beta.3",
+        "date": "2021-09-29T00:14:32.233Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.0-beta.4",
+        "date": "2021-10-05T21:01:57.499Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.1.0-beta.1",
+        "date": "2021-10-28T02:35:01.704Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.1.0-beta.1",
+        "date": "2021-10-28T02:35:01.704Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.1",
+        "date": "2021-11-01T17:57:23.036Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.0.1",
+        "date": "2021-11-01T17:57:23.036Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.2",
+        "date": "2021-11-17T23:48:19.799Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.3",
+        "date": "2021-12-01T23:58:06.734Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.4",
+        "date": "2021-12-02T20:02:11.980Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.1.0",
+        "date": "2021-12-18T00:51:24.425Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.1.1",
+        "date": "2021-12-24T01:36:05.419Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.1.1",
+        "date": "2021-12-24T01:36:05.419Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.2.0",
+        "date": "2022-04-19T17:18:18.968Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.2.1",
+        "date": "2022-04-21T22:34:22.682Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.2.1",
+        "date": "2022-04-21T22:34:22.682Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.2.2",
+        "date": "2022-05-02T20:22:21.242Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.2.3",
+        "date": "2022-05-04T21:42:10.044Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.10.1",
+        "date": "2022-05-31T18:48:20.599Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.3.0",
+        "date": "2022-06-02T18:09:13.207Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.3.1",
+        "date": "2022-06-28T01:35:40.748Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.3.1",
+        "date": "2022-06-28T01:35:40.748Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.4.0",
+        "date": "2022-09-01T23:28:57.482Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.5.0-beta.0",
+        "date": "2022-09-02T11:25:22.779Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.5.0-beta.1",
+        "date": "2022-09-15T21:03:52.465Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.5.0",
+        "date": "2022-10-13T18:30:08.132Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.5.0-beta.2",
+        "date": "2022-11-17T20:37:23.422Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.6.0",
+        "date": "2022-11-21T22:50:16.515Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.6.0",
+        "date": "2022-11-21T22:50:16.515Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.7.0-beta.0",
+        "date": "2022-12-15T20:02:56.159Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.7.0-beta.0",
+        "date": "2022-12-15T20:02:56.159Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.7.0-beta.1",
+        "date": "2023-02-16T19:27:06.695Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.7.0-beta.3",
+        "date": "2023-02-23T20:43:09.623Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.7.0",
+        "date": "2023-03-08T23:11:02.651Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.8.0-beta.1",
+        "date": "2023-04-11T18:48:12.416Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.8.0",
+        "date": "2023-06-13T21:16:46.224Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.9.0",
+        "date": "2023-07-13T18:11:48.256Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.9.0",
+        "date": "2023-07-13T18:11:48.256Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.9.1",
+        "date": "2023-07-18T20:42:40.268Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.10.0",
+        "date": "2023-08-07T21:52:16.352Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.11.0",
+        "date": "2023-08-24T17:46:12.278Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.12.0-beta.0",
+        "date": "2023-08-25T11:17:22.168Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.12.0",
+        "date": "2023-09-27T17:02:06.973Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.13.0",
+        "date": "2023-10-18T16:14:29.744Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.14.0",
+        "date": "2023-11-30T21:29:38.351Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.0.0-beta.1",
+        "date": "2023-11-30T23:03:29.053Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.0.0-mpt-beta",
+        "date": "2024-04-22T18:41:14.657Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.0-mpt-beta",
+        "date": "2024-04-22T18:41:14.657Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.1.0",
+        "date": "2024-06-03T20:34:48.803Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.1.0",
+        "date": "2024-06-03T20:34:48.803Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.0.3-mpt-beta",
+        "date": "2024-07-09T13:54:48.462Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.0.0",
+        "date": "2024-07-16T18:23:42.821Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.0.0",
+        "date": "2024-07-16T18:23:42.821Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.0.0-mpt-beta",
+        "date": "2024-09-04T14:02:01.007Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.1.0",
+        "date": "2024-12-23T16:29:57.378Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.1.0",
+        "date": "2024-12-23T16:29:57.378Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.2.0-batch.0",
+        "date": "2025-02-13T19:05:44.405Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.2.0",
+        "date": "2025-02-14T02:24:11.746Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.3.0-smartescrow.0",
+        "date": "2025-03-26T19:05:30.053Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.2.5",
+        "date": "2025-04-22T12:43:03.962Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.2.5",
+        "date": "2025-04-22T12:43:03.962Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.14.3",
+        "date": "2025-04-22T13:27:46.826Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.3.0-smartescrow.2",
+        "date": "2025-05-02T15:52:03.294Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.3.0-smartescrow.2",
+        "date": "2025-05-02T15:52:03.294Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.3.0",
+        "date": "2025-06-09T21:09:55.932Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.3.0",
+        "date": "2025-06-09T21:09:55.932Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.4.0-smartescrow.0",
+        "date": "2025-07-10T20:08:14.598Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.4.0",
+        "date": "2025-07-29T22:25:03.307Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.4.0",
+        "date": "2025-07-29T22:25:03.307Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.5.0-smartescrow.0",
+        "date": "2025-08-04T20:33:11.143Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.4.1",
+        "date": "2025-09-02T19:50:32.464Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.4.1",
+        "date": "2025-09-02T19:50:32.464Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.5.0-smartescrow.1",
+        "date": "2025-09-15T21:14:48.443Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.5.0-smartescrow.1",
+        "date": "2025-09-15T21:14:48.443Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.4.2",
+        "date": "2025-09-25T17:03:09.203Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.4.2",
+        "date": "2025-09-25T17:03:09.203Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "4.4.2",
+        "date": "2025-09-25T17:03:09.203Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.5.0-smartescrow.3",
+        "date": "2025-10-29T00:30:19.025Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.7.0-smartcontract.0",
+        "date": "2026-05-12T01:23:27.260Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/xrpl"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-eslint-config-prettier-v2-history",
+    "package": "eslint-config-prettier",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-eslint-config-prettier.json",
+    "split": "validation",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2025-01-13T14:35:41.067Z",
+      "to": "2025-07-18T19:17:46.271Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2025-01-13T14:35:41.067Z"
+    },
+    "resolved_version_candidates": ["10.1.8", "8.10.2", "9.1.2"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.4.1",
+        "date": "2017-02-28T16:47:35.016Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "8.3.0",
+        "date": "2021-04-24T12:55:56.267Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "10.0.0",
+        "date": "2025-01-13T14:35:41.067Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "10.0.0",
+        "date": "2025-01-13T14:35:41.067Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "10.1.4",
+        "date": "2025-05-09T03:51:25.989Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "8.10.2",
+        "date": "2025-07-18T19:17:46.271Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/eslint-config-prettier"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-@ctrl-tinycolor-v2-history",
+    "package": "@ctrl/tinycolor",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-ctrl-tinycolor.json",
+    "split": "holdout",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2025-09-16T03:17:48.101Z",
+      "to": "2025-09-16T03:17:48.101Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2025-09-16T03:17:48.101Z"
+    },
+    "resolved_version_candidates": ["4.1.0", "4.2.0", "4.2.1"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "false",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.1.3",
+        "date": "2020-07-07T06:40:16.172Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "4.2.0",
+        "date": "2025-09-16T03:17:48.101Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.2.1",
+        "date": "2026-09-09T19:20:27.702Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/@ctrl/tinycolor"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-is-v2-history",
+    "package": "is",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-is.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2025-07-19T19:13:33.146Z",
+      "to": "2025-07-19T19:13:33.146Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2025-07-19T19:13:33.146Z"
+    },
+    "resolved_version_candidates": ["3.2.1", "3.3.0", "3.3.2"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.1.6",
+        "date": "2013-04-06T13:07:51.638Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.2.2",
+        "date": "2013-04-17T07:07:39.962Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.2.3",
+        "date": "2013-04-17T16:53:53.207Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.2.7",
+        "date": "2013-12-26T22:04:46.502Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.3.2",
+        "date": "2025-07-19T19:13:33.146Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/is"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-rand-user-agent-v2-history",
+    "package": "rand-user-agent",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-rand-user-agent.json",
+    "split": "holdout",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2021-06-30T09:47:18.872Z",
+      "to": "2024-10-13T01:08:33.441Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2021-06-30T09:47:18.872Z"
+    },
+    "resolved_version_candidates": ["2.0.80", "2.0.81", "2.0.82"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "false",
+      "repository_change": "false",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "insufficient_evidence",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/rand-user-agent"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-vue-v2-history",
+    "package": "vue",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-vue.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2023-10-23T07:55:50.844Z",
+      "to": "2025-08-21T03:15:48.659Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2023-10-23T07:55:50.844Z"
+    },
+    "resolved_version_candidates": ["3.6.0-rc.11", "3.5.44", "3.6.0-rc.12"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "true",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.11.9",
+        "date": "2015-05-06T20:40:14.353Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.0.0-rc.2-migration",
+        "date": "2015-10-23T00:38:54.546Z"
+      },
+      {
+        "type": "dependency_install_hook_introduced",
+        "version": "2.4.0",
+        "date": "2017-07-13T05:59:58.195Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.0.0-alpha.8",
+        "date": "2020-03-06T20:59:28.159Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.6.12",
+        "date": "2020-08-20T13:11:18.297Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.0.0-rc.7",
+        "date": "2020-08-21T18:13:47.982Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.6.13",
+        "date": "2021-06-01T14:28:58.512Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.6.13",
+        "date": "2021-06-01T14:28:58.512Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.6.13",
+        "date": "2021-06-01T14:28:58.512Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.1.0-beta.7",
+        "date": "2021-06-02T20:13:29.887Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.1.0-beta.7",
+        "date": "2021-06-02T20:13:29.887Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.6.14",
+        "date": "2021-06-07T09:55:39.243Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.6.14",
+        "date": "2021-06-07T09:55:39.243Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.1.0",
+        "date": "2021-06-07T16:39:16.735Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.1.0",
+        "date": "2021-06-07T16:39:16.735Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.2.28",
+        "date": "2022-01-21T08:15:54.529Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.7.0-alpha.1",
+        "date": "2022-05-31T09:57:47.040Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.2.37",
+        "date": "2022-06-06T12:08:37.813Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.7.0-alpha.6",
+        "date": "2022-06-09T06:47:10.526Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.2.38",
+        "date": "2022-08-30T08:02:22.159Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.7.11",
+        "date": "2022-10-11T11:13:22.052Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.2.41",
+        "date": "2022-10-14T10:41:34.401Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.7.14",
+        "date": "2022-11-09T12:40:03.747Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.2.43",
+        "date": "2022-11-09T13:01:22.522Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.7.15",
+        "date": "2023-10-23T07:55:50.844Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.3.7",
+        "date": "2023-10-24T23:35:47.781Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.7.16-beta.1",
+        "date": "2023-12-08T01:42:14.463Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.3.11",
+        "date": "2023-12-08T06:14:28.803Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.7.16-beta.2",
+        "date": "2023-12-14T01:28:19.708Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.4.0-beta.2",
+        "date": "2023-12-14T02:29:03.017Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.7.16",
+        "date": "2023-12-24T15:02:21.257Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.4.0-rc.1",
+        "date": "2023-12-25T08:42:56.519Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.4.12",
+        "date": "2024-01-13T02:41:56.622Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "3.4.36",
+        "date": "2024-08-06T14:00:49.211Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.5.14",
+        "date": "2025-05-15T03:19:19.439Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "3.6.0-alpha.1",
+        "date": "2025-07-12T08:14:04.387Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "3.6.0-alpha.2",
+        "date": "2025-07-18T09:50:32.003Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.5.19",
+        "date": "2025-08-21T03:15:48.659Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.5.36",
+        "date": "2026-06-11T03:56:09.809Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.5.36",
+        "date": "2026-06-11T03:56:09.809Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "3.5.36",
+        "date": "2026-06-11T03:56:09.809Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.6.0-beta.15",
+        "date": "2026-06-11T07:44:46.278Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "3.6.0-beta.15",
+        "date": "2026-06-11T07:44:46.278Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.6.0-beta.16",
+        "date": "2026-06-17T03:00:52.185Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/vue"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-axios-v2-history",
+    "package": "axios",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-axios.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2023-11-08T15:09:28.450Z",
+      "to": "2025-10-27T16:08:14.422Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2023-11-08T15:09:28.450Z"
+    },
+    "resolved_version_candidates": ["1.19.0", "1.20.0", "0.34.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.6.0",
+        "date": "2015-09-21T20:20:20.241Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.11.0",
+        "date": "2016-04-27T04:19:52.831Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.11.0",
+        "date": "2016-04-27T04:19:52.831Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.11.1",
+        "date": "2016-05-17T15:59:30.342Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.12.0",
+        "date": "2016-06-01T05:22:58.397Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.13.0",
+        "date": "2016-07-13T19:42:43.558Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.14.0",
+        "date": "2016-08-27T18:30:22.182Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.17.0",
+        "date": "2017-10-21T18:01:30.232Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.18.0",
+        "date": "2018-02-19T23:28:54.151Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.20.0",
+        "date": "2020-08-21T03:12:48.792Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.21.2",
+        "date": "2021-09-04T10:18:50.516Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.21.2",
+        "date": "2021-09-04T10:18:50.516Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "1.6.1",
+        "date": "2023-11-08T15:09:28.450Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.29.0",
+        "date": "2024-11-21T13:08:09.760Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "1.7.8",
+        "date": "2024-11-25T21:13:58.456Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.30.0",
+        "date": "2025-03-26T17:55:30.023Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "1.9.0",
+        "date": "2025-04-24T20:18:59.701Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.30.1",
+        "date": "2025-08-04T18:21:01.791Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "1.12.0",
+        "date": "2025-09-11T19:33:13.459Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.30.2",
+        "date": "2025-09-27T10:29:01.127Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "1.13.0",
+        "date": "2025-10-27T16:08:14.422Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "1.13.3",
+        "date": "2026-01-25T14:21:38.842Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.13.4",
+        "date": "2026-01-27T18:18:38.613Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "1.13.4",
+        "date": "2026-01-27T18:18:38.613Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.30.3",
+        "date": "2026-02-18T17:19:20.081Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "0.30.3",
+        "date": "2026-02-18T17:19:20.081Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.13.6",
+        "date": "2026-02-27T15:35:51.983Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "1.13.6",
+        "date": "2026-02-27T15:35:51.983Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.15.0",
+        "date": "2026-04-08T16:09:38.623Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/axios"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-commander-v2-history",
+    "package": "commander",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-commander.json",
+    "split": "holdout",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2023-01-14T01:53:41.421Z",
+      "to": "2024-12-30T05:26:40.123Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2023-01-14T01:53:41.421Z"
+    },
+    "resolved_version_candidates": ["14.0.3", "15.0.0-0", "15.0.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.5.2",
+        "date": "2012-06-25T21:09:05.996Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.3.0",
+        "date": "2014-07-16T02:14:43.461Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.3.0",
+        "date": "2014-07-16T02:14:43.461Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.4.0",
+        "date": "2014-10-17T14:16:05.654Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.5.0",
+        "date": "2014-10-24T07:41:38.958Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.9.0",
+        "date": "2015-10-13T15:26:25.933Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.9.0",
+        "date": "2015-10-13T15:26:25.933Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.10.0",
+        "date": "2017-06-23T09:32:55.567Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.10.0",
+        "date": "2017-06-23T09:32:55.567Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.0.0-0",
+        "date": "2019-07-27T02:38:12.348Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.20.1",
+        "date": "2019-09-28T22:01:44.284Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.20.3",
+        "date": "2019-10-11T05:40:24.166Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.0.0",
+        "date": "2019-11-01T10:09:07.258Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.0.1",
+        "date": "2019-11-11T09:18:33.992Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "5.0.0-0",
+        "date": "2020-02-01T03:44:40.532Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.1.1",
+        "date": "2020-02-03T06:15:56.861Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "5.0.0-1",
+        "date": "2020-02-08T20:49:31.242Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "5.0.0",
+        "date": "2020-03-14T01:10:37.734Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "6.0.0-0",
+        "date": "2020-06-20T06:03:44.450Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "6.0.0",
+        "date": "2020-07-19T14:01:31.919Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "7.0.0-0",
+        "date": "2020-10-25T04:49:14.594Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "6.2.1",
+        "date": "2020-12-14T00:47:18.186Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "7.0.0-2",
+        "date": "2020-12-14T07:48:46.624Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "7.0.0",
+        "date": "2021-01-15T09:47:17.281Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "8.0.0-0",
+        "date": "2021-05-22T23:31:04.447Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "8.0.0",
+        "date": "2021-06-25T08:24:16.053Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "9.0.0-0",
+        "date": "2021-12-22T05:45:54.861Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "9.0.0",
+        "date": "2022-01-29T00:30:40.995Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "9.1.0",
+        "date": "2022-03-18T05:56:21.581Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "10.0.0",
+        "date": "2023-01-14T01:53:41.421Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "10.0.1",
+        "date": "2023-04-15T05:01:56.178Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "12.0.0-0",
+        "date": "2023-11-11T05:42:46.741Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "12.0.0",
+        "date": "2024-02-03T09:44:33.948Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "13.0.0-0",
+        "date": "2024-12-06T23:12:32.307Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "13.0.0",
+        "date": "2024-12-30T05:26:40.123Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "14.0.3",
+        "date": "2026-01-31T01:47:17.592Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "15.0.0-0",
+        "date": "2026-02-21T07:16:07.899Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "15.0.0",
+        "date": "2026-05-29T09:16:23.076Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/commander"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-yargs-v2-history",
+    "package": "yargs",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-yargs.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2025-04-09T19:57:09.412Z",
+      "to": "2025-05-27T14:27:19.495Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2025-04-09T19:57:09.412Z"
+    },
+    "resolved_version_candidates": ["17.7.3", "18.1.0", "18.2.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.1.1",
+        "date": "2015-02-07T00:28:02.943Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.1.1",
+        "date": "2015-02-07T00:28:02.943Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.1.0",
+        "date": "2015-02-19T19:41:29.066Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.2.1",
+        "date": "2015-02-22T05:46:34.924Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.9.1",
+        "date": "2015-05-20T05:23:59.213Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.16.0",
+        "date": "2015-07-30T04:47:04.514Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.18.0",
+        "date": "2015-08-06T20:15:07.172Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.18.1",
+        "date": "2015-08-12T05:59:22.060Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.21.0",
+        "date": "2015-08-21T21:20:38.023Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.21.1",
+        "date": "2015-08-28T20:59:40.597Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.21.1",
+        "date": "2015-08-28T20:59:40.597Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.22.1",
+        "date": "2015-08-28T22:37:56.565Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.22.2",
+        "date": "2015-08-28T22:58:32.148Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.23.0",
+        "date": "2015-08-31T06:14:10.463Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.24.0",
+        "date": "2015-09-04T12:02:33.117Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.25.0",
+        "date": "2015-09-14T02:38:53.132Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.25.0",
+        "date": "2015-09-14T02:38:53.132Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.26.0",
+        "date": "2015-09-25T02:14:59.990Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.26.0",
+        "date": "2015-09-25T02:14:59.990Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.28.0",
+        "date": "2015-10-16T22:42:17.250Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.30.0",
+        "date": "2015-11-14T17:34:22.318Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "4.2.0",
+        "date": "2016-02-23T07:12:32.271Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.3.2",
+        "date": "2016-03-20T04:13:12.475Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.4.0",
+        "date": "2016-04-04T04:19:13.481Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "8.0.2",
+        "date": "2017-06-12T23:30:46.664Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "12.0.3-candidate.0",
+        "date": "2018-10-06T23:07:02.108Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "11.1.1",
+        "date": "2019-10-07T01:32:16.558Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "14.2.1",
+        "date": "2019-10-30T06:05:45.975Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "15.1.0",
+        "date": "2020-01-02T04:53:44.001Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "15.1.0",
+        "date": "2020-01-02T04:53:44.001Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "15.2.0-beta.0",
+        "date": "2020-02-24T21:31:40.934Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "15.2.0-beta.1",
+        "date": "2020-02-29T21:52:27.588Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "7.1.1",
+        "date": "2020-05-22T07:06:51.374Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "15.4.0-beta.1",
+        "date": "2020-07-01T05:05:32.150Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "7.1.2",
+        "date": "2021-04-25T03:54:49.822Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "17.0.0-candidate.13",
+        "date": "2021-04-26T02:28:04.627Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "18.0.0-candidate.1",
+        "date": "2025-04-09T19:57:09.412Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "18.0.0",
+        "date": "2025-05-27T14:27:19.495Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "17.7.3-candidate.0",
+        "date": "2026-06-12T03:13:19.285Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "17.7.3-candidate.0",
+        "date": "2026-06-12T03:13:19.285Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "18.2.0",
+        "date": "2026-09-20T22:34:11.798Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "18.2.0",
+        "date": "2026-09-20T22:34:11.798Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/yargs"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-glob-v2-history",
+    "package": "glob",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-glob.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2025-11-17T17:02:17.700Z",
+      "to": "2025-11-19T16:04:02.567Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2025-11-17T17:02:17.700Z"
+    },
+    "resolved_version_candidates": ["13.0.4", "13.0.5", "13.0.6"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "false",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "11.1.0",
+        "date": "2025-11-17T17:02:17.700Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "10.5.0",
+        "date": "2025-11-18T01:34:51.120Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "13.0.0",
+        "date": "2025-11-19T16:04:02.567Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/glob"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-semver-v2-history",
+    "package": "semver",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-semver.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2023-04-10T21:57:46.268Z",
+      "to": "2025-10-07T18:00:51.643Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2023-04-10T21:57:46.268Z"
+    },
+    "resolved_version_candidates": ["7.8.3", "7.8.4", "7.8.5"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.0.2",
+        "date": "2014-09-30T23:55:26.916Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.1.1",
+        "date": "2014-12-19T12:57:14.981Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.2.0",
+        "date": "2014-12-23T09:42:46.263Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.2.1",
+        "date": "2015-02-10T06:44:26.265Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.3.0",
+        "date": "2015-02-12T20:08:38.236Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "4.3.1",
+        "date": "2015-02-24T19:49:50.416Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "5.0.0",
+        "date": "2015-07-11T17:29:40.652Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "5.7.1",
+        "date": "2019-08-12T16:28:15.053Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.0.0",
+        "date": "2019-12-14T19:36:54.748Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.1.2",
+        "date": "2020-01-31T01:29:45.224Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.2.0",
+        "date": "2020-04-06T23:36:09.707Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.3.3",
+        "date": "2020-12-01T19:30:05.865Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.3.5",
+        "date": "2021-03-23T01:37:52.803Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "7.3.6",
+        "date": "2022-04-06T16:35:25.625Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.3.6",
+        "date": "2022-04-06T16:35:25.625Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "7.3.8",
+        "date": "2022-10-04T19:40:47.960Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.3.8",
+        "date": "2022-10-04T19:40:47.960Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "7.4.0",
+        "date": "2023-04-10T21:57:46.268Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.4.0",
+        "date": "2023-04-10T21:57:46.268Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "7.5.1",
+        "date": "2023-05-12T16:39:41.720Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "5.7.2",
+        "date": "2023-07-10T19:57:47.111Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "5.7.2",
+        "date": "2023-07-10T19:57:47.111Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "7.6.0",
+        "date": "2024-02-05T17:06:51.520Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.6.0",
+        "date": "2024-02-05T17:06:51.520Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "7.6.0",
+        "date": "2024-02-05T17:06:51.520Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.6.3",
+        "date": "2024-07-16T22:27:19.119Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.7.0",
+        "date": "2025-01-29T17:14:41.608Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.7.2",
+        "date": "2025-05-12T17:02:28.372Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "7.7.3",
+        "date": "2025-10-07T18:00:51.643Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.7.3",
+        "date": "2025-10-07T18:00:51.643Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "7.8.0",
+        "date": "2026-05-08T20:31:22.678Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/semver"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-uuid-v2-history",
+    "package": "uuid",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-uuid.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2024-06-09T13:42:04.366Z",
+      "to": "2024-06-09T13:42:04.366Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2024-06-09T13:42:04.366Z"
+    },
+    "resolved_version_candidates": ["14.0.1", "14.0.2", "14.0.3"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.4.0",
+        "date": "2013-02-19T22:28:10.376Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.4.1",
+        "date": "2013-03-14T05:25:04.735Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.4.1",
+        "date": "2013-03-14T05:25:04.735Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.4.1",
+        "date": "2013-03-14T05:25:04.735Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.4.2",
+        "date": "2014-09-25T09:03:34.083Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.4.2",
+        "date": "2014-09-25T09:03:34.083Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.0.2",
+        "date": "2016-04-13T07:37:23.788Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.2",
+        "date": "2016-04-13T07:37:23.788Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.3",
+        "date": "2016-09-18T21:03:38.127Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.3",
+        "date": "2016-09-18T21:03:38.127Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.0.0",
+        "date": "2016-11-18T05:55:37.542Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.0.1",
+        "date": "2016-11-29T07:18:07.016Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.1.0",
+        "date": "2017-06-16T17:54:51.877Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.4.0",
+        "date": "2020-01-16T21:05:38.628Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.4.0",
+        "date": "2020-01-16T21:05:38.628Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "3.4.0",
+        "date": "2020-01-16T21:05:38.628Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "9.0.0-beta.0",
+        "date": "2022-08-05T10:12:36.295Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "10.0.0",
+        "date": "2024-06-09T13:42:04.366Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "14.0.0",
+        "date": "2026-04-19T15:15:42.302Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "14.0.0",
+        "date": "2026-04-19T15:15:42.302Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "13.0.1",
+        "date": "2026-04-29T12:44:23.872Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "13.0.1",
+        "date": "2026-04-29T12:44:23.872Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "12.0.1",
+        "date": "2026-04-29T12:54:38.598Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "12.0.1",
+        "date": "2026-04-29T12:54:38.598Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/uuid"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-rimraf-v2-history",
+    "package": "rimraf",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-rimraf.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2025-10-30T21:37:20.798Z",
+      "to": "2025-10-30T21:37:20.798Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2025-10-30T21:37:20.798Z"
+    },
+    "resolved_version_candidates": ["6.1.1", "6.1.2", "6.1.3"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "false",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "6.1.0",
+        "date": "2025-10-30T21:37:20.798Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/rimraf"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-cross-env-v2-history",
+    "package": "cross-env",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-cross-env.json",
+    "split": "holdout",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2015-10-01T23:19:27.453Z",
+      "to": "2025-09-29T17:34:12.232Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-10-01T23:19:27.453Z"
+    },
+    "resolved_version_candidates": ["7.0.3", "10.0.0", "10.1.0"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "false",
+      "repository_change": "false",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/cross-env"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-ms-v2-history",
+    "package": "ms",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-ms.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2025-08-25T20:28:46.460Z",
+      "to": "2025-08-25T20:28:46.460Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2025-08-25T20:28:46.460Z"
+    },
+    "resolved_version_candidates": [
+      "4.0.0-nightly.202508270145",
+      "4.0.0-nightly.202508271358",
+      "4.0.0-nightly.202508271359"
+    ],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.7.2",
+        "date": "2016-10-25T08:16:49.773Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.7.2",
+        "date": "2016-10-25T08:16:49.773Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.7.2",
+        "date": "2016-10-25T08:16:49.773Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.1.2",
+        "date": "2019-06-06T17:31:55.859Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.1.2",
+        "date": "2019-06-06T17:31:55.859Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.1.3",
+        "date": "2020-12-08T13:54:35.223Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.1.3",
+        "date": "2020-12-08T13:54:35.223Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.0.0-beta.0",
+        "date": "2021-08-20T14:54:07.095Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.0.0-beta.0",
+        "date": "2021-08-20T14:54:07.095Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.0.0-beta.2",
+        "date": "2021-08-25T16:55:32.842Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.0.0-canary.0",
+        "date": "2021-09-15T13:29:00.734Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.0.0-canary.0",
+        "date": "2021-09-15T13:29:00.734Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.0.0-canary.202508252028",
+        "date": "2025-08-25T20:28:46.460Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.0.0-canary.202508252028",
+        "date": "2025-08-25T20:28:46.460Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "3.0.0-canary.202508252028",
+        "date": "2025-08-25T20:28:46.460Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/ms"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-qs-v2-history",
+    "package": "qs",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-qs.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2011-02-04T04:40:23.984Z",
+      "to": "2026-10-14T22:06:17.002Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2011-02-04T04:40:23.984Z"
+    },
+    "resolved_version_candidates": ["6.15.3", "6.16.0", "6.16.1"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.0.0",
+        "date": "2014-08-04T22:27:58.076Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.0",
+        "date": "2014-08-04T22:27:58.076Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.0.0",
+        "date": "2014-08-04T22:27:58.076Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.2.2",
+        "date": "2014-08-14T20:14:29.160Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.0",
+        "date": "2014-08-25T20:02:15.954Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.4.2",
+        "date": "2015-05-09T20:55:52.199Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "6.0.0",
+        "date": "2015-11-03T03:02:36.639Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "6.0.1",
+        "date": "2015-11-24T17:04:02.325Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "6.0.2",
+        "date": "2016-01-17T22:58:43.204Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "6.0.2",
+        "date": "2016-01-17T22:58:43.204Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "6.0.2",
+        "date": "2016-01-17T22:58:43.204Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "5.2.1",
+        "date": "2016-07-20T19:37:41.185Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "6.2.1",
+        "date": "2016-07-20T20:02:09.943Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "6.9.5",
+        "date": "2021-01-13T16:29:50.613Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/qs"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-body-parser-v2-history",
+    "package": "body-parser",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-body-parser.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2024-09-09T23:15:19.538Z",
+      "to": "2025-03-27T01:23:21.463Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2024-09-09T23:15:19.538Z"
+    },
+    "resolved_version_candidates": ["2.3.0", "1.20.6", "1.20.8"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.1",
+        "date": "2014-03-20T22:25:27.731Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.0.2",
+        "date": "2014-04-14T23:26:30.844Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.1.0",
+        "date": "2014-05-11T01:46:04.793Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.0",
+        "date": "2014-05-11T01:46:04.793Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.6.0",
+        "date": "2014-08-06T03:32:28.565Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.12.4",
+        "date": "2015-05-11T06:05:37.622Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.15.0",
+        "date": "2016-02-11T02:06:51.428Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.15.1",
+        "date": "2016-05-06T05:35:09.934Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.20.3",
+        "date": "2024-09-09T23:15:19.538Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.20.3",
+        "date": "2024-09-09T23:15:19.538Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.1.0",
+        "date": "2025-02-10T20:12:39.065Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.1.0",
+        "date": "2025-02-10T20:12:39.065Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.2.0",
+        "date": "2025-03-27T01:23:21.463Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.20.5",
+        "date": "2026-04-24T17:55:23.868Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.20.5",
+        "date": "2026-04-24T17:55:23.868Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.3.0",
+        "date": "2026-06-15T10:46:12.880Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.20.8",
+        "date": "2026-09-08T10:32:14.519Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "1.20.8",
+        "date": "2026-09-08T10:32:14.519Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/body-parser"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-cookie-v2-history",
+    "package": "cookie",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-cookie.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2024-10-02T23:06:25.847Z",
+      "to": "2025-11-25T22:52:36.316Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2024-10-02T23:06:25.847Z"
+    },
+    "resolved_version_candidates": ["1.1.1", "2.0.0", "2.0.1"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.1.3",
+        "date": "2015-05-20T01:22:20.719Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.1.3",
+        "date": "2015-05-20T01:22:20.719Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.1.3",
+        "date": "2015-05-20T01:22:20.719Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.2.4",
+        "date": "2016-05-21T00:32:45.246Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "0.4.0",
+        "date": "2019-05-16T03:26:07.333Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "0.7.0",
+        "date": "2024-10-02T23:06:25.847Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "0.7.0",
+        "date": "2024-10-02T23:06:25.847Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.0",
+        "date": "2025-11-25T22:52:36.316Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.0",
+        "date": "2026-06-24T22:57:43.225Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.0",
+        "date": "2026-06-24T22:57:43.225Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/cookie"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "npm-inherits-v2-history",
+    "package": "inherits",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-inherits.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2011-04-07T00:35:15.718Z",
+      "to": "2019-06-19T20:18:52.465Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2011-04-07T00:35:15.718Z"
+    },
+    "resolved_version_candidates": ["1.0.2", "2.0.3", "2.0.4"],
+    "labels": {
+      "publisher_change": "false",
+      "maintainer_change": "false",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.0",
+        "date": "2013-05-16T14:44:54.523Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.1",
+        "date": "2013-08-19T22:10:20.463Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.0.1",
+        "date": "2015-08-26T22:12:12.252Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "1.0.2",
+        "date": "2015-08-27T19:36:46.817Z"
+      },
+      {
+        "type": "dependency_repository_changed",
+        "version": "2.0.3",
+        "date": "2016-09-08T00:49:38.520Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/inherits"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case."
+  },
+  {
+    "id": "crates.io-regex-v2-history",
+    "package": "regex",
+    "ecosystem": "crates.io",
+    "raw_file": "raw/crates-regex.json",
+    "split": "holdout",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2014-12-13T22:10:11.329494Z",
+      "to": "2026-07-15T20:19:35.162139Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2014-12-13T22:10:11.329494Z"
+    },
+    "resolved_version_candidates": ["0.1.2", "0.1.1", "0.1.0"],
+    "labels": {
+      "publisher_change": "unknown",
+      "maintainer_change": "unknown",
+      "repository_change": "unknown",
+      "dormancy_end": "unknown",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "unknown",
+      "provenance_changed": "unknown",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://crates.io/crates/regex"],
+    "notes": "regex crates.io snapshot has version timestamps but no publisher, maintainer, repository, install-script, or provenance history; those labels are insufficient_evidence rather than inferred false."
+  },
+  {
+    "id": "crates.io-clap-v2-history",
+    "package": "clap",
+    "ecosystem": "crates.io",
+    "raw_file": "raw/crates-clap.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2015-03-01T01:17:24.914427Z",
+      "to": "2026-09-14T18:40:28.474794Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2015-03-01T01:17:24.914427Z"
+    },
+    "resolved_version_candidates": ["0.3.7", "0.3.6", "0.3.5"],
+    "labels": {
+      "publisher_change": "unknown",
+      "maintainer_change": "unknown",
+      "repository_change": "unknown",
+      "dormancy_end": "unknown",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "unknown",
+      "provenance_changed": "unknown",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://crates.io/crates/clap"],
+    "notes": "clap crates.io snapshot has version timestamps but no publisher, maintainer, repository, install-script, or provenance history; those labels are insufficient_evidence rather than inferred false."
+  },
+  {
+    "id": "crates.io-time-v2-history",
+    "package": "time",
+    "ecosystem": "crates.io",
+    "raw_file": "raw/crates-time.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2014-11-13T06:52:51.400588Z",
+      "to": "2026-08-01T08:08:34.139758Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2014-11-13T06:52:51.400588Z"
+    },
+    "resolved_version_candidates": ["0.0.3", "0.0.2", "0.0.1"],
+    "labels": {
+      "publisher_change": "unknown",
+      "maintainer_change": "unknown",
+      "repository_change": "unknown",
+      "dormancy_end": "unknown",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "unknown",
+      "provenance_changed": "unknown",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://crates.io/crates/time"],
+    "notes": "time crates.io snapshot has version timestamps but no publisher, maintainer, repository, install-script, or provenance history; those labels are insufficient_evidence rather than inferred false."
+  },
+  {
+    "id": "crates.io-log-v2-history",
+    "package": "log",
+    "ecosystem": "crates.io",
+    "raw_file": "raw/crates-log.json",
+    "split": "development",
+    "kind": "benign_control",
+    "incident_window": {
+      "from": "2014-12-13T22:10:19.971330Z",
+      "to": "2026-08-22T11:44:27.941626Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2014-12-13T22:10:19.971330Z"
+    },
+    "resolved_version_candidates": ["0.1.2", "0.1.1", "0.1.0"],
+    "labels": {
+      "publisher_change": "unknown",
+      "maintainer_change": "unknown",
+      "repository_change": "unknown",
+      "dormancy_end": "unknown",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "unknown",
+      "provenance_changed": "unknown",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": false,
+        "justification": "Benign control; no compromise conclusion is inferred from this pinned registry history."
+      }
+    },
+    "conclusion": "known_benign_control",
+    "incident_confidence": "low",
+    "sources": ["https://crates.io/crates/log"],
+    "notes": "log crates.io snapshot has version timestamps but no publisher, maintainer, repository, install-script, or provenance history; those labels are insufficient_evidence rather than inferred false."
+  },
+  {
+    "id": "npm-@ledgerhq-connect-kit-v2-incident-window",
+    "package": "@ledgerhq/connect-kit",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-ledgerhq-connect-kit.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2023-02-24T09:53:46.357Z",
+      "to": "2024-01-18T14:30:32.576Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2023-02-24T09:53:46.357Z"
+    },
+    "resolved_version_candidates": ["1.1.10", "1.1.11", "1.1.12"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "false",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.11",
+        "date": "2023-02-24T09:53:46.357Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.1-beta.0",
+        "date": "2023-08-01T08:06:33.397Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.8",
+        "date": "2023-12-14T13:18:35.208Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.1.9",
+        "date": "2024-01-18T14:30:32.576Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.1.9",
+        "date": "2024-01-18T14:30:32.576Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/@ledgerhq/connect-kit"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case. This separate incident-window case is limited to versions and events actually present in the pinned 2023-2025 raw history."
+  },
+  {
+    "id": "npm-@lottiefiles-lottie-player-v2-incident-window",
+    "package": "@lottiefiles/lottie-player",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-lottiefiles-lottie-player.json",
+    "split": "validation",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2023-06-08T14:09:42.880Z",
+      "to": "2024-11-04T12:14:05.234Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2023-06-08T14:09:42.880Z"
+    },
+    "resolved_version_candidates": ["2.0.10", "2.0.11", "2.0.12"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "true",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.0",
+        "date": "2023-06-08T14:09:42.880Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.0.0",
+        "date": "2023-06-08T14:09:42.880Z"
+      },
+      {
+        "type": "dependency_install_hook_introduced",
+        "version": "2.0.0",
+        "date": "2023-06-08T14:09:42.880Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.2",
+        "date": "2023-06-09T08:05:46.504Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.3",
+        "date": "2024-01-22T11:51:00.894Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.0.8",
+        "date": "2024-10-30T22:58:50.389Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.0.8",
+        "date": "2024-10-30T22:58:50.389Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.0.9",
+        "date": "2024-11-01T00:04:58.184Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "2.0.12",
+        "date": "2024-11-04T12:14:05.234Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/@lottiefiles/lottie-player"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case. This separate incident-window case is limited to versions and events actually present in the pinned 2023-2025 raw history."
+  },
+  {
+    "id": "npm-xrpl-v2-incident-window",
+    "package": "xrpl",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-xrpl.json",
+    "split": "holdout",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2023-02-16T19:27:06.695Z",
+      "to": "2025-10-29T00:30:19.025Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2023-02-16T19:27:06.695Z"
+    },
+    "resolved_version_candidates": ["4.7.0", "3.2.0", "2.15.0"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.7.0-beta.1",
+        "date": "2023-02-16T19:27:06.695Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.7.0-beta.3",
+        "date": "2023-02-23T20:43:09.623Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.7.0",
+        "date": "2023-03-08T23:11:02.651Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.8.0-beta.1",
+        "date": "2023-04-11T18:48:12.416Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.8.0",
+        "date": "2023-06-13T21:16:46.224Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.9.0",
+        "date": "2023-07-13T18:11:48.256Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.9.0",
+        "date": "2023-07-13T18:11:48.256Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.9.1",
+        "date": "2023-07-18T20:42:40.268Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.10.0",
+        "date": "2023-08-07T21:52:16.352Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.11.0",
+        "date": "2023-08-24T17:46:12.278Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.12.0-beta.0",
+        "date": "2023-08-25T11:17:22.168Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.12.0",
+        "date": "2023-09-27T17:02:06.973Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.13.0",
+        "date": "2023-10-18T16:14:29.744Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "2.14.0",
+        "date": "2023-11-30T21:29:38.351Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.0.0-beta.1",
+        "date": "2023-11-30T23:03:29.053Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.0.0-mpt-beta",
+        "date": "2024-04-22T18:41:14.657Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "1.0.0-mpt-beta",
+        "date": "2024-04-22T18:41:14.657Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "3.1.0",
+        "date": "2024-06-03T20:34:48.803Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.1.0",
+        "date": "2024-06-03T20:34:48.803Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "1.0.3-mpt-beta",
+        "date": "2024-07-09T13:54:48.462Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.0.0",
+        "date": "2024-07-16T18:23:42.821Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.0.0",
+        "date": "2024-07-16T18:23:42.821Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.0.0-mpt-beta",
+        "date": "2024-09-04T14:02:01.007Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.1.0",
+        "date": "2024-12-23T16:29:57.378Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.1.0",
+        "date": "2024-12-23T16:29:57.378Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.2.0-batch.0",
+        "date": "2025-02-13T19:05:44.405Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.2.0",
+        "date": "2025-02-14T02:24:11.746Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.3.0-smartescrow.0",
+        "date": "2025-03-26T19:05:30.053Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.2.5",
+        "date": "2025-04-22T12:43:03.962Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.2.5",
+        "date": "2025-04-22T12:43:03.962Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "2.14.3",
+        "date": "2025-04-22T13:27:46.826Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.3.0-smartescrow.2",
+        "date": "2025-05-02T15:52:03.294Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.3.0-smartescrow.2",
+        "date": "2025-05-02T15:52:03.294Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.3.0",
+        "date": "2025-06-09T21:09:55.932Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.3.0",
+        "date": "2025-06-09T21:09:55.932Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.4.0-smartescrow.0",
+        "date": "2025-07-10T20:08:14.598Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.4.0",
+        "date": "2025-07-29T22:25:03.307Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.4.0",
+        "date": "2025-07-29T22:25:03.307Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.5.0-smartescrow.0",
+        "date": "2025-08-04T20:33:11.143Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.4.1",
+        "date": "2025-09-02T19:50:32.464Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.4.1",
+        "date": "2025-09-02T19:50:32.464Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.5.0-smartescrow.1",
+        "date": "2025-09-15T21:14:48.443Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.5.0-smartescrow.1",
+        "date": "2025-09-15T21:14:48.443Z"
+      },
+      {
+        "type": "dependency_publisher_changed",
+        "version": "4.4.2",
+        "date": "2025-09-25T17:03:09.203Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.4.2",
+        "date": "2025-09-25T17:03:09.203Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "4.4.2",
+        "date": "2025-09-25T17:03:09.203Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "4.5.0-smartescrow.3",
+        "date": "2025-10-29T00:30:19.025Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/xrpl"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case. This separate incident-window case is limited to versions and events actually present in the pinned 2023-2025 raw history."
+  },
+  {
+    "id": "npm-eslint-config-prettier-v2-incident-window",
+    "package": "eslint-config-prettier",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-eslint-config-prettier.json",
+    "split": "validation",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2025-01-13T14:35:41.067Z",
+      "to": "2025-07-18T19:17:46.271Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2025-01-13T14:35:41.067Z"
+    },
+    "resolved_version_candidates": ["10.1.8", "8.10.2", "9.1.2"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_publisher_changed",
+        "version": "10.0.0",
+        "date": "2025-01-13T14:35:41.067Z"
+      },
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "10.0.0",
+        "date": "2025-01-13T14:35:41.067Z"
+      },
+      {
+        "type": "dependency_provenance_added",
+        "version": "10.1.4",
+        "date": "2025-05-09T03:51:25.989Z"
+      },
+      {
+        "type": "dependency_provenance_removed",
+        "version": "8.10.2",
+        "date": "2025-07-18T19:17:46.271Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/eslint-config-prettier"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case. This separate incident-window case is limited to versions and events actually present in the pinned 2023-2025 raw history."
+  },
+  {
+    "id": "npm-@ctrl-tinycolor-v2-incident-window",
+    "package": "@ctrl/tinycolor",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-ctrl-tinycolor.json",
+    "split": "holdout",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2025-09-16T03:17:48.101Z",
+      "to": "2025-09-16T03:17:48.101Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2025-09-16T03:17:48.101Z"
+    },
+    "resolved_version_candidates": ["4.1.0", "4.2.0", "4.2.1"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "false",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "true",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_provenance_added",
+        "version": "4.2.0",
+        "date": "2025-09-16T03:17:48.101Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/@ctrl/tinycolor"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case. This separate incident-window case is limited to versions and events actually present in the pinned 2023-2025 raw history."
+  },
+  {
+    "id": "npm-is-v2-incident-window",
+    "package": "is",
+    "ecosystem": "npm",
+    "raw_file": "raw/npm-is.json",
+    "split": "development",
+    "kind": "incident",
+    "incident_window": {
+      "from": "2025-07-19T19:13:33.146Z",
+      "to": "2025-07-19T19:13:33.146Z"
+    },
+    "known_good_window": {
+      "from": "2010-01-01T00:00:00Z",
+      "to": "2025-07-19T19:13:33.146Z"
+    },
+    "resolved_version_candidates": ["3.2.1", "3.3.0", "3.3.2"],
+    "labels": {
+      "publisher_change": "true",
+      "maintainer_change": "true",
+      "repository_change": "true",
+      "dormancy_end": "false",
+      "release_cadence_change": "unknown",
+      "install_script_introduced": "false",
+      "provenance_changed": "false",
+      "external_domain_introduced": "unknown"
+    },
+    "expected_events": [
+      {
+        "type": "dependency_maintainer_changed",
+        "version": "3.3.2",
+        "date": "2025-07-19T19:13:33.146Z"
+      }
+    ],
+    "pattern_expectations": {
+      "dependency-takeover-indicators": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-dormancy-publisher-hook": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      },
+      "dependency-publisher-change-then-new-domain": {
+        "should_fire": null,
+        "justification": "Abstention: registry history cannot establish the package incident pattern without the removed payload, install behavior, or domain evidence."
+      }
+    },
+    "conclusion": "known_compromise",
+    "incident_confidence": "low",
+    "sources": ["https://www.npmjs.com/package/is"],
+    "notes": "Labels and events were independently derived from the pinned raw registry response by scripts/derive-incident-cases-v2.mjs; no production parser output was copied into this case. This separate incident-window case is limited to versions and events actually present in the pinned 2023-2025 raw history."
   }
 ]

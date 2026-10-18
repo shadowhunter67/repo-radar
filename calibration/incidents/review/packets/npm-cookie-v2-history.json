@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-cookie-v2-history",
+  "package": "cookie",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-cookie.json",
+  "incident_window": {
+    "from": "2024-10-02T23:06:25.847Z",
+    "to": "2025-11-25T22:52:36.316Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2024-10-02T23:06:25.847Z"
+  },
+  "resolved_version_candidates": ["1.1.1", "2.0.0", "2.0.1"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

@@ -7,3 +7,11 @@ Splits are frozen before evaluation. `split` is assigned by SHA-256 of `id`: the
 `observations` are registry observations only. `conclusion` is separate and may be uncertain. `sources` are package/advisory URLs known to exist; a case with a non-certain historical claim uses an uncertainty conclusion and explains the limitation in `notes`. No reviewer is asserted or filled in.
 
 The raw files are the only registry evidence. The evaluator uses the production parsers and event/correlation functions offline. Methodology remains 0.4 and no shipped policy is enabled.
+
+## Corpus v2 (0.10.x)
+
+Corpus v2 adds 25 package histories (7 incident candidates and 18 benign controls) plus 8 incident-window cases. The resulting corpus has 62 cases: development 40, validation 10, and holdout 12. The holdout package split is still assigned only by `sha256(ecosystem:package)`; duplicate history/window cases for one package therefore remain in one split. The three v1 holdout packages `express`, `faker`, and `flatmap-stream` are retained with `holdout_spent: true` and excluded from v2 holdout metrics.
+
+The v2 authoring script reads raw npm fields (`time`, `_npmUser`, maintainers, repository, scripts, and `dist.attestations`) independently of the production parser. Crates snapshots contain version timestamps but no publisher/maintainer/repository history, so those labels are `unknown`. Cases with incident candidates whose pinned history does not contain a 2023–2025 event are `insufficient_evidence`; no conclusion is inferred from a missing removed version.
+
+Blind review packets for all v2 cases are in `review/packets/`. Labels remain AI-assisted and unreviewed; Gate 14 is MANUAL. The v2 holdout has not been run. A final run, when authorized by the reviewer, writes `results/final-holdout-v2.json` once and refuses overwrite. The old v1 `results/final-holdout.json` is spent and is not reused.

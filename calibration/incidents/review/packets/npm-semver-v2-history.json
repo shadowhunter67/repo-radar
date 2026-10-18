@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-semver-v2-history",
+  "package": "semver",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-semver.json",
+  "incident_window": {
+    "from": "2023-04-10T21:57:46.268Z",
+    "to": "2025-10-07T18:00:51.643Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2023-04-10T21:57:46.268Z"
+  },
+  "resolved_version_candidates": ["7.8.3", "7.8.4", "7.8.5"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-rand-user-agent-v2-history",
+  "package": "rand-user-agent",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-rand-user-agent.json",
+  "incident_window": {
+    "from": "2021-06-30T09:47:18.872Z",
+    "to": "2024-10-13T01:08:33.441Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2021-06-30T09:47:18.872Z"
+  },
+  "resolved_version_candidates": ["2.0.80", "2.0.81", "2.0.82"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

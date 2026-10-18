@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-qs-v2-history",
+  "package": "qs",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-qs.json",
+  "incident_window": {
+    "from": "2011-02-04T04:40:23.984Z",
+    "to": "2026-10-14T22:06:17.002Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2011-02-04T04:40:23.984Z"
+  },
+  "resolved_version_candidates": ["6.15.3", "6.16.0", "6.16.1"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

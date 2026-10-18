@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-glob-v2-history",
+  "package": "glob",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-glob.json",
+  "incident_window": {
+    "from": "2025-11-17T17:02:17.700Z",
+    "to": "2025-11-19T16:04:02.567Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2025-11-17T17:02:17.700Z"
+  },
+  "resolved_version_candidates": ["13.0.4", "13.0.5", "13.0.6"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

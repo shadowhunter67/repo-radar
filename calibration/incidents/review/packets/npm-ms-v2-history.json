@@ -1,0 +1,26 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-ms-v2-history",
+  "package": "ms",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-ms.json",
+  "incident_window": {
+    "from": "2025-08-25T20:28:46.460Z",
+    "to": "2025-08-25T20:28:46.460Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2025-08-25T20:28:46.460Z"
+  },
+  "resolved_version_candidates": [
+    "4.0.0-nightly.202508270145",
+    "4.0.0-nightly.202508271358",
+    "4.0.0-nightly.202508271359"
+  ],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

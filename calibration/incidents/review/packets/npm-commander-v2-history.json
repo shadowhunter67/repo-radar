@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-commander-v2-history",
+  "package": "commander",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-commander.json",
+  "incident_window": {
+    "from": "2023-01-14T01:53:41.421Z",
+    "to": "2024-12-30T05:26:40.123Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2023-01-14T01:53:41.421Z"
+  },
+  "resolved_version_candidates": ["14.0.3", "15.0.0-0", "15.0.0"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-@lottiefiles-lottie-player-v2-history",
+  "package": "@lottiefiles/lottie-player",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-lottiefiles-lottie-player.json",
+  "incident_window": {
+    "from": "2023-06-08T14:09:42.880Z",
+    "to": "2024-11-04T12:14:05.234Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2023-06-08T14:09:42.880Z"
+  },
+  "resolved_version_candidates": ["2.0.10", "2.0.11", "2.0.12"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-is-v2-incident-window",
+  "package": "is",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-is.json",
+  "incident_window": {
+    "from": "2025-07-19T19:13:33.146Z",
+    "to": "2025-07-19T19:13:33.146Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2025-07-19T19:13:33.146Z"
+  },
+  "resolved_version_candidates": ["3.2.1", "3.3.0", "3.3.2"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

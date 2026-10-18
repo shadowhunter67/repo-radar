@@ -1,6 +1,6 @@
 {
   "packet_version": 1,
-  "corpus": "incident-calibration-v1",
+  "corpus": "incident-calibration-v2",
   "case_id": "npm-event-stream-history-incident-window",
   "package": "event-stream",
   "ecosystem": "npm",

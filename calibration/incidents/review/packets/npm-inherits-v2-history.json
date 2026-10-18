@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-inherits-v2-history",
+  "package": "inherits",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-inherits.json",
+  "incident_window": {
+    "from": "2011-04-07T00:35:15.718Z",
+    "to": "2019-06-19T20:18:52.465Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2011-04-07T00:35:15.718Z"
+  },
+  "resolved_version_candidates": ["1.0.2", "2.0.3", "2.0.4"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

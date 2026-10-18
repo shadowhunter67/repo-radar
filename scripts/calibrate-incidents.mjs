@@ -15,9 +15,11 @@ const cases = loadIncidentCases(root);
 for (const c of cases)
   if (assignIncidentSplit(c.ecosystem, c.package) !== c.split)
     throw new Error(`split drift: ${c.id}`);
-if (final && existsSync(join(root, 'results', 'final-holdout.json')))
+if (final && existsSync(join(root, 'results', 'final-holdout-v2.json')))
   throw new Error('final holdout already recorded; refusing a second run');
-const selected = final ? cases : cases.filter((c) => c.split !== 'holdout');
+const selected = final
+  ? cases.filter((c) => c.split === 'holdout' && c.holdout_spent !== true)
+  : cases.filter((c) => c.split !== 'holdout');
 const rows = selected.map((c) => ({
   id: c.id,
   split: c.split,
@@ -112,7 +114,8 @@ const thresholdGrid = {
   decision: 'unchanged',
 };
 const out = {
-  version: 1,
+  version: 2,
+  corpus: 'incident-calibration-v2',
   methodology: '0.4',
   holdout: final,
   cases: rows,
@@ -127,6 +130,9 @@ const out = {
 };
 if (final) {
   mkdirSync(join(root, 'results'), { recursive: true });
-  writeFileSync(join(root, 'results', 'final-holdout.json'), JSON.stringify(out, null, 2) + '\n');
+  writeFileSync(
+    join(root, 'results', 'final-holdout-v2.json'),
+    JSON.stringify(out, null, 2) + '\n',
+  );
 }
 process.stdout.write(JSON.stringify(out, null, 2) + '\n');

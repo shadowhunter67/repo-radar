@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-eslint-config-prettier-v2-history",
+  "package": "eslint-config-prettier",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-eslint-config-prettier.json",
+  "incident_window": {
+    "from": "2025-01-13T14:35:41.067Z",
+    "to": "2025-07-18T19:17:46.271Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2025-01-13T14:35:41.067Z"
+  },
+  "resolved_version_candidates": ["10.1.8", "8.10.2", "9.1.2"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

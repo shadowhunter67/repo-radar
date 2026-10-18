@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { assignIncidentSplit, loadIncidentCases } from '../../src/calibration/incidents.js';
@@ -8,6 +8,27 @@ const root = join(packageRoot(), 'calibration', 'incidents');
 const cases = loadIncidentCases(root);
 
 describe('incident calibration corpus', () => {
+  it('contains the frozen v2 composition and spent v1 holdout markers', () => {
+    expect(cases).toHaveLength(62);
+    expect(
+      Object.fromEntries(
+        ['development', 'validation', 'holdout'].map((s) => [
+          s,
+          cases.filter((c) => c.split === s).length,
+        ]),
+      ),
+    ).toEqual({ development: 40, validation: 10, holdout: 12 });
+    expect(cases.filter((c) => c.id.endsWith('-v2-history'))).toHaveLength(25);
+    expect(cases.filter((c) => c.id.endsWith('-incident-window'))).toHaveLength(8);
+    expect(
+      cases
+        .filter((c) => c.holdout_spent)
+        .map((c) => c.package)
+        .sort(),
+    ).toEqual(['express', 'express', 'faker', 'flatmap-stream']);
+    expect(existsSync(join(root, 'results', 'final-holdout-v2.json'))).toBe(false);
+  });
+
   it('has frozen valid cases and non-template windows', () => {
     expect(cases.length).toBeGreaterThanOrEqual(30);
     expect(
@@ -33,6 +54,10 @@ describe('incident calibration corpus', () => {
       expect(packet.conclusion).toBe('');
       expect(packet.pattern_expectations).toBeUndefined();
     }
+    for (const c of cases.filter(
+      (x) => x.id.endsWith('-v2-history') || x.id.endsWith('-incident-window'),
+    ))
+      expect(readdirSync(join(root, 'review', 'packets'))).toContain(`${c.id}.json`);
   });
 
   it('has incident and benign coverage in development and validation', () => {

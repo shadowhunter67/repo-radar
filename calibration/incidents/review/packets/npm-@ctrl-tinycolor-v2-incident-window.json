@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-@ctrl-tinycolor-v2-incident-window",
+  "package": "@ctrl/tinycolor",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-ctrl-tinycolor.json",
+  "incident_window": {
+    "from": "2025-09-16T03:17:48.101Z",
+    "to": "2025-09-16T03:17:48.101Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2025-09-16T03:17:48.101Z"
+  },
+  "resolved_version_candidates": ["4.1.0", "4.2.0", "4.2.1"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

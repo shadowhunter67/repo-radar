@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "crates.io-time-v2-history",
+  "package": "time",
+  "ecosystem": "crates.io",
+  "raw_file": "raw/crates-time.json",
+  "incident_window": {
+    "from": "2014-11-13T06:52:51.400588Z",
+    "to": "2026-08-01T08:08:34.139758Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2014-11-13T06:52:51.400588Z"
+  },
+  "resolved_version_candidates": ["0.0.3", "0.0.2", "0.0.1"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

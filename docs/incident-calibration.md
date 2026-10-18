@@ -51,6 +51,28 @@ No threshold was changed: no window shows a stable validation gain. Dormancy, ca
 
 Holdout split (by `ecosystem:package`): 3 packages, 4 cases (npm express twice: history and control window, npm faker, npm flatmap-stream).
 
+## Corpus v2 (0.10.x; holdout not run)
+
+Corpus v2 is frozen at 62 cases: 40 development, 10 validation, and 12 holdout cases. It adds 25 histories (7 incident candidates and 18 benign controls) and 8 incident-window cases. The v1 holdout cases for `express`, `faker`, and `flatmap-stream` remain in the corpus with `holdout_spent: true` and are excluded from v2 holdout metrics. Review packets cover all 33 new v2 cases. Labels remain AI-assisted and unreviewed; Gate 14 remains MANUAL.
+
+The non-final evaluator was run offline after corpus authoring. It evaluated 50 development/validation cases; the v2 holdout was not selected and `results/final-holdout-v2.json` does not exist.
+
+Raw observation metrics (decided n / abstentions):
+
+| Observation | n | Abstentions | Accuracy | Precision | Recall | Benign FPR |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| publisher change | 47 | 3 | 0.745 | 0.800 | 0.800 | 0.207 |
+| maintainer change | 47 | 3 | 0.894 | 1.000 | 0.865 | 0.000 |
+| repository change | 47 | 3 | 0.404 | 0.909 | 0.270 | 0.034 |
+| dormancy end | 47 | 3 | 0.617 | 0.577 | 0.682 | 0.379 |
+| install script introduced | 47 | 3 | 0.979 | 1.000 | 0.800 | 0.000 |
+| provenance changed | 47 | 3 | 0.830 | 1.000 | 0.500 | 0.000 |
+| release cadence / external domain | 0 | 50 | — | — | — | — |
+
+Pattern metrics over development/validation: `dependency-takeover-indicators` decided 32, abstained 18, fired on 2 incident cases and 5 benign cases (benign FPR 5/32); `dependency-dormancy-publisher-hook` decided 32, abstained 18, fired on 0 incident and 0 benign cases. These are descriptive results only; no threshold or pattern was changed.
+
+The v2 final output is intentionally a separate, write-once `results/final-holdout-v2.json`. It must contain only non-spent holdout cases and holdout-only metrics when the reviewer authorizes the manual final run. The old v1 final result is spent and is not evidence for v2.
+
 | Measure | Count |
 | --- | --- |
 | Benign controls (express x2) | 2; temporal patterns fired on 0/2 (benign false positives 0/2) |

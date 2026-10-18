@@ -1,47 +1,8 @@
 {
-  "packet_version": 1,
+  "packet_version": 2,
+  "corpus": "incident-calibration-v2",
   "blind": true,
   "packets": [
-    {
-      "case_id": "npm-coa-history",
-      "packet": "packets/npm-coa-history.json"
-    },
-    {
-      "case_id": "npm-colors-history",
-      "packet": "packets/npm-colors-history.json"
-    },
-    {
-      "case_id": "npm-eslint-config-eslint-history",
-      "packet": "packets/npm-eslint-config-eslint-history.json"
-    },
-    {
-      "case_id": "npm-eslint-scope-history",
-      "packet": "packets/npm-eslint-scope-history.json"
-    },
-    {
-      "case_id": "npm-event-stream-history",
-      "packet": "packets/npm-event-stream-history.json"
-    },
-    {
-      "case_id": "npm-faker-history",
-      "packet": "packets/npm-faker-history.json"
-    },
-    {
-      "case_id": "npm-flatmap-stream-history",
-      "packet": "packets/npm-flatmap-stream-history.json"
-    },
-    {
-      "case_id": "npm-node-ipc-history",
-      "packet": "packets/npm-node-ipc-history.json"
-    },
-    {
-      "case_id": "npm-rc-history",
-      "packet": "packets/npm-rc-history.json"
-    },
-    {
-      "case_id": "npm-ua-parser-js-history",
-      "packet": "packets/npm-ua-parser-js-history.json"
-    },
     {
       "case_id": "npm-event-stream-history-incident-window",
       "packet": "packets/npm-event-stream-history-incident-window.json"
@@ -49,6 +10,130 @@
     {
       "case_id": "npm-ua-parser-js-history-incident-window",
       "packet": "packets/npm-ua-parser-js-history-incident-window.json"
+    },
+    {
+      "case_id": "npm-@ledgerhq-connect-kit-v2-history",
+      "packet": "packets/npm-@ledgerhq-connect-kit-v2-history.json"
+    },
+    {
+      "case_id": "npm-@lottiefiles-lottie-player-v2-history",
+      "packet": "packets/npm-@lottiefiles-lottie-player-v2-history.json"
+    },
+    {
+      "case_id": "npm-xrpl-v2-history",
+      "packet": "packets/npm-xrpl-v2-history.json"
+    },
+    {
+      "case_id": "npm-eslint-config-prettier-v2-history",
+      "packet": "packets/npm-eslint-config-prettier-v2-history.json"
+    },
+    {
+      "case_id": "npm-@ctrl-tinycolor-v2-history",
+      "packet": "packets/npm-@ctrl-tinycolor-v2-history.json"
+    },
+    {
+      "case_id": "npm-is-v2-history",
+      "packet": "packets/npm-is-v2-history.json"
+    },
+    {
+      "case_id": "npm-rand-user-agent-v2-history",
+      "packet": "packets/npm-rand-user-agent-v2-history.json"
+    },
+    {
+      "case_id": "npm-vue-v2-history",
+      "packet": "packets/npm-vue-v2-history.json"
+    },
+    {
+      "case_id": "npm-axios-v2-history",
+      "packet": "packets/npm-axios-v2-history.json"
+    },
+    {
+      "case_id": "npm-commander-v2-history",
+      "packet": "packets/npm-commander-v2-history.json"
+    },
+    {
+      "case_id": "npm-yargs-v2-history",
+      "packet": "packets/npm-yargs-v2-history.json"
+    },
+    {
+      "case_id": "npm-glob-v2-history",
+      "packet": "packets/npm-glob-v2-history.json"
+    },
+    {
+      "case_id": "npm-semver-v2-history",
+      "packet": "packets/npm-semver-v2-history.json"
+    },
+    {
+      "case_id": "npm-uuid-v2-history",
+      "packet": "packets/npm-uuid-v2-history.json"
+    },
+    {
+      "case_id": "npm-rimraf-v2-history",
+      "packet": "packets/npm-rimraf-v2-history.json"
+    },
+    {
+      "case_id": "npm-cross-env-v2-history",
+      "packet": "packets/npm-cross-env-v2-history.json"
+    },
+    {
+      "case_id": "npm-ms-v2-history",
+      "packet": "packets/npm-ms-v2-history.json"
+    },
+    {
+      "case_id": "npm-qs-v2-history",
+      "packet": "packets/npm-qs-v2-history.json"
+    },
+    {
+      "case_id": "npm-body-parser-v2-history",
+      "packet": "packets/npm-body-parser-v2-history.json"
+    },
+    {
+      "case_id": "npm-cookie-v2-history",
+      "packet": "packets/npm-cookie-v2-history.json"
+    },
+    {
+      "case_id": "npm-inherits-v2-history",
+      "packet": "packets/npm-inherits-v2-history.json"
+    },
+    {
+      "case_id": "crates.io-regex-v2-history",
+      "packet": "packets/crates.io-regex-v2-history.json"
+    },
+    {
+      "case_id": "crates.io-clap-v2-history",
+      "packet": "packets/crates.io-clap-v2-history.json"
+    },
+    {
+      "case_id": "crates.io-time-v2-history",
+      "packet": "packets/crates.io-time-v2-history.json"
+    },
+    {
+      "case_id": "crates.io-log-v2-history",
+      "packet": "packets/crates.io-log-v2-history.json"
+    },
+    {
+      "case_id": "npm-@ledgerhq-connect-kit-v2-incident-window",
+      "packet": "packets/npm-@ledgerhq-connect-kit-v2-incident-window.json"
+    },
+    {
+      "case_id": "npm-@lottiefiles-lottie-player-v2-incident-window",
+      "packet": "packets/npm-@lottiefiles-lottie-player-v2-incident-window.json"
+    },
+    {
+      "case_id": "npm-xrpl-v2-incident-window",
+      "packet": "packets/npm-xrpl-v2-incident-window.json"
+    },
+    {
+      "case_id": "npm-eslint-config-prettier-v2-incident-window",
+      "packet": "packets/npm-eslint-config-prettier-v2-incident-window.json"
+    },
+    {
+      "case_id": "npm-@ctrl-tinycolor-v2-incident-window",
+      "packet": "packets/npm-@ctrl-tinycolor-v2-incident-window.json"
+    },
+    {
+      "case_id": "npm-is-v2-incident-window",
+      "packet": "packets/npm-is-v2-incident-window.json"
     }
   ]
 }

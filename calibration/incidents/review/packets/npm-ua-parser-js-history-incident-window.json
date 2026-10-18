@@ -1,6 +1,6 @@
 {
   "packet_version": 1,
-  "corpus": "incident-calibration-v1",
+  "corpus": "incident-calibration-v2",
   "case_id": "npm-ua-parser-js-history-incident-window",
   "package": "ua-parser-js",
   "ecosystem": "npm",

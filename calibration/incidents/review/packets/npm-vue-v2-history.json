@@ -1,0 +1,22 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v2",
+  "case_id": "npm-vue-v2-history",
+  "package": "vue",
+  "ecosystem": "npm",
+  "raw_file": "raw/npm-vue.json",
+  "incident_window": {
+    "from": "2023-10-23T07:55:50.844Z",
+    "to": "2025-08-21T03:15:48.659Z"
+  },
+  "known_good_window": {
+    "from": "2010-01-01T00:00:00Z",
+    "to": "2023-10-23T07:55:50.844Z"
+  },
+  "resolved_version_candidates": ["3.6.0-rc.11", "3.5.44", "3.6.0-rc.12"],
+  "blind": "This packet contains no analyzer output, label, conclusion, reviewer name, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}
