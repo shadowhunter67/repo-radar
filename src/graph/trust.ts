@@ -421,6 +421,12 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
       latest: p.latest_version,
       dependency: true,
       repository_match: p.repository.match,
+      publisher_changed: depReg.events.some(
+        (e) =>
+          e.package === p.name &&
+          e.registry === p.registry &&
+          e.type === 'dependency_publisher_changed',
+      ),
     });
     const reg = node(`registry:${p.registry}`, 'Registry', p.registry);
     edge(

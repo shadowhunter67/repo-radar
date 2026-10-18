@@ -90,3 +90,32 @@ The 0.8.0 phase-1 corpus measures registry-history observations and temporal ind
 # Current release direction
 
 Version 0.9 completes bounded artifact, dependency-name, build-source, graph/policy, and batch foundations. Future work includes a separately authorized head-resolution backend for batch reuse, richer registry history, and broader language-aware build parsing. These are not inferred by the current bounded readers.
+
+# Planned path to 1.0-RC
+
+Order decided 2026-10-18. Versions state intent, not dates.
+
+## 0.10.x - Validation cycle
+
+- Human label review and a second reviewer / adjudication for the calibration labels (external: gate 14 stays MANUAL until done by a person).
+- Enlarge the incident and benign corpus, including incidents that are visible in registry history (the 2026-10-16 holdout had one incident case that was not).
+- Graph query invariants: every query equals a direct computation from report state.
+- Trust-root source invariants: a root or key from the analyzed repository, a dependency archive, a release asset, an SBOM or registry metadata never becomes trusted.
+
+## 0.11 - Dependency introduction intelligence
+
+- Direct and transitive introduction graph (who introduced which dependency, in which revision).
+- Package age and release age facts.
+- Parent dependency provenance.
+- Behavioral delta and dependency trust-boundary delta between versions.
+- Redesigned takeover correlation (narrower than `dependency-takeover-indicators`, which fired on 5/17 benign controls and 0/10 incidents in development and validation).
+
+## 0.12 - Recalibration
+
+- Re-run development and validation, then a fresh incident holdout, then freeze the methodology. The 2026-10-16 holdout result is spent and may not be reused for tuning.
+
+## 1.0-RC
+
+- Gates green except explicitly external or legal items that have been resolved by people.
+- Licensing review, public claims review.
+- No new major subsystem.

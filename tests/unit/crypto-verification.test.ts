@@ -1,7 +1,8 @@
 import { createHash, generateKeyPairSync, randomBytes, sign } from 'node:crypto';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { gzipSync } from 'node:zlib';
 import * as pgp from 'openpgp';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { analyzeRepository } from '../../src/analyze.js';
@@ -17,6 +18,7 @@ import {
 import { verifyGpgDetached } from '../../src/trust/gpg.js';
 import { verifyMinisign } from '../../src/trust/minisign.js';
 import { SIGSTORE_LIMITS, verifyBundle, type BundleVerifier } from '../../src/trust/sigstore.js';
+import { inspectArtifact } from '../../src/registry/artifacts/inspect.js';
 import type { Report } from '../../src/report/schema.js';
 import { fakeFetch, fixedClock, type FakeSpec } from '../helpers/fake-github.js';
 import { goodRepo } from '../helpers/scenarios.js';
@@ -589,6 +591,47 @@ const sigOf = (r: Report, subject: string) =>
   r.release_intel.releases[0]?.signatures.find((s) => s.subject === subject);
 
 describe('release signatures through the pipeline', () => {
+  it('dependency archives, SBOM contents, and registry metadata cannot become trust roots', async () => {
+    const fixture = readFileSync(
+      join(process.cwd(), 'tests/fixtures/artifacts/npm-colors-1.4.0.tgz'),
+    );
+    const inspected = inspectArtifact(fixture);
+    expect(inspected.state).not.toBe('verified');
+    expect(inspected.entries.some((e) => /key|trust|root/i.test(e.path))).toBe(false);
+    expect(JSON.stringify(inspected)).not.toMatch(/trust_root|verified_by/);
+
+    const synthetic = new Uint8Array(1024);
+    const header = new TextEncoder().encode('keys/release.asc');
+    synthetic.set(header, 0);
+    synthetic[100] = 0;
+    synthetic[156] = 0x30;
+    synthetic.set(new TextEncoder().encode('00000000000\0'), 124);
+    synthetic.set(new TextEncoder().encode('ustar\0'), 257);
+    synthetic.set(new Uint8Array(512), 512);
+    const embedded = inspectArtifact(gzipSync(synthetic));
+    expect(embedded.state).not.toBe('verified');
+    expect(embedded.entries.some((e) => e.path === 'keys/release.asc')).toBe(true);
+    expect(JSON.stringify(embedded)).not.toMatch(/trust_root|verified_by/);
+
+    const s = releaseSpec({
+      assets: { 'app.tar.gz': 'artifact', 'app.tar.gz.asc': 'not-a-signature' },
+      files: {
+        'sbom.json': JSON.stringify({
+          components: [{ name: 'fake-root', publicKey: 'not trusted' }],
+        }),
+      },
+    });
+    const report = await run(s);
+    expect(report.analysis_manifest.trust_roots).toEqual([]);
+    expect(sigOf(report, 'app.tar.gz')?.state).not.toBe('verified');
+    expect(report.release_intel.releases[0]?.correspondence).not.toBe('verified_source_binding');
+    expect(
+      report.dependency_intel.sboms.every(
+        (x) => JSON.stringify(x).includes('trust_root') === false,
+      ),
+    ).toBe(true);
+  });
+
   it('an OpenPGP signature asset verifies against the user-supplied key and is reported as local crypto', async () => {
     const artifact = 'binary-content-of-app';
     const sig = await gpgSign(A, Buffer.from(artifact));

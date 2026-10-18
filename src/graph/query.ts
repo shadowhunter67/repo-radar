@@ -201,8 +201,9 @@ export function versionsWithoutVerifiedProvenance(idx: GraphIndex): VersionRow[]
       .incoming(v.id, 'RELEASES')
       .map((e) => idx.nodes.get(e.from))
       .find((n) => n?.kind === 'Package');
+    if (!pkg) continue;
     rows.push({
-      package: pkg?.name ?? '',
+      package: pkg.name,
       version: v.name,
       provenance_reported: v.attrs['has_provenance'] === true,
       evidence: idx
@@ -222,7 +223,7 @@ export function dependenciesWithPublisherChange(idx: GraphIndex): string[] {
     .filter((d) =>
       idx
         .outgoing(d.id, 'CORRESPONDS_TO')
-        .some((e) => e.evidence_ids.some((x) => x.includes('publisher_changed'))),
+        .some((e) => idx.nodes.get(e.to)?.attrs['publisher_changed'] === true),
     )
     .map((d) => d.name)
     .sort();
