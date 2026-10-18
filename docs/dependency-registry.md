@@ -98,6 +98,12 @@ Timeout, 429, 5xx, malformed JSON, a wrong content type, an oversized body (`too
 
 Facts `registry.deps.*` follow one rule: the PRESENCE of an event is evidence at any coverage, its ABSENCE (`false`) only when every eligible dependency was queried and answered ([facts.md](facts.md)). Findings (`RR-DEPREG-*`, category `registry`) are signals with severity `info`/`low`/`medium`, never vulnerabilities, each saying that intent is undetermined; an event after the resolved version is lowered to `low`. Policy keys `dependency_publisher_stability`, `dependency_registry_match`, `dependency_provenance_reported`, `no_dependency_takeover_indicators` ([policy.md](policy.md)) are NOT enabled in any shipped profile.
 
+## Dependency introductions (0.11)
+
+`dependency_introductions` is a bounded, descriptive projection of already parsed lockfile and registry data. Each entry records direct/transitive state, a shortest bounded npm parent chain, registry-derived publish ages, and an explicit `introduction` state. A revision is never guessed: without a fetched history diff that proves first appearance, `introduced_in_revision` is `null` and the corresponding fact is withheld. Registry ages are current-state/retrieved-snapshot observations and future-dated timestamps are rejected. Parent provenance is not inherited by children.
+
+Coverage reports `considered`, `with_known_introduction`, `unknown`, and capped chains. The optional policy keys `no_young_dependencies` (30-day threshold) and `dependency_introductions_known` are not enabled in shipped profiles; unknown remains unknown unless a caller explicitly requests strict handling.
+
 ## Trust graph
 
 Dependency packages become `Package`, `PackageVersion`, `Publisher`, `Maintainer`, `Registry` and `Repository` (source, not analyzed) nodes with `CORRESPONDS_TO`, `PUBLISHED_IN`, `RELEASES`, `PUBLISHED_BY`, `MAINTAINED_BY` and `SOURCED_FROM` edges, each backed by `depregistry:` evidence ids. Queries: `repo-radar graph report.json --query published-by:<account>` ([snapshots.md](snapshots.md)).

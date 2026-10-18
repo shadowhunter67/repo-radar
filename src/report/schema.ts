@@ -18,6 +18,28 @@ import { DIMENSIONS } from '../scoring/types.js';
 import { DependencyArtifactsSchema } from '../registry/artifacts/model.js';
 import { NameIntelligenceSchema } from '../registry/name-model.js';
 import { BuildSourcesSchema } from '../collectors/build-systems/model.js';
+import { YOUNG_PACKAGE_DAYS } from '../deps/introductions.js';
+
+const DependencyIntroductionSchema = z.object({
+  dependency_id: z.string(),
+  ecosystem: z.string(),
+  package: z.string(),
+  resolved_version: z.string().nullable(),
+  direct: z.union([z.boolean(), z.literal('unknown')]),
+  parent_chain: z.array(z.string()).max(8),
+  parent_chain_capped: z.boolean(),
+  introduction: z.enum(['known', 'unknown']),
+  introduced_in_revision: z.string().nullable(),
+  introduced_with_count: z.number().int().nullable(),
+  parent_provenance: z.enum(['verified', 'reported', 'none', 'unknown']),
+  package_first_published_at: z.string().nullable(),
+  resolved_version_published_at: z.string().nullable(),
+  introduced_before_first_publish_days: z.number().nullable(),
+  versions_published_after_introduction: z.number().int().nullable(),
+  young_package_present: z.boolean().nullable(),
+  release_age_days_min: z.number().int().nullable(),
+  evidence_ids: z.array(z.string()),
+});
 
 export const REPORT_SCHEMA_VERSION = '0.10';
 
@@ -203,6 +225,18 @@ export const ReportSchema = z.object({
   /** Coverage by evidence class instead of one generic percentage. */
   coverage_map: CoverageMapSchema,
   dependency_intel: DependencyIntelSchema,
+  dependency_introductions: z.object({
+    version: z.literal('1'),
+    coverage: z.object({
+      considered: z.number().int(),
+      with_known_introduction: z.number().int(),
+      unknown: z.number().int(),
+      capped: z.number().int(),
+    }),
+    entries: z.array(DependencyIntroductionSchema).max(300),
+    limits_hit: z.array(z.string()),
+    young_package_threshold_days: z.literal(YOUNG_PACKAGE_DAYS).optional(),
+  }),
   /** Regulatory readiness packs and the technical indicators they read. Never a legal determination. */
   regulatory: RegulatorySchema,
   /** Tamper evidence: sha256 of the canonical JSON of this report without this field. Not a signature. */

@@ -296,6 +296,28 @@
               "const": "strict"
             }
           ]
+        },
+        "no_young_dependencies": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
+        },
+        "dependency_introductions_known": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "strict"
+            }
+          ]
         }
       },
       "additionalProperties": false

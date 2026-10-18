@@ -93,6 +93,7 @@ import { HttpClient, HttpError, RateLimitError, type FetchLike } from './util/ht
 import { packageRoot } from './util/paths.js';
 import { parseGitRef, parseRepoRef } from './util/repo-ref.js';
 import { redactSecrets } from './util/text.js';
+import { buildDependencyIntroductions, deriveIntroductionFacts } from './deps/introductions.js';
 
 export interface AnalyzeOptions {
   profile?: string;
@@ -233,7 +234,6 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     osvEnabled: opts.osv !== false,
     depsDevEnabled: opts.depsDev !== false,
   });
-
   const depRegistryDiag: Diagnostic[] = [];
   // Dependencies involved in a medium or high dependency finding are looked up first (see src/registry/dependency-priority.ts).
   const priorityHints: PriorityHints = new Map();
@@ -268,6 +268,12 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
           note: (code, message) =>
             depRegistryDiag.push({ source: 'registry', level: 'warn', code, message }),
         });
+  const dependencyIntroductions = buildDependencyIntroductions(
+    depsStatic.deps,
+    depsStatic.locks,
+    depRegistry,
+    clock.now().toISOString(),
+  );
   const dependencyArtifacts = opts.inspectDependencyArtifacts
     ? await inspectDownloadedArtifacts({
         http: registryHttp,
@@ -443,6 +449,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...deriveReleaseFacts(github.releaseIntel, governance),
     ...deriveRegistryFacts(registryIntel),
     ...deriveDependencyRegistryFacts(depRegistry, timeline.correlations),
+    ...deriveIntroductionFacts(dependencyIntroductions),
     ...deriveNameFacts(nameIntelligence),
     ...deriveBuildFacts(buildSources),
     ...(dependencyArtifacts.status === 'analyzed' &&
@@ -733,6 +740,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     code_analysis: code,
     findings,
     dependency_intel: intel,
+    dependency_introductions: { ...dependencyIntroductions, young_package_threshold_days: 30 },
     regulatory,
   };
   return { ...report, integrity: { report_sha256: sha256(JSON.stringify(report)) } };

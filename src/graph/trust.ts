@@ -59,6 +59,8 @@ export const GRAPH_EDGE_TYPES = [
   'FETCHES_FROM',
   'SIMILAR_TO_PACKAGE',
   'DECLARED_BY',
+  'INTRODUCED_BY',
+  'TRANSITIVE_VIA',
 ] as const;
 export const TEMPORAL_SCOPES = [
   'revision',
@@ -544,6 +546,41 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
         'current_state',
         'dependency_registry',
         p.observed_at,
+      );
+    }
+  }
+
+  // ---- dependency introduction facts ---------------------------------------------------------------------------
+  for (const intro of report.dependency_introductions.entries.slice(0, GRAPH_LIMITS.dependencies)) {
+    const depId = node(`dep:${intro.ecosystem}:${intro.package}`, 'Dependency', intro.package, {
+      ecosystem: intro.ecosystem,
+      version: intro.resolved_version,
+      introduction: intro.introduction,
+      young_package_present: intro.young_package_present,
+      parent_provenance: intro.parent_provenance,
+    });
+    if (intro.introduction === 'known' && intro.introduced_in_revision) {
+      const rev = node(
+        `commit:${intro.introduced_in_revision}`,
+        'Commit',
+        intro.introduced_in_revision,
+        {},
+      );
+      edge(depId, rev, 'INTRODUCED_BY', intro.evidence_ids, 0.9, 'revision', 'dependency_intel');
+    }
+    for (const parent of intro.parent_chain) {
+      const parentId = node(`dep:${intro.ecosystem}:${parent}`, 'Dependency', parent, {
+        ecosystem: intro.ecosystem,
+        introduction: 'unknown',
+      });
+      edge(
+        depId,
+        parentId,
+        'TRANSITIVE_VIA',
+        intro.evidence_ids,
+        0.8,
+        'revision',
+        'dependency_intel',
       );
     }
   }

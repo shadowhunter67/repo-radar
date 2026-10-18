@@ -7632,6 +7632,218 @@
       ],
       "additionalProperties": false
     },
+    "dependency_introductions": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "1"
+        },
+        "coverage": {
+          "type": "object",
+          "properties": {
+            "considered": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "with_known_introduction": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "unknown": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "capped": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "considered",
+            "with_known_introduction",
+            "unknown",
+            "capped"
+          ],
+          "additionalProperties": false
+        },
+        "entries": {
+          "maxItems": 300,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dependency_id": {
+                "type": "string"
+              },
+              "ecosystem": {
+                "type": "string"
+              },
+              "package": {
+                "type": "string"
+              },
+              "resolved_version": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "direct": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "string",
+                    "const": "unknown"
+                  }
+                ]
+              },
+              "parent_chain": {
+                "maxItems": 8,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "parent_chain_capped": {
+                "type": "boolean"
+              },
+              "introduction": {
+                "type": "string",
+                "enum": [
+                  "known",
+                  "unknown"
+                ]
+              },
+              "introduced_in_revision": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "introduced_with_count": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "parent_provenance": {
+                "type": "string",
+                "enum": [
+                  "verified",
+                  "reported",
+                  "none",
+                  "unknown"
+                ]
+              },
+              "package_first_published_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "resolved_version_published_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "introduced_before_first_publish_days": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "versions_published_after_introduction": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "young_package_present": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "release_age_days_min": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "dependency_id",
+              "ecosystem",
+              "package",
+              "resolved_version",
+              "direct",
+              "parent_chain",
+              "parent_chain_capped",
+              "introduction",
+              "introduced_in_revision",
+              "introduced_with_count",
+              "parent_provenance",
+              "package_first_published_at",
+              "resolved_version_published_at",
+              "introduced_before_first_publish_days",
+              "versions_published_after_introduction",
+              "young_package_present",
+              "release_age_days_min",
+              "evidence_ids"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "limits_hit": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "young_package_threshold_days": {
+          "type": "number",
+          "const": 30
+        }
+      },
+      "required": [
+        "version",
+        "coverage",
+        "entries",
+        "limits_hit"
+      ],
+      "additionalProperties": false
+    },
     "regulatory": {
       "type": "object",
       "properties": {
@@ -7940,6 +8152,7 @@
     "governance",
     "coverage_map",
     "dependency_intel",
+    "dependency_introductions",
     "regulatory",
     "integrity"
   ],

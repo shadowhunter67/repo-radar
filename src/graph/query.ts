@@ -229,6 +229,46 @@ export function dependenciesWithPublisherChange(idx: GraphIndex): string[] {
     .sort();
 }
 
+export interface IntroductionRow {
+  dependency: string;
+  revision: string | null;
+  evidence: string[];
+}
+
+export function dependenciesIntroducedInRevision(
+  idx: GraphIndex,
+  revision: string,
+): IntroductionRow[] {
+  const rows: IntroductionRow[] = [];
+  for (const e of idx.graph.edges) {
+    if (e.type !== 'INTRODUCED_BY' || e.to !== `commit:${revision}`) continue;
+    const n = idx.nodes.get(e.from);
+    if (n?.kind === 'Dependency')
+      rows.push({ dependency: n.name, revision, evidence: e.evidence_ids });
+  }
+  return rows.sort((a, b) => cmp(a.dependency, b.dependency));
+}
+
+export function youngDependencies(idx: GraphIndex): string[] {
+  return idx
+    .ofKind('Dependency')
+    .filter((d) => d.attrs['young_package_present'] === true)
+    .map((d) => d.name)
+    .sort();
+}
+
+export function transitiveChainsWithoutProvenance(idx: GraphIndex): string[] {
+  return idx
+    .ofKind('Dependency')
+    .filter(
+      (d) =>
+        idx.outgoing(d.id, 'TRANSITIVE_VIA').length > 0 &&
+        d.attrs['parent_provenance'] !== 'verified',
+    )
+    .map((d) => d.name)
+    .sort();
+}
+
 export function dependenciesWithNewInstallDomain(idx: GraphIndex): string[] {
   return idx
     .ofKind('DependencyArtifact')

@@ -192,6 +192,8 @@ export const ProfileSchema = z.object({
       no_dependency_name_confusion: RequireValue.optional(),
       no_dependency_install_domains: RequireValue.optional(),
       dependency_artifacts_inspected: RequireValue.optional(),
+      no_young_dependencies: RequireValue.optional(),
+      dependency_introductions_known: RequireValue.optional(),
     })
     .strict()
     .default({}),

@@ -107,7 +107,9 @@ export function effectiveBlocks(profile: Pick<Profile, 'block' | 'require'>): Bl
       | 'no_dependency_takeover_indicators'
       | 'no_dependency_name_confusion'
       | 'no_dependency_install_domains'
-      | 'dependency_artifacts_inspected',
+      | 'dependency_artifacts_inspected'
+      | 'no_young_dependencies'
+      | 'dependency_introductions_known',
     description: string,
     when: Block['when'],
   ): void => {
@@ -220,6 +222,16 @@ export function effectiveBlocks(profile: Pick<Profile, 'block' | 'require'>): Bl
   );
   mk('dependency_artifacts_inspected', 'All eligible dependency artifacts were inspected', {
     fact: { id: 'registry.deps.artifacts_inspected', equals: false },
+  });
+  mk(
+    'no_young_dependencies',
+    'A dependency release is younger than the configured observation threshold',
+    {
+      fact: { id: 'registry.deps.young_package_present', equals: true },
+    },
+  );
+  mk('dependency_introductions_known', 'Dependency introduction revisions are known', {
+    fact: { id: 'deps.introduced_in_revision', equals: false },
   });
   return out;
 }
