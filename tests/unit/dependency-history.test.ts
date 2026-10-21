@@ -163,7 +163,7 @@ describe('dependency history collection', () => {
       budget: { maxCommits: 8 },
     });
     expect(result.entries[0]!.introduction).toBe('known');
-    expect(calls.filter((x) => x.includes('/contents/')).length).toBeLessThan(8);
+    expect(calls.filter((x) => x.includes('/contents/')).length).toBe(8);
     expect(result.entries[0]!.author).toBe('a');
     expect(result.entries[0]!.committer).toBe('c');
     expect(result.entries[0]!.evidence_ids.join(' ')).not.toContain('responsible');

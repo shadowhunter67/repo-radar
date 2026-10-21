@@ -17,3 +17,4 @@ tests/fixtures/pairs
 tests/unit/dependency-history.test.ts
 tests/unit/dependency-artifacts.test.ts
 tests/unit/incident-v3.test.ts
+tests/unit/history-validation.test.ts

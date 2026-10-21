@@ -23,3 +23,10 @@ are flagged; first-parent and squash-like granularity remain explicit limitation
 becomes a negative finding.
 Revision reports may include timestamped `dependency_introduced` events. Artifact behavior deltas remain separate and are
 only strong when both same-package artifacts have verified digests; missing, invalid, or skipped artifacts are unavailable.
+## 0.13 history engine
+
+History is scanned per manifest or lockfile path. One bounded commits-page walk is shared by every candidate on that path; each fetched revision is parsed once and the resulting presence sequence is evaluated oldest-to-newest. The engine never assumes monotonic presence: removal, reintroduction, specification/version changes, and lockfile parent changes remain separate timestamped events.
+
+An incomplete window is `history_partial` (or `history_budget_exhausted`) and records its oldest scanned SHA; an introduction found only in that window is `introduced_within_window` and `introduction_commit_uncertain`. Unparseable revisions are unknown, not absent. First-parent semantics are used for merge interpretation; commit author and committer remain separate observations and never imply responsibility.
+
+Manifest parsers are used for package.json workspaces and all supported ecosystem manifests; lockfiles are parsed through `src/deps/lock.ts` so transitive observations retain possible parent chains rather than claiming that the project selected a child. Renames are followed only when a GitHub commit detail explicitly reports `previous_filename`; otherwise a new manifest is marked uncertain. Parsed presence cache keys include repository, commit, path, blob SHA, and `HISTORY_PARSER_VERSION`.

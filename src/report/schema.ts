@@ -56,9 +56,55 @@ const DependencyIntroductionSchema = z.object({
   merge_commit: z.boolean(),
   squash_like: z.boolean(),
   introduction_commit_uncertain: z.boolean(),
+  first_introduced_at: z
+    .object({ commit_sha: z.string(), timestamp: z.string() })
+    .nullable()
+    .optional(),
+  events: z
+    .array(
+      z.object({
+        kind: z.enum([
+          'introduced',
+          'introduced_within_window',
+          'removed',
+          'reintroduced',
+          'spec_changed',
+          'version_changed',
+          'parent_changed',
+        ]),
+        commit_sha: z.string(),
+        timestamp: z.string().nullable(),
+        evidence_ids: z.array(z.string()),
+        spec: z.string().optional(),
+        version: z.string().optional(),
+        parent_chain: z.array(z.string()).optional(),
+        parent_changed_from: z.array(z.string()).optional(),
+      }),
+    )
+    .optional(),
+  current_present: z.union([z.boolean(), z.literal('unknown')]).optional(),
+  window: z
+    .object({
+      complete: z.boolean(),
+      commits_scanned: z.number().int(),
+      oldest_scanned_sha: z.string().nullable(),
+    })
+    .optional(),
+  renames: z
+    .array(
+      z.object({
+        state: z.string(),
+        path: z.string(),
+        previous_filename: z.string().optional(),
+        commit_sha: z.string().optional(),
+      }),
+    )
+    .optional(),
+  possible_parents: z.array(z.string()).optional(),
+  parent_chain_ambiguous: z.boolean().optional(),
 });
 
-export const REPORT_SCHEMA_VERSION = '0.12';
+export const REPORT_SCHEMA_VERSION = '0.13';
 
 const BehaviorDeltaSchema = z.object({
   behavior: z.array(

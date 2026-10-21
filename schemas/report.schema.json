@@ -21,7 +21,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "0.12"
+      "const": "0.13"
     },
     "methodology": {
       "type": "object",
@@ -8070,6 +8070,159 @@
                 "type": "boolean"
               },
               "introduction_commit_uncertain": {
+                "type": "boolean"
+              },
+              "first_introduced_at": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "commit_sha": {
+                        "type": "string"
+                      },
+                      "timestamp": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "commit_sha",
+                      "timestamp"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "introduced",
+                        "introduced_within_window",
+                        "removed",
+                        "reintroduced",
+                        "spec_changed",
+                        "version_changed",
+                        "parent_changed"
+                      ]
+                    },
+                    "commit_sha": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "evidence_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "spec": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "parent_chain": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "parent_changed_from": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "commit_sha",
+                    "timestamp",
+                    "evidence_ids"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "current_present": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "string",
+                    "const": "unknown"
+                  }
+                ]
+              },
+              "window": {
+                "type": "object",
+                "properties": {
+                  "complete": {
+                    "type": "boolean"
+                  },
+                  "commits_scanned": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "oldest_scanned_sha": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "complete",
+                  "commits_scanned",
+                  "oldest_scanned_sha"
+                ],
+                "additionalProperties": false
+              },
+              "renames": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "state": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": "string"
+                    },
+                    "previous_filename": {
+                      "type": "string"
+                    },
+                    "commit_sha": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "state",
+                    "path"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "possible_parents": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "parent_chain_ambiguous": {
                 "type": "boolean"
               }
             },

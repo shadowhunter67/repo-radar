@@ -12,3 +12,7 @@ The current rule set contains 86 rules in total; methodology remains 0.4.
 ## 0.12.0
 
 Report schema 0.12 adds artifact executable/native/repository metadata and explicit behavioral delta components. Re-run analyses to produce schema 0.12 reports; methodology remains 0.4.
+
+## 0.13.0
+
+Dependency history is now a per-path bounded scan with transition events. Re-run analyses to produce schema 0.13 reports; incomplete history is explicitly partial/unknown. Methodology remains 0.4.

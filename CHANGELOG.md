@@ -7,6 +7,10 @@ methodology are versioned separately (`schema_version`, `methodology.version`) a
 
 Report schema 0.12 adds artifact metadata and bounded behavioral/trust-boundary comparison components. Methodology remains 0.4; shipped profiles and scoring weights remain unchanged.
 
+## [0.13.0] - unreleased
+
+Report schema 0.13 adds bounded dependency-history transition events, per-path coverage, and explicit uncertainty for incomplete history. Methodology remains 0.4; shipped profiles and scoring weights remain unchanged.
+
 ## [0.7.0] - unreleased
 
 ## [0.11.0] - unreleased
