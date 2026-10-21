@@ -1,0 +1,16 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v3",
+  "case_id": "npm-core-js-3.49.0-4.0.0-alpha.1",
+  "package": "core-js",
+  "ecosystem": "npm",
+  "version_before": "3.49.0",
+  "version_after": "4.0.0-alpha.1",
+  "artifact_before": "tests/fixtures/pairs/core-js-3.49.0.tgz",
+  "artifact_after": "tests/fixtures/pairs/core-js-4.0.0-alpha.1.tgz",
+  "blind": "This packet contains no analyzer output, label, conclusion, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

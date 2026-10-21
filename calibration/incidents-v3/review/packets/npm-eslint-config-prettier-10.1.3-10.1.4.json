@@ -1,0 +1,16 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v3",
+  "case_id": "npm-eslint-config-prettier-10.1.3-10.1.4",
+  "package": "eslint-config-prettier",
+  "ecosystem": "npm",
+  "version_before": "10.1.3",
+  "version_after": "10.1.4",
+  "artifact_before": "tests/fixtures/pairs/eslint-config-prettier-10.1.3.tgz",
+  "artifact_after": "tests/fixtures/pairs/eslint-config-prettier-10.1.4.tgz",
+  "blind": "This packet contains no analyzer output, label, conclusion, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

@@ -1,0 +1,16 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v3",
+  "case_id": "npm-faker-5.5.3-6.6.6",
+  "package": "faker",
+  "ecosystem": "npm",
+  "version_before": "5.5.3",
+  "version_after": "6.6.6",
+  "artifact_before": "tests/fixtures/pairs/faker-5.5.3.tgz",
+  "artifact_after": "tests/fixtures/pairs/faker-6.6.6.tgz",
+  "blind": "This packet contains no analyzer output, label, conclusion, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

@@ -1,0 +1,16 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v3",
+  "case_id": "npm-underscore-1.13.4-1.13.5",
+  "package": "underscore",
+  "ecosystem": "npm",
+  "version_before": "1.13.4",
+  "version_after": "1.13.5",
+  "artifact_before": "tests/fixtures/pairs/underscore-1.13.4.tgz",
+  "artifact_after": "tests/fixtures/pairs/underscore-1.13.5.tgz",
+  "blind": "This packet contains no analyzer output, label, conclusion, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

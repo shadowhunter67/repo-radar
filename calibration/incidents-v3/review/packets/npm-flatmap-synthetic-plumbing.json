@@ -1,0 +1,16 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v3",
+  "case_id": "npm-flatmap-synthetic-plumbing",
+  "package": "flatmap-stream",
+  "ecosystem": "npm",
+  "version_before": "0.0.0",
+  "version_after": "0.1.0-synthetic",
+  "artifact_before": null,
+  "artifact_after": null,
+  "blind": "This packet contains no analyzer output, label, conclusion, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

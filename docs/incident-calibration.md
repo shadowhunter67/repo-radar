@@ -102,3 +102,14 @@ Result: no temporal pattern fired on any of the 8 cases. Benign false positives 
 
 Future work (not done here): add incidents with pinned artifact pairs so behavioral patterns can decide; labels remain single-reviewer, AI-assisted; Gate 14 stays MANUAL.
 M3/M4 incident model version is 0.12.0 for future non-holdout evaluations; spent v1/v2 result files are immutable and were not rerun.
+## Corpus v3 freeze (2026-10-21)
+
+Corpus v3 freezes the case schema, package-to-split assignment, labels, artifact-pair paths and integrity strings,
+inspector/delta code, pattern data, and threshold definitions. Freeze commit placeholder: `<reviewer fills this after
+manual Gate 14 review>`. The fresh holdout has two packages (`@ctrl/tinycolor`, `faker`) and was not evaluated.
+
+The non-final development/validation run covered 9 cases total: 6 development, 1 validation, and 2 holdout-assigned;
+5 known-benign, 1 ambiguous, 1 known-incident, and 2 insufficient-evidence. Six non-holdout cases were considered,
+five had verified artifact pairs, and five produced behavior-delta coverage. History-introduction coverage was 0 because
+these are artifact-pair cases without repository lineages. Synthetic plumbing cases are excluded from accuracy metrics.
+No holdout result was generated. These labels remain AI-assisted and unreviewed; Gate 14 is MANUAL.

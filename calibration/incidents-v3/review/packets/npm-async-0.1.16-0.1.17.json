@@ -1,0 +1,16 @@
+{
+  "packet_version": 1,
+  "corpus": "incident-calibration-v3",
+  "case_id": "npm-async-0.1.16-0.1.17",
+  "package": "async",
+  "ecosystem": "npm",
+  "version_before": "0.1.16",
+  "version_after": "0.1.17",
+  "artifact_before": "tests/fixtures/pairs/async-0.1.16.tgz",
+  "artifact_after": "tests/fixtures/pairs/async-0.1.17.tgz",
+  "blind": "This packet contains no analyzer output, label, conclusion, or claimed independent validation.",
+  "reviewer": "",
+  "label": "",
+  "conclusion": "",
+  "notes": ""
+}

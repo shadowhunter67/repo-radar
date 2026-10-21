@@ -11,6 +11,9 @@ calibration/pins.json
 calibration/incidents/raw
 tests/fixtures/attestations
 calibration/incidents/results
+calibration/incidents/review
+calibration/incidents-v3
 tests/fixtures/pairs
 tests/unit/dependency-history.test.ts
 tests/unit/dependency-artifacts.test.ts
+tests/unit/incident-v3.test.ts
