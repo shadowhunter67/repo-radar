@@ -21,7 +21,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "0.13"
+      "const": "0.14"
     },
     "methodology": {
       "type": "object",
@@ -8105,6 +8105,7 @@
                       "enum": [
                         "introduced",
                         "introduced_within_window",
+                        "introduced_again_other_line",
                         "removed",
                         "reintroduced",
                         "spec_changed",
@@ -8223,6 +8224,9 @@
                 }
               },
               "parent_chain_ambiguous": {
+                "type": "boolean"
+              },
+              "introduced_with_manifest_creation": {
                 "type": "boolean"
               }
             },

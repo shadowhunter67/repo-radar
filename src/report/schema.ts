@@ -66,6 +66,7 @@ const DependencyIntroductionSchema = z.object({
         kind: z.enum([
           'introduced',
           'introduced_within_window',
+          'introduced_again_other_line',
           'removed',
           'reintroduced',
           'spec_changed',
@@ -102,9 +103,10 @@ const DependencyIntroductionSchema = z.object({
     .optional(),
   possible_parents: z.array(z.string()).optional(),
   parent_chain_ambiguous: z.boolean().optional(),
+  introduced_with_manifest_creation: z.boolean().optional(),
 });
 
-export const REPORT_SCHEMA_VERSION = '0.13';
+export const REPORT_SCHEMA_VERSION = '0.14';
 
 const BehaviorDeltaSchema = z.object({
   behavior: z.array(

@@ -15,7 +15,7 @@ export function classifyHistory(
 ): Record<string, HistoryClassification> {
   const out: Record<string, HistoryClassification> = {};
   if (input.truth.ambiguous) out.introduction_commit = 'unknown_ground_truth';
-  else if (!input.observed.commit_sha) out.introduction_commit = 'incorrect';
+  else if (!input.observed.commit_sha) out.introduction_commit = 'unknown_ground_truth';
   else
     out.introduction_commit =
       input.observed.commit_sha === input.truth.commit

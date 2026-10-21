@@ -11,6 +11,10 @@ Report schema 0.12 adds artifact metadata and bounded behavioral/trust-boundary 
 
 Report schema 0.13 adds bounded dependency-history transition events, per-path coverage, and explicit uncertainty for incomplete history. Methodology remains 0.4; shipped profiles and scoring weights remain unchanged.
 
+## [0.14.0] - unreleased
+
+Report schema 0.14 adds parent-diff dependency-history events, explicit branch-line duplicates, and manifest-creation uncertainty. Methodology remains 0.4; shipped profiles and scoring weights remain unchanged.
+
 ## [0.7.0] - unreleased
 
 ## [0.11.0] - unreleased

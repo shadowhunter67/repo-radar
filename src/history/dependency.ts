@@ -28,6 +28,7 @@ export type DependencyHistoryStatus =
 export type HistoryEventKind =
   | 'introduced'
   | 'introduced_within_window'
+  | 'introduced_again_other_line'
   | 'removed'
   | 'reintroduced'
   | 'spec_changed'
@@ -67,6 +68,7 @@ export interface DependencyHistoryResult {
   squash_like_confidence?: 'likely';
   history_granularity_limited?: boolean;
   introduction_commit_uncertain: boolean;
+  introduced_with_manifest_creation?: boolean;
   events: DependencyHistoryEvent[];
   current_present?: boolean | 'unknown';
   window?: { complete: boolean; commits_scanned: number; oldest_scanned_sha: string | null };
@@ -94,6 +96,7 @@ export interface DependencyHistoryCollection {
     bytes: number;
     elapsed_ms: number;
     budget_exhausted: boolean;
+    parent_blob_fetches: number;
   };
 }
 interface CommitRow {
@@ -173,7 +176,8 @@ export async function traceManifestHistory(input: {
     bytes = 0,
     pages = 0,
     scanned = 0,
-    changed = 0;
+    changed = 0,
+    parentBlobFetches = 0;
   let exhausted = false;
   const base = `https://api.github.com/repos/${encodeURIComponent(input.owner)}/${encodeURIComponent(input.repo)}`;
   const request = async <T>(p: string, max = 1000000): Promise<T | undefined> => {
@@ -231,6 +235,7 @@ export async function traceManifestHistory(input: {
         bytes,
         elapsed_ms: Date.now() - started,
         budget_exhausted: false,
+        parent_blob_fetches: 0,
       },
     };
   const commits: CommitRow[] = [];
@@ -245,7 +250,36 @@ export async function traceManifestHistory(input: {
     if (x.length < ps) break;
   }
   const ordered = [...commits].reverse();
+  let oldestAddedWithoutRename = false;
+  let oldestRename: RenameObservation | undefined;
+  let oldestPreviousText: string | undefined;
+  const oldest = ordered[0];
+  if (oldest?.sha) {
+    const detail = await request<{ files?: { status?: string; previous_filename?: string }[] }>(
+      `/commits/${encodeURIComponent(oldest.sha)}`,
+    );
+    const file = detail?.files?.find((f) => f.previous_filename || f.status === 'added');
+    if (file?.status === 'renamed' && file.previous_filename)
+      oldestRename = {
+        state: 'confirmed_rename',
+        path: input.path,
+        previous_filename: file.previous_filename,
+        commit_sha: oldest.sha,
+      };
+    if (oldestRename && oldest.parents?.[0]?.sha) {
+      const previousBody = await request<{ content?: string; encoding?: string }>(
+        `/contents/${oldestRename.previous_filename!.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(oldest.parents[0].sha)}`,
+        Math.min(512 * 1024, b.maxBytes),
+      );
+      if (previousBody?.content && previousBody.encoding === 'base64')
+        oldestPreviousText = Buffer.from(
+          previousBody.content.replace(/\s/g, ''),
+          'base64',
+        ).toString('utf8');
+    } else if (file?.status === 'added') oldestAddedWithoutRename = true;
+  }
   const states = new Map<string, State>();
+  const parentStates = new Map<string, State>();
   for (const c of ordered) {
     if (!c.sha || scanned >= b.maxCommits || changed >= b.maxChangedFiles) {
       exhausted = true;
@@ -286,6 +320,66 @@ export async function traceManifestHistory(input: {
         ) ?? stateFor(input.path, raw, n);
       states.set(`${c.sha}\0${n.toLowerCase()}`, s);
     }
+    const parent = c.parents?.[0]?.sha;
+    if (c.sha === oldest?.sha && oldestPreviousText !== undefined)
+      for (const n of input.names)
+        parentStates.set(
+          `${c.sha}\0${n.toLowerCase()}`,
+          stateFor(input.path, oldestPreviousText, n),
+        );
+    if (oldestPreviousText !== undefined && c.sha === oldest?.sha) {
+      // The parent file was read under the API-reported previous filename above.
+    } else if (parent && !states.has(`${parent}\0${input.names[0]?.toLowerCase() ?? ''}`)) {
+      const parentBody = await request<{ content?: string; encoding?: string; sha?: string }>(
+        `/contents/${input.path.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(parent)}`,
+        Math.min(512 * 1024, b.maxBytes),
+      );
+      parentBlobFetches++;
+      if (parentBody?.content && parentBody.encoding === 'base64') {
+        const parentRaw = Buffer.from(parentBody.content.replace(/\s/g, ''), 'base64').toString(
+          'utf8',
+        );
+        for (const n of input.names)
+          parentStates.set(`${c.sha}\0${n.toLowerCase()}`, stateFor(input.path, parentRaw, n));
+      } else
+        for (const n of input.names)
+          parentStates.set(`${c.sha}\0${n.toLowerCase()}`, {
+            state: 'unknown',
+            parents: [],
+            evidence: [`history:${input.path}:${parent}`],
+          });
+    } else
+      for (const n of input.names)
+        parentStates.set(
+          `${c.sha}\0${n.toLowerCase()}`,
+          states.get(`${parent ?? ''}\0${n.toLowerCase()}`) ?? {
+            state: 'unknown',
+            parents: [],
+            evidence: [],
+          },
+        );
+    if ((c.parents?.length ?? 0) > 1) {
+      for (const extra of c.parents!.slice(1)) {
+        const extraBody = await request<{ content?: string; encoding?: string }>(
+          `/contents/${input.path.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(extra.sha ?? '')}`,
+          Math.min(512 * 1024, b.maxBytes),
+        );
+        parentBlobFetches++;
+        for (const n of input.names) {
+          const key = `${c.sha}\0${n.toLowerCase()}`;
+          const old = parentStates.get(key);
+          if (extraBody?.content && extraBody.encoding === 'base64') {
+            const extraState = stateFor(
+              input.path,
+              Buffer.from(extraBody.content.replace(/\s/g, ''), 'base64').toString('utf8'),
+              n,
+            );
+            if (extraState.state === 'present') parentStates.set(key, extraState);
+            else if (!old) parentStates.set(key, extraState);
+          } else if (!old) parentStates.set(key, { state: 'unknown', parents: [], evidence: [] });
+        }
+      }
+    }
   }
   const entries: DependencyHistoryResult[] = input.names.map((n) => ({
     dependency_id: n,
@@ -315,42 +409,67 @@ export async function traceManifestHistory(input: {
       oldest_scanned_sha: ordered[0]?.sha ?? null,
     },
     renames: [],
+    introduced_with_manifest_creation: oldestAddedWithoutRename,
   }));
+  for (const e of entries) if (oldestRename) e.renames = [oldestRename];
   for (const e of entries) {
-    let prev: State = { state: 'absent', parents: [], evidence: [] };
     let first: DependencyHistoryEvent | undefined;
-    for (const c of ordered) {
+    let removed = false;
+    const transitions: Array<{
+      c: CommitRow;
+      current: State;
+      parent: State;
+      kind: HistoryEventKind;
+    }> = [];
+    for (const c of ordered.sort(
+      (a, b) =>
+        (date(a) ?? '').localeCompare(date(b) ?? '') || (a.sha ?? '').localeCompare(b.sha ?? ''),
+    )) {
       if (!c.sha) continue;
       const s = states.get(`${c.sha}\0${e.dependency_id.toLowerCase()}`) ?? {
         state: 'unknown',
         parents: [],
         evidence: [],
       };
-      if (s.state === 'unknown') {
-        prev = s;
-        continue;
-      }
+      const parent = parentStates.get(`${c.sha}\0${e.dependency_id.toLowerCase()}`) ?? {
+        state: 'unknown',
+        parents: [],
+        evidence: [],
+      };
+      if (s.state === 'unknown' || parent.state === 'unknown') continue;
       let kind: HistoryEventKind | undefined;
-      if (prev.state !== 'present' && s.state === 'present')
-        kind = first
-          ? 'reintroduced'
-          : e.history_status === 'history_complete'
-            ? 'introduced'
-            : 'introduced_within_window';
-      else if (prev.state === 'present' && s.state === 'absent') kind = 'removed';
-      else if (
-        prev.state === 'present' &&
+      const parentPresent = parent.state === 'present';
+      if (!c.parents || c.parents.length <= 1) {
+        if (!parentPresent && s.state === 'present')
+          kind = first
+            ? removed
+              ? 'reintroduced'
+              : 'introduced_again_other_line'
+            : e.history_status === 'history_complete'
+              ? 'introduced'
+              : 'introduced_within_window';
+        else if (parentPresent && s.state === 'absent') kind = 'removed';
+      } else {
+        const anyParentPresent = parentPresent;
+        if (s.state === 'present' && !anyParentPresent)
+          kind = first ? 'introduced_again_other_line' : 'introduced';
+        else if (s.state === 'absent' && anyParentPresent) kind = 'removed';
+      }
+      if (
+        !kind &&
+        parent.state === 'present' &&
         s.state === 'present' &&
-        (prev.spec !== s.spec ||
-          prev.version !== s.version ||
-          prev.parents.join('\0') !== s.parents.join('\0'))
+        (parent.spec !== s.spec ||
+          parent.version !== s.version ||
+          parent.parents.join('\0') !== s.parents.join('\0'))
       )
         kind =
-          prev.parents.join('\0') !== s.parents.join('\0')
+          parent.parents.join('\0') !== s.parents.join('\0')
             ? 'parent_changed'
-            : prev.version !== s.version
+            : parent.version !== s.version
               ? 'version_changed'
               : 'spec_changed';
+      if (kind) transitions.push({ c, current: s, parent, kind });
       if (kind) {
         const ev: DependencyHistoryEvent = {
           kind,
@@ -360,9 +479,10 @@ export async function traceManifestHistory(input: {
           ...(s.spec ? { spec: s.spec } : {}),
           ...(s.version ? { version: s.version } : {}),
           ...(s.parents.length ? { parent_chain: s.parents } : {}),
-          ...(kind === 'parent_changed' ? { parent_changed_from: prev.parents } : {}),
+          ...(kind === 'parent_changed' ? { parent_changed_from: parent.parents } : {}),
         };
         e.events.push(ev);
+        if (kind === 'removed') removed = true;
         if (!first && kind !== 'removed') {
           first = ev;
           const cc = ordered.find((x) => x.sha === ev.commit_sha);
@@ -370,7 +490,6 @@ export async function traceManifestHistory(input: {
           e.committer = cc?.committer?.login ?? cc?.commit?.committer?.name ?? null;
         }
       }
-      prev = s;
     }
     if (first?.timestamp) {
       e.introduction = 'known';
@@ -379,6 +498,10 @@ export async function traceManifestHistory(input: {
       e.evidence_ids = first.evidence_ids;
       e.confidence = e.history_status === 'history_complete' ? 0.85 : 0.55;
       e.introduction_commit_uncertain = e.history_status !== 'history_complete';
+      if (e.introduced_with_manifest_creation) {
+        e.history_status = 'history_partial';
+        e.introduction_commit_uncertain = true;
+      }
       e.merge_commit = (ordered.find((c) => c.sha === first!.commit_sha)?.parents?.length ?? 0) > 1;
     }
     const last = ordered.at(-1);
@@ -397,6 +520,7 @@ export async function traceManifestHistory(input: {
       bytes,
       elapsed_ms: Date.now() - started,
       budget_exhausted: exhausted,
+      parent_blob_fetches: parentBlobFetches,
     },
   };
 }
@@ -428,6 +552,7 @@ export async function collectDependencyHistory(input: {
     bytes: 0,
     elapsed_ms: 0,
     budget_exhausted: false,
+    parent_blob_fetches: 0,
   };
   for (const [p, ds] of groups) {
     const t = await traceManifestHistory({
@@ -445,6 +570,7 @@ export async function collectDependencyHistory(input: {
       bytes: stats.bytes + t.stats.bytes,
       elapsed_ms: stats.elapsed_ms + t.stats.elapsed_ms,
       budget_exhausted: stats.budget_exhausted || t.stats.budget_exhausted,
+      parent_blob_fetches: stats.parent_blob_fetches + t.stats.parent_blob_fetches,
     };
     for (const e of t.entries) {
       const d = ds.find((x) => x.package.name === e.dependency_id);

@@ -121,7 +121,7 @@ describe('dependency history collection', () => {
     expect(result.coverage.uncertain).toBe(1);
   });
 
-  it('uses paginated history and binary narrowing with bounded content requests', async () => {
+  it('uses paginated history and parent-diff reads with bounded requests', async () => {
     const calls: string[] = [];
     const commits = Array.from({ length: 8 }, (_, i) => ({
       sha: String(i + 1).repeat(40).slice(0, 40),
@@ -163,9 +163,32 @@ describe('dependency history collection', () => {
       budget: { maxCommits: 8 },
     });
     expect(result.entries[0]!.introduction).toBe('known');
-    expect(calls.filter((x) => x.includes('/contents/')).length).toBe(8);
+    expect(calls.filter((x) => x.includes('/contents/')).length).toBe(15);
     expect(result.entries[0]!.author).toBe('a');
     expect(result.entries[0]!.committer).toBe('c');
     expect(result.entries[0]!.evidence_ids.join(' ')).not.toContain('responsible');
+  });
+
+  it('keeps one-line oscillation events without monotonic assumptions', async () => {
+    const sha = (n: number) => n.toString(16).padStart(40, '0');
+    const present = new Set([3, 4, 7]);
+    const commits = Array.from({ length: 7 }, (_, i) => ({
+      sha: sha(i + 1),
+      commit: { author: { name: 'a', date: `2024-02-0${i + 1}T00:00:00Z` }, committer: { name: 'c', date: `2024-02-0${i + 1}T00:00:00Z` } },
+      parents: i ? [{ sha: sha(i) }] : [],
+    })).reverse();
+    const http = new HttpClient({
+      allowedHosts: ['api.github.com'],
+      fetch: async (url) => {
+        const u = new URL(url);
+        if (u.pathname.endsWith('/commits')) return new Response(JSON.stringify(commits), { status: 200 });
+        if (u.pathname.endsWith('/commits/' + sha(7))) return new Response(JSON.stringify({ files: [{ status: 'modified' }] }), { status: 200 });
+        const n = Number.parseInt(u.searchParams.get('ref') ?? '0', 16);
+        return new Response(JSON.stringify({ encoding: 'base64', sha: sha(n), content: Buffer.from(present.has(n) ? '{"dependencies":{"widget":"1"}}' : '{"dependencies":{}}').toString('base64') }), { status: 200 });
+      },
+    });
+    const result = await collectDependencyHistory({ http, owner: 'o', repo: 'r', ref: 'main', dependencies: [dep()], manifests: [], locks: [], budget: { maxCommits: 8, maxRequests: 100 } });
+    expect(result.entries[0]?.events.map((e) => e.kind)).toEqual(['introduced', 'removed', 'reintroduced']);
+    expect(result.entries[0]?.introduced_at?.commit_sha).toBe(sha(3));
   });
 });

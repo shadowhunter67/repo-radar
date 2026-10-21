@@ -16,3 +16,7 @@ Report schema 0.12 adds artifact executable/native/repository metadata and expli
 ## 0.13.0
 
 Dependency history is now a per-path bounded scan with transition events. Re-run analyses to produce schema 0.13 reports; incomplete history is explicitly partial/unknown. Methodology remains 0.4.
+
+## 0.14.0
+
+Dependency history transitions are computed against commit parents; new event kinds include `introduced_again_other_line`, and manifest creation is explicitly uncertain. Re-run analyses to produce schema 0.14 reports; methodology remains 0.4.

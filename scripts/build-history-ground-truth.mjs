@@ -156,61 +156,69 @@ for (const t of TARGETS) {
       cur.previous_path = f[0][0] === 'R' ? f[1] : null;
     }
   }
-  commits.reverse();
-  const states = [];
-  for (const c of commits) {
-    if (c.status === 'D' || !c.path) {
-      states.push({ ...c, names: new Set(), deleted: true });
-      continue;
-    }
-    let text;
+  // canonical definition (docs/dependency-introduction.md): presence transitions are measured by PARENT-DIFF per listed commit
+  // (names at the commit vs names at its first parent), and ordered by (committer date, sha). Side branches are not hidden.
+  const read = (sha, path) => {
     try {
-      text = git(dir, 'show', `${c.sha}:${c.path}`);
+      return names(t.eco, path, git(dir, 'show', `${sha}:${path}`));
     } catch {
-      states.push({ ...c, names: null });
-      continue;
+      return undefined; // file absent at that revision
     }
-    states.push({ ...c, names: names(t.eco, c.path, text) });
-  }
-  const last = states[states.length - 1];
-  const current = [...(last?.names ?? [])];
-  const everSeen = new Set();
+  };
   const transitions = new Map();
-  let prev = new Set();
-  let prevUnknown = false;
-  for (const s of states) {
-    if (s.names === null) {
-      prevUnknown = true;
-      continue;
-    }
-    for (const n of s.names) {
-      everSeen.add(n);
-      if (!prev.has(n)) {
+  const current = (() => {
+    const first = commits[0];
+    const v = first && first.status !== 'D' ? read(first.sha, first.path) : undefined;
+    return [...(v ?? [])];
+  })();
+  const rows2 = [];
+  for (const c of commits) {
+    const after = c.status === 'D' ? new Set() : read(c.sha, c.path);
+    const parent0 = c.parents[0];
+    const beforePath = c.previous_path ?? c.path;
+    const before =
+      !parent0 || c.status === 'A' ? new Set() : (read(parent0, beforePath) ?? new Set());
+    rows2.push({ c, after, before });
+  }
+  rows2.sort((a, b) => a.c.date.localeCompare(b.c.date) || a.c.sha.localeCompare(b.c.sha));
+  for (const { c, after, before } of rows2) {
+    if (after === undefined || after === null) continue; // unparseable at this revision: no transition claimed
+    if (before === null) continue;
+    for (const n of after)
+      if (!before.has(n)) {
         const list = transitions.get(n) ?? [];
         list.push({
-          type: list.length === 0 ? 'introduced' : 'reintroduced',
-          commit: s.sha,
-          date: s.date,
-          path: s.path,
-          author: s.author,
-          committer: s.committer,
-          merge: s.parents.length > 1,
-          path_created: s.status === 'A',
-          renamed_from: s.previous_path,
-          after_unparseable: prevUnknown,
+          type:
+            list.length === 0
+              ? 'introduced'
+              : list[list.length - 1].type === 'removed'
+                ? 'reintroduced'
+                : 'introduced_again_other_line',
+          commit: c.sha,
+          date: c.date,
+          path: c.path,
+          author: c.author,
+          committer: c.committer,
+          merge: c.parents.length > 1,
+          path_created: c.status === 'A',
+          renamed_from: c.previous_path,
         });
         transitions.set(n, list);
       }
-    }
-    for (const n of prev)
-      if (!s.names.has(n)) {
+    for (const n of before)
+      if (!after.has(n)) {
         const list = transitions.get(n) ?? [];
-        list.push({ type: 'removed', commit: s.sha, date: s.date, path: s.path });
+        list.push({
+          type: 'removed',
+          commit: c.sha,
+          date: c.date,
+          path: c.path,
+          merge: c.parents.length > 1,
+        });
         transitions.set(n, list);
       }
-    prev = s.names;
-    prevUnknown = false;
   }
+  const states = commits;
   const renames = states
     .filter((s) => s.status === 'R')
     .map((s) => ({ commit: s.sha, from: s.previous_path, to: s.path }));
@@ -239,7 +247,8 @@ for (const t of TARGETS) {
     manifest_path: t.path,
     commits_touching_path: commits.length,
     renames,
-    history_start_commit: commits[0]?.sha ?? null,
+    commit_order_oldest_first: rows2.map((x) => x.c.sha),
+    history_start_commit: rows2[0]?.c.sha ?? null,
     dependencies: chosen.map((n) => ({
       name: n,
       selection: sampled.includes(n) ? 'hash_sample' : 'non_simple_history',

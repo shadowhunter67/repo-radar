@@ -23,6 +23,14 @@ are flagged; first-parent and squash-like granularity remain explicit limitation
 becomes a negative finding.
 Revision reports may include timestamped `dependency_introduced` events. Artifact behavior deltas remain separate and are
 only strong when both same-package artifacts have verified digests; missing, invalid, or skipped artifacts are unavailable.
+## 0.14 canonical transition definition
+
+Presence is compared per listed commit with its first-parent file content, never with the previous API list entry. Commits are ordered by committer date then SHA. Merge commits are TREESAME-skipped when the result equals any parent; a retained merge transition requires absence in all parents and presence at the merge, or the reverse. A later branch-line introduction without removal is `introduced_again_other_line`.
+
+Newest-only truncation is `history_partial`; a transition whose oldest parent is already present is `introduced_within_window` and uncertain. An added manifest without confirmed rename evidence is `introduced_with_manifest_creation` and uncertain. Renames require commit-detail `previous_filename` evidence.
+
+Independent validation covered 10 pinned repositories and 80 dependencies. The pre-fix result was 51 exact / 26 incorrect / 3 unknown introduction commits and 38 exact / 42 incorrect event sequences; manifest paths were 80/80. These figures are reviewer evidence, not a holdout accuracy claim.
+
 ## 0.13 history engine
 
 History is scanned per manifest or lockfile path. One bounded commits-page walk is shared by every candidate on that path; each fetched revision is parsed once and the resulting presence sequence is evaluated oldest-to-newest. The engine never assumes monotonic presence: removal, reintroduction, specification/version changes, and lockfile parent changes remain separate timestamped events.
