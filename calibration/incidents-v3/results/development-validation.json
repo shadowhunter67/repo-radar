@@ -3,6 +3,7 @@
   "corpus": "incident-calibration-v3",
   "incident_model_version": "0.12.0",
   "holdout": false,
+  "split_scope": "development_and_validation",
   "cases": [
     {
       "id": "npm-underscore-1.13.4-1.13.5",
@@ -51,11 +52,21 @@
       "package": "async",
       "split": "development",
       "label": "known_benign",
-      "artifact_pair": false,
-      "delta": null,
-      "abstentions": [
-        "verified/digest_mismatch"
-      ]
+      "artifact_pair": true,
+      "delta": {
+        "behavior": [],
+        "trust_boundary": [],
+        "not_available": [],
+        "components": {
+          "publisher": "not_available",
+          "repository": "unchanged",
+          "behavior": "unchanged",
+          "provenance": "unchanged",
+          "new_domain": "unchanged",
+          "native_binary": "not_available"
+        }
+      },
+      "abstentions": []
     },
     {
       "id": "npm-eslint-config-prettier-10.1.3-10.1.4",
@@ -161,20 +172,18 @@
       "validation": 1,
       "holdout": 2
     },
-    "artifact_pair_coverage": 5,
+    "artifact_pair_coverage": 6,
     "history_introduction_coverage": 0,
-    "behavior_delta_coverage": 5
+    "behavior_delta_coverage": 6
   },
-  "abstention_reasons": {
-    "verified/digest_mismatch": 1
-  },
+  "abstention_reasons": {},
   "metrics": {
     "total": 6,
-    "decided": 5,
-    "abstentions": 1,
+    "decided": 6,
+    "abstentions": 0,
     "tp": 0,
     "fp": 0,
-    "tn": 5,
+    "tn": 6,
     "fn": 0,
     "precision": null,
     "recall": null,
@@ -182,7 +191,7 @@
     "false_positive_rate": 0,
     "false_negative_rate": null,
     "accuracy": 1,
-    "abstention_rate": 0.16666666666666666,
-    "coverage": 0.8333333333333334
+    "abstention_rate": 0,
+    "coverage": 1
   }
 }

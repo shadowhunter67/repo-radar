@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { inspectArtifact } from '../dist/registry/artifacts/inspect.js';
 import { compareDependencyArtifacts } from '../dist/registry/artifacts/delta.js';
@@ -9,8 +9,11 @@ import process from 'node:process';
 
 const root = resolve('calibration/incidents-v3');
 const args = new Set(process.argv.slice(2));
-if (args.has('--final'))
-  throw new Error('v3 final holdout is reviewer-only; this script refuses --final');
+const FINAL = args.has('--final');
+const finalPath = join(root, 'results', 'final-holdout-v3.json');
+// the final holdout is written once and is never overwritten
+if (FINAL && existsSync(finalPath))
+  throw new Error('final-holdout-v3.json already exists; the v3 holdout runs exactly once');
 const cases = JSON.parse(readFileSync(join(root, 'cases.json'), 'utf8'));
 const split = (ecosystem, pkg) => {
   const n = createHash('sha256').update(`${ecosystem}:${pkg}`).digest()[0] % 10;
@@ -36,7 +39,7 @@ const inspect = (c, side) => {
   return { status: result.state, result };
 };
 const rows = cases
-  .filter((c) => c.split !== 'holdout')
+  .filter((c) => (FINAL ? c.split === 'holdout' : c.split !== 'holdout'))
   .map((c) => {
     const before = inspect(c, 'before');
     const after = inspect(c, 'after');
@@ -89,7 +92,8 @@ const out = {
   version: 3,
   corpus: 'incident-calibration-v3',
   incident_model_version: '0.12.0',
-  holdout: false,
+  holdout: FINAL,
+  split_scope: FINAL ? 'holdout_only' : 'development_and_validation',
   cases: rows,
   coverage: {
     total_cases: cases.length,
