@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { assignIncidentSplit, loadIncidentCases } from '../../src/calibration/incidents.js';
@@ -26,7 +26,12 @@ describe('incident calibration corpus', () => {
         .map((c) => c.package)
         .sort(),
     ).toEqual(['express', 'express', 'faker', 'flatmap-stream']);
-    expect(existsSync(join(root, 'results', 'final-holdout-v2.json'))).toBe(false);
+    // the v2 final holdout was run once (2026-10-21): the file must exist and contain holdout-split cases only
+    const v2 = JSON.parse(readFileSync(join(root, 'results', 'final-holdout-v2.json'), 'utf8')) as {
+      cases: { split: string }[];
+    };
+    expect(v2.cases.length).toBe(8);
+    expect(new Set(v2.cases.map((c) => c.split))).toEqual(new Set(['holdout']));
   });
 
   it('has frozen valid cases and non-template windows', () => {
