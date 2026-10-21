@@ -39,6 +39,23 @@ const DependencyIntroductionSchema = z.object({
   young_package_present: z.boolean().nullable(),
   release_age_days_min: z.number().int().nullable(),
   evidence_ids: z.array(z.string()),
+  relationship: z.enum(['direct', 'transitive', 'unknown']),
+  introduced_at: z.object({ commit_sha: z.string(), timestamp: z.string() }).nullable(),
+  introduced_via: z.enum(['manifest', 'lockfile', 'parent_dependency', 'workspace', 'unknown']),
+  evidence_file: z.string().nullable(),
+  author: z.string().nullable(),
+  committer: z.string().nullable(),
+  confidence: z.number(),
+  history_status: z.enum([
+    'history_complete',
+    'history_partial',
+    'history_budget_exhausted',
+    'history_unavailable',
+    'history_disabled',
+  ]),
+  merge_commit: z.boolean(),
+  squash_like: z.boolean(),
+  introduction_commit_uncertain: z.boolean(),
 });
 
 export const REPORT_SCHEMA_VERSION = '0.11';
@@ -235,6 +252,15 @@ export const ReportSchema = z.object({
     }),
     entries: z.array(DependencyIntroductionSchema).max(300),
     limits_hit: z.array(z.string()),
+    history: z
+      .object({
+        candidates: z.number().int(),
+        analyzed: z.number().int(),
+        resolved: z.number().int(),
+        uncertain: z.number().int(),
+        skipped_by_budget: z.number().int(),
+      })
+      .optional(),
     young_package_threshold_days: z.literal(YOUNG_PACKAGE_DAYS).optional(),
   }),
   /** Regulatory readiness packs and the technical indicators they read. Never a legal determination. */

@@ -7811,6 +7811,87 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "relationship": {
+                "type": "string",
+                "enum": [
+                  "direct",
+                  "transitive",
+                  "unknown"
+                ]
+              },
+              "introduced_at": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "commit_sha": {
+                        "type": "string"
+                      },
+                      "timestamp": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "commit_sha",
+                      "timestamp"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "introduced_via": {
+                "type": "string",
+                "enum": [
+                  "manifest",
+                  "lockfile",
+                  "parent_dependency",
+                  "workspace",
+                  "unknown"
+                ]
+              },
+              "evidence_file": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "author": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "committer": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "confidence": {
+                "type": "number"
+              },
+              "history_status": {
+                "type": "string",
+                "enum": [
+                  "history_complete",
+                  "history_partial",
+                  "history_budget_exhausted",
+                  "history_unavailable",
+                  "history_disabled"
+                ]
+              },
+              "merge_commit": {
+                "type": "boolean"
+              },
+              "squash_like": {
+                "type": "boolean"
+              },
+              "introduction_commit_uncertain": {
+                "type": "boolean"
               }
             },
             "required": [
@@ -7831,7 +7912,18 @@
               "versions_published_after_introduction",
               "young_package_present",
               "release_age_days_min",
-              "evidence_ids"
+              "evidence_ids",
+              "relationship",
+              "introduced_at",
+              "introduced_via",
+              "evidence_file",
+              "author",
+              "committer",
+              "confidence",
+              "history_status",
+              "merge_commit",
+              "squash_like",
+              "introduction_commit_uncertain"
             ],
             "additionalProperties": false
           }
@@ -7841,6 +7933,44 @@
           "items": {
             "type": "string"
           }
+        },
+        "history": {
+          "type": "object",
+          "properties": {
+            "candidates": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "analyzed": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "resolved": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "uncertain": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "skipped_by_budget": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "candidates",
+            "analyzed",
+            "resolved",
+            "uncertain",
+            "skipped_by_budget"
+          ],
+          "additionalProperties": false
         },
         "young_package_threshold_days": {
           "type": "number",

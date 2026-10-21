@@ -94,6 +94,7 @@ import { packageRoot } from './util/paths.js';
 import { parseGitRef, parseRepoRef } from './util/repo-ref.js';
 import { redactSecrets } from './util/text.js';
 import { buildDependencyIntroductions, deriveIntroductionFacts } from './deps/introductions.js';
+import { collectDependencyHistory, type DependencyHistoryBudget } from './history/dependency.js';
 
 export interface AnalyzeOptions {
   profile?: string;
@@ -144,6 +145,8 @@ export interface AnalyzeOptions {
   targetedTree?: boolean;
   /** Override the targeted-retrieval budget (requests, nodes, bytes, time, depth). */
   retrievalBudget?: RetrievalBudget;
+  /** Bounded, opt-in history lookup for dependency introductions. */
+  dependencyHistory?: { enabled?: boolean; budget?: Partial<DependencyHistoryBudget> };
   root?: string;
 }
 
@@ -268,11 +271,26 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
           note: (code, message) =>
             depRegistryDiag.push({ source: 'registry', level: 'warn', code, message }),
         });
+  const dependencyHistory =
+    opts.dependencyHistory?.enabled && github.snapshot.ref
+      ? await collectDependencyHistory({
+          http: gh,
+          owner: ref.owner,
+          repo: ref.repo,
+          ref: github.snapshot.ref,
+          dependencies: depsStatic.deps,
+          manifests: github.snapshot.manifests,
+          locks: github.depInputs.locks,
+          ...(opts.blobCache ? { blobCache: opts.blobCache } : {}),
+          ...(opts.dependencyHistory.budget ? { budget: opts.dependencyHistory.budget } : {}),
+        })
+      : undefined;
   const dependencyIntroductions = buildDependencyIntroductions(
     depsStatic.deps,
     depsStatic.locks,
     depRegistry,
     clock.now().toISOString(),
+    dependencyHistory,
   );
   const dependencyArtifacts = opts.inspectDependencyArtifacts
     ? await inspectDownloadedArtifacts({
@@ -619,8 +637,14 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
         releases: opts.releases !== false,
         code_scan: opts.codeScan !== false,
         trusted_root_identity: !!opts.trust?.expectedIdentity,
+        dependency_history: opts.dependencyHistory?.enabled === true,
       },
-      collector_versions: { github: '0.9', registry: '0.7', dependency_registry: '0.7' },
+      collector_versions: {
+        github: '0.9',
+        registry: '0.7',
+        dependency_registry: '0.7',
+        ...(opts.dependencyHistory?.enabled ? { dependency_history: '0.1' } : {}),
+      },
       external_sources: [
         {
           source: 'github',
@@ -637,8 +661,31 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       budgets: {
         max_scan_bytes: LIMITS.maxScanTotalBytes,
         max_artifacts: LIMITS.maxArtifactsPerRun,
+        ...(opts.dependencyHistory?.enabled
+          ? {
+              dependency_history_candidates:
+                opts.dependencyHistory.budget?.maxCandidates ??
+                LIMITS.maxDependencyHistoryCandidates,
+              dependency_history_commits:
+                opts.dependencyHistory.budget?.maxCommits ?? LIMITS.maxDependencyHistoryCommits,
+              dependency_history_requests:
+                opts.dependencyHistory.budget?.maxRequests ?? LIMITS.maxDependencyHistoryRequests,
+            }
+          : {}),
       },
-      coverage: { evidence: store.size, files: github.files.length },
+      coverage: {
+        evidence: store.size,
+        files: github.files.length,
+        ...(dependencyHistory
+          ? {
+              dependency_history_candidates: dependencyHistory.coverage.candidates,
+              dependency_history_analyzed: dependencyHistory.coverage.analyzed,
+              dependency_history_resolved: dependencyHistory.coverage.resolved,
+              dependency_history_uncertain: dependencyHistory.coverage.uncertain,
+              dependency_history_skipped: dependencyHistory.coverage.skipped_by_budget,
+            }
+          : {}),
+      },
     },
     methodology: {
       version: ruleSet.methodology,
@@ -659,6 +706,8 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
           compliance: complianceOn
             ? packs.map((p) => `${p.pack.pack}@${p.pack.version}:${p.digest.slice(0, 12)}`)
             : false,
+          dependency_history: opts.dependencyHistory?.enabled === true,
+          dependency_history_budget: opts.dependencyHistory?.budget ?? null,
           deps_limits: {
             osv: OSV_LIMITS,
             deps_dev: DEPSDEV_LIMITS,

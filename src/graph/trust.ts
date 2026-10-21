@@ -60,6 +60,7 @@ export const GRAPH_EDGE_TYPES = [
   'SIMILAR_TO_PACKAGE',
   'DECLARED_BY',
   'INTRODUCED_BY',
+  'INTRODUCED_AT',
   'TRANSITIVE_VIA',
 ] as const;
 export const TEMPORAL_SCOPES = [
@@ -566,7 +567,16 @@ export function buildTrustGraph(report: Report, diff?: HistoricalDiff): TrustGra
         intro.introduced_in_revision,
         {},
       );
-      edge(depId, rev, 'INTRODUCED_BY', intro.evidence_ids, 0.9, 'revision', 'dependency_intel');
+      edge(
+        depId,
+        rev,
+        'INTRODUCED_AT',
+        intro.evidence_ids,
+        intro.confidence,
+        'revision',
+        'dependency_intel',
+        intro.introduced_at?.timestamp,
+      );
     }
     for (const parent of intro.parent_chain) {
       const parentId = node(`dep:${intro.ecosystem}:${parent}`, 'Dependency', parent, {

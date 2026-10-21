@@ -2,6 +2,7 @@ import type { LockIndex } from './lock.js';
 import type { Dependency } from './model.js';
 import type { DependencyRegistryIntel } from '../registry/dependency-model.js';
 import type { Fact } from '../facts/index.js';
+import type { DependencyHistoryCollection } from '../history/dependency.js';
 
 export const INTRODUCTION_LIMITS = { entries: 300, parentChain: 8 } as const;
 export const YOUNG_PACKAGE_DAYS = 30;
@@ -28,6 +29,22 @@ export interface DependencyIntroduction {
   young_package_present: boolean | null;
   release_age_days_min: number | null;
   evidence_ids: string[];
+  relationship: 'direct' | 'transitive' | 'unknown';
+  introduced_at: { commit_sha: string; timestamp: string } | null;
+  introduced_via: 'manifest' | 'lockfile' | 'parent_dependency' | 'workspace' | 'unknown';
+  evidence_file: string | null;
+  author: string | null;
+  committer: string | null;
+  confidence: number;
+  history_status:
+    | 'history_complete'
+    | 'history_partial'
+    | 'history_budget_exhausted'
+    | 'history_unavailable'
+    | 'history_disabled';
+  merge_commit: boolean;
+  squash_like: boolean;
+  introduction_commit_uncertain: boolean;
 }
 
 export interface DependencyIntroductions {
@@ -40,6 +57,7 @@ export interface DependencyIntroductions {
   };
   entries: DependencyIntroduction[];
   limits_hit: string[];
+  history?: DependencyHistoryCollection['coverage'];
 }
 
 const DAY = 86_400_000;
@@ -80,6 +98,7 @@ export function buildDependencyIntroductions(
   locks: LockIndex[],
   registry: DependencyRegistryIntel,
   observedAt: string,
+  history?: DependencyHistoryCollection,
 ): DependencyIntroductions {
   const observed = validTime(observedAt);
   const reg = new Map<string, (typeof registry.packages)[number]>();
@@ -111,6 +130,7 @@ export function buildDependencyIntroductions(
       observed !== undefined && resolvedAt !== undefined
         ? Math.max(0, Math.floor((observed - resolvedAt) / DAY))
         : null;
+    const historical = history?.entries.find((e) => e.dependency_id === d.id);
     entries.push({
       dependency_id: d.id,
       ecosystem: d.package.ecosystem,
@@ -119,8 +139,8 @@ export function buildDependencyIntroductions(
       direct: d.direct,
       parent_chain: chain.names,
       parent_chain_capped: chain.capped,
-      introduction: 'unknown',
-      introduced_in_revision: null,
+      introduction: historical?.introduction ?? 'unknown',
+      introduced_in_revision: historical?.introduced_at?.commit_sha ?? null,
       introduced_with_count: null,
       parent_provenance: chain.names.length ? 'unknown' : 'none',
       package_first_published_at: first === undefined ? null : new Date(first).toISOString(),
@@ -130,7 +150,24 @@ export function buildDependencyIntroductions(
       versions_published_after_introduction: null,
       young_package_present: releaseAge === null ? null : releaseAge < YOUNG_PACKAGE_DAYS,
       release_age_days_min: releaseAge,
-      evidence_ids: [d.id, ...(d.lockfile_path ? [d.lockfile_path] : [])].slice(0, 4),
+      evidence_ids: [
+        d.id,
+        ...(d.lockfile_path ? [d.lockfile_path] : []),
+        ...(historical?.evidence_ids ?? []),
+      ].slice(0, 8),
+      relationship: d.direct === true ? 'direct' : d.direct === false ? 'transitive' : 'unknown',
+      introduced_at: historical?.introduced_at ?? null,
+      introduced_via:
+        historical?.introduced_via ??
+        (d.direct === true ? 'manifest' : d.direct === false ? 'lockfile' : 'unknown'),
+      evidence_file: historical?.evidence_file ?? null,
+      author: historical?.author ?? null,
+      committer: historical?.committer ?? null,
+      confidence: historical?.confidence ?? 0,
+      history_status: historical?.history_status ?? 'history_disabled',
+      merge_commit: historical?.merge_commit ?? false,
+      squash_like: historical?.squash_like ?? false,
+      introduction_commit_uncertain: historical?.introduction_commit_uncertain ?? true,
     });
   }
   const known = entries.filter((e) => e.introduction === 'known').length;
@@ -143,8 +180,11 @@ export function buildDependencyIntroductions(
       capped,
     },
     entries,
-    limits_hit:
-      dependencies.length > INTRODUCTION_LIMITS.entries ? ['dependency_introductions'] : [],
+    limits_hit: [
+      ...(dependencies.length > INTRODUCTION_LIMITS.entries ? ['dependency_introductions'] : []),
+      ...(history?.limits_hit ?? []),
+    ],
+    history: history?.coverage,
   };
 }
 

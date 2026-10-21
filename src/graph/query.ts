@@ -241,12 +241,55 @@ export function dependenciesIntroducedInRevision(
 ): IntroductionRow[] {
   const rows: IntroductionRow[] = [];
   for (const e of idx.graph.edges) {
-    if (e.type !== 'INTRODUCED_BY' || e.to !== `commit:${revision}`) continue;
+    if ((e.type !== 'INTRODUCED_BY' && e.type !== 'INTRODUCED_AT') || e.to !== `commit:${revision}`)
+      continue;
     const n = idx.nodes.get(e.from);
     if (n?.kind === 'Dependency')
       rows.push({ dependency: n.name, revision, evidence: e.evidence_ids });
   }
   return rows.sort((a, b) => cmp(a.dependency, b.dependency));
+}
+
+export function dependencyIntroductionCommit(
+  idx: GraphIndex,
+  dependency: string,
+): IntroductionRow[] {
+  const node = idx.ofKind('Dependency').find((n) => n.name === dependency || n.id === dependency);
+  if (!node) return [];
+  return idx
+    .outgoing(node.id)
+    .filter((e) => e.type === 'INTRODUCED_AT')
+    .flatMap((e) => {
+      const commit = idx.nodes.get(e.to);
+      return commit?.kind === 'Commit'
+        ? [{ dependency: node.name, revision: commit.name, evidence: e.evidence_ids }]
+        : [];
+    });
+}
+
+export function introducedDependencies(idx: GraphIndex, revision: string): IntroductionRow[] {
+  return dependenciesIntroducedInRevision(idx, revision);
+}
+
+export function transitiveIntroductionChain(idx: GraphIndex, dependency: string): string[][] {
+  const start = idx.ofKind('Dependency').find((n) => n.name === dependency || n.id === dependency);
+  if (!start) return [];
+  const paths: string[][] = [];
+  const walk = (id: string, path: string[]): void => {
+    if (path.length > 32) return;
+    const parents = idx.outgoing(id, 'TRANSITIVE_VIA');
+    if (!parents.length) {
+      paths.push(path);
+      return;
+    }
+    for (const edge of parents) {
+      const parent = idx.nodes.get(edge.to);
+      if (!parent || path.includes(parent.name)) continue;
+      walk(parent.id, [...path, parent.name]);
+    }
+  };
+  walk(start.id, [start.name]);
+  return paths.sort((a, b) => a.join('\u0000').localeCompare(b.join('\u0000')));
 }
 
 export function youngDependencies(idx: GraphIndex): string[] {

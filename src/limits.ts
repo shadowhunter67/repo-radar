@@ -37,4 +37,11 @@ export const LIMITS = {
   maxArtifactEntries: 20_000,
   maxArtifactMetadataBytes: 16 * 1024 * 1024,
   maxArtifactFileBytes: 64 * 1024,
+  /** Bounded dependency-introduction history collection. */
+  maxDependencyHistoryCandidates: 25,
+  maxDependencyHistoryCommits: 120,
+  maxDependencyHistoryRequests: 60,
+  maxDependencyHistoryMs: 10_000,
+  maxDependencyHistoryChangedFiles: 120,
+  maxDependencyHistoryBytes: 4 * 1024 * 1024,
 } as const;
