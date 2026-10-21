@@ -13,3 +13,4 @@ tests/fixtures/attestations
 calibration/incidents/results
 tests/fixtures/pairs
 tests/unit/dependency-history.test.ts
+tests/unit/dependency-artifacts.test.ts

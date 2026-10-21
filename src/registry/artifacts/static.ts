@@ -54,6 +54,17 @@ export function extractStaticFacts(
     }
     if (/METADATA$|pyproject\.toml$|entry_points\.txt$|RECORD$|setup\.py$/i.test(e.path))
       metadata.push(e.path.slice(-80));
+    if (/entry_points\.txt$/i.test(e.path) && /^\s*[^#\s][^=]*=/m.test(t))
+      executable_entry_present = true;
+    if (/METADATA$/i.test(e.path) && /^Project-URL:\s*[^,]+,\s*https?:\/\//im.test(t)) {
+      const url = t.match(/^Project-URL:\s*[^,]+,\s*(https?:\/\/\S+)/im)?.[1];
+      if (url) repository_host = hostClass(url);
+    }
+    if (/Cargo\.toml$/i.test(e.path)) {
+      if (/^\s*\[\[bin\]\]/m.test(t)) executable_entry_present = true;
+      const url = t.match(/^\s*repository\s*=\s*["']([^"']+)/m)?.[1];
+      if (url) repository_host = hostClass(url);
+    }
     if (/Cargo\.toml$|build\.rs$/i.test(e.path)) metadata.push(e.path.slice(-80));
     for (const m of t.matchAll(/https?:\/\/([^\s/'"<>]+)/g)) domains.push(m[1]!.toLowerCase());
     if (/\.(?:node|so|dll|dylib|pyd)$/i.test(e.path)) native_binary_present = true;

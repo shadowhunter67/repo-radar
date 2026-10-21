@@ -195,3 +195,4 @@ GitHub REST API · [OpenSSF Scorecard](https://github.com/ossf/scorecard) public
 ## License
 
 Apache-2.0, see [LICENSE](LICENSE).
+Artifact comparisons are static and evidence-bound: verified same-package digests are required for strong behavior-delta statements; executable entries and native magic are observations, not execution or intent.

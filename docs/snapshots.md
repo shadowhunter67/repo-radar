@@ -35,3 +35,4 @@ Deterministic, sorted, each row with its evidence: `published-by:<account>` (dep
 # Graph additions (0.9)
 
 Graph projections include `DependencyArtifact`, `PackageNameSignal`, and `BuildSource` nodes plus evidence-bearing `HAS_ARTIFACT`, `FETCHES_FROM`, `SIMILAR_TO_PACKAGE`, and `DECLARED_BY` vocabulary. Queries include dependency publisher changes, unverified provenance, new install domains, name confusions, and artifact/source bindings.
+Schema 0.12 reports can carry bounded artifact behavior deltas for a supplied base report; absence is not “no change”.

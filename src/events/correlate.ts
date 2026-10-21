@@ -113,6 +113,23 @@ export const BUILTIN_PATTERNS: TemporalPattern[] = [
     same_entity: true,
   },
   {
+    id: 'dependency-introduced-with-risky-behavior',
+    description:
+      'A newly introduced dependency has verified install-time behavior or an external domain',
+    steps: [
+      { any_of: ['dependency_introduced'] },
+      {
+        any_of: [
+          'dependency_behavior_introduced',
+          'dependency_install_hook_introduced',
+          'dependency_external_domain_introduced',
+        ],
+      },
+    ],
+    within_days: 90,
+    same_entity: true,
+  },
+  {
     id: 'dependency-dormancy-publisher-hook',
     description:
       'A dependency resumes after a long gap, a different account publishes, and an install-time script appears',
@@ -241,6 +258,12 @@ export function correlate(
         span_days: Math.round(((best.end - best.start) / DAY) * 10) / 10,
         ...(best.entity ? { entity: best.entity } : {}),
         statement: INDICATOR_STATEMENT,
+        category:
+          p.id.includes('control-change') || p.id.includes('takeover')
+            ? 'governance_anomaly'
+            : p.id.includes('risky-behavior')
+              ? 'behavioral_risk_change'
+              : undefined,
       });
   }
   return out;

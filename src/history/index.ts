@@ -80,6 +80,7 @@ export async function compareRevisions(
     ...options,
     ...(to ? { ref: to } : {}),
     blobCache: cache,
+    baseReport: a,
   });
   const msB = Date.now() - t1;
   onReports?.(a, b);

@@ -29,7 +29,8 @@ describe('dependency artifacts: pinned fixtures', () => {
             unsafe: false,
             duplicate: false,
             content: new TextEncoder().encode(
-              '{"version":"1.0.0","bin":{"tool":"cli.js"},"repository":"https://github.com/acme/tool"}',
+              '{"version":"1.0.0","bin":{"tool":"cli.js"},"repository":' +
+                '"https://github.com/acme/tool"}',
             ),
           },
           {
@@ -50,6 +51,30 @@ describe('dependency artifacts: pinned fixtures', () => {
     expect(facts.executable_entry_present).toBe(true);
     expect(facts.native_binary_present).toBe(true);
     expect(facts.repository_host).toBe('github.com');
+  });
+
+  it('extracts Python and Cargo entry metadata without treating it as execution', () => {
+    const python = extractStaticFacts(
+      {
+        state: 'verified', format: 'tar', entries: [
+          { path: 'x-1.dist-info/entry_points.txt', kind: 'file', size: 30, unsafe: false, duplicate: false, content: new TextEncoder().encode('[console_scripts]\nrun = x:main\n') },
+          { path: 'x-1.dist-info/METADATA', kind: 'file', size: 50, unsafe: false, duplicate: false, content: new TextEncoder().encode('Project-URL: Repository, https://gitlab.com/acme/x\n') },
+        ], totalSize: 80, limitsHit: [], diagnostics: [],
+      },
+      { name: 'x', version: '1' },
+    );
+    const cargo = extractStaticFacts(
+      {
+        state: 'verified', format: 'tar', entries: [
+          { path: 'Cargo.toml', kind: 'file', size: 70, unsafe: false, duplicate: false, content: new TextEncoder().encode('repository = "https://bitbucket.org/acme/x"\n[[bin]]\nname = "x"\n') },
+        ], totalSize: 70, limitsHit: [], diagnostics: [],
+      },
+      { name: 'x', version: '1' },
+    );
+    expect(python.executable_entry_present).toBe(true);
+    expect(python.repository_host).toBe('gitlab.com');
+    expect(cargo.executable_entry_present).toBe(true);
+    expect(cargo.repository_host).toBe('bitbucket.org');
   });
   it('bounds and validates PAX path/linkpath/size records', () => {
     const block = (name: string, body: Uint8Array, type = '0'): Uint8Array => {

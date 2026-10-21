@@ -60,6 +60,35 @@ const DependencyIntroductionSchema = z.object({
 
 export const REPORT_SCHEMA_VERSION = '0.12';
 
+const BehaviorDeltaSchema = z.object({
+  behavior: z.array(
+    z.object({
+      type: z.string(),
+      package: z.string(),
+      before_version: z.string(),
+      after_version: z.string(),
+      capability: z.string(),
+      detail: z.string(),
+      evidence: z.array(z.string()),
+      confidence: z.number(),
+    }),
+  ),
+  trust_boundary: z.array(
+    z.object({
+      type: z.string(),
+      package: z.string(),
+      before_version: z.string(),
+      after_version: z.string(),
+      boundary: z.string(),
+      detail: z.string(),
+      evidence: z.array(z.string()),
+      confidence: z.number(),
+    }),
+  ),
+  not_available: z.array(z.string()),
+  components: z.record(z.string(), z.enum(['changed', 'unchanged', 'not_available'])),
+});
+
 const SufficiencySchema = z.enum(['sufficient', 'low', 'insufficient']);
 
 export const RuleResultSchema = z.object({
@@ -231,6 +260,7 @@ export const ReportSchema = z.object({
   /** Registry history of the DEPENDENCIES (priority, budget, coverage, publisher / maintainer / repository events). Schema 0.7. */
   dependency_registry_intel: DependencyRegistryIntelSchema,
   dependency_artifacts: DependencyArtifactsSchema,
+  behavior_delta: z.array(BehaviorDeltaSchema).max(20).optional(),
   name_intelligence: NameIntelligenceSchema,
   build_sources: BuildSourcesSchema,
   /** Hostnames the repository's own files refer to, by context (install, build, CI, runtime, docs...). Static; nothing is resolved or contacted. Schema 0.7. */

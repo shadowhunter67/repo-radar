@@ -16,7 +16,7 @@ import type { AssetVerifyLimits } from './release/verify-assets.js';
 import type { BundleVerifier } from './trust/sigstore.js';
 import type { TrustConfig } from './trust/config.js';
 import { buildTimeline } from './events/build.js';
-import { BUILTIN_PATTERNS } from './events/correlate.js';
+import { BUILTIN_PATTERNS, correlate } from './events/correlate.js';
 import { hintKey, PRIORITY_POINTS, type PriorityHints } from './registry/dependency-priority.js';
 import { collectDependencyRegistry } from './collectors/dependency-registry.js';
 import { collectRegistry, REGISTRY_HOSTS } from './collectors/registry.js';
@@ -94,6 +94,10 @@ import { packageRoot } from './util/paths.js';
 import { parseGitRef, parseRepoRef } from './util/repo-ref.js';
 import { redactSecrets } from './util/text.js';
 import { buildDependencyIntroductions, deriveIntroductionFacts } from './deps/introductions.js';
+import {
+  compareDependencyArtifacts,
+  type DependencyArtifactDelta,
+} from './registry/artifacts/delta.js';
 import { collectDependencyHistory, type DependencyHistoryBudget } from './history/dependency.js';
 
 export interface AnalyzeOptions {
@@ -147,6 +151,8 @@ export interface AnalyzeOptions {
   retrievalBudget?: RetrievalBudget;
   /** Bounded, opt-in history lookup for dependency introductions. */
   dependencyHistory?: { enabled?: boolean; budget?: Partial<DependencyHistoryBudget> };
+  /** Optional already-analyzed base report for direct two-revision artifact comparison. */
+  baseReport?: Report;
   root?: string;
 }
 
@@ -306,6 +312,17 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
         ),
       })
     : EMPTY_DEPENDENCY_ARTIFACTS;
+  const behaviorDelta: DependencyArtifactDelta[] = opts.baseReport
+    ? dependencyArtifacts.artifacts.flatMap((after) => {
+        const before = opts.baseReport?.dependency_artifacts.artifacts.find(
+          (candidate) =>
+            candidate.registry === after.registry &&
+            candidate.package === after.package &&
+            candidate.version !== after.version,
+        );
+        return before ? [compareDependencyArtifacts(before, after)] : [];
+      })
+    : [];
   const nameIntelligence = opts.nameIntelligence
     ? analyzeNames(
         depsStatic.deps.slice(0, 25).map((d) => ({
@@ -473,6 +490,31 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     extra: introductionEvents,
     patterns: BUILTIN_PATTERNS,
   });
+  if (behaviorDelta.length) {
+    for (const delta of behaviorDelta) {
+      for (const event of [...delta.behavior, ...delta.trust_boundary]) {
+        const extra =
+          event.type === 'dependency_behavior_introduced'
+            ? { capability: event.capability }
+            : 'boundary' in event
+              ? { boundary: event.boundary }
+              : {};
+        timeline.events.push({
+          id: `artifact-delta:${event.package}:${event.after_version}:${event.type}`,
+          type: event.type,
+          at: event.at,
+          subject: `${event.package}@${event.after_version}`,
+          source: 'analysis_diff',
+          detail: event.detail,
+          confidence: event.confidence,
+          evidence: event.evidence.slice(0, 8),
+          entity: event.entity,
+          ...extra,
+        });
+      }
+    }
+    timeline.correlations = correlate(timeline.events, BUILTIN_PATTERNS);
+  }
   const facts = [
     ...(complianceOn ? deriveIndicatorFacts(indicators, scanReliable, code) : []),
     ...deriveFacts({
@@ -807,6 +849,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     findings,
     dependency_intel: intel,
     dependency_introductions: { ...dependencyIntroductions, young_package_threshold_days: 30 },
+    ...(opts.baseReport ? { behavior_delta: behaviorDelta } : {}),
     regulatory,
   };
   return { ...report, integrity: { report_sha256: sha256(JSON.stringify(report)) } };

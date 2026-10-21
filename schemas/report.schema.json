@@ -5526,6 +5526,134 @@
       ],
       "additionalProperties": false
     },
+    "behavior_delta": {
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "behavior": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "package": {
+                  "type": "string"
+                },
+                "before_version": {
+                  "type": "string"
+                },
+                "after_version": {
+                  "type": "string"
+                },
+                "capability": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "confidence": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "type",
+                "package",
+                "before_version",
+                "after_version",
+                "capability",
+                "detail",
+                "evidence",
+                "confidence"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "trust_boundary": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "package": {
+                  "type": "string"
+                },
+                "before_version": {
+                  "type": "string"
+                },
+                "after_version": {
+                  "type": "string"
+                },
+                "boundary": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "confidence": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "type",
+                "package",
+                "before_version",
+                "after_version",
+                "boundary",
+                "detail",
+                "evidence",
+                "confidence"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "not_available": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "components": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "changed",
+                "unchanged",
+                "not_available"
+              ]
+            }
+          }
+        },
+        "required": [
+          "behavior",
+          "trust_boundary",
+          "not_available",
+          "components"
+        ],
+        "additionalProperties": false
+      }
+    },
     "name_intelligence": {
       "type": "object",
       "properties": {
@@ -6254,6 +6382,13 @@
               "statement": {
                 "type": "string",
                 "maxLength": 300
+              },
+              "category": {
+                "type": "string",
+                "enum": [
+                  "governance_anomaly",
+                  "behavioral_risk_change"
+                ]
               }
             },
             "required": [

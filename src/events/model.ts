@@ -121,6 +121,7 @@ export const CorrelationSchema = z.object({
   entity: z.string().max(240).optional(),
   /** Always the same: a pattern of events, not a verdict. */
   statement: z.string().max(300),
+  category: z.enum(['governance_anomaly', 'behavioral_risk_change']).optional(),
 });
 export type Correlation = z.infer<typeof CorrelationSchema>;
 

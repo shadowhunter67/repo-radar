@@ -21,3 +21,5 @@ supports presence checks in npm manifests and generic lock/manifest text. It doe
 semantics, follow renames unless the API exposes them, or promise immutable history after a force-push. Merge commits
 are flagged; first-parent and squash-like granularity remain explicit limitations. A partial or shallow history never
 becomes a negative finding.
+Revision reports may include timestamped `dependency_introduced` events. Artifact behavior deltas remain separate and are
+only strong when both same-package artifacts have verified digests; missing, invalid, or skipped artifacts are unavailable.
