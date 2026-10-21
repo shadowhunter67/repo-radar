@@ -55,6 +55,12 @@ Holdout split (by `ecosystem:package`): 3 packages, 4 cases (npm express twice: 
 
 Evaluation results record `incident_model_version: 0.11.0`, independently of the report schema and methodology version.
 
+## Metric recalculation (holdout files immutable)
+
+`final-holdout.json` and `final-holdout-v2.json` are spent and were not modified or rerun. `scripts/recalculate-incident-metrics.mjs` reads each original by-case result, joins its pinned case labels, and writes `results/metric-recalculation-v2.json` with the source SHA-256 and separate development, validation, holdout, and overall blocks. The recalculation is not a fresh evaluation.
+
+The root cause of the historical `dormancy_end.false_positive_rate = 1.5` was the old denominator: it divided FP by all non-incident rows rather than by `FP + TN`. The corrected module uses `false_positive_rate = FP/(FP+TN)`, `false_negative_rate = FN/(FN+TP)`, precision, recall, specificity, accuracy, coverage, and abstention rate. Zero denominators are `null`; abstentions are counted separately and excluded from confusion-matrix rates. Every rate is accompanied by explicit counts and no aggregate block is labeled as a holdout.
+
 Corpus v2 is frozen at 62 cases: 40 development, 10 validation, and 12 holdout cases. It adds 25 histories (7 incident candidates and 18 benign controls) and 8 incident-window cases. The v1 holdout cases for `express`, `faker`, and `flatmap-stream` remain in the corpus with `holdout_spent: true` and are excluded from v2 holdout metrics. Review packets cover all 33 new v2 cases. Labels remain AI-assisted and unreviewed; Gate 14 remains MANUAL.
 
 The non-final evaluator was run offline after corpus authoring. It evaluated 50 development/validation cases; the v2 holdout was not selected and `results/final-holdout-v2.json` does not exist.

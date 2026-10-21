@@ -8,6 +8,7 @@ import {
   loadIncidentCases,
   PATTERN_IDS,
 } from '../dist/calibration/incidents.js';
+import { calculateBinaryMetrics } from '../dist/calibration/metrics.js';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'calibration', 'incidents');
 const args = process.argv.slice(2);
 const final = args.includes('--final');
@@ -28,6 +29,7 @@ const rows = selected.map((c) => ({
   ...evaluateIncidentCase(c, root),
 }));
 const metrics = {};
+const boolLabel = (value) => (value === 'true' ? true : value === 'false' ? false : null);
 for (const label of [
   'publisher_change',
   'maintainer_change',
@@ -38,59 +40,38 @@ for (const label of [
   'provenance_changed',
   'external_domain_introduced',
 ]) {
-  const usable = rows.filter(
-    (r) =>
-      !['unknown', 'disputed', 'insufficient_evidence'].includes(
-        cases.find((c) => c.id === r.id).labels[label],
-      ),
+  metrics[label] = calculateBinaryMetrics(
+    rows.map((r) => ({
+      expected: boolLabel(cases.find((c) => c.id === r.id).labels[label]),
+      observed: typeof r.observations[label] === 'boolean' ? r.observations[label] : null,
+    })),
   );
-  const labelOf = (r) => cases.find((c) => c.id === r.id).labels[label];
-  const tp = usable.filter((r) => labelOf(r) === 'true' && r.observations[label]).length;
-  const fp = usable.filter((r) => labelOf(r) === 'false' && r.observations[label]).length;
-  const fn = usable.filter((r) => labelOf(r) === 'true' && !r.observations[label]).length;
-  metrics[label] = {
-    n: usable.length,
-    abstained: selected.length - usable.length,
-    accuracy: usable.length
-      ? usable.filter((r) => (labelOf(r) === 'true') === r.observations[label]).length /
-        usable.length
-      : null,
-    precision: tp + fp ? tp / (tp + fp) : null,
-    recall: tp + fn ? tp / (tp + fn) : null,
-    false_positive_rate: usable.filter((r) => cases.find((c) => c.id === r.id).kind !== 'incident')
-      .length
-      ? fp / usable.filter((r) => cases.find((c) => c.id === r.id).kind !== 'incident').length
-      : null,
-  };
 }
 const byId = new Map(cases.map((c) => [c.id, c]));
 /** Pattern precision/recall over cases whose expectation is decided (null = abstention). */
 function patternMetrics(rowsIn) {
   const out = {};
   for (const pattern of PATTERN_IDS) {
+    const rows = rowsIn.map((r) => ({
+      expected: byId.get(r.id).pattern_expectations[pattern]?.should_fire ?? null,
+      observed: typeof r.patterns[pattern] === 'boolean' ? r.patterns[pattern] : null,
+    }));
+    const binary = calculateBinaryMetrics(rows);
     const decided = rowsIn.filter(
-      (r) => (byId.get(r.id).pattern_expectations[pattern]?.should_fire ?? null) !== null,
+      (r) => byId.get(r.id).pattern_expectations[pattern]?.should_fire !== undefined,
     );
-    const exp = (r) => byId.get(r.id).pattern_expectations[pattern]?.should_fire ?? null;
-    const tp = decided.filter((r) => r.patterns[pattern] && exp(r)).length;
-    const fp = decided.filter((r) => r.patterns[pattern] && !exp(r)).length;
-    const fn = decided.filter((r) => !r.patterns[pattern] && exp(r)).length;
-    const benign = decided.filter((r) => byId.get(r.id).kind !== 'incident');
-    const incidents = decided.filter((r) => byId.get(r.id).kind === 'incident');
+    const benignRows = decided.filter((r) => byId.get(r.id).kind !== 'incident');
+    const incidentRows = decided.filter((r) => byId.get(r.id).kind === 'incident');
+    const benign = calculateBinaryMetrics(
+      benignRows.map((r) => ({ expected: false, observed: r.patterns[pattern] })),
+    );
+    const incidents = incidentRows.filter((r) => r.patterns[pattern]);
     out[pattern] = {
-      decided: decided.length,
-      abstained: rowsIn.length - decided.length,
-      tp,
-      fp,
-      fn,
-      precision: tp + fp ? tp / (tp + fp) : null,
-      recall: tp + fn ? tp / (tp + fn) : null,
-      benign_cases: benign.length,
-      benign_false_positive_rate: benign.length
-        ? benign.filter((r) => r.patterns[pattern]).length / benign.length
-        : null,
-      incident_cases_fired: incidents.filter((r) => r.patterns[pattern]).length,
-      incident_cases: incidents.length,
+      ...binary,
+      benign_cases: benignRows.length,
+      benign_false_positive_rate: benign.false_positive_rate,
+      incident_cases_fired: incidents.length,
+      incident_cases: incidentRows.length,
     };
   }
   return out;

@@ -485,3 +485,65 @@ export function disagreements(cases: Case[]): Disagreement[] {
   }
   return out;
 }
+
+export interface BinaryMetricRow {
+  expected: boolean | null;
+  observed: boolean | null;
+}
+
+export interface BinaryMetrics {
+  total: number;
+  decided: number;
+  abstentions: number;
+  tp: number;
+  fp: number;
+  tn: number;
+  fn: number;
+  precision: number | null;
+  recall: number | null;
+  specificity: number | null;
+  false_positive_rate: number | null;
+  false_negative_rate: number | null;
+  accuracy: number | null;
+  abstention_rate: number | null;
+  coverage: number | null;
+}
+
+const metricRate = (numerator: number, denominator: number): number | null =>
+  denominator === 0 ? null : numerator / denominator;
+
+/** Binary calibration metrics; undecidable rows are abstentions, never negatives. */
+export function calculateBinaryMetrics(rows: readonly BinaryMetricRow[]): BinaryMetrics {
+  let tp = 0,
+    fp = 0,
+    tn = 0,
+    fn = 0,
+    abstentions = 0;
+  for (const row of rows) {
+    if (row.expected === null || row.observed === null) abstentions++;
+    else if (row.expected && row.observed) tp++;
+    else if (!row.expected && row.observed) fp++;
+    else if (!row.expected && !row.observed) tn++;
+    else fn++;
+  }
+  const decided = tp + fp + tn + fn;
+  const positives = tp + fn;
+  const negatives = tn + fp;
+  return {
+    total: rows.length,
+    decided,
+    abstentions,
+    tp,
+    fp,
+    tn,
+    fn,
+    precision: metricRate(tp, tp + fp),
+    recall: metricRate(tp, positives),
+    specificity: metricRate(tn, negatives),
+    false_positive_rate: metricRate(fp, negatives),
+    false_negative_rate: metricRate(fn, positives),
+    accuracy: metricRate(tp + tn, decided),
+    abstention_rate: metricRate(abstentions, rows.length),
+    coverage: metricRate(decided, rows.length),
+  };
+}
