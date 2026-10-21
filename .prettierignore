@@ -11,3 +11,4 @@ calibration/pins.json
 calibration/incidents/raw
 tests/fixtures/attestations
 calibration/incidents/results
+tests/fixtures/pairs
