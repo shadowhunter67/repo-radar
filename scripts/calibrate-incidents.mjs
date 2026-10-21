@@ -12,7 +12,7 @@ import { calculateBinaryMetrics } from '../dist/calibration/metrics.js';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'calibration', 'incidents');
 const args = process.argv.slice(2);
 const final = args.includes('--final');
-const incidentModelVersion = '0.11.0';
+const incidentModelVersion = '0.12.0';
 const cases = loadIncidentCases(root);
 for (const c of cases)
   if (assignIncidentSplit(c.ecosystem, c.package) !== c.split)

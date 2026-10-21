@@ -33,6 +33,14 @@ export interface DependencyArtifactDelta {
   behavior: DependencyBehaviorEvent[];
   trust_boundary: DependencyTrustBoundaryEvent[];
   not_available: string[];
+  components: {
+    publisher: 'changed' | 'unchanged' | 'not_available';
+    repository: 'changed' | 'unchanged' | 'not_available';
+    behavior: 'changed' | 'unchanged' | 'not_available';
+    provenance: 'changed' | 'unchanged' | 'not_available';
+    new_domain: 'changed' | 'unchanged' | 'not_available';
+    native_binary: 'changed' | 'unchanged' | 'not_available';
+  };
 }
 
 const PROCESS_MODULE = ['child', '_', 'process'].join('');
@@ -91,6 +99,14 @@ export function compareDependencyArtifacts(
       not_available: [
         'behavior and trust-boundary deltas require two verified artifacts of the same package',
       ],
+      components: {
+        publisher: 'not_available',
+        repository: 'not_available',
+        behavior: 'not_available',
+        provenance: 'not_available',
+        new_domain: 'not_available',
+        native_binary: 'not_available',
+      },
     };
   const a = capabilities(before);
   const b = capabilities(after);
@@ -147,5 +163,27 @@ export function compareDependencyArtifacts(
     notAvailable.push(
       'artifact file-level execution, native binary, bin, publisher organization, and repository-host deltas are not represented by the inspected artifact model',
     );
-  return { behavior, trust_boundary, not_available: notAvailable };
+  return {
+    behavior,
+    trust_boundary,
+    not_available: notAvailable,
+    components: {
+      publisher: 'not_available',
+      repository:
+        before.repository_host === null || after.repository_host === null
+          ? 'not_available'
+          : before.repository_host === after.repository_host
+            ? 'unchanged'
+            : 'changed',
+      behavior: behavior.length ? 'changed' : 'unchanged',
+      provenance: before.state === after.state ? 'unchanged' : 'changed',
+      new_domain: trust_boundary.length ? 'changed' : 'unchanged',
+      native_binary:
+        before.native_binary_present === null || after.native_binary_present === null
+          ? 'not_available'
+          : before.native_binary_present === after.native_binary_present
+            ? 'unchanged'
+            : 'changed',
+    },
+  };
 }

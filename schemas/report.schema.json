@@ -21,7 +21,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "0.11"
+      "const": "0.12"
     },
     "methodology": {
       "type": "object",
@@ -5416,6 +5416,46 @@
                   "type": "string",
                   "maxLength": 200
                 }
+              },
+              "executable_entry_present": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "native_binary_present": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "repository_host": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "github.com",
+                      "gitlab.com",
+                      "bitbucket.org",
+                      "other",
+                      "unknown"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "publisher_organization": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               },
               "reason": {
                 "anyOf": [

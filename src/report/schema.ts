@@ -58,7 +58,7 @@ const DependencyIntroductionSchema = z.object({
   introduction_commit_uncertain: z.boolean(),
 });
 
-export const REPORT_SCHEMA_VERSION = '0.11';
+export const REPORT_SCHEMA_VERSION = '0.12';
 
 const SufficiencySchema = z.enum(['sufficient', 'low', 'insufficient']);
 

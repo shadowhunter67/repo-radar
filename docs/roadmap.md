@@ -123,3 +123,6 @@ Order decided 2026-10-18. Versions state intent, not dates.
 - Gates green except explicitly external or legal items that have been resolved by people.
 - Licensing review, public claims review.
 - No new major subsystem.
+## 0.12 - Behavioral delta integration
+
+Artifact metadata and verified two-revision behavior/trust-boundary comparison are implemented; governance and behavior remain separate.

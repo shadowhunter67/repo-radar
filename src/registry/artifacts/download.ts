@@ -63,6 +63,10 @@ export async function inspectDownloadedArtifacts(opts: {
         mismatches: [],
         reason: r,
         evidence: [],
+        executable_entry_present: null,
+        native_binary_present: null,
+        repository_host: null,
+        publisher_organization: null,
       });
     };
     if (!c.url) {
@@ -90,7 +94,14 @@ export async function inspectDownloadedArtifacts(opts: {
       });
       const facts =
         i.state === 'invalid'
-          ? { hooks: [], domains: [], mismatches: [] }
+          ? {
+              hooks: [],
+              domains: [],
+              mismatches: [],
+              executable_entry_present: null,
+              native_binary_present: null,
+              repository_host: null,
+            }
           : extractStaticFacts(i, { name: c.package, version: c.version });
       const record = {
         registry: c.registry,
@@ -105,6 +116,10 @@ export async function inspectDownloadedArtifacts(opts: {
         mismatches: facts.mismatches,
         reason: i.state === 'invalid' ? 'digest_mismatch' : null,
         evidence: [],
+        executable_entry_present: facts.executable_entry_present,
+        native_binary_present: facts.native_binary_present,
+        repository_host: facts.repository_host,
+        publisher_organization: null,
       };
       const domains = artifactDomains(record);
       record.domains = [...new Set([...facts.domains, ...domains.domains.map((d) => d.hostname)])];

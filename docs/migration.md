@@ -9,3 +9,6 @@ Methodology remains 0.4: no score rule, weight, threshold, or score input change
 Report schema 0.10 adds `analysis_manifest`, which records replay metadata, feature flags, collector versions, external-source classifications, trust-root IDs, budgets, and coverage. Reports from schema 0.9 are not schema-valid 0.10 reports; re-run analysis to produce the manifest.
 
 The current rule set contains 86 rules in total; methodology remains 0.4.
+## 0.12.0
+
+Report schema 0.12 adds artifact executable/native/repository metadata and explicit behavioral delta components. Re-run analyses to produce schema 0.12 reports; methodology remains 0.4.

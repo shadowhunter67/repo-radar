@@ -16,6 +16,41 @@ const digest = (name: string): string =>
   readFileSync(join(root, name), 'utf8').trim().split(/\s+/)[0]!;
 
 describe('dependency artifacts: pinned fixtures', () => {
+  it('extracts executable entries, native magic and artifact-owned repository host', () => {
+    const facts = extractStaticFacts(
+      {
+        state: 'verified',
+        format: 'tar',
+        entries: [
+          {
+            path: 'package/package.json',
+            kind: 'file',
+            size: 80,
+            unsafe: false,
+            duplicate: false,
+            content: new TextEncoder().encode(
+              '{"version":"1.0.0","bin":{"tool":"cli.js"},"repository":"https://github.com/acme/tool"}',
+            ),
+          },
+          {
+            path: 'package/native.node',
+            kind: 'file',
+            size: 4,
+            unsafe: false,
+            duplicate: false,
+            content: new Uint8Array([0x7f, 0x45, 0x4c, 0x46]),
+          },
+        ],
+        totalSize: 84,
+        limitsHit: [],
+        diagnostics: [],
+      },
+      { name: 'tool', version: '1.0.0' },
+    );
+    expect(facts.executable_entry_present).toBe(true);
+    expect(facts.native_binary_present).toBe(true);
+    expect(facts.repository_host).toBe('github.com');
+  });
   it('bounds and validates PAX path/linkpath/size records', () => {
     const block = (name: string, body: Uint8Array, type = '0'): Uint8Array => {
       const h = new Uint8Array(512);

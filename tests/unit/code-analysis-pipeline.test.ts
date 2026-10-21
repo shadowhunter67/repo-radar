@@ -263,10 +263,10 @@ describe('artifact classification and identity layers', () => {
 describe('report versioning and integrity', () => {
   it('records every component version and a verifiable tamper-evidence digest', async () => {
     const r = await run(goodRepo());
-    expect(r.schema_version).toBe('0.11');
-    expect(JSON.parse(readFileSync('package.json', 'utf8')).version).toBe('0.11.0');
+    expect(r.schema_version).toBe('0.12');
+    expect(JSON.parse(readFileSync('package.json', 'utf8')).version).toBe('0.12.0');
     expect(readFileSync('scripts/calibrate-incidents.mjs', 'utf8')).toContain(
-      "incidentModelVersion = '0.11.0'",
+      "incidentModelVersion = '0.12.0'",
     );
     expect(r.methodology).toMatchObject({
       version: '0.4',

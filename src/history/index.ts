@@ -3,6 +3,10 @@ import { BlobCache } from '../collectors/github/blobcache.js';
 import type { Report } from '../report/schema.js';
 import { sanitizeForTerminal } from '../util/text.js';
 import { compareSnapshots, type HistoricalDiff } from './delta.js';
+import {
+  compareDependencyArtifacts,
+  type DependencyArtifactDelta,
+} from '../registry/artifacts/delta.js';
 
 export * from './delta.js';
 
@@ -50,6 +54,7 @@ export interface RevisionComparison {
   from: SnapshotInfo;
   to: SnapshotInfo;
   diff: HistoricalDiff;
+  behavior_delta: DependencyArtifactDelta[];
   /** Cost of the comparison: the second revision reuses blobs the first one already fetched. */
   cost: { total_requests: number; total_ms: number; blobs_reused: number };
 }
@@ -78,12 +83,21 @@ export async function compareRevisions(
   });
   const msB = Date.now() - t1;
   onReports?.(a, b);
+  const behaviorDelta: DependencyArtifactDelta[] = [];
+  for (const after of b.dependency_artifacts.artifacts) {
+    const before = a.dependency_artifacts.artifacts.find(
+      (x) =>
+        x.registry === after.registry && x.package === after.package && x.version !== after.version,
+    );
+    if (before) behaviorDelta.push(compareDependencyArtifacts(before, after));
+  }
   const fromInfo = snapshotInfo(a, from, msA, reusedA);
   const toInfo = snapshotInfo(b, to, msB, cache.hits - reusedA);
   return {
     from: fromInfo,
     to: toInfo,
     diff: compareSnapshots(a, b),
+    behavior_delta: behaviorDelta,
     cost: {
       total_requests: fromInfo.http_requests + toInfo.http_requests,
       total_ms: msA + msB,
@@ -108,6 +122,16 @@ export function renderHistoricalText(d: HistoricalDiff, info?: RevisionCompariso
     `comparability: ${d.comparability.level}${d.comparability.score_deltas_meaningful ? '' : ' (score differences are not meaningful)'}`,
   );
   for (const c of d.caveats) L.push(`  caveat: ${clip(c, 200)}`);
+  if (info?.behavior_delta.length) {
+    L.push('', `behavior and trust-boundary deltas (${info.behavior_delta.length})`);
+    for (const delta of info.behavior_delta.slice(0, 20)) {
+      for (const event of [...delta.behavior, ...delta.trust_boundary])
+        L.push(
+          `  ${event.package} ${event.before_version} -> ${event.after_version}: ${clip(event.detail, 180)}`,
+        );
+      for (const reason of delta.not_available) L.push(`  unavailable: ${clip(reason, 180)}`);
+    }
+  }
   const section = (title: string, rows: string[]): void => {
     if (rows.length === 0) return;
     L.push('', `${title} (${rows.length})`, ...rows.slice(0, 40).map((r) => `  ${r}`));

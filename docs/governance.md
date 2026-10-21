@@ -53,3 +53,8 @@ In a revision diff or a comparison of saved reports ([history.md](history.md)): 
 # Dependency temporal indicators (0.9)
 
 Dependency publisher/provenance/domain and artifact-hook sequences are dated observations tied to the same registry entity where required. Correlations state that intent is undetermined and do not establish maliciousness.
+## Behavioral and governance separation (0.12)
+
+Publisher/maintainer, dormancy, and repository observations are governance anomalies. Install hooks, process execution,
+remote downloads, external domains, native binaries, and provenance changes are behavioral risk indicators. Governance
+alone is never a takeover finding.

@@ -18,6 +18,13 @@ export const DependencyArtifactSchema = z.object({
   hooks: z.array(z.object({ name: z.string(), text: z.string().max(65536) })).max(20),
   domains: z.array(z.string().max(253)).max(100),
   mismatches: z.array(z.string().max(200)).max(20),
+  executable_entry_present: z.boolean().nullable().optional(),
+  native_binary_present: z.boolean().nullable().optional(),
+  repository_host: z
+    .enum(['github.com', 'gitlab.com', 'bitbucket.org', 'other', 'unknown'])
+    .nullable()
+    .optional(),
+  publisher_organization: z.string().max(200).nullable().optional(),
   reason: z.string().max(200).nullable(),
   evidence: z.array(z.string().max(160)).max(10),
 });

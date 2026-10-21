@@ -5,3 +5,4 @@
 The report distinguishes `verified`, `verification_unavailable`, `invalid`, `unsupported`, `failed`, and `skipped`. Coverage and skip reasons are always reported. Lifecycle hooks, bounded manifest metadata, file kinds, native magic, domains, and registry-manifest mismatches are observations, not intent or source-reproducibility claims. Nested archives are listed only.
 
 Behavior and trust-boundary deltas require two same-package artifacts with verified digests. Unsupported file-level execution, native-binary, `bin`, repository-host, and publisher-organization comparisons remain `not_available`.
+M3 metadata additions are static observations: executable-entry presence is not execution, native magic is not maliciousness, repository host comes only from the artifact manifest, and publisher organization remains unavailable without defensible registry evidence.
