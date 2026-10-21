@@ -1,0 +1,87 @@
+{
+  "version": 3,
+  "corpus": "incident-calibration-v3",
+  "incident_model_version": "0.12.0",
+  "holdout": true,
+  "split_scope": "holdout_only",
+  "cases": [
+    {
+      "id": "npm-faker-5.5.3-6.6.6",
+      "package": "faker",
+      "split": "holdout",
+      "label": "known_incident",
+      "artifact_pair": true,
+      "delta": {
+        "behavior": [],
+        "trust_boundary": [],
+        "not_available": [],
+        "components": {
+          "publisher": "not_available",
+          "repository": "unchanged",
+          "behavior": "unchanged",
+          "provenance": "unchanged",
+          "new_domain": "unchanged",
+          "native_binary": "not_available"
+        }
+      },
+      "abstentions": []
+    },
+    {
+      "id": "npm-ctrl-tinycolor-4.1.0-4.2.0",
+      "package": "@ctrl/tinycolor",
+      "split": "holdout",
+      "label": "insufficient_evidence",
+      "artifact_pair": true,
+      "delta": {
+        "behavior": [],
+        "trust_boundary": [],
+        "not_available": [],
+        "components": {
+          "publisher": "not_available",
+          "repository": "unchanged",
+          "behavior": "unchanged",
+          "provenance": "unchanged",
+          "new_domain": "unchanged",
+          "native_binary": "not_available"
+        }
+      },
+      "abstentions": []
+    }
+  ],
+  "coverage": {
+    "total_cases": 9,
+    "evaluated_cases": 2,
+    "by_label": {
+      "known_benign": 5,
+      "ambiguous": 1,
+      "known_incident": 1,
+      "insufficient_evidence": 2
+    },
+    "by_split": {
+      "development": 6,
+      "validation": 1,
+      "holdout": 2
+    },
+    "artifact_pair_coverage": 2,
+    "history_introduction_coverage": 0,
+    "behavior_delta_coverage": 2
+  },
+  "abstention_reasons": {},
+  "metrics": {
+    "total": 2,
+    "decided": 2,
+    "abstentions": 0,
+    "tp": 0,
+    "fp": 0,
+    "tn": 1,
+    "fn": 1,
+    "precision": null,
+    "recall": 0,
+    "specificity": 1,
+    "false_positive_rate": 0,
+    "false_negative_rate": 1,
+    "accuracy": 0.5,
+    "abstention_rate": 0,
+    "coverage": 1
+  }
+}

@@ -114,7 +114,8 @@ const out = {
 };
 mkdirSync(join(root, 'results'), { recursive: true });
 writeFileSync(
-  join(root, 'results', 'development-validation.json'),
+  FINAL ? finalPath : join(root, 'results', 'development-validation.json'),
   JSON.stringify(out, null, 2) + '\n',
+  FINAL ? { flag: 'wx' } : undefined,
 );
 process.stdout.write(JSON.stringify(out.coverage, null, 2) + '\n');

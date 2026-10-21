@@ -113,3 +113,11 @@ The non-final development/validation run covered 9 cases total: 6 development, 1
 five had verified artifact pairs, and five produced behavior-delta coverage. History-introduction coverage was 0 because
 these are artifact-pair cases without repository lineages. Synthetic plumbing cases are excluded from accuracy metrics.
 No holdout result was generated. These labels remain AI-assisted and unreviewed; Gate 14 is MANUAL.
+
+## Final holdout v3 (2026-10-21)
+
+Freeze commit: `896d2e1` (corpus v3, evaluator, inspector/delta code, patterns and thresholds frozen). `calibration/incidents-v3/results/final-holdout-v3.json` holds the holdout-only result and the evaluator refuses to overwrite it (`wx`).
+
+Process disclosure: the evaluator's `--final` branch was first mis-wired and wrote the holdout output into `development-validation.json` instead of the final file (this happened on two invocations; the output is deterministic and identical). The reviewer saw only coverage counts at that time; the content was then preserved as `final-holdout-v3.json`, `development-validation.json` was restored from git and the write path fixed. The holdout was therefore evaluated more than once mechanically, with no code, label or threshold change between runs.
+
+Result (2 real artifact-pair cases: faker 5.5.3 -> 6.6.6 labeled known_incident, @ctrl/tinycolor 4.1.0 -> 4.2.0 labeled insufficient_evidence): both pairs had verified digests and a behavior delta was computed; no behavior change was observed on either. TP 0, FP 0, TN 1, FN 1 (recall 0/1, specificity 1/1); precision undefined. The evaluator counts insufficient_evidence as a negative here, which is a questionable choice for tinycolor and should be revisited. The faker 6.6.6 sabotage is a code-level change with no install hook, so the install-time behavior detectors correctly observe nothing: this documents a limit of the detector set, not a tuning target. The tinycolor 4.2.0 provenance gain is registry metadata and is not part of the artifact delta, so it is invisible to this evaluation. Two cases cannot support any rate. Nothing is tuned from this result.
