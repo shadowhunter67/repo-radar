@@ -449,11 +449,28 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       })
     : [];
   const governance = analyzeGovernance(github.governanceInput);
+  const introductionEvents = dependencyIntroductions.entries.flatMap((entry) => {
+    if (!entry.introduced_at || !entry.evidence_ids.length) return [];
+    return [
+      {
+        id: `history:${entry.dependency_id}`,
+        type: 'dependency_introduced' as const,
+        at: entry.introduced_at.timestamp,
+        subject: `${entry.ecosystem}:${entry.package}`,
+        source: 'git' as const,
+        detail: `introduction observed in commit ${entry.introduced_at.commit_sha}; commit author ${entry.author ?? 'unknown'}; committer ${entry.committer ?? 'unknown'}; responsibility: not determined`,
+        confidence: Math.min(entry.confidence, entry.introduction_commit_uncertain ? 0.6 : 0.85),
+        evidence: entry.evidence_ids.slice(0, 8),
+        entity: `${entry.ecosystem}:${entry.package}`,
+      },
+    ];
+  });
   const timeline = buildTimeline({
     governance,
     registry: registryIntel,
     dependencyRegistry: depRegistry,
     releases: github.releaseIntel,
+    extra: introductionEvents,
     patterns: BUILTIN_PATTERNS,
   });
   const facts = [

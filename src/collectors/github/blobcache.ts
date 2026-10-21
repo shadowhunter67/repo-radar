@@ -17,6 +17,39 @@ export class BlobCache {
     return `${repo.toLowerCase()}@${sha}`;
   }
 
+  private revisionKey(repo: string, commit: string, path: string, sha: string): string {
+    return `${repo.toLowerCase()}@${commit}:${path}:${sha}`;
+  }
+
+  getRevision(
+    repo: string,
+    commit: string,
+    path: string,
+    sha: string | undefined,
+  ): string | undefined {
+    if (!sha) return undefined;
+    return this.map.get(this.revisionKey(repo, commit, path, sha));
+  }
+
+  setRevision(
+    repo: string,
+    commit: string,
+    path: string,
+    sha: string | undefined,
+    content: string,
+  ): void {
+    if (!sha || !/^[0-9a-f]{40}$/i.test(sha)) return;
+    const k = this.revisionKey(repo, commit, path, sha);
+    if (
+      this.map.has(k) ||
+      this.map.size >= this.maxEntries ||
+      this.bytes + content.length > this.maxBytes
+    )
+      return;
+    this.map.set(k, content);
+    this.bytes += content.length;
+  }
+
   get(repo: string, sha: string | undefined): string | undefined {
     if (!sha) return undefined;
     const v = this.map.get(this.key(repo, sha));

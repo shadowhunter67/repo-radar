@@ -120,4 +120,52 @@ describe('dependency history collection', () => {
     expect(result.entries[0]!.history_status).toBe('history_budget_exhausted');
     expect(result.coverage.uncertain).toBe(1);
   });
+
+  it('uses paginated history and binary narrowing with bounded content requests', async () => {
+    const calls: string[] = [];
+    const commits = Array.from({ length: 8 }, (_, i) => ({
+      sha: String(i + 1).repeat(40).slice(0, 40),
+      commit: {
+        author: { name: 'a', date: `2024-01-0${i + 1}T00:00:00Z` },
+        committer: { name: 'c', date: `2024-01-0${i + 1}T00:00:00Z` },
+      },
+      parents: i ? [{ sha: String(i).repeat(40).slice(0, 40) }] : [],
+    }));
+    const http = new HttpClient({
+      allowedHosts: ['api.github.com'],
+      fetch: async (url) => {
+        calls.push(url);
+        const u = new URL(url);
+        if (u.pathname.endsWith('/commits'))
+          return new Response(JSON.stringify(commits), { status: 200 });
+        const sha = u.searchParams.get('ref') ?? '';
+        const present = ['5', '6', '7', '8'].some((prefix) => sha.startsWith(prefix));
+        return new Response(
+          JSON.stringify({
+            encoding: 'base64',
+            sha: 'a'.repeat(40),
+            content: Buffer.from(
+              present ? '{"dependencies":{"widget":"1"}}' : '{}',
+            ).toString('base64'),
+          }),
+          { status: 200 },
+        );
+      },
+    });
+    const result = await collectDependencyHistory({
+      http,
+      owner: 'o',
+      repo: 'r',
+      ref: 'main',
+      dependencies: [dep()],
+      manifests: [],
+      locks: [],
+      budget: { maxCommits: 8 },
+    });
+    expect(result.entries[0]!.introduction).toBe('known');
+    expect(calls.filter((x) => x.includes('/contents/')).length).toBeLessThan(8);
+    expect(result.entries[0]!.author).toBe('a');
+    expect(result.entries[0]!.committer).toBe('c');
+    expect(result.entries[0]!.evidence_ids.join(' ')).not.toContain('responsible');
+  });
 });

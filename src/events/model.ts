@@ -43,6 +43,10 @@ export const EVENT_TYPES = [
   'dependency_behavior_introduced',
   'dependency_behavior_removed',
   'dependency_trust_boundary_changed',
+  'dependency_introduced',
+  'dependency_spec_changed',
+  'dependency_version_changed',
+  'dependency_removed',
   // revision-to-revision changes of the analyzed repository (schema 0.7)
   'external_domain_removed',
   'external_domain_context_changed',

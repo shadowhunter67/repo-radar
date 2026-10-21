@@ -156,9 +156,16 @@ export async function collectDependencyHistory(input: {
       });
       continue;
     }
-    const commits = await requestJson<CommitRow[]>(
-      `/commits?path=${encodeURIComponent(path)}&sha=${encodeURIComponent(input.ref)}&per_page=${Math.min(100, budget.maxCommits)}`,
-    );
+    const pageSize = Math.min(100, budget.maxCommits);
+    const commits: CommitRow[] = [];
+    for (let page = 1; page <= Math.ceil(budget.maxCommits / pageSize); page++) {
+      const batch = await requestJson<CommitRow[]>(
+        `/commits?path=${encodeURIComponent(path)}&sha=${encodeURIComponent(input.ref)}&per_page=${pageSize}&page=${page}`,
+      );
+      if (!batch?.length) break;
+      commits.push(...batch);
+      if (batch.length < pageSize || commits.length >= budget.maxCommits) break;
+    }
     if (!commits) {
       entries.push({
         dependency_id: d.id,
@@ -178,31 +185,55 @@ export async function collectDependencyHistory(input: {
       });
       continue;
     }
-    let found: { commit: CommitRow; timestamp: string; merge: boolean } | undefined;
-    for (const commit of [...commits].reverse().slice(0, budget.maxCommits)) {
-      if (!commit.sha || !commit.commit?.committer?.date || commitsRead >= budget.maxCommits) break;
+    const ordered = [...commits].reverse().slice(0, budget.maxCommits);
+    const readAt = async (commit: CommitRow): Promise<boolean> => {
+      if (!commit.sha || !commit.commit?.committer?.date || commitsRead >= budget.maxCommits)
+        return false;
       commitsRead++;
       const body = await requestJson<{ content?: string; encoding?: string; sha?: string }>(
         `/contents/${path.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(commit.sha)}`,
         Math.min(512 * 1024, budget.maxBytes),
       );
-      if (!body?.content || body.encoding !== 'base64') continue;
+      if (!body?.content || body.encoding !== 'base64') return false;
       const raw = Buffer.from(body.content.replace(/\s/g, ''), 'base64').toString('utf8');
       changedFiles++;
-      if (changedFiles > budget.maxChangedFiles) break;
+      if (changedFiles > budget.maxChangedFiles) return false;
       if (body.sha)
-        input.blobCache?.set(`${input.owner}/${input.repo}@${commit.sha}:${path}`, body.sha, raw);
-      if (present(raw, path, d)) {
+        input.blobCache?.setRevision(
+          `${input.owner}/${input.repo}`,
+          commit.sha!,
+          path,
+          body.sha,
+          raw,
+        );
+      return present(raw, path, d);
+    };
+    let found: { commit: CommitRow; timestamp: string; merge: boolean } | undefined;
+    let low = 0;
+    let high = ordered.length - 1;
+    let firstPresent = -1;
+    while (low <= high && commitsRead < budget.maxCommits) {
+      const mid = Math.floor((low + high) / 2);
+      if (await readAt(ordered[mid]!)) {
+        firstPresent = mid;
+        high = mid - 1;
+      } else low = mid + 1;
+    }
+    if (firstPresent >= 0) {
+      const commit = ordered[firstPresent]!;
+      if (commit.sha && commit.commit?.committer?.date)
         found = {
           commit,
           timestamp: commit.commit.committer.date,
           merge: (commit.parents?.length ?? 0) > 1,
         };
-        break;
-      }
     }
     const status: DependencyHistoryStatus =
-      found && commitsRead < budget.maxCommits ? 'history_complete' : 'history_partial';
+      found && commitsRead < budget.maxCommits
+        ? 'history_complete'
+        : requests >= budget.maxRequests || commitsRead >= budget.maxCommits
+          ? 'history_budget_exhausted'
+          : 'history_partial';
     entries.push({
       dependency_id: d.id,
       introduction: found ? 'known' : 'unknown',
@@ -220,7 +251,12 @@ export async function collectDependencyHistory(input: {
       confidence: found ? (status === 'history_complete' ? 0.85 : 0.6) : 0,
       history_status: status,
       merge_commit: found?.merge ?? false,
-      squash_like: false,
+      squash_like: found
+        ? commits.length > 1 &&
+          !found.merge &&
+          found.commit.parents?.length === 1 &&
+          firstPresent > 0
+        : false,
       introduction_commit_uncertain: !found || status !== 'history_complete',
     });
   }
