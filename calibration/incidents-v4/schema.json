@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["ecosystem", "package", "version_before", "version_after", "incident_mechanism", "label_status", "detector_applicability", "artifact_provenance_before", "artifact_provenance_after", "registry_history_coverage", "dependency_history_coverage", "behavioral_delta_coverage", "human_review_status"],
+  "properties": {
+    "ecosystem": {"type":"string"}, "package":{"type":"string"}, "version_before":{"type":"string"}, "version_after":{"type":"string"},
+    "incident_mechanism":{"enum":["publisher_control_change","new_dependency_introduction","artifact_behavior_change","install_hook_abuse","external_domain_introduction","provenance_loss","source_code_semantic_sabotage","credential_theft","unknown"]},
+    "label_status":{"enum":["known_incident","known_benign","ambiguous","disputed","insufficient_evidence"]},
+    "detector_applicability":{"type":"object"}, "artifact_provenance_before":{"type":"object"}, "artifact_provenance_after":{"type":"object"},
+    "registry_history_coverage":{"type":"string"}, "dependency_history_coverage":{"type":"string"}, "behavioral_delta_coverage":{"type":"string"}, "human_review_status":{"type":"string"}
+  }
+}

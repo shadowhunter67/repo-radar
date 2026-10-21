@@ -114,6 +114,12 @@ five had verified artifact pairs, and five produced behavior-delta coverage. His
 these are artifact-pair cases without repository lineages. Synthetic plumbing cases are excluded from accuracy metrics.
 No holdout result was generated. These labels remain AI-assisted and unreviewed; Gate 14 is MANUAL.
 
+## Evaluator v2 semantics
+
+Evaluator v2 records `label_status`, `incident_mechanism`, detector applicability, evaluability, and an explicit reason. Only `evaluable_positive` and `evaluable_negative` enter TP/FP/TN/FN. Insufficient evidence, unavailable or unverified artifacts, ambiguous/disputed labels, and out-of-scope mechanisms are reported separately; silence is never a TN. Synthetic cases are reported as functional coverage and excluded from headline real-world metrics. Samples below five evaluable cases are explicitly marked insufficient. Incident model version is `0.13.0`; methodology remains 0.4.
+
+The spent v3 holdout was not rerun. Its evaluator-v2 metric recalculation references the immutable original by SHA-256 and is not an accuracy claim or a fresh holdout.
+
 ## Final holdout v3 (2026-10-21)
 
 Freeze commit: `896d2e1` (corpus v3, evaluator, inspector/delta code, patterns and thresholds frozen). `calibration/incidents-v3/results/final-holdout-v3.json` holds the holdout-only result and the evaluator refuses to overwrite it (`wx`).

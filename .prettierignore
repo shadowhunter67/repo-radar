@@ -18,3 +18,7 @@ tests/unit/dependency-history.test.ts
 tests/unit/dependency-artifacts.test.ts
 tests/unit/incident-v3.test.ts
 tests/unit/history-validation.test.ts
+tests/unit/calibration-evaluator-v2.test.ts
+calibration/review-v2
+calibration/incidents-v4
+calibration/incidents-v3/results

@@ -1,0 +1,19 @@
+{
+  "packet_version": 2,
+  "corpus": "incident-review-v2",
+  "case_id": "npm-underscore-1.13.4-1.13.5",
+  "package": "underscore",
+  "ecosystem": "npm",
+  "version_before": "1.13.4",
+  "version_after": "1.13.5",
+  "blind": "No analyzer prediction, AI label, or conclusion.",
+  "reviewer_id": "",
+  "opinions": {
+    "label": "",
+    "incident_mechanism": "",
+    "artifact_provenance_quality": "",
+    "dependency_history_ground_truth": ""
+  },
+  "timestamp": "",
+  "free_text": ""
+}

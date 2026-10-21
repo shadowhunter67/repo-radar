@@ -5,6 +5,7 @@ import { inspectArtifact } from '../dist/registry/artifacts/inspect.js';
 import { compareDependencyArtifacts } from '../dist/registry/artifacts/delta.js';
 import { extractStaticFacts } from '../dist/registry/artifacts/static.js';
 import { calculateBinaryMetrics } from '../dist/calibration/metrics.js';
+import { evaluateCase, summarizeEvaluator } from '../dist/calibration/evaluator.js';
 import process from 'node:process';
 
 const root = resolve('calibration/incidents-v3');
@@ -79,6 +80,8 @@ const rows = cases
       package: c.package,
       split: c.split,
       label: c.label,
+      label_status: c.label,
+      incident_mechanism: c.incident_mechanism ?? 'unknown',
       artifact_pair: !abstentions.length,
       delta,
       abstentions,
@@ -88,10 +91,40 @@ const count = (items) => items.reduce((a, x) => ((a[x] = (a[x] ?? 0) + 1), a), {
 const scored = rows.filter(
   (r) => cases.find((c) => c.id === r.id)?.source !== 'synthetic_from_real',
 );
+const evaluatorRows = rows.map((r) => {
+  const c = cases.find((x) => x.id === r.id);
+  const result = evaluateCase(
+    {
+      label_status: c.label_status ?? c.label,
+      incident_mechanism: c.incident_mechanism ?? 'unknown',
+      synthetic: c.source === 'synthetic_from_real',
+      artifact_available: r.artifact_pair,
+      artifact_provenance_verified: r.artifact_pair,
+      registry_history_available: Object.keys(c.publish_timestamps ?? {}).length > 0,
+      dependency_history_available: false,
+      behavioral_delta_available: r.delta !== null,
+    },
+    {
+      required_evidence: ['artifact_digest'],
+      applicable_mechanisms: [
+        'artifact_behavior_change',
+        'install_hook_abuse',
+        'external_domain_introduction',
+        'unknown',
+      ],
+      out_of_scope_mechanisms: ['source_code_semantic_sabotage'],
+    },
+  );
+  return {
+    result,
+    observed: r.delta?.behavior.length > 0 ? true : r.delta ? false : null,
+    synthetic: c.source === 'synthetic_from_real',
+  };
+});
 const out = {
   version: 3,
   corpus: 'incident-calibration-v3',
-  incident_model_version: '0.12.0',
+  incident_model_version: '0.13.0',
   holdout: FINAL,
   split_scope: FINAL ? 'holdout_only' : 'development_and_validation',
   cases: rows,
@@ -111,6 +144,7 @@ const out = {
       observed: r.delta?.behavior.length > 0 ? true : r.delta ? false : null,
     })),
   ),
+  evaluator_v2: summarizeEvaluator(evaluatorRows),
 };
 mkdirSync(join(root, 'results'), { recursive: true });
 writeFileSync(

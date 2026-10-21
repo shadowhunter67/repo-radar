@@ -1,0 +1,54 @@
+{
+  "result_kind": "metric-recalculation",
+  "evaluator_version": "0.13.0",
+  "source_file": "final-holdout-v3.json",
+  "source_sha256": "acf6e401033be136f39b99223fccb89f1024dbd37998014fa50844d1eb1dbbf9",
+  "root_cause": "The prior evaluator treated insufficient evidence as a negative observation; evaluator v2 excludes it from TP/FP/TN/FN and reports evaluability separately.",
+  "before": {
+    "total": 2,
+    "decided": 2,
+    "abstentions": 0,
+    "tp": 0,
+    "fp": 0,
+    "tn": 1,
+    "fn": 1,
+    "precision": null,
+    "recall": 0,
+    "specificity": 1,
+    "false_positive_rate": 0,
+    "false_negative_rate": 1,
+    "accuracy": 0.5,
+    "abstention_rate": 0,
+    "coverage": 1
+  },
+  "after": {
+    "total": 2,
+    "evaluable": 1,
+    "not_evaluable": 1,
+    "ambiguous": 0,
+    "not_applicable": 0,
+    "by_reason": {
+      "verified_artifact_and_settled_incident_label": 1,
+      "insufficient_incident_evidence": 1
+    },
+    "metrics": {
+      "total": 1,
+      "decided": 1,
+      "abstentions": 0,
+      "tp": 0,
+      "fp": 0,
+      "tn": 0,
+      "fn": 1,
+      "precision": null,
+      "recall": 0,
+      "specificity": null,
+      "false_positive_rate": null,
+      "false_negative_rate": 1,
+      "accuracy": 0,
+      "abstention_rate": 0,
+      "coverage": 1
+    },
+    "sample_note": "sample insufficient: fewer than 5 evaluable cases",
+    "synthetic_functional_coverage": 0
+  }
+}

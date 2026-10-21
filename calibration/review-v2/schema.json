@@ -1,0 +1,1 @@
+{"type":"object","required":["reviewer_id","opinions","timestamp","free_text"],"properties":{"reviewer_id":{"type":"string"},"opinions":{"type":"object","required":["label","incident_mechanism","artifact_provenance_quality","dependency_history_ground_truth"]},"timestamp":{"type":"string"},"free_text":{"type":"string"}}}

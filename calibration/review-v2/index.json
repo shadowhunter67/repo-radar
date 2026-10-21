@@ -1,0 +1,43 @@
+{
+  "packet_version": 2,
+  "corpus": "incident-review-v2",
+  "blind": true,
+  "packets": [
+    {
+      "case_id": "npm-underscore-1.13.4-1.13.5",
+      "packet": "packets/npm-underscore-1.13.4-1.13.5.json"
+    },
+    {
+      "case_id": "npm-underscore-1.13.5-1.13.6",
+      "packet": "packets/npm-underscore-1.13.5-1.13.6.json"
+    },
+    {
+      "case_id": "npm-async-0.1.16-0.1.17",
+      "packet": "packets/npm-async-0.1.16-0.1.17.json"
+    },
+    {
+      "case_id": "npm-eslint-config-prettier-10.1.3-10.1.4",
+      "packet": "packets/npm-eslint-config-prettier-10.1.3-10.1.4.json"
+    },
+    {
+      "case_id": "npm-event-stream-3.3.4-3.3.5",
+      "packet": "packets/npm-event-stream-3.3.4-3.3.5.json"
+    },
+    {
+      "case_id": "npm-core-js-3.49.0-4.0.0-alpha.1",
+      "packet": "packets/npm-core-js-3.49.0-4.0.0-alpha.1.json"
+    },
+    {
+      "case_id": "npm-faker-5.5.3-6.6.6",
+      "packet": "packets/npm-faker-5.5.3-6.6.6.json"
+    },
+    {
+      "case_id": "npm-flatmap-synthetic-plumbing",
+      "packet": "packets/npm-flatmap-synthetic-plumbing.json"
+    },
+    {
+      "case_id": "npm-ctrl-tinycolor-4.1.0-4.2.0",
+      "packet": "packets/npm-ctrl-tinycolor-4.1.0-4.2.0.json"
+    }
+  ]
+}

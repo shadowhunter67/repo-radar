@@ -1,0 +1,19 @@
+{
+  "packet_version": 2,
+  "corpus": "incident-review-v2",
+  "case_id": "npm-async-0.1.16-0.1.17",
+  "package": "async",
+  "ecosystem": "npm",
+  "version_before": "0.1.16",
+  "version_after": "0.1.17",
+  "blind": "No analyzer prediction, AI label, or conclusion.",
+  "reviewer_id": "",
+  "opinions": {
+    "label": "",
+    "incident_mechanism": "",
+    "artifact_provenance_quality": "",
+    "dependency_history_ground_truth": ""
+  },
+  "timestamp": "",
+  "free_text": ""
+}

@@ -1,0 +1,19 @@
+{
+  "packet_version": 2,
+  "corpus": "incident-review-v2",
+  "case_id": "npm-ctrl-tinycolor-4.1.0-4.2.0",
+  "package": "@ctrl/tinycolor",
+  "ecosystem": "npm",
+  "version_before": "4.1.0",
+  "version_after": "4.2.0",
+  "blind": "No analyzer prediction, AI label, or conclusion.",
+  "reviewer_id": "",
+  "opinions": {
+    "label": "",
+    "incident_mechanism": "",
+    "artifact_provenance_quality": "",
+    "dependency_history_ground_truth": ""
+  },
+  "timestamp": "",
+  "free_text": ""
+}

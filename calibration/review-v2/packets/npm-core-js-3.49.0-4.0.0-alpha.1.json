@@ -1,0 +1,19 @@
+{
+  "packet_version": 2,
+  "corpus": "incident-review-v2",
+  "case_id": "npm-core-js-3.49.0-4.0.0-alpha.1",
+  "package": "core-js",
+  "ecosystem": "npm",
+  "version_before": "3.49.0",
+  "version_after": "4.0.0-alpha.1",
+  "blind": "No analyzer prediction, AI label, or conclusion.",
+  "reviewer_id": "",
+  "opinions": {
+    "label": "",
+    "incident_mechanism": "",
+    "artifact_provenance_quality": "",
+    "dependency_history_ground_truth": ""
+  },
+  "timestamp": "",
+  "free_text": ""
+}

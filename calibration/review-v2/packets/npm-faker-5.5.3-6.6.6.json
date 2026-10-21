@@ -1,0 +1,19 @@
+{
+  "packet_version": 2,
+  "corpus": "incident-review-v2",
+  "case_id": "npm-faker-5.5.3-6.6.6",
+  "package": "faker",
+  "ecosystem": "npm",
+  "version_before": "5.5.3",
+  "version_after": "6.6.6",
+  "blind": "No analyzer prediction, AI label, or conclusion.",
+  "reviewer_id": "",
+  "opinions": {
+    "label": "",
+    "incident_mechanism": "",
+    "artifact_provenance_quality": "",
+    "dependency_history_ground_truth": ""
+  },
+  "timestamp": "",
+  "free_text": ""
+}

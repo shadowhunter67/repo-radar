@@ -77,3 +77,40 @@ writeFileSync(
   ) + '\n',
 );
 process.stdout.write(`wrote ${v3Index.length} v3 blind incident packets\n`);
+
+const reviewV2 = join(dirname(fileURLToPath(import.meta.url)), '..', 'calibration', 'review-v2');
+mkdirSync(join(reviewV2, 'packets'), { recursive: true });
+const reviewIndex = [];
+for (const c of v3Cases) {
+  const packet = {
+    packet_version: 2,
+    corpus: 'incident-review-v2',
+    case_id: c.id,
+    package: c.package,
+    ecosystem: c.ecosystem,
+    version_before: c.version_before,
+    version_after: c.version_after,
+    blind: 'No analyzer prediction, AI label, or conclusion is included. Gate 14 remains MANUAL.',
+    reviewer_id: '',
+    opinions: {
+      label: '',
+      incident_mechanism: '',
+      artifact_provenance_quality: '',
+      dependency_history_ground_truth: '',
+    },
+    timestamp: '',
+    free_text: '',
+  };
+  const name = `${c.id}.json`;
+  writeFileSync(join(reviewV2, 'packets', name), JSON.stringify(packet, null, 2) + '\n');
+  reviewIndex.push({ case_id: c.id, packet: `packets/${name}` });
+}
+writeFileSync(
+  join(reviewV2, 'index.json'),
+  JSON.stringify(
+    { packet_version: 2, corpus: 'incident-review-v2', blind: true, packets: reviewIndex },
+    null,
+    2,
+  ) + '\n',
+);
+process.stdout.write(`wrote ${reviewIndex.length} v2 review packets\n`);
