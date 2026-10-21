@@ -1,0 +1,1544 @@
+{
+  "version": 2,
+  "corpus": "incident-calibration-v2",
+  "methodology": "0.4",
+  "incident_model_version": "0.11.0",
+  "holdout": true,
+  "cases": [
+    {
+      "id": "npm-xrpl-v2-history",
+      "split": "holdout",
+      "conclusion": "known_compromise",
+      "events": [
+        "dependency_maintainer_changed",
+        "dependency_maintainer_changed",
+        "dependency_maintainer_changed",
+        "dependency_maintainer_changed",
+        "dependency_publisher_changed",
+        "dependency_maintainer_changed",
+        "dependency_maintainer_changed",
+        "dependency_provenance_added",
+        "dependency_publisher_changed",
+        "dependency_maintainer_changed"
+      ],
+      "expected_events": [
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.0.0-beta.0",
+          "date": "2021-09-10T21:58:23.403Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.0.0-beta.0",
+          "date": "2021-09-10T21:58:23.403Z"
+        },
+        {
+          "type": "dependency_repository_changed",
+          "version": "2.0.0-beta.0",
+          "date": "2021-09-10T21:58:23.403Z"
+        },
+        {
+          "type": "dependency_repository_changed",
+          "version": "2.0.0-beta.1",
+          "date": "2021-09-24T23:00:58.676Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "1.10.0",
+          "date": "2021-09-24T23:31:37.427Z"
+        },
+        {
+          "type": "dependency_repository_changed",
+          "version": "1.10.0",
+          "date": "2021-09-24T23:31:37.427Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.0.0-beta.2",
+          "date": "2021-09-27T22:30:45.321Z"
+        },
+        {
+          "type": "dependency_repository_changed",
+          "version": "2.0.0-beta.2",
+          "date": "2021-09-27T22:30:45.321Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.0.0-beta.3",
+          "date": "2021-09-29T00:14:32.233Z"
+        },
+        {
+          "type": "dependency_repository_changed",
+          "version": "2.0.0-beta.4",
+          "date": "2021-10-05T21:01:57.499Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.1.0-beta.1",
+          "date": "2021-10-28T02:35:01.704Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.1.0-beta.1",
+          "date": "2021-10-28T02:35:01.704Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.0.1",
+          "date": "2021-11-01T17:57:23.036Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.0.1",
+          "date": "2021-11-01T17:57:23.036Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.0.2",
+          "date": "2021-11-17T23:48:19.799Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.0.3",
+          "date": "2021-12-01T23:58:06.734Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.0.4",
+          "date": "2021-12-02T20:02:11.980Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.1.0",
+          "date": "2021-12-18T00:51:24.425Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.1.1",
+          "date": "2021-12-24T01:36:05.419Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.1.1",
+          "date": "2021-12-24T01:36:05.419Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.2.0",
+          "date": "2022-04-19T17:18:18.968Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.2.1",
+          "date": "2022-04-21T22:34:22.682Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.2.1",
+          "date": "2022-04-21T22:34:22.682Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.2.2",
+          "date": "2022-05-02T20:22:21.242Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.2.3",
+          "date": "2022-05-04T21:42:10.044Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "1.10.1",
+          "date": "2022-05-31T18:48:20.599Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.3.0",
+          "date": "2022-06-02T18:09:13.207Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.3.1",
+          "date": "2022-06-28T01:35:40.748Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.3.1",
+          "date": "2022-06-28T01:35:40.748Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.4.0",
+          "date": "2022-09-01T23:28:57.482Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.5.0-beta.0",
+          "date": "2022-09-02T11:25:22.779Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.5.0-beta.1",
+          "date": "2022-09-15T21:03:52.465Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.5.0",
+          "date": "2022-10-13T18:30:08.132Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.5.0-beta.2",
+          "date": "2022-11-17T20:37:23.422Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.6.0",
+          "date": "2022-11-21T22:50:16.515Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.6.0",
+          "date": "2022-11-21T22:50:16.515Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.7.0-beta.0",
+          "date": "2022-12-15T20:02:56.159Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.7.0-beta.0",
+          "date": "2022-12-15T20:02:56.159Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.7.0-beta.1",
+          "date": "2023-02-16T19:27:06.695Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.7.0-beta.3",
+          "date": "2023-02-23T20:43:09.623Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.7.0",
+          "date": "2023-03-08T23:11:02.651Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.8.0-beta.1",
+          "date": "2023-04-11T18:48:12.416Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.8.0",
+          "date": "2023-06-13T21:16:46.224Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.9.0",
+          "date": "2023-07-13T18:11:48.256Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.9.0",
+          "date": "2023-07-13T18:11:48.256Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.9.1",
+          "date": "2023-07-18T20:42:40.268Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.10.0",
+          "date": "2023-08-07T21:52:16.352Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.11.0",
+          "date": "2023-08-24T17:46:12.278Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.12.0-beta.0",
+          "date": "2023-08-25T11:17:22.168Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.12.0",
+          "date": "2023-09-27T17:02:06.973Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.13.0",
+          "date": "2023-10-18T16:14:29.744Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.14.0",
+          "date": "2023-11-30T21:29:38.351Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "3.0.0-beta.1",
+          "date": "2023-11-30T23:03:29.053Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "1.0.0-mpt-beta",
+          "date": "2024-04-22T18:41:14.657Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "1.0.0-mpt-beta",
+          "date": "2024-04-22T18:41:14.657Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "3.1.0",
+          "date": "2024-06-03T20:34:48.803Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "3.1.0",
+          "date": "2024-06-03T20:34:48.803Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "1.0.3-mpt-beta",
+          "date": "2024-07-09T13:54:48.462Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.0.0",
+          "date": "2024-07-16T18:23:42.821Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.0.0",
+          "date": "2024-07-16T18:23:42.821Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.0.0-mpt-beta",
+          "date": "2024-09-04T14:02:01.007Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.1.0",
+          "date": "2024-12-23T16:29:57.378Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.1.0",
+          "date": "2024-12-23T16:29:57.378Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.2.0-batch.0",
+          "date": "2025-02-13T19:05:44.405Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.2.0",
+          "date": "2025-02-14T02:24:11.746Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.3.0-smartescrow.0",
+          "date": "2025-03-26T19:05:30.053Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.2.5",
+          "date": "2025-04-22T12:43:03.962Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.2.5",
+          "date": "2025-04-22T12:43:03.962Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.14.3",
+          "date": "2025-04-22T13:27:46.826Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.3.0-smartescrow.2",
+          "date": "2025-05-02T15:52:03.294Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.3.0-smartescrow.2",
+          "date": "2025-05-02T15:52:03.294Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.3.0",
+          "date": "2025-06-09T21:09:55.932Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.3.0",
+          "date": "2025-06-09T21:09:55.932Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.4.0-smartescrow.0",
+          "date": "2025-07-10T20:08:14.598Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.4.0",
+          "date": "2025-07-29T22:25:03.307Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.4.0",
+          "date": "2025-07-29T22:25:03.307Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.5.0-smartescrow.0",
+          "date": "2025-08-04T20:33:11.143Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.4.1",
+          "date": "2025-09-02T19:50:32.464Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.4.1",
+          "date": "2025-09-02T19:50:32.464Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.5.0-smartescrow.1",
+          "date": "2025-09-15T21:14:48.443Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.5.0-smartescrow.1",
+          "date": "2025-09-15T21:14:48.443Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.4.2",
+          "date": "2025-09-25T17:03:09.203Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.4.2",
+          "date": "2025-09-25T17:03:09.203Z"
+        },
+        {
+          "type": "dependency_provenance_added",
+          "version": "4.4.2",
+          "date": "2025-09-25T17:03:09.203Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.5.0-smartescrow.3",
+          "date": "2025-10-29T00:30:19.025Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.7.0-smartcontract.0",
+          "date": "2026-05-12T01:23:27.260Z"
+        }
+      ],
+      "observations": {
+        "publisher_change": true,
+        "maintainer_change": true,
+        "repository_change": false,
+        "dormancy_end": false,
+        "release_cadence_change": false,
+        "install_script_introduced": false,
+        "provenance_changed": true,
+        "external_domain_introduced": false
+      },
+      "abstentions": [
+        "release_cadence_change",
+        "external_domain_introduced"
+      ],
+      "patterns": {
+        "dependency-takeover-indicators": false,
+        "dependency-dormancy-publisher-hook": false,
+        "dependency-control-change-then-install-capability": false
+      }
+    },
+    {
+      "id": "npm-@ctrl-tinycolor-v2-history",
+      "split": "holdout",
+      "conclusion": "known_compromise",
+      "events": [
+        "dependency_repository_changed",
+        "dependency_dormancy_ended",
+        "dependency_provenance_added"
+      ],
+      "expected_events": [
+        {
+          "type": "dependency_repository_changed",
+          "version": "3.1.3",
+          "date": "2020-07-07T06:40:16.172Z"
+        },
+        {
+          "type": "dependency_provenance_added",
+          "version": "4.2.0",
+          "date": "2025-09-16T03:17:48.101Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.2.1",
+          "date": "2026-09-09T19:20:27.702Z"
+        }
+      ],
+      "observations": {
+        "publisher_change": false,
+        "maintainer_change": false,
+        "repository_change": true,
+        "dormancy_end": true,
+        "release_cadence_change": false,
+        "install_script_introduced": false,
+        "provenance_changed": true,
+        "external_domain_introduced": false
+      },
+      "abstentions": [
+        "release_cadence_change",
+        "external_domain_introduced"
+      ],
+      "patterns": {
+        "dependency-takeover-indicators": false,
+        "dependency-dormancy-publisher-hook": false,
+        "dependency-control-change-then-install-capability": false
+      }
+    },
+    {
+      "id": "npm-rand-user-agent-v2-history",
+      "split": "holdout",
+      "conclusion": "insufficient_evidence",
+      "events": [],
+      "expected_events": [],
+      "observations": {
+        "publisher_change": false,
+        "maintainer_change": false,
+        "repository_change": false,
+        "dormancy_end": false,
+        "release_cadence_change": false,
+        "install_script_introduced": false,
+        "provenance_changed": false,
+        "external_domain_introduced": false
+      },
+      "abstentions": [
+        "release_cadence_change",
+        "external_domain_introduced"
+      ],
+      "patterns": {
+        "dependency-takeover-indicators": false,
+        "dependency-dormancy-publisher-hook": false,
+        "dependency-control-change-then-install-capability": false
+      }
+    },
+    {
+      "id": "npm-commander-v2-history",
+      "split": "holdout",
+      "conclusion": "known_benign_control",
+      "events": [
+        "dependency_publisher_changed",
+        "dependency_maintainer_changed"
+      ],
+      "expected_events": [
+        {
+          "type": "dependency_repository_changed",
+          "version": "0.5.2",
+          "date": "2012-06-25T21:09:05.996Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.3.0",
+          "date": "2014-07-16T02:14:43.461Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.3.0",
+          "date": "2014-07-16T02:14:43.461Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.4.0",
+          "date": "2014-10-17T14:16:05.654Z"
+        },
+        {
+          "type": "dependency_repository_changed",
+          "version": "2.5.0",
+          "date": "2014-10-24T07:41:38.958Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.9.0",
+          "date": "2015-10-13T15:26:25.933Z"
+        },
+        {
+          "type": "dependency_repository_changed",
+          "version": "2.9.0",
+          "date": "2015-10-13T15:26:25.933Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.10.0",
+          "date": "2017-06-23T09:32:55.567Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.10.0",
+          "date": "2017-06-23T09:32:55.567Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "3.0.0-0",
+          "date": "2019-07-27T02:38:12.348Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.20.1",
+          "date": "2019-09-28T22:01:44.284Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.20.3",
+          "date": "2019-10-11T05:40:24.166Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.0.0",
+          "date": "2019-11-01T10:09:07.258Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.0.1",
+          "date": "2019-11-11T09:18:33.992Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "5.0.0-0",
+          "date": "2020-02-01T03:44:40.532Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.1.1",
+          "date": "2020-02-03T06:15:56.861Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "5.0.0-1",
+          "date": "2020-02-08T20:49:31.242Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "5.0.0",
+          "date": "2020-03-14T01:10:37.734Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "6.0.0-0",
+          "date": "2020-06-20T06:03:44.450Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "6.0.0",
+          "date": "2020-07-19T14:01:31.919Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "7.0.0-0",
+          "date": "2020-10-25T04:49:14.594Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "6.2.1",
+          "date": "2020-12-14T00:47:18.186Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "7.0.0-2",
+          "date": "2020-12-14T07:48:46.624Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "7.0.0",
+          "date": "2021-01-15T09:47:17.281Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "8.0.0-0",
+          "date": "2021-05-22T23:31:04.447Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "8.0.0",
+          "date": "2021-06-25T08:24:16.053Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "9.0.0-0",
+          "date": "2021-12-22T05:45:54.861Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "9.0.0",
+          "date": "2022-01-29T00:30:40.995Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "9.1.0",
+          "date": "2022-03-18T05:56:21.581Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "10.0.0",
+          "date": "2023-01-14T01:53:41.421Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "10.0.1",
+          "date": "2023-04-15T05:01:56.178Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "12.0.0-0",
+          "date": "2023-11-11T05:42:46.741Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "12.0.0",
+          "date": "2024-02-03T09:44:33.948Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "13.0.0-0",
+          "date": "2024-12-06T23:12:32.307Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "13.0.0",
+          "date": "2024-12-30T05:26:40.123Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "14.0.3",
+          "date": "2026-01-31T01:47:17.592Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "15.0.0-0",
+          "date": "2026-02-21T07:16:07.899Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "15.0.0",
+          "date": "2026-05-29T09:16:23.076Z"
+        }
+      ],
+      "observations": {
+        "publisher_change": true,
+        "maintainer_change": true,
+        "repository_change": false,
+        "dormancy_end": false,
+        "release_cadence_change": false,
+        "install_script_introduced": false,
+        "provenance_changed": false,
+        "external_domain_introduced": false
+      },
+      "abstentions": [
+        "release_cadence_change",
+        "external_domain_introduced"
+      ],
+      "patterns": {
+        "dependency-takeover-indicators": false,
+        "dependency-dormancy-publisher-hook": false,
+        "dependency-control-change-then-install-capability": false
+      }
+    },
+    {
+      "id": "npm-cross-env-v2-history",
+      "split": "holdout",
+      "conclusion": "known_benign_control",
+      "events": [
+        "dependency_dormancy_ended"
+      ],
+      "expected_events": [],
+      "observations": {
+        "publisher_change": false,
+        "maintainer_change": false,
+        "repository_change": false,
+        "dormancy_end": true,
+        "release_cadence_change": false,
+        "install_script_introduced": false,
+        "provenance_changed": false,
+        "external_domain_introduced": false
+      },
+      "abstentions": [
+        "release_cadence_change",
+        "external_domain_introduced"
+      ],
+      "patterns": {
+        "dependency-takeover-indicators": false,
+        "dependency-dormancy-publisher-hook": false,
+        "dependency-control-change-then-install-capability": false
+      }
+    },
+    {
+      "id": "crates.io-regex-v2-history",
+      "split": "holdout",
+      "conclusion": "known_benign_control",
+      "events": [],
+      "expected_events": [],
+      "observations": {
+        "publisher_change": false,
+        "maintainer_change": false,
+        "repository_change": false,
+        "dormancy_end": false,
+        "release_cadence_change": false,
+        "install_script_introduced": false,
+        "provenance_changed": false,
+        "external_domain_introduced": false
+      },
+      "abstentions": [
+        "publisher_change",
+        "maintainer_change",
+        "repository_change",
+        "dormancy_end",
+        "release_cadence_change",
+        "install_script_introduced",
+        "provenance_changed",
+        "external_domain_introduced"
+      ],
+      "patterns": {
+        "dependency-takeover-indicators": false,
+        "dependency-dormancy-publisher-hook": false,
+        "dependency-control-change-then-install-capability": false
+      }
+    },
+    {
+      "id": "npm-xrpl-v2-incident-window",
+      "split": "holdout",
+      "conclusion": "known_compromise",
+      "events": [
+        "dependency_maintainer_changed",
+        "dependency_maintainer_changed",
+        "dependency_maintainer_changed",
+        "dependency_maintainer_changed",
+        "dependency_publisher_changed",
+        "dependency_maintainer_changed",
+        "dependency_maintainer_changed",
+        "dependency_provenance_added",
+        "dependency_publisher_changed",
+        "dependency_maintainer_changed"
+      ],
+      "expected_events": [
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.7.0-beta.1",
+          "date": "2023-02-16T19:27:06.695Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.7.0-beta.3",
+          "date": "2023-02-23T20:43:09.623Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.7.0",
+          "date": "2023-03-08T23:11:02.651Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.8.0-beta.1",
+          "date": "2023-04-11T18:48:12.416Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.8.0",
+          "date": "2023-06-13T21:16:46.224Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.9.0",
+          "date": "2023-07-13T18:11:48.256Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.9.0",
+          "date": "2023-07-13T18:11:48.256Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.9.1",
+          "date": "2023-07-18T20:42:40.268Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.10.0",
+          "date": "2023-08-07T21:52:16.352Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.11.0",
+          "date": "2023-08-24T17:46:12.278Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.12.0-beta.0",
+          "date": "2023-08-25T11:17:22.168Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.12.0",
+          "date": "2023-09-27T17:02:06.973Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.13.0",
+          "date": "2023-10-18T16:14:29.744Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "2.14.0",
+          "date": "2023-11-30T21:29:38.351Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "3.0.0-beta.1",
+          "date": "2023-11-30T23:03:29.053Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "1.0.0-mpt-beta",
+          "date": "2024-04-22T18:41:14.657Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "1.0.0-mpt-beta",
+          "date": "2024-04-22T18:41:14.657Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "3.1.0",
+          "date": "2024-06-03T20:34:48.803Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "3.1.0",
+          "date": "2024-06-03T20:34:48.803Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "1.0.3-mpt-beta",
+          "date": "2024-07-09T13:54:48.462Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.0.0",
+          "date": "2024-07-16T18:23:42.821Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.0.0",
+          "date": "2024-07-16T18:23:42.821Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.0.0-mpt-beta",
+          "date": "2024-09-04T14:02:01.007Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.1.0",
+          "date": "2024-12-23T16:29:57.378Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.1.0",
+          "date": "2024-12-23T16:29:57.378Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.2.0-batch.0",
+          "date": "2025-02-13T19:05:44.405Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.2.0",
+          "date": "2025-02-14T02:24:11.746Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.3.0-smartescrow.0",
+          "date": "2025-03-26T19:05:30.053Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.2.5",
+          "date": "2025-04-22T12:43:03.962Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.2.5",
+          "date": "2025-04-22T12:43:03.962Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "2.14.3",
+          "date": "2025-04-22T13:27:46.826Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.3.0-smartescrow.2",
+          "date": "2025-05-02T15:52:03.294Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.3.0-smartescrow.2",
+          "date": "2025-05-02T15:52:03.294Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.3.0",
+          "date": "2025-06-09T21:09:55.932Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.3.0",
+          "date": "2025-06-09T21:09:55.932Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.4.0-smartescrow.0",
+          "date": "2025-07-10T20:08:14.598Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.4.0",
+          "date": "2025-07-29T22:25:03.307Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.4.0",
+          "date": "2025-07-29T22:25:03.307Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.5.0-smartescrow.0",
+          "date": "2025-08-04T20:33:11.143Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.4.1",
+          "date": "2025-09-02T19:50:32.464Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.4.1",
+          "date": "2025-09-02T19:50:32.464Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.5.0-smartescrow.1",
+          "date": "2025-09-15T21:14:48.443Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.5.0-smartescrow.1",
+          "date": "2025-09-15T21:14:48.443Z"
+        },
+        {
+          "type": "dependency_publisher_changed",
+          "version": "4.4.2",
+          "date": "2025-09-25T17:03:09.203Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.4.2",
+          "date": "2025-09-25T17:03:09.203Z"
+        },
+        {
+          "type": "dependency_provenance_added",
+          "version": "4.4.2",
+          "date": "2025-09-25T17:03:09.203Z"
+        },
+        {
+          "type": "dependency_maintainer_changed",
+          "version": "4.5.0-smartescrow.3",
+          "date": "2025-10-29T00:30:19.025Z"
+        }
+      ],
+      "observations": {
+        "publisher_change": true,
+        "maintainer_change": true,
+        "repository_change": false,
+        "dormancy_end": false,
+        "release_cadence_change": false,
+        "install_script_introduced": false,
+        "provenance_changed": true,
+        "external_domain_introduced": false
+      },
+      "abstentions": [
+        "release_cadence_change",
+        "external_domain_introduced"
+      ],
+      "patterns": {
+        "dependency-takeover-indicators": false,
+        "dependency-dormancy-publisher-hook": false,
+        "dependency-control-change-then-install-capability": false
+      }
+    },
+    {
+      "id": "npm-@ctrl-tinycolor-v2-incident-window",
+      "split": "holdout",
+      "conclusion": "known_compromise",
+      "events": [
+        "dependency_repository_changed",
+        "dependency_dormancy_ended",
+        "dependency_provenance_added"
+      ],
+      "expected_events": [
+        {
+          "type": "dependency_provenance_added",
+          "version": "4.2.0",
+          "date": "2025-09-16T03:17:48.101Z"
+        }
+      ],
+      "observations": {
+        "publisher_change": false,
+        "maintainer_change": false,
+        "repository_change": true,
+        "dormancy_end": true,
+        "release_cadence_change": false,
+        "install_script_introduced": false,
+        "provenance_changed": true,
+        "external_domain_introduced": false
+      },
+      "abstentions": [
+        "release_cadence_change",
+        "external_domain_introduced"
+      ],
+      "patterns": {
+        "dependency-takeover-indicators": false,
+        "dependency-dormancy-publisher-hook": false,
+        "dependency-control-change-then-install-capability": false
+      }
+    }
+  ],
+  "raw_observation_metrics": {
+    "publisher_change": {
+      "n": 7,
+      "abstained": 1,
+      "accuracy": 0.7142857142857143,
+      "precision": 1,
+      "recall": 0.6,
+      "false_positive_rate": 0
+    },
+    "maintainer_change": {
+      "n": 7,
+      "abstained": 1,
+      "accuracy": 1,
+      "precision": 1,
+      "recall": 1,
+      "false_positive_rate": 0
+    },
+    "repository_change": {
+      "n": 7,
+      "abstained": 1,
+      "accuracy": 0.5714285714285714,
+      "precision": 1,
+      "recall": 0.4,
+      "false_positive_rate": 0
+    },
+    "dormancy_end": {
+      "n": 7,
+      "abstained": 1,
+      "accuracy": 0.5714285714285714,
+      "precision": 0,
+      "recall": null,
+      "false_positive_rate": 1.5
+    },
+    "release_cadence_change": {
+      "n": 0,
+      "abstained": 8,
+      "accuracy": null,
+      "precision": null,
+      "recall": null,
+      "false_positive_rate": null
+    },
+    "install_script_introduced": {
+      "n": 7,
+      "abstained": 1,
+      "accuracy": 1,
+      "precision": null,
+      "recall": null,
+      "false_positive_rate": 0
+    },
+    "provenance_changed": {
+      "n": 7,
+      "abstained": 1,
+      "accuracy": 1,
+      "precision": 1,
+      "recall": 1,
+      "false_positive_rate": 0
+    },
+    "external_domain_introduced": {
+      "n": 0,
+      "abstained": 8,
+      "accuracy": null,
+      "precision": null,
+      "recall": null,
+      "false_positive_rate": null
+    }
+  },
+  "temporal_patterns": {
+    "dependency-takeover-indicators": {
+      "decided": 3,
+      "abstained": 5,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "benign_cases": 3,
+      "benign_false_positive_rate": 0,
+      "incident_cases_fired": 0,
+      "incident_cases": 0
+    },
+    "dependency-dormancy-publisher-hook": {
+      "decided": 3,
+      "abstained": 5,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "benign_cases": 3,
+      "benign_false_positive_rate": 0,
+      "incident_cases_fired": 0,
+      "incident_cases": 0
+    },
+    "dependency-control-change-then-install-capability": {
+      "decided": 0,
+      "abstained": 8,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "benign_cases": 0,
+      "benign_false_positive_rate": null,
+      "incident_cases_fired": 0,
+      "incident_cases": 0
+    }
+  },
+  "threshold_grid": {
+    "development_validation_only": true,
+    "evaluated": "pattern within_days (real correlation engine)",
+    "not_evaluated": "dormancy / cadence / new-publisher thresholds: event-level expectations were authored against the current definitions, so a grid over them would be circular",
+    "results": {
+      "within_days=7": {
+        "dependency-takeover-indicators": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-dormancy-publisher-hook": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-control-change-then-install-capability": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        }
+      },
+      "within_days=14": {
+        "dependency-takeover-indicators": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-dormancy-publisher-hook": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-control-change-then-install-capability": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        }
+      },
+      "within_days=30": {
+        "dependency-takeover-indicators": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-dormancy-publisher-hook": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-control-change-then-install-capability": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        }
+      },
+      "within_days=60": {
+        "dependency-takeover-indicators": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-dormancy-publisher-hook": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-control-change-then-install-capability": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        }
+      },
+      "within_days=90": {
+        "dependency-takeover-indicators": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-dormancy-publisher-hook": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-control-change-then-install-capability": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        }
+      },
+      "within_days=120": {
+        "dependency-takeover-indicators": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-dormancy-publisher-hook": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-control-change-then-install-capability": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        }
+      },
+      "within_days=180": {
+        "dependency-takeover-indicators": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-dormancy-publisher-hook": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        },
+        "dependency-control-change-then-install-capability": {
+          "decided": 0,
+          "abstained": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "benign_cases": 0,
+          "benign_false_positive_rate": null,
+          "incident_cases_fired": 0,
+          "incident_cases": 0
+        }
+      }
+    },
+    "decision": "unchanged"
+  },
+  "thresholds": {
+    "decision": "unchanged",
+    "reason": "no window shows a stable validation gain without more benign false positives (see threshold_grid); old values kept"
+  }
+}

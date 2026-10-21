@@ -87,3 +87,11 @@ K3 pattern replay: `dependency-control-change-then-install-capability` was evalu
 Caveats, stated plainly: four cases cannot support a rate; the incident case is one package whose compromise was delivered through a newly added dependency rather than a change of control of the package itself; the aggregate block of the result file mixes all three splits (the file lists every case with its `split`), so only the per-case rows above are holdout evidence. The development and validation finding is unchanged: `dependency-takeover-indicators` fired on 5 of 17 benign controls and on 0 of 10 incident cases. Labels remain single-reviewer, AI-assisted and are internal engineering evidence only; Gate 14 stays MANUAL.
 
 Weakness recorded for future work (not acted on here): the takeover pattern needs narrowing (for example requiring an install hook or a new external domain) and the corpus needs incidents that are visible in package registry history.
+
+## Final holdout v2 (run once, 2026-10-21)
+
+`node scripts/calibrate-incidents.mjs --final` was run once on corpus v2 at HEAD 32a66aa after code, thresholds and corpus were frozen; `calibration/incidents/results/final-holdout-v2.json` holds the result and a second run refuses to overwrite it. Nothing is tuned from it. It contains only holdout-split cases (8 cases over 6 packages: xrpl and @ctrl/tinycolor as incidents, rand-user-agent as insufficient evidence, commander, cross-env and regex as benign controls).
+
+Result: no temporal pattern fired on any of the 8 cases. Benign false positives 0/3. Incident recall is not measurable: `dependency-takeover-indicators` and `dependency-dormancy-publisher-hook` decided 3 and abstained 5, `dependency-control-change-then-install-capability` abstained on all 8 because the corpus has registry history only and no verified artifact pairs. Precision and recall are therefore undefined, not zero. With 3 benign controls this says little about false positives. The result mainly shows what the corpus cannot test: the redesigned pattern has never been exercised on an incident.
+
+Future work (not done here): add incidents with pinned artifact pairs so behavioral patterns can decide; labels remain single-reviewer, AI-assisted; Gate 14 stays MANUAL.
