@@ -2,21 +2,16 @@
  "result_kind": "history-validation",
  "engine": "traceManifestHistory",
  "budget_mode": "large",
- "generated_at": "2026-10-23T16:11:41.749Z",
+ "generated_at": "2026-10-23T16:18:00.647Z",
  "ground_truth_sha256": "c1691d435287added3b8bd8df1ffa430f0c62532adaa77c324caf5a8a89da130",
  "ground_truth_note": "git log --follow --first-parent + own parsers; not repo-radar",
  "summary": {
   "cases_total": 8,
   "introduction_commit": {
-   "correct_within_defined_window": 2,
-   "incorrect": 4,
-   "unknown": 2
+   "exact": 8
   },
   "event_sequence": {
-   "correct_within_defined_window": 2,
-   "unknown": 2,
-   "partial": 3,
-   "incorrect": 1
+   "exact": 8
   },
   "manifest": {
    "correct": 8
@@ -38,7 +33,7 @@
    "blob_cache_hits": 0,
    "blob_cache_misses": 0,
    "bytes": 221372,
-   "elapsed_ms": 21287,
+   "elapsed_ms": 23454,
    "budget_exhausted": false,
    "parent_blob_fetches": 25,
    "request_classes": {
@@ -51,7 +46,7 @@
     "other": 0
    },
    "rate_limit_reset_at": null,
-   "wall_ms": 21287
+   "wall_ms": 23455
   }
  ],
  "cases": [
@@ -64,12 +59,12 @@
    "truth_events": 1,
    "truth_first": "77e4d5aecc4d34e58f72e5a1c4a5a13ef55e6f44",
    "observed_first": "77e4d5aecc4d34e58f72e5a1c4a5a13ef55e6f44",
-   "observed_status": "history_partial",
-   "window_complete": false,
+   "observed_status": "history_complete",
+   "window_complete": true,
    "commits_scanned": 31,
    "classification": {
-    "introduction_commit": "correct_within_defined_window",
-    "event_sequence": "correct_within_defined_window",
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
     "manifest": "correct",
     "relationship": "not_assessed_by_traceManifestHistory"
    },
@@ -91,13 +86,13 @@
    "selection": "hash_sample",
    "truth_events": 1,
    "truth_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
-   "observed_first": "6bf8cd85825800c5cbc63009b1fb2c54185f05ed",
-   "observed_status": "history_partial",
-   "window_complete": false,
+   "observed_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_status": "history_complete",
+   "window_complete": true,
    "commits_scanned": 31,
    "classification": {
-    "introduction_commit": "incorrect",
-    "event_sequence": "unknown",
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
     "manifest": "correct",
     "relationship": "not_assessed_by_traceManifestHistory"
    },
@@ -107,7 +102,9 @@
    "window_truth_seq": [
     "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8"
    ],
-   "observed_seq": []
+   "observed_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8"
+   ]
   },
   {
    "repo": "spf13/cobra",
@@ -118,12 +115,12 @@
    "truth_events": 1,
    "truth_first": "88b30ab89da2d0d0abb153818746c5a2d30eccec",
    "observed_first": "88b30ab89da2d0d0abb153818746c5a2d30eccec",
-   "observed_status": "history_partial",
-   "window_complete": false,
+   "observed_status": "history_complete",
+   "window_complete": true,
    "commits_scanned": 31,
    "classification": {
-    "introduction_commit": "correct_within_defined_window",
-    "event_sequence": "correct_within_defined_window",
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
     "manifest": "correct",
     "relationship": "not_assessed_by_traceManifestHistory"
    },
@@ -145,13 +142,13 @@
    "selection": "hash_sample",
    "truth_events": 1,
    "truth_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
-   "observed_first": "884edc58ad08083e6c9a505041695aa2c3ca2d7a",
-   "observed_status": "history_partial",
-   "window_complete": false,
+   "observed_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_status": "history_complete",
+   "window_complete": true,
    "commits_scanned": 31,
    "classification": {
-    "introduction_commit": "incorrect",
-    "event_sequence": "unknown",
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
     "manifest": "correct",
     "relationship": "not_assessed_by_traceManifestHistory"
    },
@@ -161,7 +158,9 @@
    "window_truth_seq": [
     "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8"
    ],
-   "observed_seq": []
+   "observed_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8"
+   ]
   },
   {
    "repo": "spf13/cobra",
@@ -171,13 +170,13 @@
    "selection": "non_simple_history",
    "truth_events": 2,
    "truth_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
-   "observed_first": null,
-   "observed_status": "history_partial",
-   "window_complete": false,
+   "observed_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_status": "history_complete",
+   "window_complete": true,
    "commits_scanned": 31,
    "classification": {
-    "introduction_commit": "unknown",
-    "event_sequence": "partial",
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
     "manifest": "correct",
     "relationship": "not_assessed_by_traceManifestHistory"
    },
@@ -190,6 +189,7 @@
     "removed:8a4b46fadf756f30eff047abf2f8edba4eac6fef"
    ],
    "observed_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
     "removed:8a4b46fadf756f30eff047abf2f8edba4eac6fef"
    ]
   },
@@ -201,13 +201,13 @@
    "selection": "non_simple_history",
    "truth_events": 2,
    "truth_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
-   "observed_first": null,
-   "observed_status": "history_partial",
-   "window_complete": false,
+   "observed_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_status": "history_complete",
+   "window_complete": true,
    "commits_scanned": 31,
    "classification": {
-    "introduction_commit": "unknown",
-    "event_sequence": "partial",
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
     "manifest": "correct",
     "relationship": "not_assessed_by_traceManifestHistory"
    },
@@ -220,6 +220,7 @@
     "removed:77e4d5aecc4d34e58f72e5a1c4a5a13ef55e6f44"
    ],
    "observed_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
     "removed:77e4d5aecc4d34e58f72e5a1c4a5a13ef55e6f44"
    ]
   },
@@ -231,13 +232,13 @@
    "selection": "non_simple_history",
    "truth_events": 4,
    "truth_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
-   "observed_first": "0bc8bfbe596beeea88b39beb0fca86b3d7d10de6",
-   "observed_status": "history_partial",
-   "window_complete": false,
+   "observed_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_status": "history_complete",
+   "window_complete": true,
    "commits_scanned": 31,
    "classification": {
-    "introduction_commit": "incorrect",
-    "event_sequence": "incorrect",
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
     "manifest": "correct",
     "relationship": "not_assessed_by_traceManifestHistory"
    },
@@ -254,8 +255,9 @@
     "removed:8eaca5f0f49ad747a0722d39dca7a75c34abd21a"
    ],
    "observed_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
     "removed:81e0311edd0bf6b4ff2c563005a646f6b286d059",
-    "introduced:0bc8bfbe596beeea88b39beb0fca86b3d7d10de6",
+    "reintroduced:0bc8bfbe596beeea88b39beb0fca86b3d7d10de6",
     "removed:8eaca5f0f49ad747a0722d39dca7a75c34abd21a"
    ]
   },
@@ -267,13 +269,13 @@
    "selection": "non_simple_history",
    "truth_events": 4,
    "truth_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
-   "observed_first": "8a4b46fadf756f30eff047abf2f8edba4eac6fef",
-   "observed_status": "history_partial",
-   "window_complete": false,
+   "observed_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_status": "history_complete",
+   "window_complete": true,
    "commits_scanned": 31,
    "classification": {
-    "introduction_commit": "incorrect",
-    "event_sequence": "partial",
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
     "manifest": "correct",
     "relationship": "not_assessed_by_traceManifestHistory"
    },
@@ -290,6 +292,7 @@
     "removed:5b2b9e9f61d36ccb66167301f76a2292c3729855"
    ],
    "observed_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
     "removed:81e0311edd0bf6b4ff2c563005a646f6b286d059",
     "reintroduced:0bc8bfbe596beeea88b39beb0fca86b3d7d10de6",
     "removed:5b2b9e9f61d36ccb66167301f76a2292c3729855"

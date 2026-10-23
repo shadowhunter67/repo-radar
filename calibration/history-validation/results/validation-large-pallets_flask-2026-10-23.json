@@ -1,0 +1,256 @@
+{
+ "result_kind": "history-validation",
+ "engine": "traceManifestHistory",
+ "budget_mode": "large",
+ "generated_at": "2026-10-23T16:19:11.990Z",
+ "ground_truth_sha256": "c1691d435287added3b8bd8df1ffa430f0c62532adaa77c324caf5a8a89da130",
+ "ground_truth_note": "git log --follow --first-parent + own parsers; not repo-radar",
+ "summary": {
+  "cases_total": 7,
+  "introduction_commit": {
+   "exact": 7
+  },
+  "event_sequence": {
+   "exact": 7
+  },
+  "manifest": {
+   "correct": 7
+  },
+  "relationship": {
+   "not_assessed_by_traceManifestHistory": 7
+  },
+  "budget_exhausted_repos": 0
+ },
+ "per_repo_cost": [
+  {
+   "repo": "pallets/flask",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "commits_touching_path": 152,
+   "requests": 133,
+   "commits_scanned": 64,
+   "pages": 1,
+   "blob_cache_hits": 0,
+   "blob_cache_misses": 0,
+   "bytes": 1181297,
+   "elapsed_ms": 56343,
+   "budget_exhausted": false,
+   "parent_blob_fetches": 67,
+   "request_classes": {
+    "ok": 132,
+    "rate_limited": 0,
+    "not_found": 1,
+    "server_error": 0,
+    "network": 0,
+    "malformed": 0,
+    "other": 0
+   },
+   "rate_limit_reset_at": null,
+   "wall_ms": 56344
+  }
+ ],
+ "cases": [
+  {
+   "repo": "pallets/flask",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "dependency": "tox-uv",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "0109e496f6ca68de29480fe6413e81b1d3f86aa9",
+   "observed_first": "0109e496f6ca68de29480fe6413e81b1d3f86aa9",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 64,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:0109e496f6ca68de29480fe6413e81b1d3f86aa9"
+   ],
+   "window_truth_seq": [
+    "introduced:0109e496f6ca68de29480fe6413e81b1d3f86aa9"
+   ],
+   "observed_seq": [
+    "introduced:0109e496f6ca68de29480fe6413e81b1d3f86aa9"
+   ]
+  },
+  {
+   "repo": "pallets/flask",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "dependency": "click",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "6d6d986fc502c2c24fe3db0ec0dbb062d053e068",
+   "observed_first": "6d6d986fc502c2c24fe3db0ec0dbb062d053e068",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 64,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:6d6d986fc502c2c24fe3db0ec0dbb062d053e068"
+   ],
+   "window_truth_seq": [
+    "introduced:6d6d986fc502c2c24fe3db0ec0dbb062d053e068"
+   ],
+   "observed_seq": [
+    "introduced:6d6d986fc502c2c24fe3db0ec0dbb062d053e068"
+   ]
+  },
+  {
+   "repo": "pallets/flask",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "dependency": "jinja2",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "6d6d986fc502c2c24fe3db0ec0dbb062d053e068",
+   "observed_first": "6d6d986fc502c2c24fe3db0ec0dbb062d053e068",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 64,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:6d6d986fc502c2c24fe3db0ec0dbb062d053e068"
+   ],
+   "window_truth_seq": [
+    "introduced:6d6d986fc502c2c24fe3db0ec0dbb062d053e068"
+   ],
+   "observed_seq": [
+    "introduced:6d6d986fc502c2c24fe3db0ec0dbb062d053e068"
+   ]
+  },
+  {
+   "repo": "pallets/flask",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "dependency": "sphinx-tabs",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "0109e496f6ca68de29480fe6413e81b1d3f86aa9",
+   "observed_first": "0109e496f6ca68de29480fe6413e81b1d3f86aa9",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 64,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:0109e496f6ca68de29480fe6413e81b1d3f86aa9"
+   ],
+   "window_truth_seq": [
+    "introduced:0109e496f6ca68de29480fe6413e81b1d3f86aa9"
+   ],
+   "observed_seq": [
+    "introduced:0109e496f6ca68de29480fe6413e81b1d3f86aa9"
+   ]
+  },
+  {
+   "repo": "pallets/flask",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "dependency": "pytest",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "0109e496f6ca68de29480fe6413e81b1d3f86aa9",
+   "observed_first": "0109e496f6ca68de29480fe6413e81b1d3f86aa9",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 64,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:0109e496f6ca68de29480fe6413e81b1d3f86aa9"
+   ],
+   "window_truth_seq": [
+    "introduced:0109e496f6ca68de29480fe6413e81b1d3f86aa9"
+   ],
+   "observed_seq": [
+    "introduced:0109e496f6ca68de29480fe6413e81b1d3f86aa9"
+   ]
+  },
+  {
+   "repo": "pallets/flask",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "dependency": "importlib-metadata",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "6d6d986fc502c2c24fe3db0ec0dbb062d053e068",
+   "observed_first": "6d6d986fc502c2c24fe3db0ec0dbb062d053e068",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 64,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:6d6d986fc502c2c24fe3db0ec0dbb062d053e068",
+    "removed:52df9eed45d0b19c588662ed8492d8fbaa0e7098"
+   ],
+   "window_truth_seq": [
+    "introduced:6d6d986fc502c2c24fe3db0ec0dbb062d053e068",
+    "removed:52df9eed45d0b19c588662ed8492d8fbaa0e7098"
+   ],
+   "observed_seq": [
+    "introduced:6d6d986fc502c2c24fe3db0ec0dbb062d053e068",
+    "removed:52df9eed45d0b19c588662ed8492d8fbaa0e7098"
+   ]
+  },
+  {
+   "repo": "pallets/flask",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "dependency": "greenlet",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "0109e496f6ca68de29480fe6413e81b1d3f86aa9",
+   "observed_first": "0109e496f6ca68de29480fe6413e81b1d3f86aa9",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 64,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:0109e496f6ca68de29480fe6413e81b1d3f86aa9",
+    "removed:06ea505ce2b2042af26e96d35ebf159af7c0869d"
+   ],
+   "window_truth_seq": [
+    "introduced:0109e496f6ca68de29480fe6413e81b1d3f86aa9",
+    "removed:06ea505ce2b2042af26e96d35ebf159af7c0869d"
+   ],
+   "observed_seq": [
+    "introduced:0109e496f6ca68de29480fe6413e81b1d3f86aa9",
+    "removed:06ea505ce2b2042af26e96d35ebf159af7c0869d"
+   ]
+  }
+ ]
+}

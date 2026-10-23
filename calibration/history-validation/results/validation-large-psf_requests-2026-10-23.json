@@ -1,0 +1,191 @@
+{
+ "result_kind": "history-validation",
+ "engine": "traceManifestHistory",
+ "budget_mode": "large",
+ "generated_at": "2026-10-23T16:18:15.280Z",
+ "ground_truth_sha256": "c1691d435287added3b8bd8df1ffa430f0c62532adaa77c324caf5a8a89da130",
+ "ground_truth_note": "git log --follow --first-parent + own parsers; not repo-radar",
+ "summary": {
+  "cases_total": 5,
+  "introduction_commit": {
+   "incorrect": 2,
+   "exact": 2,
+   "unknown": 1
+  },
+  "event_sequence": {
+   "incorrect": 3,
+   "exact": 2
+  },
+  "manifest": {
+   "correct": 5
+  },
+  "relationship": {
+   "not_assessed_by_traceManifestHistory": 5
+  },
+  "budget_exhausted_repos": 0
+ },
+ "per_repo_cost": [
+  {
+   "repo": "psf/requests",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "commits_touching_path": 18,
+   "requests": 35,
+   "commits_scanned": 17,
+   "pages": 1,
+   "blob_cache_hits": 0,
+   "blob_cache_misses": 0,
+   "bytes": 466996,
+   "elapsed_ms": 14300,
+   "budget_exhausted": false,
+   "parent_blob_fetches": 16,
+   "request_classes": {
+    "ok": 34,
+    "rate_limited": 0,
+    "not_found": 1,
+    "server_error": 0,
+    "network": 0,
+    "malformed": 0,
+    "other": 0
+   },
+   "rate_limit_reset_at": null,
+   "wall_ms": 14300
+  }
+ ],
+ "cases": [
+  {
+   "repo": "psf/requests",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "dependency": "urllib3",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "cb2c800518423e0042789ab09f8f6e719428a444",
+   "observed_first": "733b2018a3987714f5a9576f2df4895f2a166449",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 17,
+   "classification": {
+    "introduction_commit": "incorrect",
+    "event_sequence": "incorrect",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:cb2c800518423e0042789ab09f8f6e719428a444"
+   ],
+   "window_truth_seq": [
+    "introduced:cb2c800518423e0042789ab09f8f6e719428a444"
+   ],
+   "observed_seq": []
+  },
+  {
+   "repo": "psf/requests",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "dependency": "trustme",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "4443b1a847b190010c2972a658924b98b5db6360",
+   "observed_first": "4443b1a847b190010c2972a658924b98b5db6360",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 17,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:4443b1a847b190010c2972a658924b98b5db6360"
+   ],
+   "window_truth_seq": [
+    "introduced:4443b1a847b190010c2972a658924b98b5db6360"
+   ],
+   "observed_seq": [
+    "introduced:4443b1a847b190010c2972a658924b98b5db6360"
+   ]
+  },
+  {
+   "repo": "psf/requests",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "dependency": "requests",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "7407309c8a8a73aa2f4337184025d440bbedab7a",
+   "observed_first": "7407309c8a8a73aa2f4337184025d440bbedab7a",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 17,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:7407309c8a8a73aa2f4337184025d440bbedab7a"
+   ],
+   "window_truth_seq": [
+    "introduced:7407309c8a8a73aa2f4337184025d440bbedab7a"
+   ],
+   "observed_seq": [
+    "introduced:7407309c8a8a73aa2f4337184025d440bbedab7a"
+   ]
+  },
+  {
+   "repo": "psf/requests",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "dependency": "certifi",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "cb2c800518423e0042789ab09f8f6e719428a444",
+   "observed_first": "733b2018a3987714f5a9576f2df4895f2a166449",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 17,
+   "classification": {
+    "introduction_commit": "incorrect",
+    "event_sequence": "incorrect",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:cb2c800518423e0042789ab09f8f6e719428a444"
+   ],
+   "window_truth_seq": [
+    "introduced:cb2c800518423e0042789ab09f8f6e719428a444"
+   ],
+   "observed_seq": []
+  },
+  {
+   "repo": "psf/requests",
+   "kind": "single-package",
+   "ecosystem": "pypi",
+   "dependency": "pysocks",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "cb2c800518423e0042789ab09f8f6e719428a444",
+   "observed_first": null,
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 17,
+   "classification": {
+    "introduction_commit": "unknown",
+    "event_sequence": "incorrect",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:cb2c800518423e0042789ab09f8f6e719428a444"
+   ],
+   "window_truth_seq": [
+    "introduced:cb2c800518423e0042789ab09f8f6e719428a444"
+   ],
+   "observed_seq": []
+  }
+ ]
+}
