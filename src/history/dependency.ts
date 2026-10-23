@@ -431,6 +431,7 @@ export async function traceManifestHistory(input: {
   }
   const states = new Map<string, State>();
   const parentStates = new Map<string, State>();
+  const mergeParentStates = new Map<string, State[]>();
   for (const c of ordered) {
     if (!c.sha || scanned >= b.maxCommits || changed >= b.maxChangedFiles) {
       exhausted = true;
@@ -505,11 +506,17 @@ export async function traceManifestHistory(input: {
       for (const n of input.names)
         parentStates.set(
           `${c.sha}\0${n.toLowerCase()}`,
-          states.get(`${parent ?? ''}\0${n.toLowerCase()}`) ?? {
-            state: 'unknown',
-            parents: [],
-            evidence: [],
-          },
+          parent
+            ? (states.get(`${parent}\0${n.toLowerCase()}`) ?? {
+                state: 'unknown',
+                parents: [],
+                evidence: [],
+              })
+            : {
+                state: 'absent',
+                parents: [],
+                evidence: [],
+              },
         );
     if ((c.parents?.length ?? 0) > 1) {
       for (const extra of c.parents!.slice(1)) {
@@ -528,10 +535,26 @@ export async function traceManifestHistory(input: {
               Buffer.from(extraBody.content.replace(/\s/g, ''), 'base64').toString('utf8'),
               n,
             );
-            if (extraState.state === 'present') parentStates.set(key, extraState);
-            else if (!old) parentStates.set(key, extraState);
-          } else if (!old) parentStates.set(key, { state: 'unknown', parents: [], evidence: [] });
+            const parents = mergeParentStates.get(key) ?? [
+              old ?? { state: 'unknown', parents: [], evidence: [] },
+            ];
+            parents.push(extraState);
+            mergeParentStates.set(key, parents);
+          } else {
+            const parents = mergeParentStates.get(key) ?? [
+              old ?? { state: 'unknown', parents: [], evidence: [] },
+            ];
+            parents.push({ state: 'unknown', parents: [], evidence: [] });
+            mergeParentStates.set(key, parents);
+          }
         }
+      }
+      for (const n of input.names) {
+        const key = `${c.sha}\0${n.toLowerCase()}`;
+        if (!mergeParentStates.has(key))
+          mergeParentStates.set(key, [
+            parentStates.get(key) ?? { state: 'unknown', parents: [], evidence: [] },
+          ]);
       }
     }
   }
@@ -554,14 +577,20 @@ export async function traceManifestHistory(input: {
           ? 'history_budget_exhausted'
           : unknownRevisions > 0 || !listingComplete
             ? 'history_partial'
-            : 'history_complete',
+            : oldestAddedWithoutRename || oldestRename?.state === 'confirmed_rename'
+              ? 'history_complete'
+              : 'history_partial',
     merge_commit: false,
     squash_like: false,
     introduction_commit_uncertain: true,
     events: [],
     current_present: 'unknown',
     window: {
-      complete: listingComplete && !exhausted && unknownRevisions === 0,
+      complete:
+        listingComplete &&
+        !exhausted &&
+        unknownRevisions === 0 &&
+        (oldestAddedWithoutRename || oldestRename?.state === 'confirmed_rename'),
       commits_scanned: scanned,
       oldest_scanned_sha: ordered[0]?.sha ?? null,
     },
@@ -591,7 +620,7 @@ export async function traceManifestHistory(input: {
         evidence: [],
       };
       const parent = parentStates.get(`${c.sha}\0${e.dependency_id.toLowerCase()}`) ?? {
-        state: 'unknown',
+        state: c.parents?.length ? 'unknown' : 'absent',
         parents: [],
         evidence: [],
       };
@@ -609,10 +638,15 @@ export async function traceManifestHistory(input: {
               : 'introduced_within_window';
         else if (parentPresent && s.state === 'absent') kind = 'removed';
       } else {
-        const anyParentPresent = parentPresent;
-        if (s.state === 'present' && !anyParentPresent)
+        const parents = mergeParentStates.get(`${c.sha}\0${e.dependency_id.toLowerCase()}`) ?? [
+          parent,
+        ];
+        if (parents.some((p) => p.state === 'unknown')) continue;
+        const allParentPresent = parents.every((p) => p.state === 'present');
+        const allParentAbsent = parents.every((p) => p.state === 'absent');
+        if (s.state === 'present' && allParentAbsent)
           kind = first ? 'introduced_again_other_line' : 'introduced';
-        else if (s.state === 'absent' && anyParentPresent) kind = 'removed';
+        else if (s.state === 'absent' && allParentPresent) kind = 'removed';
       }
       if (
         !kind &&
@@ -662,6 +696,10 @@ export async function traceManifestHistory(input: {
         e.introduction_commit_uncertain = true;
       }
       e.merge_commit = (ordered.find((c) => c.sha === first!.commit_sha)?.parents?.length ?? 0) > 1;
+    } else {
+      e.introduction = 'unknown';
+      e.introduced_at = null;
+      e.first_introduced_at = null;
     }
     const last = ordered.at(-1);
     e.current_present = last?.sha

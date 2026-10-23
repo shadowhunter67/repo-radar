@@ -71,7 +71,9 @@ for (const r of raw.repos) {
         request_classes: rc,
         rate_limit_reset_at: traced.stats.rate_limit_reset_at ?? null,
       });
-      console.error(`${r.repo}: INVALID (API failures ${JSON.stringify(rc)}); not counted`);
+      process.stderr.write(
+        `${r.repo}: INVALID (API failures ${JSON.stringify(rc)}); not counted\n`,
+      );
       if ((rc.rate_limited ?? 0) > 0) break;
       continue;
     }

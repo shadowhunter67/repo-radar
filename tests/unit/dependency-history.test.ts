@@ -86,7 +86,7 @@ describe('dependency history collection', () => {
       introduction: 'known',
       author: 'author-login',
       committer: 'committer-login',
-      history_status: 'history_complete',
+      history_status: 'history_partial',
     });
     expect(result.entries[0]!.introduced_at?.commit_sha).toBe('b'.repeat(40));
   });
@@ -137,7 +137,7 @@ describe('dependency history collection', () => {
         calls.push(url);
         const u = new URL(url);
         if (u.pathname.endsWith('/commits'))
-          return new Response(JSON.stringify(commits), { status: 200 });
+          return new Response(JSON.stringify([...commits].reverse()), { status: 200 });
         const sha = u.searchParams.get('ref') ?? '';
         const present = ['5', '6', '7', '8'].some((prefix) => sha.startsWith(prefix));
         return new Response(
@@ -163,7 +163,7 @@ describe('dependency history collection', () => {
       budget: { maxCommits: 8 },
     });
     expect(result.entries[0]!.introduction).toBe('known');
-    expect(calls.filter((x) => x.includes('/contents/')).length).toBe(15);
+    expect(calls.filter((x) => x.includes('/contents/')).length).toBe(8);
     expect(result.entries[0]!.author).toBe('a');
     expect(result.entries[0]!.committer).toBe('c');
     expect(result.entries[0]!.evidence_ids.join(' ')).not.toContain('responsible');
@@ -182,7 +182,7 @@ describe('dependency history collection', () => {
       fetch: async (url) => {
         const u = new URL(url);
         if (u.pathname.endsWith('/commits')) return new Response(JSON.stringify(commits), { status: 200 });
-        if (u.pathname.endsWith('/commits/' + sha(7))) return new Response(JSON.stringify({ files: [{ status: 'modified' }] }), { status: 200 });
+        if (u.pathname.includes('/commits/')) return new Response(JSON.stringify({ files: [{ status: 'added' }] }), { status: 200 });
         const n = Number.parseInt(u.searchParams.get('ref') ?? '0', 16);
         return new Response(JSON.stringify({ encoding: 'base64', sha: sha(n), content: Buffer.from(present.has(n) ? '{"dependencies":{"widget":"1"}}' : '{"dependencies":{}}').toString('base64') }), { status: 200 });
       },

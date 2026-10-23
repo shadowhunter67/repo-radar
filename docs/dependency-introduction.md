@@ -9,6 +9,12 @@ Behavior and trust-boundary deltas compare two inspected versions of the same pa
 Use **observed** for collected facts, **reported** for registry claims, and **unknown** when coverage or verification is unavailable. These sections are risk indicators; they do not establish intent, safety, or compromise.
 ## Commit history
 
+API failure semantics: a rate limit (403/429 with rate-limit signals) yields `history_rate_limited`; other listing
+failures yield `history_unavailable`. A first-page empty 200 is `path_not_found_at_ref`, not a complete scan. Blob,
+parent, and commit-detail failures suppress transitions and produce `history_partial` with `unknown_revisions`.
+GitHub's path-filtered commits endpoint is not equivalent to `git log --full-history`: side branches and renamed
+paths may be omitted. Transitions are claimed only from commits and parent contents actually fetched.
+
 Dependency introduction history is an opt-in, bounded collector. It uses only the central GitHub HTTP client and
 path-filtered commit/content responses; it never uses current registry data to infer a historical commit. A result is
 `history_complete`, `history_partial`, `history_budget_exhausted`, or `history_unavailable`, and unresolved results stay
