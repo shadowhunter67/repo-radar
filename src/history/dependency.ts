@@ -24,7 +24,13 @@ export const DEFAULT_DEPENDENCY_HISTORY_BUDGET: DependencyHistoryBudget = {
   maxBytes: LIMITS.maxDependencyHistoryBytes,
 };
 export type DependencyHistoryStatus =
-  'history_complete' | 'history_partial' | 'history_budget_exhausted' | 'history_unavailable';
+  | 'history_complete'
+  | 'history_partial'
+  | 'history_budget_exhausted'
+  | 'history_rate_limited'
+  | 'history_unavailable';
+export type HistoryRequestClass =
+  'ok' | 'rate_limited' | 'not_found' | 'server_error' | 'network' | 'malformed' | 'other';
 export type HistoryEventKind =
   | 'introduced'
   | 'introduced_within_window'
@@ -76,6 +82,9 @@ export interface DependencyHistoryResult {
   parent_chain?: string[];
   possible_parents?: string[];
   parent_chain_ambiguous?: boolean;
+  diagnostics?: string[];
+  unknown_revisions?: number;
+  path_state?: 'path_not_found_at_ref';
 }
 export interface DependencyHistoryCollection {
   entries: DependencyHistoryResult[];
@@ -97,6 +106,8 @@ export interface DependencyHistoryCollection {
     elapsed_ms: number;
     budget_exhausted: boolean;
     parent_blob_fetches: number;
+    request_classes: Record<HistoryRequestClass, number>;
+    rate_limit_reset_at: string | null;
   };
 }
 interface CommitRow {
@@ -179,6 +190,18 @@ export async function traceManifestHistory(input: {
     changed = 0,
     parentBlobFetches = 0;
   let exhausted = false;
+  let rateLimitResetAt: string | null = null;
+  let scanFailure: HistoryRequestClass | null = null;
+  let unknownRevisions = 0;
+  const requestClasses: Record<HistoryRequestClass, number> = {
+    ok: 0,
+    rate_limited: 0,
+    not_found: 0,
+    server_error: 0,
+    network: 0,
+    malformed: 0,
+    other: 0,
+  };
   const base = `https://api.github.com/repos/${encodeURIComponent(input.owner)}/${encodeURIComponent(input.repo)}`;
   const request = async <T>(p: string, max = 1000000): Promise<T | undefined> => {
     if (
@@ -195,17 +218,79 @@ export async function traceManifestHistory(input: {
         headers: { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' },
         maxBytes: max,
       });
-      if (r.status !== 200) return undefined;
+      if (r.status !== 200) {
+        const text = r.body.toLowerCase();
+        const remaining = r.headers.get('x-ratelimit-remaining');
+        const rate =
+          (r.status === 403 || r.status === 429) &&
+          (remaining === '0' ||
+            r.headers.has('retry-after') ||
+            /rate.?limit|secondary limit|abuse/.test(text));
+        const cls: HistoryRequestClass = rate
+          ? 'rate_limited'
+          : r.status === 404
+            ? 'not_found'
+            : r.status >= 500
+              ? 'server_error'
+              : 'other';
+        requestClasses[cls]++;
+        if (cls === 'rate_limited') {
+          const reset = r.headers.get('x-ratelimit-reset');
+          rateLimitResetAt =
+            reset && /^\d+$/.test(reset) ? new Date(Number(reset) * 1000).toISOString() : null;
+        }
+        scanFailure ??= cls;
+        return undefined;
+      }
       bytes += r.body.length;
       if (bytes > b.maxBytes) {
         exhausted = true;
         return undefined;
       }
-      return JSON.parse(r.body) as T;
-    } catch {
+      const value = JSON.parse(r.body) as T;
+      requestClasses.ok++;
+      return value;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const status =
+        typeof error === 'object' && error !== null && 'status' in error
+          ? Number((error as { status?: number }).status)
+          : 0;
+      const cls: HistoryRequestClass =
+        /RateLimitError|rate limited/i.test(message) || status === 429
+          ? 'rate_limited'
+          : status === 404
+            ? 'not_found'
+            : status >= 500
+              ? 'server_error'
+              : /JSON|Unexpected token|not valid/i.test(message)
+                ? 'malformed'
+                : 'network';
+      if (cls === 'rate_limited') {
+        const resetAt =
+          typeof error === 'object' && error !== null && 'resetAt' in error
+            ? (error as { resetAt?: Date }).resetAt
+            : undefined;
+        rateLimitResetAt = resetAt?.toISOString() ?? null;
+      }
+      requestClasses[cls]++;
+      scanFailure ??= cls;
       return undefined;
     }
   };
+  const emptyStats = () => ({
+    requests,
+    commits_scanned: 0,
+    pages,
+    blob_cache_hits: 0,
+    blob_cache_misses: 0,
+    bytes,
+    elapsed_ms: Date.now() - started,
+    budget_exhausted: exhausted,
+    parent_blob_fetches: parentBlobFetches,
+    request_classes: { ...requestClasses },
+    rate_limit_reset_at: rateLimitResetAt,
+  });
   if (!safePath(input.path))
     return {
       entries: input.names.map((n) => ({
@@ -226,28 +311,92 @@ export async function traceManifestHistory(input: {
         events: [],
         current_present: 'unknown',
       })),
-      stats: {
-        requests,
-        commits_scanned: 0,
-        pages,
-        blob_cache_hits: 0,
-        blob_cache_misses: 0,
-        bytes,
-        elapsed_ms: Date.now() - started,
-        budget_exhausted: false,
-        parent_blob_fetches: 0,
-      },
+      stats: emptyStats(),
     };
   const commits: CommitRow[] = [];
   const ps = Math.min(100, Math.max(1, b.maxCommits));
+  let listingComplete = false;
+  let pathNotFound = false;
+  let listingFailure: HistoryRequestClass | null = null;
   for (let page = 1; commits.length < b.maxCommits; page++) {
     const x = await request<CommitRow[]>(
       `/commits?path=${encodeURIComponent(input.path)}&sha=${encodeURIComponent(input.ref)}&per_page=${ps}&page=${page}`,
     );
     pages++;
-    if (!x?.length) break;
+    if (!x && exhausted && !scanFailure) {
+      break;
+    }
+    if (!x) {
+      listingFailure = scanFailure ?? 'other';
+      break;
+    }
+    if (!x.length) {
+      if (page === 1) pathNotFound = true;
+      else listingComplete = true;
+      break;
+    }
     commits.push(...x.slice(0, b.maxCommits - commits.length));
-    if (x.length < ps) break;
+    if (x.length < ps) {
+      listingComplete = true;
+      break;
+    }
+  }
+  if (exhausted && !listingFailure && !pathNotFound) {
+    return {
+      entries: input.names.map((n) => ({
+        dependency_id: n,
+        relationship: 'unknown',
+        introduction: 'unknown',
+        introduced_at: null,
+        introduced_via: 'unknown',
+        evidence_file: input.path,
+        evidence_ids: [],
+        author: null,
+        committer: null,
+        confidence: 0,
+        history_status: 'history_budget_exhausted',
+        merge_commit: false,
+        squash_like: false,
+        introduction_commit_uncertain: true,
+        events: [],
+        current_present: 'unknown',
+        window: { complete: false, commits_scanned: 0, oldest_scanned_sha: null },
+        diagnostics: ['request_budget_exhausted'],
+      })),
+      stats: emptyStats(),
+    };
+  }
+  if (listingFailure || pathNotFound) {
+    const diagnostics = listingFailure
+      ? [
+          `commits_listing:${listingFailure}${rateLimitResetAt ? `;rate_limit_reset_at=${rateLimitResetAt}` : ''}`,
+        ]
+      : ['path_not_found_at_ref'];
+    return {
+      entries: input.names.map((n) => ({
+        dependency_id: n,
+        relationship: 'unknown',
+        introduction: 'unknown',
+        introduced_at: null,
+        introduced_via: 'unknown',
+        evidence_file: input.path,
+        evidence_ids: [],
+        author: null,
+        committer: null,
+        confidence: 0,
+        history_status:
+          scanFailure === 'rate_limited' ? 'history_rate_limited' : 'history_unavailable',
+        merge_commit: false,
+        squash_like: false,
+        introduction_commit_uncertain: true,
+        events: [],
+        current_present: 'unknown',
+        window: { complete: false, commits_scanned: 0, oldest_scanned_sha: null },
+        diagnostics,
+        ...(pathNotFound ? { path_state: 'path_not_found_at_ref' as const } : {}),
+      })),
+      stats: emptyStats(),
+    };
   }
   const ordered = [...commits].reverse();
   let oldestAddedWithoutRename = false;
@@ -259,6 +408,7 @@ export async function traceManifestHistory(input: {
       `/commits/${encodeURIComponent(oldest.sha)}`,
     );
     const file = detail?.files?.find((f) => f.previous_filename || f.status === 'added');
+    if (!detail) oldestRename = { state: 'unknown', path: input.path, commit_sha: oldest.sha };
     if (file?.status === 'renamed' && file.previous_filename)
       oldestRename = {
         state: 'confirmed_rename',
@@ -266,7 +416,7 @@ export async function traceManifestHistory(input: {
         previous_filename: file.previous_filename,
         commit_sha: oldest.sha,
       };
-    if (oldestRename && oldest.parents?.[0]?.sha) {
+    if (oldestRename?.state === 'confirmed_rename' && oldest.parents?.[0]?.sha) {
       const previousBody = await request<{ content?: string; encoding?: string }>(
         `/contents/${oldestRename.previous_filename!.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(oldest.parents[0].sha)}`,
         Math.min(512 * 1024, b.maxBytes),
@@ -276,6 +426,7 @@ export async function traceManifestHistory(input: {
           previousBody.content.replace(/\s/g, ''),
           'base64',
         ).toString('utf8');
+      else unknownRevisions++;
     } else if (file?.status === 'added') oldestAddedWithoutRename = true;
   }
   const states = new Map<string, State>();
@@ -291,6 +442,7 @@ export async function traceManifestHistory(input: {
     );
     scanned++;
     if (!body?.content || body.encoding !== 'base64') {
+      unknownRevisions++;
       for (const n of input.names)
         states.set(`${c.sha}\0${n.toLowerCase()}`, {
           state: 'unknown',
@@ -335,6 +487,7 @@ export async function traceManifestHistory(input: {
         Math.min(512 * 1024, b.maxBytes),
       );
       parentBlobFetches++;
+      if (!parentBody) unknownRevisions++;
       if (parentBody?.content && parentBody.encoding === 'base64') {
         const parentRaw = Buffer.from(parentBody.content.replace(/\s/g, ''), 'base64').toString(
           'utf8',
@@ -365,6 +518,7 @@ export async function traceManifestHistory(input: {
           Math.min(512 * 1024, b.maxBytes),
         );
         parentBlobFetches++;
+        if (!extraBody) unknownRevisions++;
         for (const n of input.names) {
           const key = `${c.sha}\0${n.toLowerCase()}`;
           const old = parentStates.get(key);
@@ -393,23 +547,28 @@ export async function traceManifestHistory(input: {
     author: null,
     committer: null,
     confidence: 0,
-    history_status: exhausted
-      ? 'history_budget_exhausted'
-      : commits.length < b.maxCommits
-        ? 'history_complete'
-        : 'history_partial',
+    history_status:
+      scanFailure === 'rate_limited'
+        ? 'history_rate_limited'
+        : exhausted
+          ? 'history_budget_exhausted'
+          : unknownRevisions > 0 || !listingComplete
+            ? 'history_partial'
+            : 'history_complete',
     merge_commit: false,
     squash_like: false,
     introduction_commit_uncertain: true,
     events: [],
     current_present: 'unknown',
     window: {
-      complete: commits.length < b.maxCommits && !exhausted,
+      complete: listingComplete && !exhausted && unknownRevisions === 0,
       commits_scanned: scanned,
       oldest_scanned_sha: ordered[0]?.sha ?? null,
     },
     renames: [],
     introduced_with_manifest_creation: oldestAddedWithoutRename,
+    diagnostics: scanFailure ? [`scan:${scanFailure}`] : [],
+    unknown_revisions: unknownRevisions,
   }));
   for (const e of entries) if (oldestRename) e.renames = [oldestRename];
   for (const e of entries) {
@@ -521,6 +680,8 @@ export async function traceManifestHistory(input: {
       elapsed_ms: Date.now() - started,
       budget_exhausted: exhausted,
       parent_blob_fetches: parentBlobFetches,
+      request_classes: { ...requestClasses },
+      rate_limit_reset_at: rateLimitResetAt,
     },
   };
 }
@@ -553,6 +714,16 @@ export async function collectDependencyHistory(input: {
     elapsed_ms: 0,
     budget_exhausted: false,
     parent_blob_fetches: 0,
+    request_classes: {
+      ok: 0,
+      rate_limited: 0,
+      not_found: 0,
+      server_error: 0,
+      network: 0,
+      malformed: 0,
+      other: 0,
+    },
+    rate_limit_reset_at: null as string | null,
   };
   for (const [p, ds] of groups) {
     const t = await traceManifestHistory({
@@ -571,6 +742,13 @@ export async function collectDependencyHistory(input: {
       elapsed_ms: stats.elapsed_ms + t.stats.elapsed_ms,
       budget_exhausted: stats.budget_exhausted || t.stats.budget_exhausted,
       parent_blob_fetches: stats.parent_blob_fetches + t.stats.parent_blob_fetches,
+      request_classes: Object.fromEntries(
+        (Object.keys(stats.request_classes) as HistoryRequestClass[]).map((k) => [
+          k,
+          stats.request_classes[k] + t.stats.request_classes[k],
+        ]),
+      ) as typeof stats.request_classes,
+      rate_limit_reset_at: stats.rate_limit_reset_at ?? t.stats.rate_limit_reset_at,
     };
     for (const e of t.entries) {
       const d = ds.find((x) => x.package.name === e.dependency_id);

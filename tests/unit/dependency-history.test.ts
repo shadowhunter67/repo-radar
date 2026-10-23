@@ -191,4 +191,63 @@ describe('dependency history collection', () => {
     expect(result.entries[0]?.events.map((e) => e.kind)).toEqual(['introduced', 'removed', 'reintroduced']);
     expect(result.entries[0]?.introduced_at?.commit_sha).toBe(sha(3));
   });
+
+  it.each([
+    ['rate limit 403', 403, { 'x-ratelimit-remaining': '0' }, 'history_rate_limited'],
+    ['rate limit 429', 429, {}, 'history_rate_limited'],
+    ['server error', 500, {}, 'history_unavailable'],
+  ])('%s on the listing is never an empty complete history', async (_label, status, headers, expected) => {
+    const http = new HttpClient({
+      allowedHosts: ['api.github.com'],
+      fetch: async () => new Response('rate limit', { status, headers }),
+    });
+    const result = await collectDependencyHistory({ http, owner: 'o', repo: 'r', ref: 'main', dependencies: [dep()], manifests: [], locks: [] });
+    expect(result.entries[0]).toMatchObject({ history_status: expected, introduction: 'unknown', events: [] });
+    expect(result.entries[0]?.window?.complete).toBe(false);
+    expect(result.stats?.request_classes[status === 500 ? 'server_error' : 'rate_limited']).toBeGreaterThan(0);
+  });
+
+  it('reproduces the reviewer chalk case: a first-page 403 is unavailable with zero commits', async () => {
+    const http = new HttpClient({
+      allowedHosts: ['api.github.com'],
+      fetch: async () => new Response('API rate limit exceeded', { status: 403, headers: { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '1890000000' } }),
+    });
+    const result = await collectDependencyHistory({ http, owner: 'chalk', repo: 'chalk', ref: 'main', dependencies: [dep()], manifests: [], locks: [] });
+    expect(result.entries[0]?.history_status).toBe('history_rate_limited');
+    expect(result.stats?.commits_scanned).toBe(0);
+    expect(result.entries[0]?.events).toEqual([]);
+    expect(result.stats?.rate_limit_reset_at).toBe(new Date(1890000000 * 1000).toISOString());
+  });
+
+  it('treats malformed listing JSON and network failures as unavailable', async () => {
+    for (const [response, cls] of [[new Response('{', { status: 200 }), 'malformed'], [undefined, 'network']] as const) {
+      const http = new HttpClient({ allowedHosts: ['api.github.com'], fetch: async () => response ?? Promise.reject(new Error('offline')) });
+      const result = await collectDependencyHistory({ http, owner: 'o', repo: 'r', ref: 'main', dependencies: [dep()], manifests: [], locks: [] });
+      expect(result.entries[0]?.history_status).toBe('history_unavailable');
+      expect(result.stats?.request_classes[cls]).toBeGreaterThan(0);
+    }
+  });
+
+  it('distinguishes an empty path from a complete scan', async () => {
+    const http = new HttpClient({ allowedHosts: ['api.github.com'], fetch: async () => new Response('[]', { status: 200 }) });
+    const result = await collectDependencyHistory({ http, owner: 'o', repo: 'r', ref: 'main', dependencies: [dep()], manifests: [], locks: [] });
+    expect(result.entries[0]).toMatchObject({ history_status: 'history_unavailable', introduction: 'unknown', path_state: 'path_not_found_at_ref' });
+    expect(result.entries[0]?.window?.complete).toBe(false);
+  });
+
+  it('reuses the preceding listed commit as the parent without extra parent blob requests', async () => {
+    const sha = (n: number) => n.toString(16).padStart(40, '0');
+    const commits = [1, 2, 3].map((n) => ({ sha: sha(n), commit: { committer: { date: `2024-01-0${n}T00:00:00Z` } }, parents: n > 1 ? [{ sha: sha(n - 1) }] : [] })).reverse();
+    const contentCalls: string[] = [];
+    const http = new HttpClient({ allowedHosts: ['api.github.com'], fetch: async (url) => {
+      const u = new URL(url);
+      if (u.pathname.endsWith('/commits')) return new Response(JSON.stringify(commits), { status: 200 });
+      if (u.pathname.match(/\/commits\/[0-9a-f]{40}$/)) return new Response('{}', { status: 200 });
+      contentCalls.push(url);
+      return new Response(JSON.stringify({ encoding: 'base64', sha: 'a'.repeat(40), content: Buffer.from('{}').toString('base64') }), { status: 200 });
+    } });
+    const result = await collectDependencyHistory({ http, owner: 'o', repo: 'r', ref: 'main', dependencies: [dep()], manifests: [], locks: [], budget: { maxCommits: 3 } });
+    expect(result.stats?.parent_blob_fetches).toBe(0);
+    expect(contentCalls).toHaveLength(3);
+  });
 });

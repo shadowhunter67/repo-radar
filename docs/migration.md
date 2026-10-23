@@ -20,3 +20,6 @@ Dependency history is now a per-path bounded scan with transition events. Re-run
 ## 0.14.0
 
 Dependency history transitions are computed against commit parents; new event kinds include `introduced_again_other_line`, and manifest creation is explicitly uncertain. Re-run analyses to produce schema 0.14 reports; methodology remains 0.4.
+## 0.15.0
+
+Dependency-history reports add `history_rate_limited`, per-entry diagnostics, unknown-revision counts, and request-class statistics. Re-run analyses; unavailable API data is no longer interpreted as empty history.

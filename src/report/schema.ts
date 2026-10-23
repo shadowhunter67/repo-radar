@@ -50,6 +50,7 @@ const DependencyIntroductionSchema = z.object({
     'history_complete',
     'history_partial',
     'history_budget_exhausted',
+    'history_rate_limited',
     'history_unavailable',
     'history_disabled',
   ]),
@@ -104,9 +105,12 @@ const DependencyIntroductionSchema = z.object({
   possible_parents: z.array(z.string()).optional(),
   parent_chain_ambiguous: z.boolean().optional(),
   introduced_with_manifest_creation: z.boolean().optional(),
+  diagnostics: z.array(z.string()).optional(),
+  unknown_revisions: z.number().int().nonnegative().optional(),
+  path_state: z.literal('path_not_found_at_ref').optional(),
 });
 
-export const REPORT_SCHEMA_VERSION = '0.14';
+export const REPORT_SCHEMA_VERSION = '0.15';
 
 const BehaviorDeltaSchema = z.object({
   behavior: z.array(
@@ -337,6 +341,21 @@ export const ReportSchema = z.object({
         resolved: z.number().int(),
         uncertain: z.number().int(),
         skipped_by_budget: z.number().int(),
+      })
+      .optional(),
+    history_stats: z
+      .object({
+        requests: z.number().int(),
+        commits_scanned: z.number().int(),
+        pages: z.number().int(),
+        blob_cache_hits: z.number().int(),
+        blob_cache_misses: z.number().int(),
+        bytes: z.number().int(),
+        elapsed_ms: z.number().int(),
+        budget_exhausted: z.boolean(),
+        parent_blob_fetches: z.number().int(),
+        request_classes: z.record(z.string(), z.number().int()),
+        rate_limit_reset_at: z.string().nullable(),
       })
       .optional(),
     young_package_threshold_days: z.literal(YOUNG_PACKAGE_DAYS).optional(),

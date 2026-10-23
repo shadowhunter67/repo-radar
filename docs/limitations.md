@@ -1,5 +1,7 @@
 # Limitations
 
+Dependency-history API failures are explicit unknowns. A GitHub rate limit stops the path scan without retries and is reported as `history_rate_limited`; missing blobs are never treated as absent dependencies.
+
 Plain statements of what repo-radar v0.2 cannot do or does badly.
 
 ## What a score means

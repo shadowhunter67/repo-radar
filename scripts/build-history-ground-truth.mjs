@@ -118,20 +118,43 @@ function names(eco, path, text) {
 }
 
 const result = [];
+const ONLY = process.env.HISTORY_TRUTH_ONLY;
 for (const t of TARGETS) {
+  if (ONLY && t.repo !== ONLY) continue;
   const dir = join(cloneRoot, t.dir);
   const head = git(dir, 'rev-parse', 'origin/HEAD').trim();
   // commits touching the path, following renames, oldest first, with the path at each commit
-  const raw = git(
+  // paths this manifest had over time: discovered with --follow (rename detection), then ALL path-touching commits are listed
+  // with --full-history (no history simplification), merges included; merges are filtered by the TREESAME rule below.
+  const followRaw = git(
     dir,
     'log',
     head,
     '--follow',
-    '--first-parent',
-    '--format=C\t%H\t%cI\t%an\t%cn\t%P',
+    '--format=tformat:C',
     '--name-status',
     '--',
     t.path,
+  );
+  const paths = new Set([t.path]);
+  for (const line of followRaw.split('\n')) {
+    const m = /^R\d*\t(.+)\t(.+)$/.exec(line);
+    if (m) {
+      paths.add(m[1]);
+      paths.add(m[2]);
+    }
+  }
+  const raw = git(
+    dir,
+    'log',
+    head,
+    '--full-history',
+    '--topo-order',
+    '-M',
+    '--format=C\t%H\t%cI\t%an\t%cn\t%P',
+    '--name-status',
+    '--',
+    ...paths,
   );
   const commits = [];
   let cur = null;
@@ -166,60 +189,79 @@ for (const t of TARGETS) {
     }
   };
   const transitions = new Map();
-  const current = (() => {
-    const first = commits[0];
-    const v = first && first.status !== 'D' ? read(first.sha, first.path) : undefined;
-    return [...(v ?? [])];
-  })();
+  let current = [];
+  const pathList = [...paths];
+  const readAny = (sha, preferred) => {
+    for (const p of [preferred, ...pathList].filter(Boolean)) {
+      const v = read(sha, p);
+      if (v !== undefined) return v;
+    }
+    return undefined;
+  };
+  current = [...(readAny(head) ?? [])];
   const rows2 = [];
   for (const c of commits) {
-    const after = c.status === 'D' ? new Set() : read(c.sha, c.path);
-    const parent0 = c.parents[0];
-    const beforePath = c.previous_path ?? c.path;
-    const before =
-      !parent0 || c.status === 'A' ? new Set() : (read(parent0, beforePath) ?? new Set());
-    rows2.push({ c, after, before });
+    const after = c.status === 'D' ? new Set() : readAny(c.sha, c.path);
+    if (after === undefined || after === null) {
+      rows2.push({ c, adds: new Set(), removes: new Set(), unknown: true });
+      continue;
+    }
+    const parentSets = c.parents.map(
+      (q, i) => readAny(q, i === 0 ? (c.previous_path ?? c.path) : undefined) ?? new Set(),
+    );
+    const adds = new Set();
+    const removes = new Set();
+    if (c.parents.length === 0 || c.status === 'A') {
+      for (const n of after) adds.add(n);
+    } else if (c.parents.length === 1) {
+      for (const n of after) if (!parentSets[0].has(n)) adds.add(n);
+      for (const n of parentSets[0]) if (!after.has(n)) removes.add(n);
+    } else {
+      // merge: TREESAME rule. A transition counts only when the merge differs from EVERY parent for that name.
+      for (const n of after) if (parentSets.every((ps) => !ps.has(n))) adds.add(n);
+      const all = new Set(parentSets.flatMap((ps) => [...ps]));
+      for (const n of all) if (!after.has(n) && parentSets.every((ps) => ps.has(n))) removes.add(n);
+    }
+    rows2.push({ c, adds, removes, unknown: false });
   }
   rows2.sort((a, b) => a.c.date.localeCompare(b.c.date) || a.c.sha.localeCompare(b.c.sha));
-  for (const { c, after, before } of rows2) {
-    if (after === undefined || after === null) continue; // unparseable at this revision: no transition claimed
-    if (before === null) continue;
-    for (const n of after)
-      if (!before.has(n)) {
-        const list = transitions.get(n) ?? [];
-        list.push({
-          type:
-            list.length === 0
-              ? 'introduced'
-              : list[list.length - 1].type === 'removed'
-                ? 'reintroduced'
-                : 'introduced_again_other_line',
-          commit: c.sha,
-          date: c.date,
-          path: c.path,
-          author: c.author,
-          committer: c.committer,
-          merge: c.parents.length > 1,
-          path_created: c.status === 'A',
-          renamed_from: c.previous_path,
-        });
-        transitions.set(n, list);
-      }
-    for (const n of before)
-      if (!after.has(n)) {
-        const list = transitions.get(n) ?? [];
-        list.push({
-          type: 'removed',
-          commit: c.sha,
-          date: c.date,
-          path: c.path,
-          merge: c.parents.length > 1,
-        });
-        transitions.set(n, list);
-      }
+  for (const { c, adds, removes } of rows2) {
+    const note = {
+      path: c.path,
+      author: c.author,
+      committer: c.committer,
+      merge: c.parents.length > 1,
+      path_created: c.status === 'A',
+      renamed_from: c.previous_path,
+    };
+    for (const n of adds) {
+      const list = transitions.get(n) ?? [];
+      list.push({
+        type:
+          list.length === 0
+            ? 'introduced'
+            : list[list.length - 1].type === 'removed'
+              ? 'reintroduced'
+              : 'introduced_again_other_line',
+        commit: c.sha,
+        date: c.date,
+        ...note,
+      });
+      transitions.set(n, list);
+    }
+    for (const n of removes) {
+      const list = transitions.get(n) ?? [];
+      list.push({
+        type: 'removed',
+        commit: c.sha,
+        date: c.date,
+        path: c.path,
+        merge: c.parents.length > 1,
+      });
+      transitions.set(n, list);
+    }
   }
-  const states = commits;
-  const renames = states
+  const renames = commits
     .filter((s) => s.status === 'R')
     .map((s) => ({ commit: s.sha, from: s.previous_path, to: s.path }));
   // deterministic sample of current dependencies (sha256 order, no cherry-picking) + every dependency with a non-simple history

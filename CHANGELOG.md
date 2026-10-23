@@ -3,6 +3,10 @@
 All notable changes are documented here. Versioning: the CLI follows semver; the report schema and the scoring
 methodology are versioned separately (`schema_version`, `methodology.version`) and are listed per release.
 
+## [0.15.0] - unreleased
+
+Dependency-history API failures are explicit unknowns. Reports expose request-class counters and rate-limit reset metadata; methodology remains 0.4.
+
 ## [0.12.0] - unreleased
 
 Report schema 0.12 adds artifact metadata and bounded behavioral/trust-boundary comparison components. Methodology remains 0.4; shipped profiles and scoring weights remain unchanged.

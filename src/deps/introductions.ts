@@ -40,6 +40,7 @@ export interface DependencyIntroduction {
     | 'history_complete'
     | 'history_partial'
     | 'history_budget_exhausted'
+    | 'history_rate_limited'
     | 'history_unavailable'
     | 'history_disabled';
   merge_commit: boolean;
@@ -58,6 +59,7 @@ export interface DependencyIntroductions {
   entries: DependencyIntroduction[];
   limits_hit: string[];
   history?: DependencyHistoryCollection['coverage'];
+  history_stats?: DependencyHistoryCollection['stats'];
 }
 
 const DAY = 86_400_000;
@@ -185,6 +187,7 @@ export function buildDependencyIntroductions(
       ...(history?.limits_hit ?? []),
     ],
     history: history?.coverage,
+    history_stats: history?.stats,
   };
 }
 

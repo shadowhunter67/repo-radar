@@ -68,7 +68,7 @@ jobs:
           test "$CODE" = "0"
           node -e "
             const r = JSON.parse(require('fs').readFileSync(process.env.REPORT, 'utf8'));
-            const ok = r.schema_version === '0.14' && r.code_analysis.scan.performed && r.integrity.report_sha256.length === 64
+            const ok = r.schema_version === '0.15' && r.code_analysis.scan.performed && r.integrity.report_sha256.length === 64
               && r.dimensions.length === 7 && r.findings.every((f) => f.intent === 'undetermined');
             console.log(r.subject.owner + '/' + r.subject.repo, 'overall', r.overall.score, 'findings', r.findings.length, 'ok', ok);
             process.exit(ok ? 0 : 1);
