@@ -62,6 +62,19 @@ for (const r of raw.repos) {
       budget,
     });
   } catch (e) {
+    const rc = traced.stats.request_classes ?? {};
+    if ((rc.rate_limited ?? 0) > 0 || (rc.server_error ?? 0) > 0 || (rc.network ?? 0) > 0) {
+      // a scan with API failures is not an observation of the history: never counted, and a rate limit stops the whole run
+      perRepo.push({
+        repo: r.repo,
+        invalid_observation: true,
+        request_classes: rc,
+        rate_limit_reset_at: traced.stats.rate_limit_reset_at ?? null,
+      });
+      console.error(`${r.repo}: INVALID (API failures ${JSON.stringify(rc)}); not counted`);
+      if ((rc.rate_limited ?? 0) > 0) break;
+      continue;
+    }
     perRepo.push({
       repo: r.repo,
       error: String(e?.message ?? e)
