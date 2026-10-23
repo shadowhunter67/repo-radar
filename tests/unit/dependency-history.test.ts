@@ -291,4 +291,62 @@ describe('dependency history collection', () => {
     expect(result.entries[0]).toMatchObject({ history_status: 'history_partial', introduction: 'unknown', events: [] });
     expect(result.entries[0]?.unknown_revisions).toBe(1);
   });
+
+  it.each([
+    ['pyproject.toml', '[tool.ruff]\nline-length = 88\n', 'urllib3'],
+    ['Cargo.toml', '[workspace]\nmembers = ["crate"]\n', 'serde'],
+    ['go.mod', 'module example.com/app\n', 'golang.org/x/tools'],
+    ['package.json', '{"name":"app"}', 'widget'],
+    ['pyproject.toml', '', 'widget'],
+  ])('treats valid dependency-free %s as absent at the parent', async (path, parentText, name) => {
+    const parent = 'p'.repeat(40);
+    const created = 'c'.repeat(40);
+    const current = path === 'pyproject.toml' && name === 'urllib3'
+      ? '[project]\ndependencies = ["urllib3>=2"]\n'
+      : path === 'Cargo.toml'
+        ? '[package]\nname = "crate"\n[dependencies]\nserde = "1"\n'
+        : path === 'go.mod'
+          ? 'module example.com/app\nrequire golang.org/x/tools v1.0.0\n'
+          : path === 'package.json'
+            ? '{"dependencies":{"widget":"1"}}'
+            : '[project]\ndependencies = ["widget"]\n';
+    const http = new HttpClient({
+      allowedHosts: ['api.github.com'],
+      fetch: async (url) => {
+        const u = new URL(url);
+        if (u.pathname.endsWith('/commits')) return new Response(JSON.stringify([{ sha: created, commit: { committer: { date: '2024-01-02T00:00:00Z' } }, parents: [{ sha: parent }] }]), { status: 200 });
+        if (u.pathname.endsWith(`/commits/${created}`)) return new Response(JSON.stringify({ files: [{ status: 'added' }] }), { status: 200 });
+        const body = u.searchParams.get('ref') === parent ? parentText : current;
+        return new Response(JSON.stringify({ encoding: 'base64', content: Buffer.from(body).toString('base64') }), { status: 200 });
+      },
+    });
+    const result = await traceManifestHistory({ http, owner: 'o', repo: 'r', ref: 'main', path, names: [name] });
+    if (path === 'pyproject.toml' && name === 'urllib3') expect(result.entries[0]).toMatchObject({ history_status: 'history_complete', current_present: true });
+    expect(result.entries[0]?.events.map((event) => event.kind)).toEqual(['introduced']);
+    expect(result.entries[0]?.introduced_at?.commit_sha).toBe(created);
+  });
+
+  it('does not treat invalid TOML or BOM/trailing-comma JSON as absent', async () => {
+    for (const [path, parentText, name] of [
+      ['pyproject.toml', '[project\nname = "broken"', 'widget'],
+      ['package.json', '\uFEFF{"dependencies":{"widget":"1",}}', 'widget'],
+    ] as const) {
+      const parent = 'p'.repeat(40);
+      const created = 'c'.repeat(40);
+      const http = new HttpClient({
+        allowedHosts: ['api.github.com'],
+        fetch: async (url) => {
+          const u = new URL(url);
+          if (u.pathname.endsWith('/commits')) return new Response(JSON.stringify([{ sha: created, commit: { committer: { date: '2024-01-02T00:00:00Z' } }, parents: [{ sha: parent }] }]), { status: 200 });
+          if (u.pathname.endsWith(`/commits/${created}`)) return new Response(JSON.stringify({ files: [{ status: 'added' }] }), { status: 200 });
+          const body = u.searchParams.get('ref') === parent ? parentText : '{}';
+          return new Response(JSON.stringify({ encoding: 'base64', content: Buffer.from(body).toString('base64') }), { status: 200 });
+        },
+      });
+      const result = await traceManifestHistory({ http, owner: 'o', repo: 'r', ref: 'main', path, names: [name] });
+      expect(result.entries[0]?.events).toEqual([]);
+      expect(result.entries[0]?.history_status).toBe('history_partial');
+      expect(result.entries[0]?.unknown_revisions).toBeGreaterThan(0);
+    }
+  });
 });

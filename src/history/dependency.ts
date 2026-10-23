@@ -1,4 +1,5 @@
 import type { Dependency } from '../deps/model.js';
+import { parse as parseToml } from 'smol-toml';
 import type { LockIndex } from '../deps/lock.js';
 import { parseLock } from '../deps/lock.js';
 import { parseManifest, type ParsedManifest } from '../collectors/manifests/parse.js';
@@ -132,6 +133,25 @@ const safePath = (p: string): boolean =>
   p.length <= 300 && !p.startsWith('/') && !p.includes('..') && /^[\w./@+,-]+$/.test(p);
 const date = (c: CommitRow): string | null =>
   c.commit?.committer?.date ?? c.commit?.author?.date ?? null;
+const validSyntax = (path: string, text: string): boolean => {
+  if (text.length > 512 * 1024 || text.includes('\0')) return false;
+  const base = path.split('/').pop() ?? path;
+  try {
+    if (base === 'package.json' || base === 'composer.json') {
+      JSON.parse(text);
+      return true;
+    }
+    if (base.endsWith('.toml') || base === 'pyproject.toml' || base === 'Cargo.toml') {
+      parseToml(text);
+      return true;
+    }
+    if (base === 'go.mod' || base === 'requirements.txt' || base.startsWith('requirements-'))
+      return true;
+    return text.length > 0;
+  } catch {
+    return false;
+  }
+};
 const stateFor = (path: string, text: string, name: string): State => {
   try {
     const m = parseManifest(path, text);
@@ -163,6 +183,13 @@ const stateFor = (path: string, text: string, name: string): State => {
         evidence: [`history:${path}`],
       };
     }
+    // A readable manifest with no parser object/declarations is absent; only invalid syntax is unknown.
+    if (validSyntax(path, text))
+      return {
+        state: 'absent',
+        parents: [],
+        evidence: [`history:${path}`, 'valid_manifest_without_dependencies'],
+      };
   } catch {
     return { state: 'unknown', parents: [], evidence: [`history:${path}`] };
   }
@@ -487,6 +514,7 @@ export async function traceManifestHistory(input: {
           () => stateFor(input.path, raw, n),
         ) ?? stateFor(input.path, raw, n);
       states.set(`${c.sha}\0${n.toLowerCase()}`, s);
+      if (s.state === 'unknown') unknownRevisions++;
     }
     const parent = c.parents?.[0]?.sha;
     if (c.sha === oldest?.sha && oldestPreviousText !== undefined)
@@ -522,8 +550,11 @@ export async function traceManifestHistory(input: {
         const parentRaw = Buffer.from(parentBody.content.replace(/\s/g, ''), 'base64').toString(
           'utf8',
         );
-        for (const n of input.names)
-          parentStates.set(`${c.sha}\0${n.toLowerCase()}`, stateFor(input.path, parentRaw, n));
+        for (const n of input.names) {
+          const s = stateFor(input.path, parentRaw, n);
+          parentStates.set(`${c.sha}\0${n.toLowerCase()}`, s);
+          if (s.state === 'unknown') unknownRevisions++;
+        }
       } else
         for (const n of input.names)
           parentStates.set(`${c.sha}\0${n.toLowerCase()}`, {
@@ -569,6 +600,7 @@ export async function traceManifestHistory(input: {
             ];
             parents.push(extraState);
             mergeParentStates.set(key, parents);
+            if (extraState.state === 'unknown') unknownRevisions++;
           } else {
             const parents = mergeParentStates.get(key) ?? [
               old ?? { state: 'unknown', parents: [], evidence: [] },
@@ -711,6 +743,25 @@ export async function traceManifestHistory(input: {
           e.author = cc?.author?.login ?? cc?.commit?.author?.name ?? null;
           e.committer = cc?.committer?.login ?? cc?.commit?.committer?.name ?? null;
         }
+      }
+    }
+    if (!first && oldestCreationVerified) {
+      const creation = ordered[0];
+      const creationState = creation?.sha
+        ? states.get(`${creation.sha}\0${e.dependency_id.toLowerCase()}`)
+        : undefined;
+      if (creation?.sha && creationState?.state === 'present' && unknownRevisions === 0) {
+        first = {
+          kind: 'introduced',
+          commit_sha: creation.sha,
+          timestamp: date(creation),
+          evidence_ids: [...creationState.evidence, `history:${input.path}:${creation.sha}`].slice(
+            0,
+            8,
+          ),
+          ...(creationState.spec ? { spec: creationState.spec } : {}),
+        };
+        e.events.push(first);
       }
     }
     if (first?.timestamp) {
