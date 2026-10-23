@@ -1,0 +1,236 @@
+{
+ "result_kind": "history-validation",
+ "engine": "traceManifestHistory",
+ "budget_mode": "large",
+ "generated_at": "2026-10-23T16:08:50.020Z",
+ "ground_truth_sha256": "c1691d435287added3b8bd8df1ffa430f0c62532adaa77c324caf5a8a89da130",
+ "ground_truth_note": "git log --follow --first-parent + own parsers; not repo-radar",
+ "summary": {
+  "cases_total": 6,
+  "introduction_commit": {
+   "exact": 3,
+   "unknown": 2,
+   "incorrect": 1
+  },
+  "event_sequence": {
+   "incorrect": 4,
+   "exact": 2
+  },
+  "manifest": {
+   "correct": 6
+  },
+  "relationship": {
+   "not_assessed_by_traceManifestHistory": 6
+  },
+  "budget_exhausted_repos": 0
+ },
+ "per_repo_cost": [
+  {
+   "repo": "serde-rs/serde",
+   "kind": "workspace-member",
+   "ecosystem": "cargo",
+   "commits_touching_path": 616,
+   "requests": 790,
+   "commits_scanned": 410,
+   "pages": 5,
+   "blob_cache_hits": 0,
+   "blob_cache_misses": 0,
+   "bytes": 4487527,
+   "elapsed_ms": 290039,
+   "budget_exhausted": false,
+   "parent_blob_fetches": 373,
+   "request_classes": {
+    "ok": 790,
+    "rate_limited": 0,
+    "not_found": 0,
+    "server_error": 0,
+    "network": 0,
+    "malformed": 0,
+    "other": 0
+   },
+   "rate_limit_reset_at": null,
+   "wall_ms": 290040
+  }
+ ],
+ "cases": [
+  {
+   "repo": "serde-rs/serde",
+   "kind": "workspace-member",
+   "ecosystem": "cargo",
+   "dependency": "serde_derive",
+   "selection": "hash_sample",
+   "truth_events": 2,
+   "truth_first": "2c1dd605758d3cc09842676984ce801919723a8e",
+   "observed_first": "2c1dd605758d3cc09842676984ce801919723a8e",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 410,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "incorrect",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:2c1dd605758d3cc09842676984ce801919723a8e",
+    "introduced_again_other_line:6279b0d93025dd69183b56a0c69de87ffdafbaef"
+   ],
+   "window_truth_seq": [
+    "introduced:2c1dd605758d3cc09842676984ce801919723a8e",
+    "introduced_again_other_line:6279b0d93025dd69183b56a0c69de87ffdafbaef"
+   ],
+   "observed_seq": [
+    "introduced:2c1dd605758d3cc09842676984ce801919723a8e"
+   ]
+  },
+  {
+   "repo": "serde-rs/serde",
+   "kind": "workspace-member",
+   "ecosystem": "cargo",
+   "dependency": "serde_core",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "f3869307cce9e2e0ab167617877936df689e0ca1",
+   "observed_first": "f3869307cce9e2e0ab167617877936df689e0ca1",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 410,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:f3869307cce9e2e0ab167617877936df689e0ca1"
+   ],
+   "window_truth_seq": [
+    "introduced:f3869307cce9e2e0ab167617877936df689e0ca1"
+   ],
+   "observed_seq": [
+    "introduced:f3869307cce9e2e0ab167617877936df689e0ca1"
+   ]
+  },
+  {
+   "repo": "serde-rs/serde",
+   "kind": "workspace-member",
+   "ecosystem": "cargo",
+   "dependency": "serde_macros",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "4077d83cf2bd5651926b29f22e299b057c75340e",
+   "observed_first": null,
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 410,
+   "classification": {
+    "introduction_commit": "unknown",
+    "event_sequence": "incorrect",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:4077d83cf2bd5651926b29f22e299b057c75340e",
+    "removed:9dd5f9dc7a68f90935af1a6c148b86cf4c971c91"
+   ],
+   "window_truth_seq": [
+    "introduced:4077d83cf2bd5651926b29f22e299b057c75340e",
+    "removed:9dd5f9dc7a68f90935af1a6c148b86cf4c971c91"
+   ],
+   "observed_seq": [
+    "removed:9dd5f9dc7a68f90935af1a6c148b86cf4c971c91"
+   ]
+  },
+  {
+   "repo": "serde-rs/serde",
+   "kind": "workspace-member",
+   "ecosystem": "cargo",
+   "dependency": "rustc-serialize",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "b98719a4a063a848d3fe8554f5dfdb67ba043704",
+   "observed_first": null,
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 410,
+   "classification": {
+    "introduction_commit": "unknown",
+    "event_sequence": "incorrect",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:b98719a4a063a848d3fe8554f5dfdb67ba043704",
+    "removed:9dd5f9dc7a68f90935af1a6c148b86cf4c971c91"
+   ],
+   "window_truth_seq": [
+    "introduced:b98719a4a063a848d3fe8554f5dfdb67ba043704",
+    "removed:9dd5f9dc7a68f90935af1a6c148b86cf4c971c91"
+   ],
+   "observed_seq": [
+    "removed:9dd5f9dc7a68f90935af1a6c148b86cf4c971c91"
+   ]
+  },
+  {
+   "repo": "serde-rs/serde",
+   "kind": "workspace-member",
+   "ecosystem": "cargo",
+   "dependency": "num",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "67e8ca354c84c184e4209d76d6e83319acdb9e10",
+   "observed_first": "f872b3fb4bd5254a780d29189c2efd1d6bb4f733",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 410,
+   "classification": {
+    "introduction_commit": "incorrect",
+    "event_sequence": "incorrect",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:67e8ca354c84c184e4209d76d6e83319acdb9e10",
+    "removed:49b0bfd2573fbd588db0651d7aabcf78708f1a3d"
+   ],
+   "window_truth_seq": [
+    "introduced:67e8ca354c84c184e4209d76d6e83319acdb9e10",
+    "removed:49b0bfd2573fbd588db0651d7aabcf78708f1a3d"
+   ],
+   "observed_seq": [
+    "removed:49b0bfd2573fbd588db0651d7aabcf78708f1a3d"
+   ]
+  },
+  {
+   "repo": "serde-rs/serde",
+   "kind": "workspace-member",
+   "ecosystem": "cargo",
+   "dependency": "clippy",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "bfa2b6919304375313142e8d33e96aa2b41a247e",
+   "observed_first": "bfa2b6919304375313142e8d33e96aa2b41a247e",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 410,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:bfa2b6919304375313142e8d33e96aa2b41a247e",
+    "removed:368784949ef96a44a11b96511e9db4cbf6a635d7"
+   ],
+   "window_truth_seq": [
+    "introduced:bfa2b6919304375313142e8d33e96aa2b41a247e",
+    "removed:368784949ef96a44a11b96511e9db4cbf6a635d7"
+   ],
+   "observed_seq": [
+    "introduced:bfa2b6919304375313142e8d33e96aa2b41a247e",
+    "removed:368784949ef96a44a11b96511e9db4cbf6a635d7"
+   ]
+  }
+ ]
+}

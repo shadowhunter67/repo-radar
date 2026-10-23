@@ -62,27 +62,25 @@ for (const r of raw.repos) {
       budget,
     });
   } catch (e) {
-    const rc = traced.stats.request_classes ?? {};
-    if ((rc.rate_limited ?? 0) > 0 || (rc.server_error ?? 0) > 0 || (rc.network ?? 0) > 0) {
-      // a scan with API failures is not an observation of the history: never counted, and a rate limit stops the whole run
-      perRepo.push({
-        repo: r.repo,
-        invalid_observation: true,
-        request_classes: rc,
-        rate_limit_reset_at: traced.stats.rate_limit_reset_at ?? null,
-      });
-      process.stderr.write(
-        `${r.repo}: INVALID (API failures ${JSON.stringify(rc)}); not counted\n`,
-      );
-      if ((rc.rate_limited ?? 0) > 0) break;
-      continue;
-    }
     perRepo.push({
       repo: r.repo,
       error: String(e?.message ?? e)
         .replace(token, '***')
         .slice(0, 200),
     });
+    continue;
+  }
+  const rc = traced.stats.request_classes ?? {};
+  if ((rc.rate_limited ?? 0) > 0 || (rc.server_error ?? 0) > 0 || (rc.network ?? 0) > 0) {
+    // a scan with API failures is not an observation of the history: never counted, and a rate limit stops the whole run
+    perRepo.push({
+      repo: r.repo,
+      invalid_observation: true,
+      request_classes: rc,
+      rate_limit_reset_at: traced.stats.rate_limit_reset_at ?? null,
+    });
+    process.stderr.write(`${r.repo}: INVALID (API failures ${JSON.stringify(rc)}); not counted\n`);
+    if ((rc.rate_limited ?? 0) > 0) break;
     continue;
   }
   perRepo.push({
@@ -94,12 +92,8 @@ for (const r of raw.repos) {
     wall_ms: Date.now() - t0,
   });
   for (const d of r.dependencies) {
-    const e = traced.entries.find(
-      (x) =>
-        x.dependency_id === d.name ||
-        x.dependency_id.endsWith(`:${d.name}`) ||
-        x.dependency_id.includes(d.name),
-    );
+    // exact match only: a substring match once attributed `mime-types` to `mime`
+    const e = traced.entries.find((x) => x.dependency_id === d.name);
     const truthFirst = d.transitions.find((t) => t.type === 'introduced');
     const order = r.commit_order_oldest_first;
     const idx = (sha) => order.indexOf(sha);
@@ -194,6 +188,6 @@ const result = {
   cases: rows,
 };
 mkdirSync('calibration/history-validation/results', { recursive: true });
-const out = `calibration/history-validation/results/validation-${mode}-${new Date().toISOString().slice(0, 10)}.json`;
+const out = `calibration/history-validation/results/validation-${mode}-${only ? only.replace("/", "_") + "-" : ""}${new Date().toISOString().slice(0, 10)}.json`;
 writeFileSync(out, JSON.stringify(result, null, 1) + '\n');
 process.stdout.write(`${JSON.stringify(result.summary, null, 1)}\n`);
