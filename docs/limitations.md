@@ -1,6 +1,8 @@
 # Limitations
 
 Dependency-history API failures are explicit unknowns. A GitHub rate limit stops the path scan without retries and is reported as `history_rate_limited`; missing blobs are never treated as absent dependencies.
+The one deliberate absence exception is a bounded contents 404 with a known parent SHA and the exact `Not Found`
+message: this means the manifest path did not exist at that parent. Ref-resolution 404s remain unknown.
 
 Plain statements of what repo-radar v0.2 cannot do or does badly.
 

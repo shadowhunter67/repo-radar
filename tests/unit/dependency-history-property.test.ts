@@ -17,7 +17,7 @@ describe('dependency history reference model', () => {
         commit: {
           committer: { date: `2024-03-${String(i + 1).padStart(2, '0')}T00:00:00Z` },
         },
-        parents: i ? [{ sha: sha(seed * 10 + i) }] : [],
+        parents: [{ sha: sha(seed * 10 + i) }],
       }));
       if (seed % 7 === 0) {
         commits[5] = {
@@ -67,6 +67,7 @@ describe('dependency history reference model', () => {
           if (u.pathname.includes('/commits/'))
             return new Response(JSON.stringify({ files: [{ status: 'added' }] }), { status: 200 });
           const n = commits.findIndex((c) => c.sha === u.searchParams.get('ref'));
+          if (n < 0) return new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 });
           return new Response(
             JSON.stringify({
               encoding: 'base64',

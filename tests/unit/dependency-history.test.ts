@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { HttpClient } from '../../src/util/http.js';
-import { collectDependencyHistory } from '../../src/history/dependency.js';
+import { collectDependencyHistory, traceManifestHistory } from '../../src/history/dependency.js';
 import type { Dependency } from '../../src/deps/model.js';
 
 const dep = (path = 'package.json'): Dependency => ({
@@ -249,5 +249,46 @@ describe('dependency history collection', () => {
     const result = await collectDependencyHistory({ http, owner: 'o', repo: 'r', ref: 'main', dependencies: [dep()], manifests: [], locks: [], budget: { maxCommits: 3 } });
     expect(result.stats?.parent_blob_fetches).toBe(0);
     expect(contentCalls).toHaveLength(3);
+  });
+
+  it('treats a known parent-path 404 as absent and introduces dependencies at file creation', async () => {
+    const parent = 'p'.repeat(40);
+    const created = 'c'.repeat(40);
+    const http = new HttpClient({
+      allowedHosts: ['api.github.com'],
+      fetch: async (url) => {
+        const u = new URL(url);
+        if (u.pathname.endsWith('/commits'))
+          return new Response(JSON.stringify([{ sha: created, commit: { committer: { date: '2024-01-02T00:00:00Z' } }, parents: [{ sha: parent }] }]), { status: 200 });
+        if (u.pathname.endsWith(`/commits/${created}`))
+          return new Response(JSON.stringify({ files: [{ status: 'added' }] }), { status: 200 });
+        if (u.searchParams.get('ref') === parent)
+          return new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 });
+        return new Response(JSON.stringify({ encoding: 'base64', content: Buffer.from('{"dependencies":{"widget":"1"}}').toString('base64') }), { status: 200 });
+      },
+    });
+    const result = await traceManifestHistory({ http, owner: 'o', repo: 'r', ref: 'main', path: 'package.json', names: ['widget'] });
+    expect(result.entries[0]).toMatchObject({ history_status: 'history_complete', introduction: 'known', introduced_with_manifest_creation: false });
+    expect(result.entries[0]?.events.map((event) => event.kind)).toEqual(['introduced']);
+    expect(result.entries[0]?.events[0]?.commit_sha).toBe(created);
+    expect(result.entries[0]?.unknown_revisions).toBe(0);
+  });
+
+  it('keeps a ref-not-found 404 unknown rather than treating it as an absent parent path', async () => {
+    const parent = 'p'.repeat(40);
+    const created = 'c'.repeat(40);
+    const http = new HttpClient({
+      allowedHosts: ['api.github.com'],
+      fetch: async (url) => {
+        const u = new URL(url);
+        if (u.pathname.endsWith('/commits')) return new Response(JSON.stringify([{ sha: created, commit: { committer: { date: '2024-01-02T00:00:00Z' } }, parents: [{ sha: parent }] }]), { status: 200 });
+        if (u.pathname.endsWith(`/commits/${created}`)) return new Response(JSON.stringify({ files: [{ status: 'added' }] }), { status: 200 });
+        if (u.searchParams.get('ref') === parent) return new Response(JSON.stringify({ message: 'No commit found for the ref parent' }), { status: 404 });
+        return new Response(JSON.stringify({ encoding: 'base64', content: Buffer.from('{"dependencies":{"widget":"1"}}').toString('base64') }), { status: 200 });
+      },
+    });
+    const result = await traceManifestHistory({ http, owner: 'o', repo: 'r', ref: 'main', path: 'package.json', names: ['widget'] });
+    expect(result.entries[0]).toMatchObject({ history_status: 'history_partial', introduction: 'unknown', events: [] });
+    expect(result.entries[0]?.unknown_revisions).toBe(1);
   });
 });

@@ -193,6 +193,7 @@ export async function traceManifestHistory(input: {
   let rateLimitResetAt: string | null = null;
   let scanFailure: HistoryRequestClass | null = null;
   let unknownRevisions = 0;
+  let lastContents404WasAbsent = false;
   const requestClasses: Record<HistoryRequestClass, number> = {
     ok: 0,
     rate_limited: 0,
@@ -204,6 +205,7 @@ export async function traceManifestHistory(input: {
   };
   const base = `https://api.github.com/repos/${encodeURIComponent(input.owner)}/${encodeURIComponent(input.repo)}`;
   const request = async <T>(p: string, max = 1000000): Promise<T | undefined> => {
+    lastContents404WasAbsent = false;
     if (
       requests >= b.maxRequests ||
       Date.now() - started >= b.maxElapsedMs ||
@@ -233,6 +235,19 @@ export async function traceManifestHistory(input: {
             : r.status >= 500
               ? 'server_error'
               : 'other';
+        let notFoundMessage = r.body;
+        try {
+          const parsed = JSON.parse(r.body) as { message?: unknown };
+          if (typeof parsed.message === 'string') notFoundMessage = parsed.message;
+        } catch {
+          // Keep the bounded raw body for non-JSON error responses.
+        }
+        if (
+          r.status === 404 &&
+          p.startsWith('/contents/') &&
+          /^\s*not found\s*$/i.test(notFoundMessage)
+        )
+          lastContents404WasAbsent = true;
         requestClasses[cls]++;
         if (cls === 'rate_limited') {
           const reset = r.headers.get('x-ratelimit-reset');
@@ -399,7 +414,7 @@ export async function traceManifestHistory(input: {
     };
   }
   const ordered = [...commits].reverse();
-  let oldestAddedWithoutRename = false;
+  let oldestCreationVerified = false;
   let oldestRename: RenameObservation | undefined;
   let oldestPreviousText: string | undefined;
   const oldest = ordered[0];
@@ -427,7 +442,7 @@ export async function traceManifestHistory(input: {
           'base64',
         ).toString('utf8');
       else unknownRevisions++;
-    } else if (file?.status === 'added') oldestAddedWithoutRename = true;
+    } else if (file?.status === 'added') oldestCreationVerified = true;
   }
   const states = new Map<string, State>();
   const parentStates = new Map<string, State>();
@@ -488,8 +503,22 @@ export async function traceManifestHistory(input: {
         Math.min(512 * 1024, b.maxBytes),
       );
       parentBlobFetches++;
-      if (!parentBody) unknownRevisions++;
-      if (parentBody?.content && parentBody.encoding === 'base64') {
+      if (!parentBody && lastContents404WasAbsent) {
+        for (const n of input.names)
+          parentStates.set(`${c.sha}\0${n.toLowerCase()}`, {
+            state: 'absent',
+            parents: [],
+            evidence: [`history:${input.path}:${parent}`, 'path_absent_at_parent'],
+          });
+      } else if (!parentBody) {
+        unknownRevisions++;
+        for (const n of input.names)
+          parentStates.set(`${c.sha}\0${n.toLowerCase()}`, {
+            state: 'unknown',
+            parents: [],
+            evidence: [`history:${input.path}:${parent}`],
+          });
+      } else if (parentBody.content && parentBody.encoding === 'base64') {
         const parentRaw = Buffer.from(parentBody.content.replace(/\s/g, ''), 'base64').toString(
           'utf8',
         );
@@ -577,7 +606,7 @@ export async function traceManifestHistory(input: {
           ? 'history_budget_exhausted'
           : unknownRevisions > 0 || !listingComplete
             ? 'history_partial'
-            : oldestAddedWithoutRename || oldestRename?.state === 'confirmed_rename'
+            : oldestCreationVerified || oldestRename?.state === 'confirmed_rename'
               ? 'history_complete'
               : 'history_partial',
     merge_commit: false,
@@ -590,12 +619,12 @@ export async function traceManifestHistory(input: {
         listingComplete &&
         !exhausted &&
         unknownRevisions === 0 &&
-        (oldestAddedWithoutRename || oldestRename?.state === 'confirmed_rename'),
+        (oldestCreationVerified || oldestRename?.state === 'confirmed_rename'),
       commits_scanned: scanned,
       oldest_scanned_sha: ordered[0]?.sha ?? null,
     },
     renames: [],
-    introduced_with_manifest_creation: oldestAddedWithoutRename,
+    introduced_with_manifest_creation: false,
     diagnostics: scanFailure ? [`scan:${scanFailure}`] : [],
     unknown_revisions: unknownRevisions,
   }));

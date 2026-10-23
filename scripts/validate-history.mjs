@@ -188,6 +188,6 @@ const result = {
   cases: rows,
 };
 mkdirSync('calibration/history-validation/results', { recursive: true });
-const out = `calibration/history-validation/results/validation-${mode}-${only ? only.replace("/", "_") + "-" : ""}${new Date().toISOString().slice(0, 10)}.json`;
+const out = `calibration/history-validation/results/validation-${mode}-${only ? only.replace('/', '_') + '-' : ''}${new Date().toISOString().slice(0, 10)}.json`;
 writeFileSync(out, JSON.stringify(result, null, 1) + '\n');
 process.stdout.write(`${JSON.stringify(result.summary, null, 1)}\n`);

@@ -12,6 +12,9 @@ Use **observed** for collected facts, **reported** for registry claims, and **un
 API failure semantics: a rate limit (403/429 with rate-limit signals) yields `history_rate_limited`; other listing
 failures yield `history_unavailable`. A first-page empty 200 is `path_not_found_at_ref`, not a complete scan. Blob,
 parent, and commit-detail failures suppress transitions and produce `history_partial` with `unknown_revisions`.
+For a listed commit with a known parent SHA, a contents 404 whose message is exactly `Not Found` means the manifest
+path is absent at that parent (`path_absent_at_parent`), so dependencies present in the creating commit may be
+introduced there. Ref-not-found 404 responses and all other failures remain unknown.
 GitHub's path-filtered commits endpoint is not equivalent to `git log --full-history`: side branches and renamed
 paths may be omitted. Transitions are claimed only from commits and parent contents actually fetched.
 
