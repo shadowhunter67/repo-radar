@@ -21,7 +21,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "0.15"
+      "const": "0.16"
     },
     "methodology": {
       "type": "object",
@@ -5475,6 +5475,25 @@
                   "type": "string",
                   "maxLength": 160
                 }
+              },
+              "provenance_class": {
+                "type": "string",
+                "enum": [
+                  "live_registry",
+                  "official_registry_archive",
+                  "official_release_archive",
+                  "security_research_archive",
+                  "third_party_mirror",
+                  "reproducible_fixture",
+                  "synthetic_fixture",
+                  "unverified_historical_artifact",
+                  "unavailable"
+                ]
+              },
+              "source_confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
               }
             },
             "required": [
@@ -8228,6 +8247,9 @@
                 "type": "boolean"
               },
               "introduced_with_manifest_creation": {
+                "type": "boolean"
+              },
+              "present_at_window_start": {
                 "type": "boolean"
               },
               "diagnostics": {

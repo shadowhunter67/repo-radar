@@ -149,3 +149,7 @@ The following H5 follow-ups remain explicitly unclaimed and require separate rev
 The artifact delta comparator only emits behavior and external-domain changes when both versions are inspected and have verified digests. The current artifact model does not retain enough file-level execution, native-binary, `bin`, repository-host, or publisher-organization metadata to compare those dimensions; they remain `not_available` rather than being inferred. A single-version report therefore does not emit a delta event.
 - Artifact metadata is static and bounded: executable-entry presence is not execution, native magic is not maliciousness, repository host is from the artifact manifest only, and publisher organization is unavailable without defensible registry evidence.
 Incident evaluator v2 separates evaluability from correctness. Insufficient evidence, ambiguous labels, unavailable artifacts, and mechanisms outside a detector's declared scope are not counted as negatives. No v4 corpus or fresh holdout is created in this release.
+
+## Dependency-history validation
+
+The history collector remains opt-in/policy-triggered. Full manifest histories can cost hundreds to thousands of API requests, so bounded default scans may be partial. The measured 2026-10-24 validation covered ten repositories and 80 dependencies; see [history-validation.md](history-validation.md). It was not human-reviewed, does not cover lockfile/transitive accuracy, and GitHub path-filtering can omit old commits. Rate-limited or unavailable API observations remain unknown.

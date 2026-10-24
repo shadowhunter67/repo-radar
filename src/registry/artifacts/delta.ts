@@ -1,5 +1,17 @@
 import type { DependencyArtifact } from './model.js';
 
+function pairConfidence(before: DependencyArtifact, after: DependencyArtifact): number {
+  const source = Math.min(before.source_confidence ?? 1, after.source_confidence ?? 1);
+  if (
+    before.provenance_class === 'synthetic_fixture' ||
+    after.provenance_class === 'synthetic_fixture' ||
+    before.provenance_class === 'unverified_historical_artifact' ||
+    after.provenance_class === 'unverified_historical_artifact'
+  )
+    return Math.min(0.3, source);
+  return Math.min(0.8, source);
+}
+
 export type BehaviorCapability =
   'network' | 'process_exec' | 'filesystem_write' | 'env_credential_access' | 'obfuscation';
 
@@ -110,6 +122,7 @@ export function compareDependencyArtifacts(
     };
   const a = capabilities(before);
   const b = capabilities(after);
+  const confidence = pairConfidence(before, after);
   const behavior: DependencyBehaviorEvent[] = [];
   for (const [capability, evidence] of b)
     if (!a.has(capability))
@@ -123,7 +136,7 @@ export function compareDependencyArtifacts(
         capability,
         detail: `${capability} appears in the verified install script; risk indicator observed; intent undetermined`,
         evidence,
-        confidence: 0.8,
+        confidence,
       });
   for (const [capability, evidence] of a)
     if (!b.has(capability))
@@ -137,7 +150,7 @@ export function compareDependencyArtifacts(
         capability,
         detail: `${capability} is absent from the verified install script`,
         evidence,
-        confidence: 0.8,
+        confidence,
       });
   const domainsBefore = new Set(before.domains);
   const trust_boundary: DependencyTrustBoundaryEvent[] = after.domains
@@ -152,7 +165,7 @@ export function compareDependencyArtifacts(
       boundary: 'external_domain',
       detail: `new install/build external domain ${domain}; risk indicator observed; intent undetermined`,
       evidence: after.evidence.slice(0, 4),
-      confidence: 0.75,
+      confidence: Math.min(confidence, 0.75),
     }));
   if (
     !after.hooks.length &&

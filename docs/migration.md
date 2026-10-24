@@ -23,3 +23,8 @@ Dependency history transitions are computed against commit parents; new event ki
 ## 0.15.0
 
 Dependency-history reports add `history_rate_limited`, per-entry diagnostics, unknown-revision counts, and request-class statistics. Re-run analyses; unavailable API data is no longer interpreted as empty history.
+## 0.16.0
+
+Report schema 0.16 adds `present_at_window_start` to dependency introductions. A
+dependency present at the scanned window base has no claimed introduction commit or
+event. Re-run analyses to produce schema 0.16 reports; methodology remains 0.4.

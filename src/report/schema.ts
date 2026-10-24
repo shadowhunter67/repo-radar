@@ -105,12 +105,13 @@ const DependencyIntroductionSchema = z.object({
   possible_parents: z.array(z.string()).optional(),
   parent_chain_ambiguous: z.boolean().optional(),
   introduced_with_manifest_creation: z.boolean().optional(),
+  present_at_window_start: z.boolean().optional(),
   diagnostics: z.array(z.string()).optional(),
   unknown_revisions: z.number().int().nonnegative().optional(),
   path_state: z.literal('path_not_found_at_ref').optional(),
 });
 
-export const REPORT_SCHEMA_VERSION = '0.15';
+export const REPORT_SCHEMA_VERSION = '0.16';
 
 const BehaviorDeltaSchema = z.object({
   behavior: z.array(

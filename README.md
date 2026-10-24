@@ -66,6 +66,8 @@ repo-radar analyze owner/repo --inspect-dependency-artifacts --name-intelligence
 repo-radar batch --list repos.txt --org-summary --snapshot-dir ./snapshots
 ```
 
+Dependency history is opt-in or policy-triggered and bounded; full histories can cost hundreds or thousands of API requests and therefore may be explicitly partial.
+
 Exit codes: `0` ok, `1` internal error, `2` policy floor not met (or not verifiable), `3` repository not found, `4` GitHub unavailable or rate limited, `64` usage error.
 
 Additional design notes: [dependency artifacts](docs/dependency-artifacts.md), [name intelligence](docs/name-intelligence.md), [build systems](docs/build-systems.md), and [batch](docs/batch.md).

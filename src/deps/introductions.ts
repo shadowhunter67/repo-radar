@@ -46,6 +46,7 @@ export interface DependencyIntroduction {
   merge_commit: boolean;
   squash_like: boolean;
   introduction_commit_uncertain: boolean;
+  present_at_window_start?: boolean;
 }
 
 export interface DependencyIntroductions {
@@ -170,6 +171,7 @@ export function buildDependencyIntroductions(
       merge_commit: historical?.merge_commit ?? false,
       squash_like: historical?.squash_like ?? false,
       introduction_commit_uncertain: historical?.introduction_commit_uncertain ?? true,
+      present_at_window_start: historical?.present_at_window_start,
     });
   }
   const known = entries.filter((e) => e.introduction === 'known').length;

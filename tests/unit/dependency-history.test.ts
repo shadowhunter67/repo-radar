@@ -349,4 +349,26 @@ describe('dependency history collection', () => {
       expect(result.entries[0]?.unknown_revisions).toBeGreaterThan(0);
     }
   });
+
+  it('does not invent an introduction when the dependency is present at the window start', async () => {
+    const old = 'a'.repeat(40);
+    const head = 'b'.repeat(40);
+    const http = new HttpClient({
+      allowedHosts: ['api.github.com'],
+      fetch: async (url) => {
+        const u = new URL(url);
+        if (u.pathname.endsWith('/commits'))
+          return new Response(JSON.stringify([
+            { sha: head, commit: { committer: { date: '2024-01-03T00:00:00Z' } }, parents: [{ sha: old }] },
+            { sha: old, commit: { committer: { date: '2024-01-02T00:00:00Z' } }, parents: [{ sha: 'z'.repeat(40) }] },
+          ]), { status: 200 });
+        if (u.pathname.includes('/commits/')) return new Response(JSON.stringify({ files: [{ status: 'added' }] }), { status: 200 });
+        const present = u.searchParams.get('ref') !== head;
+        return new Response(JSON.stringify({ encoding: 'base64', content: Buffer.from(present ? '{"dependencies":{"widget":"1"}}' : '{}').toString('base64') }), { status: 200 });
+      },
+    });
+    const result = await traceManifestHistory({ http, owner: 'o', repo: 'r', ref: 'main', path: 'package.json', names: ['widget'] });
+    expect(result.entries[0]).toMatchObject({ introduction: 'unknown', introduced_at: null, first_introduced_at: null, present_at_window_start: true });
+    expect(result.entries[0]?.events.map((event) => event.kind)).toEqual(['removed']);
+  });
 });

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ARTIFACT_PROVENANCE_CLASSES } from './provenance.js';
 
 export const DependencyArtifactSchema = z.object({
   registry: z.enum(['npm', 'pypi', 'crates.io']),
@@ -27,6 +28,8 @@ export const DependencyArtifactSchema = z.object({
   publisher_organization: z.string().max(200).nullable().optional(),
   reason: z.string().max(200).nullable(),
   evidence: z.array(z.string().max(160)).max(10),
+  provenance_class: z.enum(ARTIFACT_PROVENANCE_CLASSES).optional(),
+  source_confidence: z.number().min(0).max(1).optional(),
 });
 export type DependencyArtifact = z.infer<typeof DependencyArtifactSchema>;
 export const DependencyArtifactsSchema = z.object({

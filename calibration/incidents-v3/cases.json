@@ -1,11 +1,310 @@
 [
-  {"id":"npm-underscore-1.13.4-1.13.5","ecosystem":"npm","package":"underscore","version_before":"1.13.4","version_after":"1.13.5","digest_before":"sha512-BQFnUDuAQ4Yf/cYY5LNrK9NCJFKriaRbD9uR1fTeXnBeoa97W0i41qkZfGO9pSo8I5KzjAcSY2XYtdf0oKd7KQ==","digest_after":"sha512-A5XL+zduLwgQj38z9k7jaDv9Ls8eaIbpsJV1iK4vCK667GWnYO9XR7AJ3EK7qH1SfhZksWH1Fsw3nPZelhzAMQ==","artifact_before":"tests/fixtures/pairs/underscore-1.13.4.tgz","artifact_after":"tests/fixtures/pairs/underscore-1.13.5.tgz","registry_source":"https://registry.npmjs.org/underscore","publish_timestamps":{},"publisher_before":"jgonggrijp","publisher_after":"jgonggrijp","registry_history_events":[],"artifact_expectations":{"hook_added":["postinstall"],"hook_removed":[],"executable_entry":null,"native_binary":null,"external_domains":[]},"case_type":"install_hook_added","label":"known_benign","evidence_notes":"Pinned benign fixture pair; expectation independently read from package metadata.","source_urls":["https://www.npmjs.com/package/underscore"],"review_status":"ai_assisted_unreviewed","source":"real_artifact_pair","split":"development"},
-  {"id":"npm-underscore-1.13.5-1.13.6","ecosystem":"npm","package":"underscore","version_before":"1.13.5","version_after":"1.13.6","digest_before":"sha512-A5XL+zduLwgQj38z9k7jaDv9Ls8eaIbpsJV1iK4vCK667GWnYO9XR7AJ3EK7qH1SfhZksWH1Fsw3nPZelhzAMQ==","digest_after":"sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A==","artifact_before":"tests/fixtures/pairs/underscore-1.13.5.tgz","artifact_after":"tests/fixtures/pairs/underscore-1.13.6.tgz","registry_source":"https://registry.npmjs.org/underscore","publish_timestamps":{},"publisher_before":"jgonggrijp","publisher_after":"jgonggrijp","registry_history_events":[],"artifact_expectations":{"hook_added":[],"hook_removed":["postinstall"],"executable_entry":null,"native_binary":null,"external_domains":[]},"case_type":"install_hook_removed","label":"known_benign","evidence_notes":"Pinned benign fixture pair.","source_urls":["https://www.npmjs.com/package/underscore"],"review_status":"ai_assisted_unreviewed","source":"real_artifact_pair","split":"development"},
-  {"id":"npm-async-0.1.16-0.1.17","ecosystem":"npm","package":"async","version_before":"0.1.16","version_after":"0.1.17","digest_before":"sha512-TrtaROD5B+de7cbqPG6z96Jc+CXbnlQLzGPTj6Marf2+yh9hCe0+PVFdNMFxcdfjOF+0T/HrdN7EzC+COuxQpA==","digest_after":"sha512-PvPaikCPsSEOfAR/je214lMCnaPLHAcA/KAjfEixFaQ7fSr44rrZZtD417vCn2JUt059QGZKKbaa8SZEDNPEvA==","artifact_before":"tests/fixtures/pairs/async-0.1.16.tgz","artifact_after":"tests/fixtures/pairs/async-0.1.17.tgz","registry_source":"https://registry.npmjs.org/async","publish_timestamps":{},"publisher_before":"caolan","publisher_after":"caolan","registry_history_events":[],"artifact_expectations":{"hook_added":["install","preinstall"],"hook_removed":[],"executable_entry":null,"native_binary":null,"external_domains":[]},"case_type":"install_hook_added","label":"known_benign","evidence_notes":"Pinned benign fixture pair.","source_urls":["https://www.npmjs.com/package/async"],"review_status":"ai_assisted_unreviewed","source":"real_artifact_pair","split":"development"},
-  {"id":"npm-eslint-config-prettier-10.1.3-10.1.4","ecosystem":"npm","package":"eslint-config-prettier","version_before":"10.1.3","version_after":"10.1.4","digest_before":"sha512-vDo4d9yQE+cS2tdIT4J02H/16veRvkHgiLDRpej+WL67oCfbOb97itZXn8wMPJ/GsiEBVjrjs//AVNw2Cp1EcA==","digest_after":"sha512-1ET6/XNoL/ktO/JjHdGzImKKR9RXo2aFlNRyP6B4WWeZg/7m9SkZrrXkxKgHtJJ8edLOJa4Kp1wLkdnZ6pnZUw==","artifact_before":"tests/fixtures/pairs/eslint-config-prettier-10.1.3.tgz","artifact_after":"tests/fixtures/pairs/eslint-config-prettier-10.1.4.tgz","registry_source":"https://registry.npmjs.org/eslint-config-prettier","publish_timestamps":{},"publisher_before":"jounqin","publisher_after":"jounqin","registry_history_events":[],"artifact_expectations":{"hook_added":[],"hook_removed":[],"executable_entry":true,"native_binary":null,"external_domains":[]},"case_type":"provenance_added","label":"known_benign","evidence_notes":"Pinned pair includes metadata/entry changes; provenance interpretation remains descriptive.","source_urls":["https://www.npmjs.com/package/eslint-config-prettier"],"review_status":"ai_assisted_unreviewed","source":"real_artifact_pair","split":"validation"},
-  {"id":"npm-event-stream-3.3.4-3.3.5","ecosystem":"npm","package":"event-stream","version_before":"3.3.4","version_after":"3.3.5","digest_before":"sha512-QHpkERcGsR0T7Qm3HNJSyXKEEj8AHNxkY3PK8TS2KJvQ7NiSHe3DDpwVKKtoYprL/AreyzFBeIkBIWChAqn60g==","digest_after":"sha512-vyibDcu5JL20Me1fP734QBH/kenBGLZap2n0+XXM7mvuUPzJ20Ydqj1aKcIeMdri1p+PU+4yAKugjN8KCVst+g==","artifact_before":"tests/fixtures/pairs/event-stream-3.3.4.tgz","artifact_after":"tests/fixtures/pairs/event-stream-3.3.5.tgz","registry_source":"https://registry.npmjs.org/event-stream","publish_timestamps":{},"publisher_before":"dominictarr","publisher_after":"right9ctrl","registry_history_events":["publisher_change"],"artifact_expectations":{"hook_added":[],"hook_removed":[],"executable_entry":null,"native_binary":null,"external_domains":[]},"case_type":"publisher_handoff_without_behavior","label":"ambiguous","evidence_notes":"Publisher handoff immediately precedes the known 2018 event-stream attack, but registry history alone is not compromise evidence.","source_urls":["https://github.com/dominictarr/event-stream/issues/116"],"review_status":"ai_assisted_unreviewed","source":"real_artifact_pair","split":"development"},
-  {"id":"npm-core-js-3.49.0-4.0.0-alpha.1","ecosystem":"npm","package":"core-js","version_before":"3.49.0","version_after":"4.0.0-alpha.1","digest_before":"sha512-es1U2+YTtzpwkxVLwAFdSpaIMyQaq0PBgm3YD1W3Qpsn1NAmO3KSgZfu+oGSWVu6NvLHoHCV/aYcsE5wiB7ALg==","digest_after":"sha512-SSmBiWk0WahBQwl0bE8n0ub64jISOM0NM1chU2lLMG6sPD2odj3iGLvpmhje3BVhZywFBHUfxJ2B381Ah1P3jA==","artifact_before":"tests/fixtures/pairs/core-js-3.49.0.tgz","artifact_after":"tests/fixtures/pairs/core-js-4.0.0-alpha.1.tgz","registry_source":"https://registry.npmjs.org/core-js","publish_timestamps":{},"publisher_before":"zloirock","publisher_after":"zloirock","registry_history_events":[],"artifact_expectations":{"hook_added":[],"hook_removed":["postinstall"],"executable_entry":null,"native_binary":null,"external_domains":[]},"case_type":"install_hook_removed","label":"known_benign","evidence_notes":"Pinned pair; no incident conclusion inferred.","source_urls":["https://www.npmjs.com/package/core-js"],"review_status":"ai_assisted_unreviewed","source":"real_artifact_pair","split":"development"},
-  {"id":"npm-faker-5.5.3-6.6.6","ecosystem":"npm","package":"faker","version_before":"5.5.3","version_after":"6.6.6","digest_before":"sha512-wLTv2a28wjUyWkbnX7u/ABZBkUkIF2fCd73V6P2oFqEGEktDfzWx4UxrSqtPRw0xPRAcjeAOIiJWqZm3pP4u3g==","digest_after":"sha512-9tCqYEDHI5RYFQigXFwF1hnCwcWCOJl/hmll0lr5D2Ljjb0o4wphb69wikeJDz5qCEzXCoPvG6ss5SDP6IfOdg==","artifact_before":"tests/fixtures/pairs/faker-5.5.3.tgz","artifact_after":"tests/fixtures/pairs/faker-6.6.6.tgz","registry_source":"https://registry.npmjs.org/faker","publish_timestamps":{},"publisher_before":"marak","publisher_after":"marak","registry_history_events":[],"artifact_expectations":{"hook_added":[],"hook_removed":[],"executable_entry":null,"native_binary":null,"external_domains":[]},"case_type":"real_sabotage_release","label":"known_incident","evidence_notes":"Reviewer established the author sabotage release is still downloadable; holdout-assigned and never evaluated in this pass.","source_urls":["https://github.com/Marak/faker.js/issues/1046"],"review_status":"ai_assisted_unreviewed","source":"real_artifact_pair","split":"holdout"},
-  {"id":"npm-flatmap-synthetic-plumbing","ecosystem":"npm","package":"flatmap-stream","version_before":"0.0.0","version_after":"0.1.0-synthetic","digest_before":"sha512-QHpkERcGsR0T7Qm3HNJSyXKEEj8AHNxkY3PK8TS2KJvQ7NiSHe3DDpwVKKtoYprL/AreyzFBeIkBIWChAqn60g==","digest_after":"sha512-vyibDcu5JL20Me1fP734QBH/kenBGLZap2n0+XXM7mvuUPzJ20Ydqj1aKcIeMdri1p+PU+4yAKugjN8KCVst+g==","artifact_before":null,"artifact_after":null,"registry_source":"synthetic from pinned event-stream fixture","publish_timestamps":{},"publisher_before":null,"publisher_after":null,"registry_history_events":[],"artifact_expectations":{"hook_added":["postinstall"],"hook_removed":[],"executable_entry":null,"native_binary":null,"external_domains":[]},"case_type":"new_dependency_with_risky_behavior","label":"insufficient_evidence","evidence_notes":"Synthetic plumbing case only; constructed in tests from real pinned bytes and excluded from accuracy metrics.","source_urls":[],"review_status":"ai_assisted_unreviewed","source":"synthetic_from_real","split":"development"},
-  {"id":"npm-ctrl-tinycolor-4.1.0-4.2.0","ecosystem":"npm","package":"@ctrl/tinycolor","version_before":"4.1.0","version_after":"4.2.0","digest_before":"sha512-WyOx8cJQ+FQus4Mm4uPIZA64gbk3Wxh0so5Lcii0aJifqwoVOlfFtorjLE0Hen4OYyHZMXDWqMmaQemBhgxFRQ==","digest_after":"sha512-kzyuwOAQnXJNLS9PSyrk0CWk35nWJW/zl/6KvnTBMFK65gm7U1/Z5BqjxeapjZCIhQcM/DsrEmcbRwDyXyXK4A==","artifact_before":"tests/fixtures/pairs/ctrl__tinycolor-4.1.0.tgz","artifact_after":"tests/fixtures/pairs/ctrl__tinycolor-4.2.0.tgz","registry_source":"https://registry.npmjs.org/@ctrl/tinycolor","publish_timestamps":{},"publisher_before":"scttcper","publisher_after":"scttcper","registry_history_events":[],"artifact_expectations":{"hook_added":[],"hook_removed":[],"executable_entry":null,"native_binary":null,"external_domains":[]},"case_type":"provenance_added","label":"insufficient_evidence","evidence_notes":"Fresh holdout-assigned pair; not evaluated in this pass. Reviewer established later malicious versions are unpublished.","source_urls":["https://www.npmjs.com/package/@ctrl/tinycolor"],"review_status":"ai_assisted_unreviewed","source":"real_artifact_pair","split":"holdout"}
+  {
+    "id": "npm-underscore-1.13.4-1.13.5",
+    "ecosystem": "npm",
+    "package": "underscore",
+    "version_before": "1.13.4",
+    "version_after": "1.13.5",
+    "digest_before": "sha512-BQFnUDuAQ4Yf/cYY5LNrK9NCJFKriaRbD9uR1fTeXnBeoa97W0i41qkZfGO9pSo8I5KzjAcSY2XYtdf0oKd7KQ==",
+    "digest_after": "sha512-A5XL+zduLwgQj38z9k7jaDv9Ls8eaIbpsJV1iK4vCK667GWnYO9XR7AJ3EK7qH1SfhZksWH1Fsw3nPZelhzAMQ==",
+    "artifact_before": "tests/fixtures/pairs/underscore-1.13.4.tgz",
+    "artifact_after": "tests/fixtures/pairs/underscore-1.13.5.tgz",
+    "registry_source": "https://registry.npmjs.org/underscore",
+    "publish_timestamps": {},
+    "publisher_before": "jgonggrijp",
+    "publisher_after": "jgonggrijp",
+    "registry_history_events": [],
+    "artifact_expectations": {
+      "hook_added": [
+        "postinstall"
+      ],
+      "hook_removed": [],
+      "executable_entry": null,
+      "native_binary": null,
+      "external_domains": []
+    },
+    "case_type": "install_hook_added",
+    "label": "known_benign",
+    "evidence_notes": "Pinned benign fixture pair; expectation independently read from package metadata.",
+    "source_urls": [
+      "https://www.npmjs.com/package/underscore"
+    ],
+    "review_status": "ai_assisted_unreviewed",
+    "source": "real_artifact_pair",
+    "split": "development",
+    "incident_mechanism": "install_hook_abuse"
+  },
+  {
+    "id": "npm-underscore-1.13.5-1.13.6",
+    "ecosystem": "npm",
+    "package": "underscore",
+    "version_before": "1.13.5",
+    "version_after": "1.13.6",
+    "digest_before": "sha512-A5XL+zduLwgQj38z9k7jaDv9Ls8eaIbpsJV1iK4vCK667GWnYO9XR7AJ3EK7qH1SfhZksWH1Fsw3nPZelhzAMQ==",
+    "digest_after": "sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A==",
+    "artifact_before": "tests/fixtures/pairs/underscore-1.13.5.tgz",
+    "artifact_after": "tests/fixtures/pairs/underscore-1.13.6.tgz",
+    "registry_source": "https://registry.npmjs.org/underscore",
+    "publish_timestamps": {},
+    "publisher_before": "jgonggrijp",
+    "publisher_after": "jgonggrijp",
+    "registry_history_events": [],
+    "artifact_expectations": {
+      "hook_added": [],
+      "hook_removed": [
+        "postinstall"
+      ],
+      "executable_entry": null,
+      "native_binary": null,
+      "external_domains": []
+    },
+    "case_type": "install_hook_removed",
+    "label": "known_benign",
+    "evidence_notes": "Pinned benign fixture pair.",
+    "source_urls": [
+      "https://www.npmjs.com/package/underscore"
+    ],
+    "review_status": "ai_assisted_unreviewed",
+    "source": "real_artifact_pair",
+    "split": "development",
+    "incident_mechanism": "install_hook_abuse"
+  },
+  {
+    "id": "npm-async-0.1.16-0.1.17",
+    "ecosystem": "npm",
+    "package": "async",
+    "version_before": "0.1.16",
+    "version_after": "0.1.17",
+    "digest_before": "sha512-TrtaROD5B+de7cbqPG6z96Jc+CXbnlQLzGPTj6Marf2+yh9hCe0+PVFdNMFxcdfjOF+0T/HrdN7EzC+COuxQpA==",
+    "digest_after": "sha512-PvPaikCPsSEOfAR/je214lMCnaPLHAcA/KAjfEixFaQ7fSr44rrZZtD417vCn2JUt059QGZKKbaa8SZEDNPEvA==",
+    "artifact_before": "tests/fixtures/pairs/async-0.1.16.tgz",
+    "artifact_after": "tests/fixtures/pairs/async-0.1.17.tgz",
+    "registry_source": "https://registry.npmjs.org/async",
+    "publish_timestamps": {},
+    "publisher_before": "caolan",
+    "publisher_after": "caolan",
+    "registry_history_events": [],
+    "artifact_expectations": {
+      "hook_added": [
+        "install",
+        "preinstall"
+      ],
+      "hook_removed": [],
+      "executable_entry": null,
+      "native_binary": null,
+      "external_domains": []
+    },
+    "case_type": "install_hook_added",
+    "label": "known_benign",
+    "evidence_notes": "Pinned benign fixture pair.",
+    "source_urls": [
+      "https://www.npmjs.com/package/async"
+    ],
+    "review_status": "ai_assisted_unreviewed",
+    "source": "real_artifact_pair",
+    "split": "development",
+    "incident_mechanism": "install_hook_abuse"
+  },
+  {
+    "id": "npm-eslint-config-prettier-10.1.3-10.1.4",
+    "ecosystem": "npm",
+    "package": "eslint-config-prettier",
+    "version_before": "10.1.3",
+    "version_after": "10.1.4",
+    "digest_before": "sha512-vDo4d9yQE+cS2tdIT4J02H/16veRvkHgiLDRpej+WL67oCfbOb97itZXn8wMPJ/GsiEBVjrjs//AVNw2Cp1EcA==",
+    "digest_after": "sha512-1ET6/XNoL/ktO/JjHdGzImKKR9RXo2aFlNRyP6B4WWeZg/7m9SkZrrXkxKgHtJJ8edLOJa4Kp1wLkdnZ6pnZUw==",
+    "artifact_before": "tests/fixtures/pairs/eslint-config-prettier-10.1.3.tgz",
+    "artifact_after": "tests/fixtures/pairs/eslint-config-prettier-10.1.4.tgz",
+    "registry_source": "https://registry.npmjs.org/eslint-config-prettier",
+    "publish_timestamps": {},
+    "publisher_before": "jounqin",
+    "publisher_after": "jounqin",
+    "registry_history_events": [],
+    "artifact_expectations": {
+      "hook_added": [],
+      "hook_removed": [],
+      "executable_entry": true,
+      "native_binary": null,
+      "external_domains": []
+    },
+    "case_type": "provenance_added",
+    "label": "known_benign",
+    "evidence_notes": "Pinned pair includes metadata/entry changes; provenance interpretation remains descriptive.",
+    "source_urls": [
+      "https://www.npmjs.com/package/eslint-config-prettier"
+    ],
+    "review_status": "ai_assisted_unreviewed",
+    "source": "real_artifact_pair",
+    "split": "validation",
+    "incident_mechanism": "artifact_behavior_change"
+  },
+  {
+    "id": "npm-event-stream-3.3.4-3.3.5",
+    "ecosystem": "npm",
+    "package": "event-stream",
+    "version_before": "3.3.4",
+    "version_after": "3.3.5",
+    "digest_before": "sha512-QHpkERcGsR0T7Qm3HNJSyXKEEj8AHNxkY3PK8TS2KJvQ7NiSHe3DDpwVKKtoYprL/AreyzFBeIkBIWChAqn60g==",
+    "digest_after": "sha512-vyibDcu5JL20Me1fP734QBH/kenBGLZap2n0+XXM7mvuUPzJ20Ydqj1aKcIeMdri1p+PU+4yAKugjN8KCVst+g==",
+    "artifact_before": "tests/fixtures/pairs/event-stream-3.3.4.tgz",
+    "artifact_after": "tests/fixtures/pairs/event-stream-3.3.5.tgz",
+    "registry_source": "https://registry.npmjs.org/event-stream",
+    "publish_timestamps": {},
+    "publisher_before": "dominictarr",
+    "publisher_after": "right9ctrl",
+    "registry_history_events": [
+      "publisher_change"
+    ],
+    "artifact_expectations": {
+      "hook_added": [],
+      "hook_removed": [],
+      "executable_entry": null,
+      "native_binary": null,
+      "external_domains": []
+    },
+    "case_type": "publisher_handoff_without_behavior",
+    "label": "ambiguous",
+    "evidence_notes": "Publisher handoff immediately precedes the known 2018 event-stream attack, but registry history alone is not compromise evidence.",
+    "source_urls": [
+      "https://github.com/dominictarr/event-stream/issues/116"
+    ],
+    "review_status": "ai_assisted_unreviewed",
+    "source": "real_artifact_pair",
+    "split": "development",
+    "incident_mechanism": "unknown"
+  },
+  {
+    "id": "npm-core-js-3.49.0-4.0.0-alpha.1",
+    "ecosystem": "npm",
+    "package": "core-js",
+    "version_before": "3.49.0",
+    "version_after": "4.0.0-alpha.1",
+    "digest_before": "sha512-es1U2+YTtzpwkxVLwAFdSpaIMyQaq0PBgm3YD1W3Qpsn1NAmO3KSgZfu+oGSWVu6NvLHoHCV/aYcsE5wiB7ALg==",
+    "digest_after": "sha512-SSmBiWk0WahBQwl0bE8n0ub64jISOM0NM1chU2lLMG6sPD2odj3iGLvpmhje3BVhZywFBHUfxJ2B381Ah1P3jA==",
+    "artifact_before": "tests/fixtures/pairs/core-js-3.49.0.tgz",
+    "artifact_after": "tests/fixtures/pairs/core-js-4.0.0-alpha.1.tgz",
+    "registry_source": "https://registry.npmjs.org/core-js",
+    "publish_timestamps": {},
+    "publisher_before": "zloirock",
+    "publisher_after": "zloirock",
+    "registry_history_events": [],
+    "artifact_expectations": {
+      "hook_added": [],
+      "hook_removed": [
+        "postinstall"
+      ],
+      "executable_entry": null,
+      "native_binary": null,
+      "external_domains": []
+    },
+    "case_type": "install_hook_removed",
+    "label": "known_benign",
+    "evidence_notes": "Pinned pair; no incident conclusion inferred.",
+    "source_urls": [
+      "https://www.npmjs.com/package/core-js"
+    ],
+    "review_status": "ai_assisted_unreviewed",
+    "source": "real_artifact_pair",
+    "split": "development",
+    "incident_mechanism": "install_hook_abuse"
+  },
+  {
+    "id": "npm-faker-5.5.3-6.6.6",
+    "ecosystem": "npm",
+    "package": "faker",
+    "version_before": "5.5.3",
+    "version_after": "6.6.6",
+    "digest_before": "sha512-wLTv2a28wjUyWkbnX7u/ABZBkUkIF2fCd73V6P2oFqEGEktDfzWx4UxrSqtPRw0xPRAcjeAOIiJWqZm3pP4u3g==",
+    "digest_after": "sha512-9tCqYEDHI5RYFQigXFwF1hnCwcWCOJl/hmll0lr5D2Ljjb0o4wphb69wikeJDz5qCEzXCoPvG6ss5SDP6IfOdg==",
+    "artifact_before": "tests/fixtures/pairs/faker-5.5.3.tgz",
+    "artifact_after": "tests/fixtures/pairs/faker-6.6.6.tgz",
+    "registry_source": "https://registry.npmjs.org/faker",
+    "publish_timestamps": {},
+    "publisher_before": "marak",
+    "publisher_after": "marak",
+    "registry_history_events": [],
+    "artifact_expectations": {
+      "hook_added": [],
+      "hook_removed": [],
+      "executable_entry": null,
+      "native_binary": null,
+      "external_domains": []
+    },
+    "case_type": "real_sabotage_release",
+    "label": "known_incident",
+    "evidence_notes": "Reviewer established the author sabotage release is still downloadable; holdout-assigned and never evaluated in this pass.",
+    "source_urls": [
+      "https://github.com/Marak/faker.js/issues/1046"
+    ],
+    "review_status": "ai_assisted_unreviewed",
+    "source": "real_artifact_pair",
+    "split": "holdout",
+    "incident_mechanism": "source_code_semantic_sabotage"
+  },
+  {
+    "id": "npm-flatmap-synthetic-plumbing",
+    "ecosystem": "npm",
+    "package": "flatmap-stream",
+    "version_before": "0.0.0",
+    "version_after": "0.1.0-synthetic",
+    "digest_before": "sha512-QHpkERcGsR0T7Qm3HNJSyXKEEj8AHNxkY3PK8TS2KJvQ7NiSHe3DDpwVKKtoYprL/AreyzFBeIkBIWChAqn60g==",
+    "digest_after": "sha512-vyibDcu5JL20Me1fP734QBH/kenBGLZap2n0+XXM7mvuUPzJ20Ydqj1aKcIeMdri1p+PU+4yAKugjN8KCVst+g==",
+    "artifact_before": null,
+    "artifact_after": null,
+    "registry_source": "synthetic from pinned event-stream fixture",
+    "publish_timestamps": {},
+    "publisher_before": null,
+    "publisher_after": null,
+    "registry_history_events": [],
+    "artifact_expectations": {
+      "hook_added": [
+        "postinstall"
+      ],
+      "hook_removed": [],
+      "executable_entry": null,
+      "native_binary": null,
+      "external_domains": []
+    },
+    "case_type": "new_dependency_with_risky_behavior",
+    "label": "insufficient_evidence",
+    "evidence_notes": "Synthetic plumbing case only; constructed in tests from real pinned bytes and excluded from accuracy metrics.",
+    "source_urls": [],
+    "review_status": "ai_assisted_unreviewed",
+    "source": "synthetic_from_real",
+    "split": "development",
+    "incident_mechanism": "new_dependency_introduction"
+  },
+  {
+    "id": "npm-ctrl-tinycolor-4.1.0-4.2.0",
+    "ecosystem": "npm",
+    "package": "@ctrl/tinycolor",
+    "version_before": "4.1.0",
+    "version_after": "4.2.0",
+    "digest_before": "sha512-WyOx8cJQ+FQus4Mm4uPIZA64gbk3Wxh0so5Lcii0aJifqwoVOlfFtorjLE0Hen4OYyHZMXDWqMmaQemBhgxFRQ==",
+    "digest_after": "sha512-kzyuwOAQnXJNLS9PSyrk0CWk35nWJW/zl/6KvnTBMFK65gm7U1/Z5BqjxeapjZCIhQcM/DsrEmcbRwDyXyXK4A==",
+    "artifact_before": "tests/fixtures/pairs/ctrl__tinycolor-4.1.0.tgz",
+    "artifact_after": "tests/fixtures/pairs/ctrl__tinycolor-4.2.0.tgz",
+    "registry_source": "https://registry.npmjs.org/@ctrl/tinycolor",
+    "publish_timestamps": {},
+    "publisher_before": "scttcper",
+    "publisher_after": "scttcper",
+    "registry_history_events": [],
+    "artifact_expectations": {
+      "hook_added": [],
+      "hook_removed": [],
+      "executable_entry": null,
+      "native_binary": null,
+      "external_domains": []
+    },
+    "case_type": "provenance_added",
+    "label": "insufficient_evidence",
+    "evidence_notes": "Fresh holdout-assigned pair; not evaluated in this pass. Reviewer established later malicious versions are unpublished.",
+    "source_urls": [
+      "https://www.npmjs.com/package/@ctrl/tinycolor"
+    ],
+    "review_status": "ai_assisted_unreviewed",
+    "source": "real_artifact_pair",
+    "split": "holdout",
+    "incident_mechanism": "artifact_behavior_change"
+  }
 ]

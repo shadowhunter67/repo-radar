@@ -83,6 +83,7 @@ export interface DependencyHistoryResult {
   parent_chain?: string[];
   possible_parents?: string[];
   parent_chain_ambiguous?: boolean;
+  present_at_window_start?: boolean;
   diagnostics?: string[];
   unknown_revisions?: number;
   path_state?: 'path_not_found_at_ref';
@@ -664,6 +665,11 @@ export async function traceManifestHistory(input: {
   for (const e of entries) {
     let first: DependencyHistoryEvent | undefined;
     let removed = false;
+    const oldestCommit = ordered[0];
+    if (oldestCommit?.sha) {
+      const oldestState = parentStates.get(`${oldestCommit.sha}\0${e.dependency_id.toLowerCase()}`);
+      e.present_at_window_start = oldestState?.state === 'present';
+    }
     const transitions: Array<{
       c: CommitRow;
       current: State;
@@ -737,7 +743,15 @@ export async function traceManifestHistory(input: {
         };
         e.events.push(ev);
         if (kind === 'removed') removed = true;
-        if (!first && kind !== 'removed') {
+        if (
+          !first &&
+          [
+            'introduced',
+            'introduced_within_window',
+            'introduced_again_other_line',
+            'reintroduced',
+          ].includes(kind)
+        ) {
           first = ev;
           const cc = ordered.find((x) => x.sha === ev.commit_sha);
           e.author = cc?.author?.login ?? cc?.commit?.author?.name ?? null;
@@ -745,7 +759,7 @@ export async function traceManifestHistory(input: {
         }
       }
     }
-    if (!first && oldestCreationVerified) {
+    if (!first && oldestCreationVerified && !e.present_at_window_start) {
       const creation = ordered[0];
       const creationState = creation?.sha
         ? states.get(`${creation.sha}\0${e.dependency_id.toLowerCase()}`)
@@ -782,9 +796,10 @@ export async function traceManifestHistory(input: {
       e.first_introduced_at = null;
     }
     const last = ordered.at(-1);
-    e.current_present = last?.sha
-      ? states.get(`${last.sha}\0${e.dependency_id.toLowerCase()}`)?.state === 'present'
-      : 'unknown';
+    const lastState = last?.sha
+      ? states.get(`${last.sha}\0${e.dependency_id.toLowerCase()}`)?.state
+      : undefined;
+    e.current_present = lastState === 'present' ? true : lastState === 'absent' ? false : 'unknown';
   }
   return {
     entries,

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.16.0
+
+- Record window-start dependency history explicitly; no introduction is claimed when a dependency predates the scanned window.
+
 All notable changes are documented here. Versioning: the CLI follows semver; the report schema and the scoring
 methodology are versioned separately (`schema_version`, `methodology.version`) and are listed per release.
 

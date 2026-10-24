@@ -59,6 +59,35 @@ describe('dependency artifact deltas', () => {
     ).toHaveLength(1);
   });
 
+  it('reduces confidence for synthetic and unverified historical provenance', () => {
+    const synthetic = compareDependencyArtifacts(
+      {
+        ...artifact('1', [], []),
+        provenance_class: 'synthetic_fixture',
+        source_confidence: 0,
+      },
+      {
+        ...artifact('2', ['child_process.exec()'], []),
+        provenance_class: 'synthetic_fixture',
+        source_confidence: 0,
+      },
+    );
+    expect(synthetic.behavior[0]?.confidence).toBe(0);
+    const historical = compareDependencyArtifacts(
+      {
+        ...artifact('1', [], []),
+        provenance_class: 'unverified_historical_artifact',
+        source_confidence: 0.2,
+      },
+      {
+        ...artifact('2', ['child_process.exec()'], []),
+        provenance_class: 'unverified_historical_artifact',
+        source_confidence: 0.2,
+      },
+    );
+    expect(historical.behavior[0]?.confidence).toBe(0.2);
+  });
+
   it('bounds pathological hook input without regex backtracking', () => {
     const pathological = `${'x'.repeat(65536)}!`;
     const start = performance.now();
