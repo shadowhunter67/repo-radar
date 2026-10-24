@@ -1,0 +1,324 @@
+{
+ "result_kind": "history-validation",
+ "engine": "traceManifestHistory",
+ "budget_mode": "large",
+ "generated_at": "2026-10-24T00:07:55.093Z",
+ "ground_truth_sha256": "c1691d435287added3b8bd8df1ffa430f0c62532adaa77c324caf5a8a89da130",
+ "ground_truth_note": "git log --follow --first-parent + own parsers; not repo-radar",
+ "summary": {
+  "cases_total": 9,
+  "introduction_commit": {
+   "exact": 9
+  },
+  "event_sequence": {
+   "exact": 9
+  },
+  "manifest": {
+   "correct": 9
+  },
+  "relationship": {
+   "not_assessed_by_traceManifestHistory": 9
+  },
+  "budget_exhausted_repos": 0
+ },
+ "per_repo_cost": [
+  {
+   "repo": "BurntSushi/ripgrep",
+   "kind": "workspace-root",
+   "ecosystem": "cargo",
+   "commits_touching_path": 253,
+   "requests": 445,
+   "commits_scanned": 242,
+   "pages": 3,
+   "blob_cache_hits": 0,
+   "blob_cache_misses": 0,
+   "bytes": 2596939,
+   "elapsed_ms": 188099,
+   "budget_exhausted": false,
+   "parent_blob_fetches": 199,
+   "request_classes": {
+    "ok": 445,
+    "rate_limited": 0,
+    "not_found": 0,
+    "server_error": 0,
+    "network": 0,
+    "malformed": 0,
+    "other": 0
+   },
+   "rate_limit_reset_at": null,
+   "wall_ms": 188100
+  }
+ ],
+ "cases": [
+  {
+   "repo": "BurntSushi/ripgrep",
+   "kind": "workspace-root",
+   "ecosystem": "cargo",
+   "dependency": "grep",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "0163b39faa14aa328ca93897a17e4d87a87bacc4",
+   "observed_first": "0163b39faa14aa328ca93897a17e4d87a87bacc4",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 242,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:0163b39faa14aa328ca93897a17e4d87a87bacc4"
+   ],
+   "window_truth_seq": [
+    "introduced:0163b39faa14aa328ca93897a17e4d87a87bacc4"
+   ],
+   "observed_seq": [
+    "introduced:0163b39faa14aa328ca93897a17e4d87a87bacc4"
+   ]
+  },
+  {
+   "repo": "BurntSushi/ripgrep",
+   "kind": "workspace-root",
+   "ecosystem": "cargo",
+   "dependency": "walkdir",
+   "selection": "hash_sample",
+   "truth_events": 3,
+   "truth_first": "b55ecf34c713392b012dd652fbbd11d7e0126d97",
+   "observed_first": "b55ecf34c713392b012dd652fbbd11d7e0126d97",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 242,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:b55ecf34c713392b012dd652fbbd11d7e0126d97",
+    "removed:d79add341ba4be10bb3459877318b9c5a30f5db3",
+    "reintroduced:fab5c812f31627ea5d57d5710cd3ccbd73244a2b"
+   ],
+   "window_truth_seq": [
+    "introduced:b55ecf34c713392b012dd652fbbd11d7e0126d97",
+    "removed:d79add341ba4be10bb3459877318b9c5a30f5db3",
+    "reintroduced:fab5c812f31627ea5d57d5710cd3ccbd73244a2b"
+   ],
+   "observed_seq": [
+    "introduced:b55ecf34c713392b012dd652fbbd11d7e0126d97",
+    "removed:d79add341ba4be10bb3459877318b9c5a30f5db3",
+    "reintroduced:fab5c812f31627ea5d57d5710cd3ccbd73244a2b"
+   ]
+  },
+  {
+   "repo": "BurntSushi/ripgrep",
+   "kind": "workspace-root",
+   "ecosystem": "cargo",
+   "dependency": "serde_derive",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "eb184d7711a3d01b2fd3a4281b193f39f7e9a2c5",
+   "observed_first": "eb184d7711a3d01b2fd3a4281b193f39f7e9a2c5",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 242,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:eb184d7711a3d01b2fd3a4281b193f39f7e9a2c5"
+   ],
+   "window_truth_seq": [
+    "introduced:eb184d7711a3d01b2fd3a4281b193f39f7e9a2c5"
+   ],
+   "observed_seq": [
+    "introduced:eb184d7711a3d01b2fd3a4281b193f39f7e9a2c5"
+   ]
+  },
+  {
+   "repo": "BurntSushi/ripgrep",
+   "kind": "workspace-root",
+   "ecosystem": "cargo",
+   "dependency": "termcolor",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "e8a30cb8934106e63f9d0938c547e535acb7b888",
+   "observed_first": "e8a30cb8934106e63f9d0938c547e535acb7b888",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 242,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:e8a30cb8934106e63f9d0938c547e535acb7b888"
+   ],
+   "window_truth_seq": [
+    "introduced:e8a30cb8934106e63f9d0938c547e535acb7b888"
+   ],
+   "observed_seq": [
+    "introduced:e8a30cb8934106e63f9d0938c547e535acb7b888"
+   ]
+  },
+  {
+   "repo": "BurntSushi/ripgrep",
+   "kind": "workspace-root",
+   "ecosystem": "cargo",
+   "dependency": "ignore",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "d79add341ba4be10bb3459877318b9c5a30f5db3",
+   "observed_first": "d79add341ba4be10bb3459877318b9c5a30f5db3",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 242,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:d79add341ba4be10bb3459877318b9c5a30f5db3"
+   ],
+   "window_truth_seq": [
+    "introduced:d79add341ba4be10bb3459877318b9c5a30f5db3"
+   ],
+   "observed_seq": [
+    "introduced:d79add341ba4be10bb3459877318b9c5a30f5db3"
+   ]
+  },
+  {
+   "repo": "BurntSushi/ripgrep",
+   "kind": "workspace-root",
+   "ecosystem": "cargo",
+   "dependency": "docopt",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "9d1e619ff359b6e609b02f01e36952e603104bc6",
+   "observed_first": "9d1e619ff359b6e609b02f01e36952e603104bc6",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 242,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:9d1e619ff359b6e609b02f01e36952e603104bc6",
+    "removed:92dc402f7f598c3d0045f94df9988bbe1c0c79cf"
+   ],
+   "window_truth_seq": [
+    "introduced:9d1e619ff359b6e609b02f01e36952e603104bc6",
+    "removed:92dc402f7f598c3d0045f94df9988bbe1c0c79cf"
+   ],
+   "observed_seq": [
+    "introduced:9d1e619ff359b6e609b02f01e36952e603104bc6",
+    "removed:92dc402f7f598c3d0045f94df9988bbe1c0c79cf"
+   ]
+  },
+  {
+   "repo": "BurntSushi/ripgrep",
+   "kind": "workspace-root",
+   "ecosystem": "cargo",
+   "dependency": "regex",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "9d1e619ff359b6e609b02f01e36952e603104bc6",
+   "observed_first": "9d1e619ff359b6e609b02f01e36952e603104bc6",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 242,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:9d1e619ff359b6e609b02f01e36952e603104bc6",
+    "removed:81341702af83ce3a3f087d581565c14ba0df4de4"
+   ],
+   "window_truth_seq": [
+    "introduced:9d1e619ff359b6e609b02f01e36952e603104bc6",
+    "removed:81341702af83ce3a3f087d581565c14ba0df4de4"
+   ],
+   "observed_seq": [
+    "introduced:9d1e619ff359b6e609b02f01e36952e603104bc6",
+    "removed:81341702af83ce3a3f087d581565c14ba0df4de4"
+   ]
+  },
+  {
+   "repo": "BurntSushi/ripgrep",
+   "kind": "workspace-root",
+   "ecosystem": "cargo",
+   "dependency": "rustc-serialize",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "9d1e619ff359b6e609b02f01e36952e603104bc6",
+   "observed_first": "9d1e619ff359b6e609b02f01e36952e603104bc6",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 242,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:9d1e619ff359b6e609b02f01e36952e603104bc6",
+    "removed:92dc402f7f598c3d0045f94df9988bbe1c0c79cf"
+   ],
+   "window_truth_seq": [
+    "introduced:9d1e619ff359b6e609b02f01e36952e603104bc6",
+    "removed:92dc402f7f598c3d0045f94df9988bbe1c0c79cf"
+   ],
+   "observed_seq": [
+    "introduced:9d1e619ff359b6e609b02f01e36952e603104bc6",
+    "removed:92dc402f7f598c3d0045f94df9988bbe1c0c79cf"
+   ]
+  },
+  {
+   "repo": "BurntSushi/ripgrep",
+   "kind": "workspace-root",
+   "ecosystem": "cargo",
+   "dependency": "memchr",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "403bb72a4dd7152a2a128b3dd3d5cbd7a61b791e",
+   "observed_first": "403bb72a4dd7152a2a128b3dd3d5cbd7a61b791e",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 242,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:403bb72a4dd7152a2a128b3dd3d5cbd7a61b791e",
+    "removed:bb110c1ebeeda452046830b3991f705f5759da92"
+   ],
+   "window_truth_seq": [
+    "introduced:403bb72a4dd7152a2a128b3dd3d5cbd7a61b791e",
+    "removed:bb110c1ebeeda452046830b3991f705f5759da92"
+   ],
+   "observed_seq": [
+    "introduced:403bb72a4dd7152a2a128b3dd3d5cbd7a61b791e",
+    "removed:bb110c1ebeeda452046830b3991f705f5759da92"
+   ]
+  }
+ ]
+}

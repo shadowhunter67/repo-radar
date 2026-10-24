@@ -1,0 +1,302 @@
+{
+ "result_kind": "history-validation",
+ "engine": "traceManifestHistory",
+ "budget_mode": "large",
+ "generated_at": "2026-10-24T00:01:26.913Z",
+ "ground_truth_sha256": "c1691d435287added3b8bd8df1ffa430f0c62532adaa77c324caf5a8a89da130",
+ "ground_truth_note": "git log --follow --first-parent + own parsers; not repo-radar",
+ "summary": {
+  "cases_total": 8,
+  "introduction_commit": {
+   "exact": 8
+  },
+  "event_sequence": {
+   "exact": 8
+  },
+  "manifest": {
+   "correct": 8
+  },
+  "relationship": {
+   "not_assessed_by_traceManifestHistory": 8
+  },
+  "budget_exhausted_repos": 0
+ },
+ "per_repo_cost": [
+  {
+   "repo": "spf13/cobra",
+   "kind": "single-package",
+   "ecosystem": "go",
+   "commits_touching_path": 31,
+   "requests": 58,
+   "commits_scanned": 31,
+   "pages": 1,
+   "blob_cache_hits": 0,
+   "blob_cache_misses": 0,
+   "bytes": 221372,
+   "elapsed_ms": 22456,
+   "budget_exhausted": false,
+   "parent_blob_fetches": 25,
+   "request_classes": {
+    "ok": 57,
+    "rate_limited": 0,
+    "not_found": 1,
+    "server_error": 0,
+    "network": 0,
+    "malformed": 0,
+    "other": 0
+   },
+   "rate_limit_reset_at": null,
+   "wall_ms": 22456
+  }
+ ],
+ "cases": [
+  {
+   "repo": "spf13/cobra",
+   "kind": "single-package",
+   "ecosystem": "go",
+   "dependency": "github.com/cpuguy83/go-md2man/v2",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "77e4d5aecc4d34e58f72e5a1c4a5a13ef55e6f44",
+   "observed_first": "77e4d5aecc4d34e58f72e5a1c4a5a13ef55e6f44",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 31,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:77e4d5aecc4d34e58f72e5a1c4a5a13ef55e6f44"
+   ],
+   "window_truth_seq": [
+    "introduced:77e4d5aecc4d34e58f72e5a1c4a5a13ef55e6f44"
+   ],
+   "observed_seq": [
+    "introduced:77e4d5aecc4d34e58f72e5a1c4a5a13ef55e6f44"
+   ]
+  },
+  {
+   "repo": "spf13/cobra",
+   "kind": "single-package",
+   "ecosystem": "go",
+   "dependency": "github.com/inconshreveable/mousetrap",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 31,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8"
+   ],
+   "window_truth_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8"
+   ],
+   "observed_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8"
+   ]
+  },
+  {
+   "repo": "spf13/cobra",
+   "kind": "single-package",
+   "ecosystem": "go",
+   "dependency": "go.yaml.in/yaml/v3",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "88b30ab89da2d0d0abb153818746c5a2d30eccec",
+   "observed_first": "88b30ab89da2d0d0abb153818746c5a2d30eccec",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 31,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:88b30ab89da2d0d0abb153818746c5a2d30eccec"
+   ],
+   "window_truth_seq": [
+    "introduced:88b30ab89da2d0d0abb153818746c5a2d30eccec"
+   ],
+   "observed_seq": [
+    "introduced:88b30ab89da2d0d0abb153818746c5a2d30eccec"
+   ]
+  },
+  {
+   "repo": "spf13/cobra",
+   "kind": "single-package",
+   "ecosystem": "go",
+   "dependency": "github.com/spf13/pflag",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 31,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8"
+   ],
+   "window_truth_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8"
+   ],
+   "observed_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8"
+   ]
+  },
+  {
+   "repo": "spf13/cobra",
+   "kind": "single-package",
+   "ecosystem": "go",
+   "dependency": "github.com/BurntSushi/toml",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 31,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
+    "removed:8a4b46fadf756f30eff047abf2f8edba4eac6fef"
+   ],
+   "window_truth_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
+    "removed:8a4b46fadf756f30eff047abf2f8edba4eac6fef"
+   ],
+   "observed_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
+    "removed:8a4b46fadf756f30eff047abf2f8edba4eac6fef"
+   ]
+  },
+  {
+   "repo": "spf13/cobra",
+   "kind": "single-package",
+   "ecosystem": "go",
+   "dependency": "github.com/cpuguy83/go-md2man",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 31,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
+    "removed:77e4d5aecc4d34e58f72e5a1c4a5a13ef55e6f44"
+   ],
+   "window_truth_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
+    "removed:77e4d5aecc4d34e58f72e5a1c4a5a13ef55e6f44"
+   ],
+   "observed_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
+    "removed:77e4d5aecc4d34e58f72e5a1c4a5a13ef55e6f44"
+   ]
+  },
+  {
+   "repo": "spf13/cobra",
+   "kind": "single-package",
+   "ecosystem": "go",
+   "dependency": "github.com/mitchellh/go-homedir",
+   "selection": "non_simple_history",
+   "truth_events": 4,
+   "truth_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 31,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
+    "removed:81e0311edd0bf6b4ff2c563005a646f6b286d059",
+    "reintroduced:0bc8bfbe596beeea88b39beb0fca86b3d7d10de6",
+    "removed:8eaca5f0f49ad747a0722d39dca7a75c34abd21a"
+   ],
+   "window_truth_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
+    "removed:81e0311edd0bf6b4ff2c563005a646f6b286d059",
+    "reintroduced:0bc8bfbe596beeea88b39beb0fca86b3d7d10de6",
+    "removed:8eaca5f0f49ad747a0722d39dca7a75c34abd21a"
+   ],
+   "observed_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
+    "removed:81e0311edd0bf6b4ff2c563005a646f6b286d059",
+    "reintroduced:0bc8bfbe596beeea88b39beb0fca86b3d7d10de6",
+    "removed:8eaca5f0f49ad747a0722d39dca7a75c34abd21a"
+   ]
+  },
+  {
+   "repo": "spf13/cobra",
+   "kind": "single-package",
+   "ecosystem": "go",
+   "dependency": "github.com/spf13/viper",
+   "selection": "non_simple_history",
+   "truth_events": 4,
+   "truth_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_first": "5755ecf10233c1acfd87d417bc6605a30702c0a8",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 31,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
+    "removed:81e0311edd0bf6b4ff2c563005a646f6b286d059",
+    "reintroduced:0bc8bfbe596beeea88b39beb0fca86b3d7d10de6",
+    "removed:5b2b9e9f61d36ccb66167301f76a2292c3729855"
+   ],
+   "window_truth_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
+    "removed:81e0311edd0bf6b4ff2c563005a646f6b286d059",
+    "reintroduced:0bc8bfbe596beeea88b39beb0fca86b3d7d10de6",
+    "removed:5b2b9e9f61d36ccb66167301f76a2292c3729855"
+   ],
+   "observed_seq": [
+    "introduced:5755ecf10233c1acfd87d417bc6605a30702c0a8",
+    "removed:81e0311edd0bf6b4ff2c563005a646f6b286d059",
+    "reintroduced:0bc8bfbe596beeea88b39beb0fca86b3d7d10de6",
+    "removed:5b2b9e9f61d36ccb66167301f76a2292c3729855"
+   ]
+  }
+ ]
+}

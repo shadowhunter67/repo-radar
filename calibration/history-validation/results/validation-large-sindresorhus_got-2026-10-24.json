@@ -1,0 +1,336 @@
+{
+ "result_kind": "history-validation",
+ "engine": "traceManifestHistory",
+ "budget_mode": "large",
+ "generated_at": "2026-10-24T00:54:50.864Z",
+ "ground_truth_sha256": "c1691d435287added3b8bd8df1ffa430f0c62532adaa77c324caf5a8a89da130",
+ "ground_truth_note": "git log --follow --first-parent + own parsers; not repo-radar",
+ "summary": {
+  "cases_total": 9,
+  "introduction_commit": {
+   "exact": 9
+  },
+  "event_sequence": {
+   "exact": 9
+  },
+  "manifest": {
+   "correct": 9
+  },
+  "relationship": {
+   "not_assessed_by_traceManifestHistory": 9
+  },
+  "budget_exhausted_repos": 0
+ },
+ "per_repo_cost": [
+  {
+   "repo": "sindresorhus/got",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "commits_touching_path": 539,
+   "requests": 873,
+   "commits_scanned": 515,
+   "pages": 6,
+   "blob_cache_hits": 0,
+   "blob_cache_misses": 0,
+   "bytes": 5286688,
+   "elapsed_ms": 334895,
+   "budget_exhausted": false,
+   "parent_blob_fetches": 351,
+   "request_classes": {
+    "ok": 873,
+    "rate_limited": 0,
+    "not_found": 0,
+    "server_error": 0,
+    "network": 0,
+    "malformed": 0,
+    "other": 0
+   },
+   "rate_limit_reset_at": null,
+   "wall_ms": 334896
+  }
+ ],
+ "cases": [
+  {
+   "repo": "sindresorhus/got",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "keyv",
+   "selection": "hash_sample",
+   "truth_events": 3,
+   "truth_first": "4f6d287bf3a1fe62b5fed7b6a29b7ad8b797d792",
+   "observed_first": "4f6d287bf3a1fe62b5fed7b6a29b7ad8b797d792",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 515,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:4f6d287bf3a1fe62b5fed7b6a29b7ad8b797d792",
+    "removed:286e31e0655f4aa98704ed3c9d65554c2354cae7",
+    "reintroduced:a2341276362691fcb771f3b40cc1a77c2739c52d"
+   ],
+   "window_truth_seq": [
+    "introduced:4f6d287bf3a1fe62b5fed7b6a29b7ad8b797d792",
+    "removed:286e31e0655f4aa98704ed3c9d65554c2354cae7",
+    "reintroduced:a2341276362691fcb771f3b40cc1a77c2739c52d"
+   ],
+   "observed_seq": [
+    "introduced:4f6d287bf3a1fe62b5fed7b6a29b7ad8b797d792",
+    "removed:286e31e0655f4aa98704ed3c9d65554c2354cae7",
+    "reintroduced:a2341276362691fcb771f3b40cc1a77c2739c52d"
+   ]
+  },
+  {
+   "repo": "sindresorhus/got",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "pem",
+   "selection": "hash_sample",
+   "truth_events": 3,
+   "truth_first": "539cc2b8458a9028aa8a0b5f827d8564374b87f8",
+   "observed_first": "539cc2b8458a9028aa8a0b5f827d8564374b87f8",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 515,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:539cc2b8458a9028aa8a0b5f827d8564374b87f8",
+    "removed:c8b96aa4ff37873abcb5a76dcbf8bd5cc5afc249",
+    "reintroduced:4ff709824b90a706df9855fa3592acc20010cfc3"
+   ],
+   "window_truth_seq": [
+    "introduced:539cc2b8458a9028aa8a0b5f827d8564374b87f8",
+    "removed:c8b96aa4ff37873abcb5a76dcbf8bd5cc5afc249",
+    "reintroduced:4ff709824b90a706df9855fa3592acc20010cfc3"
+   ],
+   "observed_seq": [
+    "introduced:539cc2b8458a9028aa8a0b5f827d8564374b87f8",
+    "removed:c8b96aa4ff37873abcb5a76dcbf8bd5cc5afc249",
+    "reintroduced:4ff709824b90a706df9855fa3592acc20010cfc3"
+   ]
+  },
+  {
+   "repo": "sindresorhus/got",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "get-stream",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "9378d921202e345aaedb14b2c66da0fbd79ebe21",
+   "observed_first": "9378d921202e345aaedb14b2c66da0fbd79ebe21",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 515,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:9378d921202e345aaedb14b2c66da0fbd79ebe21"
+   ],
+   "window_truth_seq": [
+    "introduced:9378d921202e345aaedb14b2c66da0fbd79ebe21"
+   ],
+   "observed_seq": [
+    "introduced:9378d921202e345aaedb14b2c66da0fbd79ebe21"
+   ]
+  },
+  {
+   "repo": "sindresorhus/got",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "@types/sinonjs__fake-timers",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "3a84454208e39aae7f2bae0bf68b7ede2872f317",
+   "observed_first": "3a84454208e39aae7f2bae0bf68b7ede2872f317",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 515,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:3a84454208e39aae7f2bae0bf68b7ede2872f317"
+   ],
+   "window_truth_seq": [
+    "introduced:3a84454208e39aae7f2bae0bf68b7ede2872f317"
+   ],
+   "observed_seq": [
+    "introduced:3a84454208e39aae7f2bae0bf68b7ede2872f317"
+   ]
+  },
+  {
+   "repo": "sindresorhus/got",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "@sinonjs/fake-timers",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "df333ddbc163e35537a9f49818e722c7aa6803c0",
+   "observed_first": "df333ddbc163e35537a9f49818e722c7aa6803c0",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 515,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:df333ddbc163e35537a9f49818e722c7aa6803c0"
+   ],
+   "window_truth_seq": [
+    "introduced:df333ddbc163e35537a9f49818e722c7aa6803c0"
+   ],
+   "observed_seq": [
+    "introduced:df333ddbc163e35537a9f49818e722c7aa6803c0"
+   ]
+  },
+  {
+   "repo": "sindresorhus/got",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "mocha",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "f9436f5e5863d39f180032687447d9dbe7721dbb",
+   "observed_first": "f9436f5e5863d39f180032687447d9dbe7721dbb",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 515,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:f9436f5e5863d39f180032687447d9dbe7721dbb",
+    "removed:d61333015f6695d6a9fbe883b500cc9221c6e161"
+   ],
+   "window_truth_seq": [
+    "introduced:f9436f5e5863d39f180032687447d9dbe7721dbb",
+    "removed:d61333015f6695d6a9fbe883b500cc9221c6e161"
+   ],
+   "observed_seq": [
+    "introduced:f9436f5e5863d39f180032687447d9dbe7721dbb",
+    "removed:d61333015f6695d6a9fbe883b500cc9221c6e161"
+   ]
+  },
+  {
+   "repo": "sindresorhus/got",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "object-assign",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "21121688cb516c81c1d6422dac2695b25c1a9f1b",
+   "observed_first": "21121688cb516c81c1d6422dac2695b25c1a9f1b",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 515,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:21121688cb516c81c1d6422dac2695b25c1a9f1b",
+    "removed:fa5a296129e07ca04ad6b13ca5bf247384da296f"
+   ],
+   "window_truth_seq": [
+    "introduced:21121688cb516c81c1d6422dac2695b25c1a9f1b",
+    "removed:fa5a296129e07ca04ad6b13ca5bf247384da296f"
+   ],
+   "observed_seq": [
+    "introduced:21121688cb516c81c1d6422dac2695b25c1a9f1b",
+    "removed:fa5a296129e07ca04ad6b13ca5bf247384da296f"
+   ]
+  },
+  {
+   "repo": "sindresorhus/got",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "read-all-stream",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "cef2daacb55882dac46b8007fe14142fa29bfaed",
+   "observed_first": "cef2daacb55882dac46b8007fe14142fa29bfaed",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 515,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:cef2daacb55882dac46b8007fe14142fa29bfaed",
+    "removed:9378d921202e345aaedb14b2c66da0fbd79ebe21"
+   ],
+   "window_truth_seq": [
+    "introduced:cef2daacb55882dac46b8007fe14142fa29bfaed",
+    "removed:9378d921202e345aaedb14b2c66da0fbd79ebe21"
+   ],
+   "observed_seq": [
+    "introduced:cef2daacb55882dac46b8007fe14142fa29bfaed",
+    "removed:9378d921202e345aaedb14b2c66da0fbd79ebe21"
+   ]
+  },
+  {
+   "repo": "sindresorhus/got",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "istanbul",
+   "selection": "non_simple_history",
+   "truth_events": 4,
+   "truth_first": "cef2daacb55882dac46b8007fe14142fa29bfaed",
+   "observed_first": "cef2daacb55882dac46b8007fe14142fa29bfaed",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 515,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:cef2daacb55882dac46b8007fe14142fa29bfaed",
+    "removed:14e0dd88924324ed25ece7beef6132f8acdb96a4",
+    "reintroduced:646e81c46cdf37e0be9ebe46d05f65e7e60ba5dc",
+    "removed:f57a5e89f8a9e1c2ae420b3027d3d1afcf601a1d"
+   ],
+   "window_truth_seq": [
+    "introduced:cef2daacb55882dac46b8007fe14142fa29bfaed",
+    "removed:14e0dd88924324ed25ece7beef6132f8acdb96a4",
+    "reintroduced:646e81c46cdf37e0be9ebe46d05f65e7e60ba5dc",
+    "removed:f57a5e89f8a9e1c2ae420b3027d3d1afcf601a1d"
+   ],
+   "observed_seq": [
+    "introduced:cef2daacb55882dac46b8007fe14142fa29bfaed",
+    "removed:14e0dd88924324ed25ece7beef6132f8acdb96a4",
+    "reintroduced:646e81c46cdf37e0be9ebe46d05f65e7e60ba5dc",
+    "removed:f57a5e89f8a9e1c2ae420b3027d3d1afcf601a1d"
+   ]
+  }
+ ]
+}

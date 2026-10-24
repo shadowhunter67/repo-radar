@@ -1,0 +1,321 @@
+{
+ "result_kind": "history-validation",
+ "engine": "traceManifestHistory",
+ "budget_mode": "large",
+ "generated_at": "2026-10-24T00:02:52.771Z",
+ "ground_truth_sha256": "c1691d435287added3b8bd8df1ffa430f0c62532adaa77c324caf5a8a89da130",
+ "ground_truth_note": "git log --follow --first-parent + own parsers; not repo-radar",
+ "summary": {
+  "cases_total": 9,
+  "introduction_commit": {
+   "exact": 9
+  },
+  "event_sequence": {
+   "exact": 9
+  },
+  "manifest": {
+   "correct": 9
+  },
+  "relationship": {
+   "not_assessed_by_traceManifestHistory": 9
+  },
+  "budget_exhausted_repos": 0
+ },
+ "per_repo_cost": [
+  {
+   "repo": "chalk/chalk",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "commits_touching_path": 133,
+   "requests": 212,
+   "commits_scanned": 128,
+   "pages": 2,
+   "blob_cache_hits": 0,
+   "blob_cache_misses": 0,
+   "bytes": 951902,
+   "elapsed_ms": 84850,
+   "budget_exhausted": false,
+   "parent_blob_fetches": 81,
+   "request_classes": {
+    "ok": 212,
+    "rate_limited": 0,
+    "not_found": 0,
+    "server_error": 0,
+    "network": 0,
+    "malformed": 0,
+    "other": 0
+   },
+   "rate_limit_reset_at": null,
+   "wall_ms": 84851
+  }
+ ],
+ "cases": [
+  {
+   "repo": "chalk/chalk",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "execa",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "5cdd9eddf8d1e53c03b3bb122004786fb90706bf",
+   "observed_first": "5cdd9eddf8d1e53c03b3bb122004786fb90706bf",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 128,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:5cdd9eddf8d1e53c03b3bb122004786fb90706bf"
+   ],
+   "window_truth_seq": [
+    "introduced:5cdd9eddf8d1e53c03b3bb122004786fb90706bf"
+   ],
+   "observed_seq": [
+    "introduced:5cdd9eddf8d1e53c03b3bb122004786fb90706bf"
+   ]
+  },
+  {
+   "repo": "chalk/chalk",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "matcha",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "3026d71e0eea14f71d9f8779d2e12305d6aa67e2",
+   "observed_first": "3026d71e0eea14f71d9f8779d2e12305d6aa67e2",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 128,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:3026d71e0eea14f71d9f8779d2e12305d6aa67e2"
+   ],
+   "window_truth_seq": [
+    "introduced:3026d71e0eea14f71d9f8779d2e12305d6aa67e2"
+   ],
+   "observed_seq": [
+    "introduced:3026d71e0eea14f71d9f8779d2e12305d6aa67e2"
+   ]
+  },
+  {
+   "repo": "chalk/chalk",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "c8",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "7a6893551d93ebe0bd031141b3e2b91d7e0676aa",
+   "observed_first": "7a6893551d93ebe0bd031141b3e2b91d7e0676aa",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 128,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:7a6893551d93ebe0bd031141b3e2b91d7e0676aa"
+   ],
+   "window_truth_seq": [
+    "introduced:7a6893551d93ebe0bd031141b3e2b91d7e0676aa"
+   ],
+   "observed_seq": [
+    "introduced:7a6893551d93ebe0bd031141b3e2b91d7e0676aa"
+   ]
+  },
+  {
+   "repo": "chalk/chalk",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "xo",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "409f95eef525bcee56d1baafcee0b8f18cb72349",
+   "observed_first": "409f95eef525bcee56d1baafcee0b8f18cb72349",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 128,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:409f95eef525bcee56d1baafcee0b8f18cb72349"
+   ],
+   "window_truth_seq": [
+    "introduced:409f95eef525bcee56d1baafcee0b8f18cb72349"
+   ],
+   "observed_seq": [
+    "introduced:409f95eef525bcee56d1baafcee0b8f18cb72349"
+   ]
+  },
+  {
+   "repo": "chalk/chalk",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "log-update",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "4cf2e40e0739d4f5a3f1cd235b0e05e979bc5f34",
+   "observed_first": "4cf2e40e0739d4f5a3f1cd235b0e05e979bc5f34",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 128,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:4cf2e40e0739d4f5a3f1cd235b0e05e979bc5f34"
+   ],
+   "window_truth_seq": [
+    "introduced:4cf2e40e0739d4f5a3f1cd235b0e05e979bc5f34"
+   ],
+   "observed_seq": [
+    "introduced:4cf2e40e0739d4f5a3f1cd235b0e05e979bc5f34"
+   ]
+  },
+  {
+   "repo": "chalk/chalk",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "has-color",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "cffc3552b0853c75f41b92ed2c032988df018442",
+   "observed_first": "cffc3552b0853c75f41b92ed2c032988df018442",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 128,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:cffc3552b0853c75f41b92ed2c032988df018442",
+    "removed:144421dc16c4e323fa6d1d074ede9abf75323b5d"
+   ],
+   "window_truth_seq": [
+    "introduced:cffc3552b0853c75f41b92ed2c032988df018442",
+    "removed:144421dc16c4e323fa6d1d074ede9abf75323b5d"
+   ],
+   "observed_seq": [
+    "introduced:cffc3552b0853c75f41b92ed2c032988df018442",
+    "removed:144421dc16c4e323fa6d1d074ede9abf75323b5d"
+   ]
+  },
+  {
+   "repo": "chalk/chalk",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "ansi-styles",
+   "selection": "non_simple_history",
+   "truth_events": 3,
+   "truth_first": "cffc3552b0853c75f41b92ed2c032988df018442",
+   "observed_first": "cffc3552b0853c75f41b92ed2c032988df018442",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 128,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:cffc3552b0853c75f41b92ed2c032988df018442",
+    "removed:04fdbd6d8d262ed8668cf3f2e94f647d2bc028d8",
+    "reintroduced:678e5505458d0cf40134e205aed4454e0eeac45c"
+   ],
+   "window_truth_seq": [
+    "introduced:cffc3552b0853c75f41b92ed2c032988df018442",
+    "removed:04fdbd6d8d262ed8668cf3f2e94f647d2bc028d8",
+    "reintroduced:678e5505458d0cf40134e205aed4454e0eeac45c"
+   ],
+   "observed_seq": [
+    "introduced:cffc3552b0853c75f41b92ed2c032988df018442",
+    "removed:04fdbd6d8d262ed8668cf3f2e94f647d2bc028d8",
+    "reintroduced:678e5505458d0cf40134e205aed4454e0eeac45c"
+   ]
+  },
+  {
+   "repo": "chalk/chalk",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "mocha",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "cffc3552b0853c75f41b92ed2c032988df018442",
+   "observed_first": "cffc3552b0853c75f41b92ed2c032988df018442",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 128,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:cffc3552b0853c75f41b92ed2c032988df018442",
+    "removed:4c4eb1fd0aa9efea2b469f130ed01d6891670ac4"
+   ],
+   "window_truth_seq": [
+    "introduced:cffc3552b0853c75f41b92ed2c032988df018442",
+    "removed:4c4eb1fd0aa9efea2b469f130ed01d6891670ac4"
+   ],
+   "observed_seq": [
+    "introduced:cffc3552b0853c75f41b92ed2c032988df018442",
+    "removed:4c4eb1fd0aa9efea2b469f130ed01d6891670ac4"
+   ]
+  },
+  {
+   "repo": "chalk/chalk",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "strip-ansi",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "a66c48630194c16b06a8714249c8877fe0370588",
+   "observed_first": "a66c48630194c16b06a8714249c8877fe0370588",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 128,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:a66c48630194c16b06a8714249c8877fe0370588",
+    "removed:04cae226cc0fc11fd7898f3fa91fdc4a3b3e496b"
+   ],
+   "window_truth_seq": [
+    "introduced:a66c48630194c16b06a8714249c8877fe0370588",
+    "removed:04cae226cc0fc11fd7898f3fa91fdc4a3b3e496b"
+   ],
+   "observed_seq": [
+    "introduced:a66c48630194c16b06a8714249c8877fe0370588",
+    "removed:04cae226cc0fc11fd7898f3fa91fdc4a3b3e496b"
+   ]
+  }
+ ]
+}

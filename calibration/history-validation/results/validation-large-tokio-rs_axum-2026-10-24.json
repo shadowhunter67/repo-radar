@@ -1,0 +1,318 @@
+{
+ "result_kind": "history-validation",
+ "engine": "traceManifestHistory",
+ "budget_mode": "large",
+ "generated_at": "2026-10-24T00:10:35.707Z",
+ "ground_truth_sha256": "c1691d435287added3b8bd8df1ffa430f0c62532adaa77c324caf5a8a89da130",
+ "ground_truth_note": "git log --follow --first-parent + own parsers; not repo-radar",
+ "summary": {
+  "cases_total": 9,
+  "introduction_commit": {
+   "exact": 9
+  },
+  "event_sequence": {
+   "exact": 9
+  },
+  "manifest": {
+   "correct": 9
+  },
+  "relationship": {
+   "not_assessed_by_traceManifestHistory": 9
+  },
+  "budget_exhausted_repos": 0
+ },
+ "per_repo_cost": [
+  {
+   "repo": "tokio-rs/axum",
+   "kind": "monorepo-member",
+   "ecosystem": "cargo",
+   "commits_touching_path": 225,
+   "requests": 398,
+   "commits_scanned": 210,
+   "pages": 3,
+   "blob_cache_hits": 0,
+   "blob_cache_misses": 0,
+   "bytes": 3864553,
+   "elapsed_ms": 159566,
+   "budget_exhausted": false,
+   "parent_blob_fetches": 184,
+   "request_classes": {
+    "ok": 397,
+    "rate_limited": 0,
+    "not_found": 1,
+    "server_error": 0,
+    "network": 0,
+    "malformed": 0,
+    "other": 0
+   },
+   "rate_limit_reset_at": null,
+   "wall_ms": 159567
+  }
+ ],
+ "cases": [
+  {
+   "repo": "tokio-rs/axum",
+   "kind": "monorepo-member",
+   "ecosystem": "cargo",
+   "dependency": "serde_html_form",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "cae6bc37097ea61fcdf94167297072e0e86f9bb6",
+   "observed_first": "cae6bc37097ea61fcdf94167297072e0e86f9bb6",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 210,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:cae6bc37097ea61fcdf94167297072e0e86f9bb6"
+   ],
+   "window_truth_seq": [
+    "introduced:cae6bc37097ea61fcdf94167297072e0e86f9bb6"
+   ],
+   "observed_seq": [
+    "introduced:cae6bc37097ea61fcdf94167297072e0e86f9bb6"
+   ]
+  },
+  {
+   "repo": "tokio-rs/axum",
+   "kind": "monorepo-member",
+   "ecosystem": "cargo",
+   "dependency": "pin-project-lite",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 210,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db"
+   ],
+   "window_truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db"
+   ],
+   "observed_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db"
+   ]
+  },
+  {
+   "repo": "tokio-rs/axum",
+   "kind": "monorepo-member",
+   "ecosystem": "cargo",
+   "dependency": "hyper-util",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "8854e660e9ab07404e5bb8e30b92311d3848de05",
+   "observed_first": "8854e660e9ab07404e5bb8e30b92311d3848de05",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 210,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:8854e660e9ab07404e5bb8e30b92311d3848de05"
+   ],
+   "window_truth_seq": [
+    "introduced:8854e660e9ab07404e5bb8e30b92311d3848de05"
+   ],
+   "observed_seq": [
+    "introduced:8854e660e9ab07404e5bb8e30b92311d3848de05"
+   ]
+  },
+  {
+   "repo": "tokio-rs/axum",
+   "kind": "monorepo-member",
+   "ecosystem": "cargo",
+   "dependency": "tower-http",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 210,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db"
+   ],
+   "window_truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db"
+   ],
+   "observed_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db"
+   ]
+  },
+  {
+   "repo": "tokio-rs/axum",
+   "kind": "monorepo-member",
+   "ecosystem": "cargo",
+   "dependency": "bytes",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 210,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db"
+   ],
+   "window_truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db"
+   ],
+   "observed_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db"
+   ]
+  },
+  {
+   "repo": "tokio-rs/axum",
+   "kind": "monorepo-member",
+   "ecosystem": "cargo",
+   "dependency": "async-trait",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 210,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+    "removed:19101f624d471856b71b273a01189a0dcb4468c7"
+   ],
+   "window_truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+    "removed:19101f624d471856b71b273a01189a0dcb4468c7"
+   ],
+   "observed_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+    "removed:19101f624d471856b71b273a01189a0dcb4468c7"
+   ]
+  },
+  {
+   "repo": "tokio-rs/axum",
+   "kind": "monorepo-member",
+   "ecosystem": "cargo",
+   "dependency": "bitflags",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 210,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+    "removed:b80d1261377a59d7a498f1f3b8f8d160e1c61d9e"
+   ],
+   "window_truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+    "removed:b80d1261377a59d7a498f1f3b8f8d160e1c61d9e"
+   ],
+   "observed_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+    "removed:b80d1261377a59d7a498f1f3b8f8d160e1c61d9e"
+   ]
+  },
+  {
+   "repo": "tokio-rs/axum",
+   "kind": "monorepo-member",
+   "ecosystem": "cargo",
+   "dependency": "serde_urlencoded",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 210,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+    "removed:cae6bc37097ea61fcdf94167297072e0e86f9bb6"
+   ],
+   "window_truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+    "removed:cae6bc37097ea61fcdf94167297072e0e86f9bb6"
+   ],
+   "observed_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+    "removed:cae6bc37097ea61fcdf94167297072e0e86f9bb6"
+   ]
+  },
+  {
+   "repo": "tokio-rs/axum",
+   "kind": "monorepo-member",
+   "ecosystem": "cargo",
+   "dependency": "tokio-util",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_first": "ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+   "observed_status": "history_complete",
+   "window_complete": true,
+   "commits_scanned": 210,
+   "classification": {
+    "introduction_commit": "exact",
+    "event_sequence": "exact",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+    "removed:5442cd7281f75a21020db85633d1cd6cefb51c5e"
+   ],
+   "window_truth_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+    "removed:5442cd7281f75a21020db85633d1cd6cefb51c5e"
+   ],
+   "observed_seq": [
+    "introduced:ba4d8a2357702d58a00d8306f56b1e5cc7a963db",
+    "removed:5442cd7281f75a21020db85633d1cd6cefb51c5e"
+   ]
+  }
+ ]
+}
