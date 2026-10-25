@@ -79,6 +79,7 @@ interface GhRepo {
   forks_count: number;
   size: number;
   has_issues: boolean;
+  private?: boolean;
 }
 
 export async function collectGithub(
@@ -295,7 +296,16 @@ export async function collectGithub(
     const owner = encodeURIComponent(ref.owner);
     for (const p of ['SECURITY.md', '.github/SECURITY.md']) {
       try {
-        const r = await http.request(`${RAW}/${owner}/.github/HEAD/${p}`, { maxBytes: 4096 });
+        const u =
+          repo.private === true
+            ? `${API}/repos/${owner}/.github/contents/${p}?ref=HEAD`
+            : `${RAW}/${owner}/.github/HEAD/${p}`;
+        const r = await http.request(u, {
+          maxBytes: 4096,
+          ...(repo.private === true
+            ? { headers: { Accept: 'application/vnd.github.raw+json' } }
+            : {}),
+        });
         if (r.status === 200 && r.body.trim().length > 0) return true;
       } catch {
         /* absent or unreachable: treated as "not found" */
@@ -359,9 +369,26 @@ export async function collectGithub(
         reason: treeResRecursive ? 'github_truncated' : 'response_too_large',
         githubTruncated: treeResRecursive?.data.truncated === true,
         readHint: async (path) => {
-          const u = `${RAW}/${encodeURIComponent(ref.owner)}/${encodeURIComponent(ref.repo)}/${encodeURIComponent(refStr)}/${path.split('/').map(encodeURIComponent).join('/')}`;
-          const r = await http.request(u, { maxBytes: 128 * 1024 });
-          return r.status === 200 ? r.body : undefined;
+          const u =
+            repo.private === true
+              ? `${base}/contents/${path.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(readRef)}`
+              : `${RAW}/${encodeURIComponent(ref.owner)}/${encodeURIComponent(ref.repo)}/${encodeURIComponent(refStr)}/${path.split('/').map(encodeURIComponent).join('/')}`;
+          const r = await http.request(u, {
+            maxBytes: 128 * 1024,
+            ...(repo.private === true
+              ? { headers: { Accept: 'application/vnd.github.raw+json' } }
+              : {}),
+          });
+          if (r.status !== 200) return undefined;
+          if (repo.private !== true) return r.body;
+          try {
+            const parsed = JSON.parse(r.body) as { content?: string; encoding?: string };
+            if (parsed.encoding === 'base64' && typeof parsed.content === 'string')
+              return Buffer.from(parsed.content.replace(/\s+/g, ''), 'base64').toString('utf8');
+          } catch {
+            // application/vnd.github.raw+json returns file bytes directly.
+          }
+          return r.body;
         },
       },
     );
@@ -452,15 +479,70 @@ export async function collectGithub(
   const blobShas = new Map<string, string>();
   for (const e of entries) if (e.type === 'blob' && e.sha) blobShas.set(e.path, e.sha);
   const slug = `${ref.owner}/${ref.repo}`;
+  const privateContents = repo.private === true;
+  let privateContentsFailed = false;
+  if (privateContents && http.hasToken)
+    b.diag(
+      'info',
+      'private_repository_contents_api',
+      'private repository file reads use the authenticated GitHub contents API; each file costs one API request',
+    );
+  if (privateContents && !http.hasToken)
+    b.diag(
+      'warn',
+      'scan_unavailable_private_repository',
+      'private repository contents require a read-only token; source files were not fetched',
+      ['scan.'],
+    );
   const rawFetchBytes = (path: string, maxBytes: number): Promise<string | undefined> =>
-    safe(`raw ${path}`, async () => {
-      const cached = options.blobCache?.get(slug, blobShas.get(path));
-      if (cached !== undefined && cached.length <= maxBytes) return cached;
-      const u = `${RAW}/${encodeURIComponent(ref.owner)}/${encodeURIComponent(ref.repo)}/${encodeURIComponent(refStr)}/${path.split('/').map(encodeURIComponent).join('/')}`;
-      const r = await http.request(u, { maxBytes });
-      if (r.status === 200) options.blobCache?.set(slug, blobShas.get(path), r.body);
-      return r.status === 200 ? r.body : undefined;
-    });
+    privateContents
+      ? (async () => {
+          try {
+            const u = `${base}/contents/${path.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(refStr)}`;
+            const r = await http.request(u, {
+              headers: { Accept: 'application/vnd.github.raw+json' },
+              maxBytes,
+            });
+            if (r.status !== 200) {
+              privateContentsFailed = true;
+              return undefined;
+            }
+            let content = r.body;
+            try {
+              const parsed = JSON.parse(r.body) as { content?: string; encoding?: string };
+              if (parsed.encoding === 'base64' && typeof parsed.content === 'string')
+                content = Buffer.from(parsed.content.replace(/\s+/g, ''), 'base64').toString(
+                  'utf8',
+                );
+            } catch {
+              // application/vnd.github.raw+json returns the file bytes directly.
+            }
+            if (Buffer.byteLength(content) > maxBytes) {
+              privateContentsFailed = true;
+              return undefined;
+            }
+            options.blobCache?.set(slug, blobShas.get(path), content);
+            return content;
+          } catch (e) {
+            privateContentsFailed = true;
+            if (e instanceof RateLimitError)
+              b.diag(
+                'warn',
+                'rate_limited',
+                `private contents ${path}: GitHub rate limit reached`,
+                ['scan.'],
+              );
+            return undefined;
+          }
+        })()
+      : safe(`raw ${path}`, async () => {
+          const cached = options.blobCache?.get(slug, blobShas.get(path));
+          if (cached !== undefined && cached.length <= maxBytes) return cached;
+          const u = `${RAW}/${encodeURIComponent(ref.owner)}/${encodeURIComponent(ref.repo)}/${encodeURIComponent(refStr)}/${path.split('/').map(encodeURIComponent).join('/')}`;
+          const r = await http.request(u, { maxBytes });
+          if (r.status === 200) options.blobCache?.set(slug, blobShas.get(path), r.body);
+          return r.status === 200 ? r.body : undefined;
+        });
   const rawFetch = (path: string): Promise<string | undefined> =>
     rawFetchBytes(path, RAW_MAX_BYTES);
   const depFetch = (path: string): Promise<string | undefined> =>
@@ -900,12 +982,10 @@ export async function collectGithub(
           files.push({ path, content: hit, size: hit.length, role });
           return;
         }
-        const u = `${RAW}/${encodeURIComponent(ref.owner)}/${encodeURIComponent(ref.repo)}/${encodeURIComponent(refStr)}/${path.split('/').map(encodeURIComponent).join('/')}`;
-        const r = await http.request(u, { maxBytes: LIMITS.maxScanFileBytes });
-        if (r.status === 200) {
-          options.blobCache?.set(slug, blobShas.get(path), r.body);
-          totalBytes += r.body.length;
-          files.push({ path, content: r.body, size: r.body.length, role });
+        const content = await rawFetchBytes(path, LIMITS.maxScanFileBytes);
+        if (content !== undefined) {
+          totalBytes += content.length;
+          files.push({ path, content, size: content.length, role });
         } else {
           failed++;
         }
@@ -932,6 +1012,13 @@ export async function collectGithub(
     }
     if (failed > 0)
       b.diag('warn', 'scan_fetch_failed', `${failed} scan file(s) could not be fetched`);
+    if (privateContentsFailed)
+      b.diag(
+        'warn',
+        'scan_unavailable_private_repository',
+        'authenticated GitHub contents requests failed; private repository scan coverage is partial',
+        ['scan.'],
+      );
   }
 
   const snapshot = {

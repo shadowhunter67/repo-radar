@@ -54,3 +54,12 @@ limit; batch/history workloads can exhaust the 5000/hour quota. CI tests Node 20
 
 There is no telemetry collector or analytics endpoint in the code. Network paths are
 allowlisted in the security model; Sigstore's TUF client is the documented exception.
+## Private repository contents
+
+With a read-only `GITHUB_TOKEN`, private repository files are fetched through
+GitHub's authenticated contents API, with the raw media type and the same file and
+byte caps as public scans. Each selected file costs one API request. The report
+includes an informational `private_repository_contents_api` diagnostic. A missing
+token or contents API failure yields explicit unavailable/partial diagnostics and
+unknown coverage; it is never interpreted as a clean scan. For large private
+repositories, use `--no-scan` or keep the bounded scan selection small.

@@ -46,6 +46,12 @@ The GitHub Action accepts the repository, profile, token, JSON output, static-sc
 enforcement, and score-floor inputs documented in [docs/action.md](docs/action.md).
 Profiles are `default`, `startup`, and `enterprise`; methodology version is `0.4`.
 
+Private repositories are supported when the supplied read-only token permits
+contents access. Selected private files use the authenticated GitHub contents API,
+one request per file, with the same bounded scan limits. For large private
+repositories, `--no-scan` or a bounded scan is recommended; failed contents requests
+remain unknown and are reported as partial coverage.
+
 Exit codes are `0` success, `1` internal error, `2` policy failure, `3` repository
 not found, `4` service unavailable/rate limited, and `64` usage error.
 

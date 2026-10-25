@@ -43,6 +43,7 @@ export interface FakeSpec {
   repo: string;
   /** name GitHub reports (may differ from the URL slug in tests, e.g. Unicode/symbols) */
   displayName: string | null;
+  private?: boolean;
   description: string | null;
   topics: string[];
   language: string | null;
@@ -112,6 +113,7 @@ export function baseSpec(over: Partial<FakeSpec> = {}): FakeSpec {
     owner: 'acme',
     repo: 'widget',
     displayName: null,
+    private: false,
     description: 'A thing',
     topics: [],
     language: 'TypeScript',
@@ -293,6 +295,7 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
     if (path === '') {
       return json({
         name: spec.displayName ?? spec.repo,
+        private: spec.private === true,
         full_name: `${spec.owner}/${spec.repo}`,
         html_url: `https://github.com/${spec.owner}/${spec.repo}`,
         description: spec.description,
@@ -309,6 +312,21 @@ export function fakeFetch(spec: FakeSpec, recorded: Recorded[] = []): FetchLike 
         size: 100,
         has_issues: true,
       });
+    }
+    if (path.startsWith('/contents/')) {
+      const contentPath = decodeURIComponent(path.slice('/contents/'.length).split('?')[0] ?? '');
+      if (spec.private === true && !headers.authorization)
+        return json({ message: 'Requires authentication' }, 401);
+      const content = spec.files[contentPath];
+      if (content === undefined) return json({ message: 'Not Found' }, 404);
+      return headers.accept === 'application/vnd.github.raw+json'
+        ? new Response(content, { status: 200, headers: { 'content-type': 'text/plain' } })
+        : json({
+            type: 'file',
+            path: contentPath,
+            content: Buffer.from(content).toString('base64'),
+            encoding: 'base64',
+          });
     }
     if (path.startsWith('/git/trees/')) {
       spec.treeRequests.push(path);
