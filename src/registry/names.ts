@@ -191,7 +191,11 @@ export function comparePackageNames(
     (a.replace(/(.)\1/g, '$1') === b || b.replace(/(.)\1/g, '$1') === a)
   )
     signals.push('duplication_or_omission');
-  if (a.startsWith('@') !== b.startsWith('@') || a.split('/').length !== b.split('/').length)
+  // Scope confusion means the SAME base name under a different (or missing) scope: `@types/node` vs `node`, `@a/x` vs `@b/x`.
+  // A scoped and an unscoped name that merely differ in shape (`openpgp` vs `@eslint/js`) are unrelated and must not be reported.
+  const baseOf = (n: string): string => (n.startsWith('@') ? n.slice(n.indexOf('/') + 1) : n);
+  const scopeOf = (n: string): string => (n.startsWith('@') ? n.slice(0, n.indexOf('/')) : '');
+  if (scopeOf(a) !== scopeOf(b) && baseOf(a) === baseOf(b) && baseOf(a).length > 0)
     signals.push('scope_confusion');
   if (a !== b && (a.startsWith(b) || b.startsWith(a)) && Math.min(a.length, b.length) >= 5)
     signals.push('prefix_suffix_trick');

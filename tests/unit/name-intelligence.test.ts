@@ -63,3 +63,19 @@ describe('package-name intelligence: short names', () => {
     expect(comparePackageNames('jest', 'jes', 'npm').signals).toEqual([]);
   });
 });
+
+describe('package-name intelligence: scope confusion needs the same base name', () => {
+  it('does not report unrelated scoped and unscoped names (dogfood false positive: 197 findings)', () => {
+    expect(comparePackageNames('openpgp', '@eslint/js', 'npm').signals).toEqual([]);
+    expect(comparePackageNames('openpgp', '@types/node', 'npm').signals).toEqual([]);
+    expect(comparePackageNames('@esbuild/aix-ppc64', '@esbuild/darwin-x64', 'npm').signals).toEqual(
+      [],
+    );
+  });
+  it('still reports the same base name under a different or missing scope', () => {
+    expect(comparePackageNames('@types/node', 'node', 'npm').signals).toEqual(['scope_confusion']);
+    expect(comparePackageNames('@a/widget', '@b/widget', 'npm').signals).toContain(
+      'scope_confusion',
+    );
+  });
+});
