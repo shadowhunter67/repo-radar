@@ -1,0 +1,362 @@
+{
+ "result_kind": "history-validation",
+ "engine": "traceManifestHistory",
+ "budget_mode": "large",
+ "generated_at": "2026-10-25T10:11:49.744Z",
+ "ground_truth_sha256": "c1691d435287added3b8bd8df1ffa430f0c62532adaa77c324caf5a8a89da130",
+ "ground_truth_note": "git log --follow --first-parent + own parsers; not repo-radar",
+ "summary": {
+  "cases_total": 9,
+  "introduction_commit": {
+   "correct_within_defined_window": 8,
+   "unknown": 1
+  },
+  "event_sequence": {
+   "correct_within_defined_window": 4,
+   "partial": 4,
+   "unknown": 1
+  },
+  "manifest": {
+   "correct": 9
+  },
+  "relationship": {
+   "not_assessed_by_traceManifestHistory": 9
+  },
+  "budget_exhausted_repos": 0
+ },
+ "per_repo_cost": [
+  {
+   "repo": "expressjs/express",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "commits_touching_path": 1375,
+   "requests": 1862,
+   "commits_scanned": 1289,
+   "pages": 13,
+   "blob_cache_hits": 0,
+   "blob_cache_misses": 0,
+   "bytes": 11369015,
+   "elapsed_ms": 705121,
+   "budget_exhausted": false,
+   "parent_blob_fetches": 559,
+   "request_classes": {
+    "ok": 1861,
+    "rate_limited": 0,
+    "not_found": 1,
+    "server_error": 0,
+    "network": 0,
+    "malformed": 0,
+    "other": 0
+   },
+   "rate_limit_reset_at": null,
+   "wall_ms": 705122
+  }
+ ],
+ "cases": [
+  {
+   "repo": "expressjs/express",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "serve-static",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "6ec1904aaca38af3deb7a66ee15d8ac3a82ee261",
+   "observed_first": "6ec1904aaca38af3deb7a66ee15d8ac3a82ee261",
+   "observed_status": "history_partial",
+   "window_complete": false,
+   "commits_scanned": 1289,
+   "classification": {
+    "introduction_commit": "correct_within_defined_window",
+    "event_sequence": "correct_within_defined_window",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:6ec1904aaca38af3deb7a66ee15d8ac3a82ee261"
+   ],
+   "window_truth_seq": [
+    "introduced:6ec1904aaca38af3deb7a66ee15d8ac3a82ee261"
+   ],
+   "present_before_window_truth": false,
+   "present_at_window_start_observed": false,
+   "observed_seq": [
+    "introduced:6ec1904aaca38af3deb7a66ee15d8ac3a82ee261"
+   ]
+  },
+  {
+   "repo": "expressjs/express",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "parseurl",
+   "selection": "hash_sample",
+   "truth_events": 2,
+   "truth_first": "7693aa5464203d7eec896f3751be789327d66a1b",
+   "observed_first": "7693aa5464203d7eec896f3751be789327d66a1b",
+   "observed_status": "history_partial",
+   "window_complete": false,
+   "commits_scanned": 1289,
+   "classification": {
+    "introduction_commit": "correct_within_defined_window",
+    "event_sequence": "partial",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:7693aa5464203d7eec896f3751be789327d66a1b",
+    "introduced_again_other_line:65f13c3cc62ff2f5162df73f78b4e5e451adf3b3"
+   ],
+   "window_truth_seq": [
+    "introduced:7693aa5464203d7eec896f3751be789327d66a1b",
+    "introduced_again_other_line:65f13c3cc62ff2f5162df73f78b4e5e451adf3b3"
+   ],
+   "present_before_window_truth": false,
+   "present_at_window_start_observed": false,
+   "observed_seq": [
+    "introduced:7693aa5464203d7eec896f3751be789327d66a1b"
+   ]
+  },
+  {
+   "repo": "expressjs/express",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "fresh",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "f895516a2c3746d3e1ff4ca0645b674365570f40",
+   "observed_first": "f895516a2c3746d3e1ff4ca0645b674365570f40",
+   "observed_status": "history_partial",
+   "window_complete": false,
+   "commits_scanned": 1289,
+   "classification": {
+    "introduction_commit": "correct_within_defined_window",
+    "event_sequence": "correct_within_defined_window",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:f895516a2c3746d3e1ff4ca0645b674365570f40"
+   ],
+   "window_truth_seq": [
+    "introduced:f895516a2c3746d3e1ff4ca0645b674365570f40"
+   ],
+   "present_before_window_truth": false,
+   "present_at_window_start_observed": false,
+   "observed_seq": [
+    "introduced:f895516a2c3746d3e1ff4ca0645b674365570f40"
+   ]
+  },
+  {
+   "repo": "expressjs/express",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "mime-types",
+   "selection": "hash_sample",
+   "truth_events": 1,
+   "truth_first": "a0276c6c91b3b119acc045640e8f4e0616734526",
+   "observed_first": "a0276c6c91b3b119acc045640e8f4e0616734526",
+   "observed_status": "history_partial",
+   "window_complete": false,
+   "commits_scanned": 1289,
+   "classification": {
+    "introduction_commit": "correct_within_defined_window",
+    "event_sequence": "correct_within_defined_window",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:a0276c6c91b3b119acc045640e8f4e0616734526"
+   ],
+   "window_truth_seq": [
+    "introduced:a0276c6c91b3b119acc045640e8f4e0616734526"
+   ],
+   "present_before_window_truth": false,
+   "present_at_window_start_observed": false,
+   "observed_seq": [
+    "introduced:a0276c6c91b3b119acc045640e8f4e0616734526"
+   ]
+  },
+  {
+   "repo": "expressjs/express",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "ejs",
+   "selection": "hash_sample",
+   "truth_events": 2,
+   "truth_first": "31a8c7c19c62e8d71ea35504692f42c64f20b9d3",
+   "observed_first": null,
+   "observed_status": "history_partial",
+   "window_complete": false,
+   "commits_scanned": 1289,
+   "classification": {
+    "introduction_commit": "unknown",
+    "event_sequence": "unknown",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:31a8c7c19c62e8d71ea35504692f42c64f20b9d3",
+    "introduced_again_other_line:341e167eabcca5d990706607bcbc9a29c38695a3"
+   ],
+   "window_truth_seq": [
+    "introduced:31a8c7c19c62e8d71ea35504692f42c64f20b9d3",
+    "introduced_again_other_line:341e167eabcca5d990706607bcbc9a29c38695a3"
+   ],
+   "present_before_window_truth": false,
+   "present_at_window_start_observed": false,
+   "observed_seq": []
+  },
+  {
+   "repo": "expressjs/express",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "connect",
+   "selection": "non_simple_history",
+   "truth_events": 4,
+   "truth_first": "7dce7a84c78a7086156f30c450d876f27ec7cd59",
+   "observed_first": "7dce7a84c78a7086156f30c450d876f27ec7cd59",
+   "observed_status": "history_partial",
+   "window_complete": false,
+   "commits_scanned": 1289,
+   "classification": {
+    "introduction_commit": "correct_within_defined_window",
+    "event_sequence": "partial",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:7dce7a84c78a7086156f30c450d876f27ec7cd59",
+    "introduced_again_other_line:31a8c7c19c62e8d71ea35504692f42c64f20b9d3",
+    "introduced_again_other_line:341e167eabcca5d990706607bcbc9a29c38695a3",
+    "removed:1396e0855d1f7cf0ef86913e74c262bb9ade7e7e"
+   ],
+   "window_truth_seq": [
+    "introduced:7dce7a84c78a7086156f30c450d876f27ec7cd59",
+    "introduced_again_other_line:31a8c7c19c62e8d71ea35504692f42c64f20b9d3",
+    "introduced_again_other_line:341e167eabcca5d990706607bcbc9a29c38695a3",
+    "removed:1396e0855d1f7cf0ef86913e74c262bb9ade7e7e"
+   ],
+   "present_before_window_truth": false,
+   "present_at_window_start_observed": false,
+   "observed_seq": [
+    "introduced:7dce7a84c78a7086156f30c450d876f27ec7cd59",
+    "removed:1396e0855d1f7cf0ef86913e74c262bb9ade7e7e"
+   ]
+  },
+  {
+   "repo": "expressjs/express",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "querystring",
+   "selection": "non_simple_history",
+   "truth_events": 2,
+   "truth_first": "42af4e40ae2d19db9e22e12ab525f8ed128ad4ec",
+   "observed_first": "42af4e40ae2d19db9e22e12ab525f8ed128ad4ec",
+   "observed_status": "history_partial",
+   "window_complete": false,
+   "commits_scanned": 1289,
+   "classification": {
+    "introduction_commit": "correct_within_defined_window",
+    "event_sequence": "correct_within_defined_window",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:42af4e40ae2d19db9e22e12ab525f8ed128ad4ec",
+    "removed:36a7e87ae4f5b22dbef4ec2ed2cceadb4843edb2"
+   ],
+   "window_truth_seq": [
+    "introduced:42af4e40ae2d19db9e22e12ab525f8ed128ad4ec",
+    "removed:36a7e87ae4f5b22dbef4ec2ed2cceadb4843edb2"
+   ],
+   "present_before_window_truth": false,
+   "present_at_window_start_observed": false,
+   "observed_seq": [
+    "introduced:42af4e40ae2d19db9e22e12ab525f8ed128ad4ec",
+    "removed:36a7e87ae4f5b22dbef4ec2ed2cceadb4843edb2"
+   ]
+  },
+  {
+   "repo": "expressjs/express",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "qs",
+   "selection": "non_simple_history",
+   "truth_events": 7,
+   "truth_first": "36a7e87ae4f5b22dbef4ec2ed2cceadb4843edb2",
+   "observed_first": "36a7e87ae4f5b22dbef4ec2ed2cceadb4843edb2",
+   "observed_status": "history_partial",
+   "window_complete": false,
+   "commits_scanned": 1289,
+   "classification": {
+    "introduction_commit": "correct_within_defined_window",
+    "event_sequence": "partial",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:36a7e87ae4f5b22dbef4ec2ed2cceadb4843edb2",
+    "introduced_again_other_line:31a8c7c19c62e8d71ea35504692f42c64f20b9d3",
+    "introduced_again_other_line:341e167eabcca5d990706607bcbc9a29c38695a3",
+    "removed:2d31b5df3412faef671f50bdf66fbb80eb267b53",
+    "reintroduced:d0e49f1a8afc42467573dae24b1614154016aae4",
+    "removed:6d872e6693907a940d5be13baad9e1950371d30f",
+    "reintroduced:9bc63d92a02dc895bafe32dc327b26629944a295"
+   ],
+   "window_truth_seq": [
+    "introduced:36a7e87ae4f5b22dbef4ec2ed2cceadb4843edb2",
+    "introduced_again_other_line:31a8c7c19c62e8d71ea35504692f42c64f20b9d3",
+    "introduced_again_other_line:341e167eabcca5d990706607bcbc9a29c38695a3",
+    "removed:2d31b5df3412faef671f50bdf66fbb80eb267b53",
+    "reintroduced:d0e49f1a8afc42467573dae24b1614154016aae4",
+    "removed:6d872e6693907a940d5be13baad9e1950371d30f",
+    "reintroduced:9bc63d92a02dc895bafe32dc327b26629944a295"
+   ],
+   "present_before_window_truth": false,
+   "present_at_window_start_observed": false,
+   "observed_seq": [
+    "introduced:36a7e87ae4f5b22dbef4ec2ed2cceadb4843edb2",
+    "removed:2d31b5df3412faef671f50bdf66fbb80eb267b53",
+    "reintroduced:d0e49f1a8afc42467573dae24b1614154016aae4",
+    "removed:6d872e6693907a940d5be13baad9e1950371d30f",
+    "reintroduced:9bc63d92a02dc895bafe32dc327b26629944a295"
+   ]
+  },
+  {
+   "repo": "expressjs/express",
+   "kind": "single-package",
+   "ecosystem": "npm",
+   "dependency": "mime",
+   "selection": "non_simple_history",
+   "truth_events": 4,
+   "truth_first": "d37ad85f72acd933572d631a5f5c9314d223128c",
+   "observed_first": "d37ad85f72acd933572d631a5f5c9314d223128c",
+   "observed_status": "history_partial",
+   "window_complete": false,
+   "commits_scanned": 1289,
+   "classification": {
+    "introduction_commit": "correct_within_defined_window",
+    "event_sequence": "partial",
+    "manifest": "correct",
+    "relationship": "not_assessed_by_traceManifestHistory"
+   },
+   "truth_seq": [
+    "introduced:d37ad85f72acd933572d631a5f5c9314d223128c",
+    "introduced_again_other_line:31a8c7c19c62e8d71ea35504692f42c64f20b9d3",
+    "introduced_again_other_line:341e167eabcca5d990706607bcbc9a29c38695a3",
+    "removed:895673141d88323b89d5e86192b7a34b620a304f"
+   ],
+   "window_truth_seq": [
+    "introduced:d37ad85f72acd933572d631a5f5c9314d223128c",
+    "introduced_again_other_line:31a8c7c19c62e8d71ea35504692f42c64f20b9d3",
+    "introduced_again_other_line:341e167eabcca5d990706607bcbc9a29c38695a3",
+    "removed:895673141d88323b89d5e86192b7a34b620a304f"
+   ],
+   "present_before_window_truth": false,
+   "present_at_window_start_observed": false,
+   "observed_seq": [
+    "introduced:d37ad85f72acd933572d631a5f5c9314d223128c",
+    "removed:895673141d88323b89d5e86192b7a34b620a304f"
+   ]
+  }
+ ]
+}

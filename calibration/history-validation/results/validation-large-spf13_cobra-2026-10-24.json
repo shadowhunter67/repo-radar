@@ -2,7 +2,7 @@
  "result_kind": "history-validation",
  "engine": "traceManifestHistory",
  "budget_mode": "large",
- "generated_at": "2026-10-24T00:01:26.913Z",
+ "generated_at": "2026-10-24T01:16:44.695Z",
  "ground_truth_sha256": "c1691d435287added3b8bd8df1ffa430f0c62532adaa77c324caf5a8a89da130",
  "ground_truth_note": "git log --follow --first-parent + own parsers; not repo-radar",
  "summary": {
@@ -33,7 +33,7 @@
    "blob_cache_hits": 0,
    "blob_cache_misses": 0,
    "bytes": 221372,
-   "elapsed_ms": 22456,
+   "elapsed_ms": 21393,
    "budget_exhausted": false,
    "parent_blob_fetches": 25,
    "request_classes": {
@@ -46,7 +46,7 @@
     "other": 0
    },
    "rate_limit_reset_at": null,
-   "wall_ms": 22456
+   "wall_ms": 21393
   }
  ],
  "cases": [

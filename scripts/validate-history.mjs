@@ -109,28 +109,40 @@ for (const r of raw.repos) {
     const seqO = e ? obsSeq(e) : [];
     const complete = e?.window?.complete === true && e.history_status === 'history_complete';
     const oldest = e?.window?.oldest_scanned_sha ?? null;
-    // the window the engine actually scanned: truth restricted to it (a dependency already present at the window start shows as introduced at the window start)
+    // The window the engine scanned: the parent-diff transition AT the oldest scanned commit is valid (it is measured against that
+    // commit's parent), so the truth restricted to the window is every transition at or after the oldest scanned commit. A
+    // dependency already present before the oldest scanned commit has an older, unobservable introduction: the engine must
+    // abstain (introduction unknown) and flag present_at_window_start.
     let windowTruth = seqT;
+    let presentBeforeWindow = false;
     if (!complete && oldest && idx(oldest) >= 0) {
       windowTruth = d.transitions
-        .filter((t) => idx(t.commit) > idx(oldest))
+        .filter((t) => idx(t.commit) >= idx(oldest))
         .map((t) => `${t.type}:${t.commit}`);
-      if (presentAt(oldest)) windowTruth.unshift(`introduced:${oldest}`);
+      const before = idx(oldest) > 0 ? order[idx(oldest) - 1] : null;
+      presentBeforeWindow = before ? presentAt(before) : false;
     }
     const obsFirst = e?.first_introduced_at?.commit_sha ?? e?.introduced_at?.commit_sha ?? null;
     let commit;
     if (!e || e.introduction !== 'known' || !obsFirst) commit = 'unknown';
     else if (complete) commit = obsFirst === truthFirst?.commit ? 'exact' : 'incorrect';
     else if (obsFirst === truthFirst?.commit) commit = 'correct_within_defined_window';
-    else if (oldest && obsFirst === oldest && presentAt(oldest))
-      commit = 'correct_within_defined_window';
     else commit = 'incorrect';
+    // correct abstention: the dependency predates the scanned window and the engine said so
+    if (
+      !complete &&
+      presentBeforeWindow &&
+      commit === 'unknown' &&
+      e?.present_at_window_start === true
+    )
+      commit = 'correct_abstention_present_before_window';
     let events;
     if (!e) events = 'unknown';
     else if (complete)
       events = JSON.stringify(seqO) === JSON.stringify(seqT) ? 'exact' : 'incorrect';
     else if (JSON.stringify(seqO) === JSON.stringify(windowTruth))
       events = 'correct_within_defined_window';
+    else if (seqO.length === 0 && !windowTruth.length) events = 'correct_within_defined_window';
     else if (seqO.length === 0) events = 'unknown';
     else events = seqO.every((x) => windowTruth.includes(x)) ? 'partial' : 'incorrect';
     const manifest = e?.evidence_file
@@ -160,6 +172,8 @@ for (const r of raw.repos) {
       },
       truth_seq: seqT,
       window_truth_seq: windowTruth,
+      present_before_window_truth: presentBeforeWindow,
+      present_at_window_start_observed: e?.present_at_window_start ?? null,
       observed_seq: seqO,
     });
   }

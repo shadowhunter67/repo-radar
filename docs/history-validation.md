@@ -15,11 +15,19 @@ with non-simple history.
 
 ## Final measured results
 
-| Dimension | exact | correct within defined window | partial | unknown | incorrect |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Introduction commit | 65 | 11 | — | 2 | 2 |
-| Event sequence | 65 | 6 | 6 | 1 | 2 |
-| Manifest path | 80 | 0 | 0 | 0 | 0 |
+| Dimension | exact | correct within defined window | correct abstention | partial | unknown | incorrect |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Introduction commit | 65 | 11 | 1 | — | 3 | 0 |
+| Event sequence | 65 | 9 | — | 5 | 1 | 0 |
+| Manifest path | 80 | 0 | — | 0 | 0 | 0 |
+
+Final run: 2026-10-24 (eight repositories) and 2026-10-25 (serde and express, rerun after the window-start change and a correction of the
+validator's window rule). The first live run of the same engine scored introduction commit exact 51 / incorrect 26 / unknown 3 and event sequence
+exact 38 / incorrect 42; the defects listed below account for the difference. The 3 `unknown` introductions are abstentions (express `ejs`, serde
+`serde_macros` and `rustc-serialize`, where the true introduction predates the scanned window); in the last two the engine abstained but did not set
+`present_at_window_start`, a reporting gap that remains. The 5 `partial` event sequences omit `introduced_again_other_line` duplicates from side
+branches. The validator's window rule was itself wrong once (it excluded the transition at the oldest scanned commit) and a substring match once
+attributed `mime-types` to `mime`; both were validator defects, not engine defects, and are fixed.
 
 Classification vocabulary is `exact`, `correct_within_defined_window`, `partial`,
 `unknown`, and `incorrect`. The final numbers are measured on this corpus only and
