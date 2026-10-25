@@ -42,3 +42,11 @@ TypeScript strict mode, ESLint (typescript-eslint), Prettier (`npm run format`).
 ## Conduct and security
 
 Be kind: see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Report vulnerabilities privately: see [SECURITY.md](SECURITY.md).
+## Preview consumer checks
+
+The clean-install helper is an offline-aware release smoke test. It may create its
+temporary consumer directory outside the repository and is skipped with an explicit
+message when package dependencies are unavailable offline. It must not be used to
+publish, tag, or create a GitHub release. The Action preview is tested from the
+locally built bundle with recorded fixtures only; no repository-controlled code is
+executed.

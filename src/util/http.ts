@@ -27,6 +27,13 @@ export class TooLargeError extends Error {
   }
 }
 
+class RequestTimeoutError extends Error {
+  constructor() {
+    super('request timed out');
+    this.name = 'TimeoutError';
+  }
+}
+
 export type FetchLike = (url: string, init?: RequestInit) => Promise<Response>;
 
 export interface HttpClientOptions {
@@ -99,13 +106,17 @@ export class HttpClient {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         this.requests++;
-        const res = await this.fetchFn(url, {
+        const request = this.fetchFn(url, {
           method: init.method ?? 'GET',
           headers,
           ...(init.body !== undefined ? { body: init.body } : {}),
           redirect: 'manual',
           signal: AbortSignal.timeout(this.timeoutMs),
         });
+        const timeout = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new RequestTimeoutError()), this.timeoutMs),
+        );
+        const res = await Promise.race([request, timeout]);
         if (res.status >= 300 && res.status < 400) {
           const loc = res.headers.get('location');
           if (!loc || hops >= 2) throw new HttpError('unfollowable redirect', res.status, url);

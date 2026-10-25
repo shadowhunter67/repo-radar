@@ -11,7 +11,8 @@ export function sanitizeForTerminal(s: string, maxLen = 300): string {
     '',
   );
   const flat = clean.replace(/\s+/g, ' ').trim();
-  return flat.length > maxLen ? flat.slice(0, maxLen - 1) + '…' : flat;
+  const noAnnotations = flat.replace(/::/g, ': :');
+  return noAnnotations.length > maxLen ? noAnnotations.slice(0, maxLen - 1) + '…' : noAnnotations;
 }
 
 const SECRET_PATTERNS = [

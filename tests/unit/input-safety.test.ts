@@ -120,6 +120,17 @@ describe('HttpClient', () => {
       /unfollowable redirect/,
     );
   });
+  it('aborts a fetch implementation that never settles', async () => {
+    const client = new HttpClient({
+      allowedHosts: ['api.github.com'],
+      timeoutMs: 10,
+      retryDelayMs: 0,
+      fetch: async () => await new Promise<Response>(() => undefined),
+    });
+    await expect(client.request('https://api.github.com/hang')).rejects.toThrow(
+      /network error|timed out/,
+    );
+  });
 
   it('sends the token only to authHosts', async () => {
     const seen: Record<string, string | undefined> = {};
@@ -228,6 +239,9 @@ describe('text utilities', () => {
     const s = sanitizeForTerminal(evil);
     expect(s).toBe('okred ab rtl x'.replace('ab rtl', 'abrtl'));
     expect(s).not.toMatch(/[\u0000-\u001f\u007f-\u009f‪-‮]/);
+  });
+  it('does not leave GitHub annotation control markers in rendered text', () => {
+    expect(sanitizeForTerminal('name ::error:: forged\u001b[31m')).not.toContain('::error::');
   });
   it('truncates long strings', () => {
     expect(sanitizeForTerminal('a'.repeat(500), 50).length).toBe(50);

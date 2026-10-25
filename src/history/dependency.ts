@@ -759,6 +759,8 @@ export async function traceManifestHistory(input: {
         }
       }
     }
+    const oldestTransition = transitions.find((t) => t.c.sha === oldestCommit?.sha);
+    if (oldestTransition?.parent.state === 'present') e.present_at_window_start = true;
     if (!first && oldestCreationVerified && !e.present_at_window_start) {
       const creation = ordered[0];
       const creationState = creation?.sha
