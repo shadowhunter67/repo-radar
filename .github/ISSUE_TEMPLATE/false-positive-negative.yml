@@ -1,0 +1,25 @@
+name: False positive or false negative
+description: Report an evidence or classification mismatch
+labels: [false-positive]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include secrets or private repository content unless you have permission to share it.
+  - type: input
+    id: repository
+    attributes:
+      label: Repository and exact SHA
+      description: Public owner/repo and commit SHA, or explain why it cannot be shared.
+    validations:
+      required: true
+  - type: input
+    id: finding
+    attributes:
+      label: Finding or rule ID
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and expected state
+      description: Include evidence IDs, observed result, expected result, and a report JSON only if safe to share.
+    validations:
+      required: true

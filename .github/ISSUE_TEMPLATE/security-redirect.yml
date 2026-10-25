@@ -1,0 +1,7 @@
+name: Security report redirect
+description: Redirect security reports to private vulnerability reporting
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not disclose vulnerability details here. Use GitHub private vulnerability reporting as described in SECURITY.md.

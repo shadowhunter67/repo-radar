@@ -68,3 +68,26 @@ describe('hosted CI asserts the current schema version', () => {
     expect(ci).toContain(`r.schema_version === '${REPORT_SCHEMA_VERSION}'`);
   });
 });
+
+describe('public preview documentation', () => {
+  it('has the required preview wording and links', () => {
+    const readme = read('README.md');
+    expect(readme).toContain('Experimental');
+    expect(readme).toContain('Limitations');
+    for (const link of [
+      'docs/public-contract.md',
+      'docs/security-model.md',
+      'docs/limitations.md',
+      'docs/maturity.md',
+    ])
+      expect(readme).toContain(`](${link})`);
+  });
+
+  it('does not use forbidden positive claims in public preview documents', () => {
+    for (const f of ['README.md', 'docs/release/RELEASE_NOTES_0.17.0-preview.md']) {
+      const text = read(...f.split('/'));
+      expect(text, f).not.toMatch(/malware-free|\bis safe\b|\b100%\b/i);
+    }
+    expect(read('SECURITY.md')).not.toMatch(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  });
+});

@@ -1,0 +1,15 @@
+name: Feature request
+description: Suggest a bounded, evidence-traceable improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Security and evidence boundaries
+      description: Explain how the proposal preserves static-only analysis, unknown propagation, and resource limits.

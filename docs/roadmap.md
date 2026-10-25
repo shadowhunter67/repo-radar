@@ -1,5 +1,14 @@
 # Roadmap
 
+## Public preview direction
+
+- human validation of calibration labels and public claims;
+- lockfile/transitive history validation, reproducibility, and performance work;
+- structured public feedback from the experimental preview;
+- later: organization-scale workflows, other forges, and dynamic sandbox research.
+
+No dates are promised. Dynamic analysis remains research only and is not implemented.
+
 Nothing below exists in v0.1 unless it is listed in the README. Order is rough priority.
 
 ## Done in 0.2

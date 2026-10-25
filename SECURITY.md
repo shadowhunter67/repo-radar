@@ -10,8 +10,8 @@ Please **do not open a public issue**. Use GitHub's private vulnerability report
 (Security tab -> "Report a vulnerability"). If that is unavailable, open a minimal public issue that says only
 "security contact requested" (no details) and a maintainer will arrange a private channel.
 
-Please include the version (`repo-radar --version`), what you did, and what you expected. We aim to acknowledge reports
-within a week; this is a volunteer project and no bug bounty exists.
+Please include the version (`repo-radar --version`), what you did, and what you expected. Maintainers will respond on a
+best-effort basis; this is a volunteer project and no bug bounty or response-time SLA exists.
 
 ## Scope
 
