@@ -1,0 +1,51 @@
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { basename, join } from 'node:path';
+import process from 'node:process';
+import { buildMetadata, sha256 } from '../dist/release/dry-run.js';
+
+const root = process.cwd();
+const run = (command, args, cwd = root) =>
+  execFileSync(command, args, { cwd, encoding: 'utf8', stdio: 'pipe' });
+
+function main() {
+  const out = mkdtempSync(join(tmpdir(), 'repo-radar-release-'));
+  const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  run('npm.cmd', ['run', 'check']);
+  run('npm.cmd', ['run', 'build']);
+  const packed = run('npm.cmd', ['pack', '--silent', '--pack-destination', out])
+    .trim()
+    .split(/\r?\n/)
+    .at(-1);
+  run('npm.cmd', ['run', 'package:action']);
+  const sbom = join(out, 'sbom.json');
+  writeFileSync(
+    sbom,
+    run('npm.cmd', ['sbom', '--sbom-format', 'cyclonedx', '--sbom-type', 'application']),
+  );
+  const metadata = buildMetadata({
+    version: pkg.version,
+    node: process.version,
+    npm: run('npm.cmd', ['--version']).trim(),
+    commit: run('git', ['rev-parse', 'HEAD']).trim(),
+    commands: ['npm run check', 'npm run build', 'npm pack', 'npm run package:action', 'npm sbom'],
+  });
+  const metadataFile = join(out, 'release-metadata.json');
+  writeFileSync(metadataFile, JSON.stringify(metadata, null, 2) + '\n');
+  const files = [
+    join(out, packed),
+    join(root, 'dist', 'action', 'repo-radar.mjs'),
+    sbom,
+    metadataFile,
+  ];
+  writeFileSync(
+    join(out, 'SHA256SUMS'),
+    files.map((file) => `${sha256(readFileSync(file))}  ${basename(file)}`).join('\n') + '\n',
+  );
+  for (const file of [...files, join(out, 'SHA256SUMS')])
+    process.stdout.write(`${file} ${sha256(readFileSync(file))}\n`);
+  process.stdout.write(`release dry-run output: ${out}\n`);
+}
+if (process.argv[1]?.endsWith('release-dry-run.mjs')) main();

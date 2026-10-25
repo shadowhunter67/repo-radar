@@ -84,7 +84,7 @@ describe('public preview documentation', () => {
   });
 
   it('does not use forbidden positive claims in public preview documents', () => {
-    for (const f of ['README.md', 'docs/release/RELEASE_NOTES_0.17.0-preview.md']) {
+    for (const f of ['README.md', 'docs/release/RELEASE_NOTES_0.16.0-preview.md']) {
       const text = read(...f.split('/'));
       expect(text, f).not.toMatch(/malware-free|\bis safe\b|\b100%\b/i);
     }

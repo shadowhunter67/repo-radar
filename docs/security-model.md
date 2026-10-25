@@ -106,4 +106,10 @@ tested as refused when a hop leaves the allowlist.
 Archive threats include traversal, links, duplicate paths, corrupt headers, zip/tar bombs, oversized metadata, nested archives, and hostile Unicode. URL threats include credentials, ports, redirects, and private hosts. ReDoS is bounded by input and entry caps. Batch threats include unsafe list entries, budget exhaustion, failure isolation, and immutable snapshot conflicts.
 Dependency artifact retrieval keeps registry/package/version and digest outcomes only; raw signed or temporary artifact URLs are not persisted, and redirects are accepted only when the destination remains on the ecosystem allowlist.
 
+The runtime advisories for zod and ip-address were fixed by `npm audit fix`. The
+current known Vitest/tinypool advisories are dev-only and remain unresolved pending
+a compatible Vitest 5 peer-dependency upgrade; they affect contributors running the
+test suite, not users of the published runtime package. This is a status statement,
+not a claim that the development toolchain has no vulnerabilities.
+
 K4 adds two related controls: introduction history is emitted only from fetched revisions, and artifact deltas require verified same-package pairs. Missing history or unsupported metadata is unknown/not available, never negative evidence.

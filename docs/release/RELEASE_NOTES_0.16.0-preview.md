@@ -1,4 +1,4 @@
-# repo-radar 0.17.0 — Experimental Preview
+# repo-radar 0.16.0 — Experimental Preview
 
 repo-radar provides evidence-driven, static repository and software supply-chain
 intelligence. It preserves observations, evidence, coverage, confidence, and

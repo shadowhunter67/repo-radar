@@ -1,10 +1,11 @@
 # Changelog
 
-## 0.17.0-preview
+## 0.16.0-preview
 
 - Public experimental documentation, conservative contract, support policy, Action
   parity notes, issue templates, and human review packets.
 - No new detector or methodology change; Gate 14 remains manual.
+- Runtime zod/ip-address advisories were fixed; known Vitest/tinypool development-only advisories remain pending a compatible major upgrade.
 
 ## 0.16.0
 

@@ -1,0 +1,105 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build and inspect without publishing
+        type: boolean
+        default: true
+      publish_npm:
+        description: Publish npm after human release approval
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['20', '22']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: set -euo pipefail; npm ci
+        shell: bash
+      - run: set -euo pipefail; npm run check
+        shell: bash
+      - run: set -euo pipefail; npm run build; node scripts/check-release-gates.mjs --online
+        shell: bash
+      - run: set -euo pipefail; npm audit --omit=dev --audit-level=high
+        shell: bash
+
+  build:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '20'
+          cache: npm
+      - run: set -euo pipefail; npm ci; npm run build; mkdir -p release-out; npm pack --silent --pack-destination release-out; npm run package:action; node scripts/check-release-version.mjs release-out/repo-radar-$(node -p "require('./package.json').version").tgz
+        shell: bash
+      - run: set -euo pipefail; npm sbom --sbom-format cyclonedx --sbom-type application > release-out/sbom.json; node scripts/check-package-content.mjs release-out/*.tgz; node -e "const fs=require('fs'),cp=require('child_process'),p=require('./package.json'); fs.writeFileSync('release-out/release-metadata.json', JSON.stringify({version:p.version,node:process.version,npm:cp.execFileSync('npm',['--version'],{encoding:'utf8'}).trim(),commit:cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),commands:['npm run check','npm run build','npm pack','npm run package:action','npm sbom']},null,2)+'\\n')"; sha256sum release-out/* dist/action/repo-radar.mjs > release-out/SHA256SUMS
+        shell: bash
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: release-artifacts
+          path: release-out/
+
+  attest:
+    needs: build
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == false || github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-artifacts
+          path: release-out
+      - uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be
+        with:
+          subject-path: release-out/*
+
+  publish:
+    needs: [verify, build, attest]
+    if: ${{ startsWith(github.ref, 'refs/tags/v') && (github.event_name == 'push' || inputs.dry_run == false) }}
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - run: |
+          set -euo pipefail
+          node -e "const p=require('./docs/release/preview-policy.json'); if (!p.allow_experimental_preview_with_unreviewed_calibration || !p.approved_by || !p.approved_on || p.disclaimer_in_readme !== true) throw new Error('Gate 14 is MANUAL: preview policy is not human-approved')"
+        shell: bash
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-artifacts
+          path: release-out
+      - run: set -euo pipefail; gh release create "${GITHUB_REF_NAME}" release-out/* --prerelease --title "repo-radar ${GITHUB_REF_NAME}" --notes-file docs/release/RELEASE_NOTES_0.16.0-preview.md
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - if: ${{ inputs.publish_npm == true }}
+        run: set -euo pipefail; npm publish --provenance --access public
+        shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
