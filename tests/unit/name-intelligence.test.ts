@@ -79,3 +79,18 @@ describe('package-name intelligence: scope confusion needs the same base name', 
     );
   });
 });
+
+describe('package-name intelligence: companion packages and same-scope siblings', () => {
+  it('does not report hyphenated companions or same-scope siblings (dogfood false positives)', () => {
+    expect(comparePackageNames('typescript', 'typescript-eslint', 'npm').signals).toEqual([]);
+    expect(comparePackageNames('react', 'react-dom', 'npm').signals).toEqual([]);
+    expect(
+      comparePackageNames('@esbuild/linux-arm', '@esbuild/linux-arm64', 'npm').signals,
+    ).toEqual([]);
+  });
+  it('still reports a prefix that continues without a boundary', () => {
+    expect(comparePackageNames('lodash', 'lodashs', 'npm').signals).toContain(
+      'prefix_suffix_trick',
+    );
+  });
+});

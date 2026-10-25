@@ -197,9 +197,21 @@ export function comparePackageNames(
   const scopeOf = (n: string): string => (n.startsWith('@') ? n.slice(0, n.indexOf('/')) : '');
   if (scopeOf(a) !== scopeOf(b) && baseOf(a) === baseOf(b) && baseOf(a).length > 0)
     signals.push('scope_confusion');
-  if (a !== b && (a.startsWith(b) || b.startsWith(a)) && Math.min(a.length, b.length) >= 5)
+  // `react` / `react-dom`, `typescript` / `typescript-eslint`: a hyphen/underscore/dot boundary after the shorter name is the normal
+  // way ecosystems name companion packages, not a lookalike trick; only a prefix that continues without a boundary is reported.
+  const boundaryExtension = (x: string, y: string): boolean =>
+    x.startsWith(y) && /^[-_.]/.test(x.slice(y.length));
+  if (
+    a !== b &&
+    (a.startsWith(b) || b.startsWith(a)) &&
+    Math.min(a.length, b.length) >= 5 &&
+    !boundaryExtension(a, b) &&
+    !boundaryExtension(b, a)
+  )
     signals.push('prefix_suffix_trick');
   if (a === b && rawA === rawB) signals.length = 0;
+  // two packages under the SAME scope belong to one publisher namespace (`@esbuild/linux-arm` vs `@esbuild/linux-arm64`): siblings, not lookalikes
+  if (scopeOf(a) !== '' && scopeOf(a) === scopeOf(b)) signals.length = 0;
   const reason = suppression(left, right, history);
   return {
     left,
