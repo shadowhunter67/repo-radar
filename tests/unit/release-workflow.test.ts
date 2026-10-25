@@ -27,6 +27,15 @@ describe('preview release workflow governance', () => {
     expect(read('docs/release/preview-policy.json')).toContain(
       '"legal_review_openpgp_action_bundle": "pending"',
     );
+    const policy = JSON.parse(read('docs/release/preview-policy.json')) as Record<string, unknown>;
+    // every human approval defaults to NOT approved and the publish job refuses to run without them
+    expect(policy['approved_by']).toBe('');
+    expect(policy['approved_on']).toBe('');
+    expect(policy['rationale']).toBe('');
+    expect(policy['public_claims_review']).toBe('pending');
+    expect(policy['npm_license_review']).toBe('pending');
+    expect(workflow).toContain("p.public_claims_review !== 'approved'");
+    expect(workflow).toContain("p.npm_license_review !== 'approved'");
     expect(workflow).toContain('gh release create');
     expect(workflow).not.toMatch(/gh release create[\s\S]*dist\/action/);
   });

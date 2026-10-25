@@ -3,5 +3,9 @@
   "approved_by": "",
   "approved_on": "",
   "disclaimer_in_readme": true,
-  "legal_review_openpgp_action_bundle": "pending"
+  "legal_review_openpgp_action_bundle": "pending",
+  "public_claims_review": "pending",
+  "npm_license_review": "pending",
+  "rationale": "",
+  "scope": "experimental public source preview and prerelease GitHub release; does not mark calibration labels as human-reviewed and does not claim validated accuracy"
 }

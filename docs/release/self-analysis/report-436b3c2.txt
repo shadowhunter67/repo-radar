@@ -1,0 +1,128 @@
+repo-radar v0.16.0  (methodology 0.4, profile: default)
+
+shadowhunter67/repo-radar
+
+IDENTITY
+  Purpose not determined from available metadata (confidence 10%)
+  Declared: "Evidence-driven repository and software supply-chain intelligence for GitHub repositories. Experimental preview."
+  Interfaces: cli, github-action, library
+  Ecosystem: TypeScript, npm
+  Artifact: plugin (85%)  Domain: unknown
+
+TRUST PROFILE (observed evidence evaluated against methodology 0.4)
+  Security              83  B+   ########--  conf  71%
+  Maintenance           98  A+   ##########  conf  48%  low confidence range 55-99
+  Engineering Hygiene   98  A+   ##########  conf  91%
+  Supply Chain          96  A+   ##########  conf  87%
+  Community             81  B+   ########--  conf 100%
+  Documentation         98  A+   ##########  conf  94%
+  Semantic Clarity      68  C+   #######---  conf  87%
+  Overall               89  A-   #########-  conf  82%  (weighted by profile "default"; not an absolute verdict)
+
+Overall confidence: 82%
+
+WARNINGS
+  - Scanned files reference browser profile data. Capability, not intent.
+  - Scanned files reference credential stores (SSH keys, cloud credentials, token files). Capability, not intent.
+  - A persistence mechanism (service, scheduled task, startup entry or similar) appears in scanned files. Capability, not intent.
+
+DIAGNOSTICS
+  [warn] registry: npm:repo-radar: not_found
+  [warn] registry: npm:typescript: too_large
+  [warn] registry: npm:@types/node: too_large
+
+DEPENDENCY INTELLIGENCE
+  Dependencies discovered:       281 (13 direct, 268 transitive)
+  Direct, registry-resolvable:   13
+    exact version known:         13
+    unresolved / ambiguous:      0 / 0
+  Direct, not from a registry:   0
+  Direct, vulnerability-checked: 13 of 13
+  Packages checked / vulnerable: 281 / 3
+  Vulnerability lookup (OSV):    checked
+  deps.dev:                      ok (13 requests, 13 enriched, 0 current-version candidates)
+  Lockfiles read:                package-lock.json (288)
+  SBOM:                          none found
+  (A versioned dependency without a lockfile, SBOM or exact pin is "unresolved", not "safe". A registry candidate is what the registry offers today, not what this revision used.)
+
+REGULATORY READINESS (technical indicators only; not legal advice)
+  EU AI Act - technical documentation indicators (foundation)  [eu-ai-act@0.1.0, EU]
+    applicability: unknown (confidence 20%)
+    depends on context a repository cannot show: domain; the role of the organization (provider, deployer, importer, distributor); the intended purpose and the risk classification of the AI system
+    indicators not evaluated (the pack does not apply to what was observed)
+    legal determination: not provided
+  EU Cyber Resilience Act - technical readiness indicators  [eu-cra@0.1.0, EU]
+    applicability: potentially_applicable (confidence 85%)
+    depends on context a repository cannot show: whether the software is made available on the EU market in the course of a comm…; the organization role (manufacturer, importer, distributor, open-source steward); product category and any exemption that applies
+    indicators: 5 observed, 2 partial, 1 not observed, 0 unknown
+      [observed] A security policy / vulnerability disclosure channel is published
+      [not_observed] A software bill of materials is committed and parsable
+      [observed] Dependencies are inventoried with exact versions
+      [observed] Dependency vulnerabilities are checked and updates are automated
+      [partial] Releases are published and recent
+      [partial] Tests, static analysis and branch protection are in place
+      [observed] Release provenance or signatures are published
+      [observed] Support and security-update period information is documented
+    legal determination: not provided
+  repo-radar performs technical readiness and applicability analysis from repository evidence. It does not provide legal advice and does not determine legal compliance or non-compliance. Repository contents alone may be insufficient to decide whether a regulation applies: deployment context, the role of the organization, jurisdiction and the commercial distribution context all matter. An indicator …
+
+CAPABILITIES (static scan of 44 files, 21% of source files sampled)
+  PROCESS_EXEC         MEDIUM  DIRECT 85%  [runtime] calibration/tools/deps-dossier.mjs, calibration/tools/dossier.mjs
+  NETWORK_CLIENT       LOW     DIRECT 80%  [runtime] calibration/tools/dossier.mjs, scripts/probe-crypto.mjs
+  ENVIRONMENT_READ     LOW     DIRECT 90%  [runtime] calibration/tools/deps-dossier.mjs, calibration/tools/dossier.mjs
+  CREDENTIAL_ACCESS    HIGH    INFERRED 70%  [runtime] calibration/tools/dossier.mjs
+  BROWSER_DATA_ACCESS  HIGH    INFERRED 70%  [runtime] calibration/tools/dossier.mjs
+  DYNAMIC_CODE_LOAD    LOW     POSSIBLE 40%  [runtime] scripts/probe-deps.mjs
+  PERSISTENCE          HIGH    DIRECT 85%  [runtime] calibration/tools/dossier.mjs
+  Not observed in the scanned sample: BINARY_EXECUTION, BACKGROUND_PROCESS, NETWORK_SERVER, REMOTE_DOWNLOAD, FILESYSTEM_WRITE, FILESYSTEM_DELETE, PRIVILEGE_CHANGE
+  (A capability describes what code can do, not why. Intent: undetermined.)
+
+INSTALL-TIME EXECUTION
+  No install/build hooks detected in the parsed manifests and scanned build files.
+
+ENTRY POINTS (installed launchers; they run when a user invokes them, NOT during installation)
+  npm:repo-radar -> dist/cli.js  [USER_INVOKED]
+
+PERSISTENCE
+  OBSERVED: launchd_service, ssh_authorized_keys_write  Intent: undetermined
+
+SECRETS (values are never shown)
+  None found in 44 scanned files.
+
+FINDINGS
+  RR-PERS-001 [medium] Persistence capability observed (launchd_service, ssh_authorized_keys_write)  confidence 75%
+  RR-CAP-001 [medium] High-risk capability observed: CREDENTIAL_ACCESS  confidence 70%
+  RR-CAP-002 [medium] High-risk capability observed: BROWSER_DATA_ACCESS  confidence 70%
+  RR-DEP-001 [medium] Known advisories for vitest@3.2.7 (1)  confidence 90%
+  RR-DEP-002 [medium] Known advisories for @vitest/mocker@3.2.7 (2)  confidence 90%
+  RR-DEP-003 [medium] Known advisories for tinypool@1.1.1 (2)  confidence 90%
+  RR-DEPREG-001 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-002 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-003 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-004 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-005 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-006 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-007 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-008 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-009 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-010 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-011 [low] A dependency version was published by an account new to its sampled history  confidence 50%
+  RR-DEPREG-012 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-013 [low] A dependency version was published by an account new to its sampled history  confidence 55%
+  RR-DEPREG-014 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-015 [low] A dependency version was published by an account new to its sampled history  confidence 53%
+  RR-DEPREG-016 [low] The maintainer set recorded with a dependency version changed  confidence 50%
+  RR-DEPREG-017 [low] A dependency version was published by an account new to its sampled history  confidence 60%
+  RR-DEPREG-018 [low] A dependency version was published by an account new to its sampled history  confidence 53%
+  RR-DEPREG-019 [info] A dependency release cadence changed sharply  confidence 45%
+  RR-DEPREG-020 [info] A dependency release cadence changed sharply  confidence 45%
+  RR-DEPREG-021 [info] A dependency release cadence changed sharply  confidence 45%
+  RR-DEPREG-022 [info] A dependency version now reports a provenance attestation  confidence 60%
+  RR-DEPREG-023 [info] A dependency published a version after a long gap  confidence 57%
+  RR-DEPREG-024 [info] A dependency version now reports a provenance attestation  confidence 60%
+
+SCAN LIMITS
+  - 149 candidate file(s) not fetched: scan budget reached
+
+Evidence: 85 signals | Methodology: v0.4 | Rules digest: 9d4d2b08538b
+Scores summarize observed indicators; they are not a statement that code is safe, secure or trustworthy.

@@ -93,7 +93,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - run: |
           set -euo pipefail
-          node -e "const p=require('./docs/release/preview-policy.json'); if (!p.allow_experimental_preview_with_unreviewed_calibration || !p.approved_by || !p.approved_on || p.disclaimer_in_readme !== true) throw new Error('Gate 14 is MANUAL: preview policy is not human-approved')"
+          node -e "const p=require('./docs/release/preview-policy.json'); if (!p.allow_experimental_preview_with_unreviewed_calibration || !p.approved_by || !p.approved_on || !p.rationale || p.disclaimer_in_readme !== true) throw new Error('Gate 14 is MANUAL: preview policy is not human-approved'); if (p.public_claims_review !== 'approved') throw new Error('public claims review is not approved')"
         shell: bash
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
@@ -103,6 +103,9 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+      - if: ${{ inputs.publish_npm == true }}
+        run: node -e "const p=require('./docs/release/preview-policy.json'); if (p.npm_license_review !== 'approved') throw new Error('npm licence/distribution review is not approved')"
+        shell: bash
       - if: ${{ inputs.publish_npm == true }}
         run: set -euo pipefail; npm publish --provenance --access public
         shell: bash

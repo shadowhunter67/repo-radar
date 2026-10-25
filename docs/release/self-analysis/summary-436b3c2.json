@@ -1,0 +1,324 @@
+{
+  "artifact": "repo-radar self-analysis of the release candidate",
+  "note": "Compact summary of a full report (1.05 MB, not committed). The full report was produced by: repo-radar analyze shadowhunter67/repo-radar --ref <sha> --format json --profile default --name-intelligence --verify-crypto, authenticated, on a PRIVATE repository, 2026-10-25. integrity.report_sha256 identifies the full report.",
+  "tool": {
+    "name": "repo-radar",
+    "version": "0.16.0"
+  },
+  "schema_version": "0.16",
+  "methodology": "0.4",
+  "profile": {
+    "id": "default",
+    "version": "0.1",
+    "title": "Default"
+  },
+  "generated_at": "2026-10-25T16:14:43.649Z",
+  "repository": "shadowhunter67/repo-radar",
+  "commit": "436b3c29d3ef761d340490c48c9bc11ec05a5bc4",
+  "revision_kind": "immutable",
+  "feature_flags": {
+    "verify_crypto": true,
+    "verify_assets": false,
+    "compliance": true,
+    "dependency_registry": true,
+    "dependency_artifacts": false,
+    "dependency_attestations": true,
+    "name_intelligence": true,
+    "registry": true,
+    "scorecard": true,
+    "osv": true,
+    "deps_dev": true,
+    "sbom": true,
+    "domains": true,
+    "releases": true,
+    "code_scan": true,
+    "trusted_root_identity": false,
+    "dependency_history": false
+  },
+  "external_sources": [
+    {
+      "source": "github",
+      "classification": "revision_bound",
+      "retrieved_at": "2026-10-25T16:14:43.649Z"
+    },
+    {
+      "source": "registry",
+      "classification": "current_state",
+      "retrieved_at": "2026-10-25T16:14:43.649Z"
+    }
+  ],
+  "budgets": {
+    "max_scan_bytes": 2097152,
+    "max_artifacts": 5
+  },
+  "overall": {
+    "score": 88.7,
+    "grade": "A-",
+    "confidence": 0.824,
+    "sufficiency": "sufficient",
+    "weight_covered": 1
+  },
+  "dimensions": {
+    "0": {
+      "score": 82.5,
+      "confidence": 0.707
+    },
+    "1": {
+      "score": 97.6,
+      "confidence": 0.48
+    },
+    "2": {
+      "score": 97.6,
+      "confidence": 0.906
+    },
+    "3": {
+      "score": 95.7,
+      "confidence": 0.873
+    },
+    "4": {
+      "score": 81,
+      "confidence": 1
+    },
+    "5": {
+      "score": 98.4,
+      "confidence": 0.937
+    },
+    "6": {
+      "score": 68.4,
+      "confidence": 0.865
+    }
+  },
+  "scan": {
+    "performed": true,
+    "files_scanned": 44,
+    "source_files_scanned": 40,
+    "source_files_total": 189,
+    "source_coverage": 0.21164021164021163,
+    "skipped_too_large": 0,
+    "skipped_over_budget": 149,
+    "limits_hit": ["149 candidate file(s) not fetched: scan budget reached"]
+  },
+  "policy": {
+    "source": "none",
+    "enforced": false,
+    "minimums": {},
+    "blocks_evaluated": 0,
+    "block_violations": [],
+    "violations": []
+  },
+  "stats": {
+    "evidence_count": 85,
+    "http_requests": 115,
+    "authenticated": true
+  },
+  "findings_by_severity": {
+    "medium": 6,
+    "low": 18,
+    "info": 6
+  },
+  "findings": [
+    {
+      "severity": "medium",
+      "category": "persistence",
+      "title": "Persistence capability observed (launchd_service, ssh_authorized_keys_write)",
+      "evidence_ids": ["CAP-0012", "CAP-0013"]
+    },
+    {
+      "severity": "medium",
+      "category": "capability",
+      "title": "High-risk capability observed: CREDENTIAL_ACCESS",
+      "evidence_ids": ["CAP-0010", "CAP-0014"]
+    },
+    {
+      "severity": "medium",
+      "category": "capability",
+      "title": "High-risk capability observed: BROWSER_DATA_ACCESS",
+      "evidence_ids": ["CAP-0011"]
+    },
+    {
+      "severity": "medium",
+      "category": "dependency",
+      "title": "Known advisories for vitest@3.2.7 (1)",
+      "evidence_ids": ["DEP-0013"]
+    },
+    {
+      "severity": "medium",
+      "category": "dependency",
+      "title": "Known advisories for @vitest/mocker@3.2.7 (2)",
+      "evidence_ids": ["DEP-0113"]
+    },
+    {
+      "severity": "medium",
+      "category": "dependency",
+      "title": "Known advisories for tinypool@1.1.1 (2)",
+      "evidence_ids": ["DEP-0240"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-openpgp-2", "depregistry:npm:openpgp"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-vitest-1", "depregistry:npm:vitest"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-@vitest/mocker-1", "depregistry:npm:@vitest/mocker"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-@sigstore/bundle-2", "depregistry:npm:@sigstore/bundle"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-@npmcli/fs-10", "depregistry:npm:@npmcli/fs"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-@npmcli/redact-6", "depregistry:npm:@npmcli/redact"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-@npmcli/agent-6", "depregistry:npm:@npmcli/agent"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-@gar/promise-retry-1", "depregistry:npm:@gar/promise-retry"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-@sigstore/sign-2", "depregistry:npm:@sigstore/sign"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-@sigstore/tuf-2", "depregistry:npm:@sigstore/tuf"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "A dependency version was published by an account new to its sampled history",
+      "evidence_ids": ["DEPREG-npm-esbuild-1", "depregistry:npm:esbuild"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-esbuild-2", "depregistry:npm:esbuild"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "A dependency version was published by an account new to its sampled history",
+      "evidence_ids": ["DEPREG-npm-@npmcli/fs-4", "depregistry:npm:@npmcli/fs"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-@npmcli/fs-9", "depregistry:npm:@npmcli/fs"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "A dependency version was published by an account new to its sampled history",
+      "evidence_ids": ["DEPREG-npm-@npmcli/redact-1", "depregistry:npm:@npmcli/redact"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "The maintainer set recorded with a dependency version changed",
+      "evidence_ids": ["DEPREG-npm-@npmcli/redact-5", "depregistry:npm:@npmcli/redact"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "A dependency version was published by an account new to its sampled history",
+      "evidence_ids": ["DEPREG-npm-tinypool-2", "depregistry:npm:tinypool"]
+    },
+    {
+      "severity": "low",
+      "category": "registry",
+      "title": "A dependency version was published by an account new to its sampled history",
+      "evidence_ids": ["DEPREG-npm-@sigstore/bundle-1", "depregistry:npm:@sigstore/bundle"]
+    },
+    {
+      "severity": "info",
+      "category": "registry",
+      "title": "A dependency release cadence changed sharply",
+      "evidence_ids": ["DEPREG-npm-@eslint/js-1", "depregistry:npm:@eslint/js"]
+    },
+    {
+      "severity": "info",
+      "category": "registry",
+      "title": "A dependency release cadence changed sharply",
+      "evidence_ids": ["DEPREG-npm-@sigstore/bundle-3", "depregistry:npm:@sigstore/bundle"]
+    },
+    {
+      "severity": "info",
+      "category": "registry",
+      "title": "A dependency release cadence changed sharply",
+      "evidence_ids": ["DEPREG-npm-@npmcli/redact-7", "depregistry:npm:@npmcli/redact"]
+    },
+    {
+      "severity": "info",
+      "category": "registry",
+      "title": "A dependency version now reports a provenance attestation",
+      "evidence_ids": ["DEPREG-npm-esbuild-3", "depregistry:npm:esbuild"]
+    },
+    {
+      "severity": "info",
+      "category": "registry",
+      "title": "A dependency published a version after a long gap",
+      "evidence_ids": ["DEPREG-npm-@npmcli/fs-11", "depregistry:npm:@npmcli/fs"]
+    },
+    {
+      "severity": "info",
+      "category": "registry",
+      "title": "A dependency version now reports a provenance attestation",
+      "evidence_ids": ["DEPREG-npm-tinypool-5", "depregistry:npm:tinypool"]
+    }
+  ],
+  "diagnostics": [
+    {
+      "level": "warn",
+      "source": "registry",
+      "code": "registry_lookup_failed",
+      "message": "npm:repo-radar: not_found"
+    },
+    {
+      "level": "warn",
+      "source": "registry",
+      "code": "dependency_registry_lookup_failed",
+      "message": "npm:typescript: too_large"
+    },
+    {
+      "level": "warn",
+      "source": "registry",
+      "code": "dependency_registry_lookup_failed",
+      "message": "npm:@types/node: too_large"
+    }
+  ],
+  "integrity": {
+    "report_sha256": "f284784ba29d14fef7bf65b9492edb96449a4721b7e90a627cabeefe00792d1f"
+  }
+}
