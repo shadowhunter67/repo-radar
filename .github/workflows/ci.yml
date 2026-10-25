@@ -26,6 +26,12 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
+      - name: Package content check (real tarball)
+        run: |
+          set -euo pipefail
+          d="$(mktemp -d)"
+          npm pack --silent --pack-destination "$d"
+          node scripts/check-package-content.mjs "$d"/*.tgz
       - name: Generated schemas are committed
         run: |
           npm run schemas
