@@ -6,3 +6,6 @@
 - Action description: “Evidence-traceable static repository intelligence report with bounded policy checks. Experimental preview.”
 
 These descriptions avoid safety, malware, compliance, and validated-accuracy claims.
+
+README badges point at `shadowhunter67/repo-radar`; they become live once the
+repository is public.

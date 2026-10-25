@@ -15,6 +15,8 @@ import { buildSync } from 'esbuild';
 import { afterAll, describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
 import { packageRoot } from '../../src/util/paths.js';
+import { commandInvocation } from '../../scripts/command.mjs';
+import { execFixed } from '../../scripts/command.mjs';
 
 const root = packageRoot();
 const read = (...p: string[]): string => readFileSync(join(root, ...p), 'utf8');
@@ -30,6 +32,50 @@ afterAll(() => {
 });
 
 describe('GitHub Action release packaging', () => {
+  it('checks the real npm tarball content and size bounds', () => {
+    const packDir = mkdtempSync(join(tmpdir(), 'rr-pack-content-'));
+    try {
+      execFixed('npm', ['pack', '--silent', '--pack-destination', packDir], {
+        cwd: root,
+        encoding: 'utf8',
+      });
+      const archive = join(
+        packDir,
+        readdirSync(packDir).find((name) => name.endsWith('.tgz'))!,
+      );
+      const result = spawnSync(
+        process.execPath,
+        [join(root, 'scripts', 'check-package-content.mjs'), archive],
+        {
+          cwd: root,
+          encoding: 'utf8',
+        },
+      );
+      expect(result.status, result.stderr).toBe(0);
+      expect(result.stdout).toContain('package content ok');
+    } finally {
+      rmSync(packDir, { recursive: true, force: true });
+    }
+  }, 30_000);
+
+  it('uses a portable npm invocation on Windows and npm_execpath runners', () => {
+    expect(commandInvocation('npm', ['run', 'check'], 'win32', 'C:/npm-cli.js')).toEqual({
+      command: process.execPath,
+      args: ['C:/npm-cli.js', 'run', 'check'],
+      shell: false,
+    });
+    expect(commandInvocation('npm', ['pack'], 'win32', '')).toEqual({
+      command: 'npm.cmd',
+      args: ['pack'],
+      shell: true,
+    });
+    expect(commandInvocation('git', ['--version'], 'win32', undefined)).toEqual({
+      command: 'git',
+      args: ['--version'],
+      shell: false,
+    });
+  });
+
   it('action.yml runs exactly the bundle that package-action.mjs and the release workflow produce', () => {
     const run = action.runs.steps.find((s) => s.id === 'analyze')!.run!;
     expect(run).toContain('node "$GITHUB_ACTION_PATH/dist/action/repo-radar.mjs"');

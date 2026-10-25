@@ -50,3 +50,10 @@ message when package dependencies are unavailable offline. It must not be used t
 publish, tag, or create a GitHub release. The Action preview is tested from the
 locally built bundle with recorded fixtures only; no repository-controlled code is
 executed.
+
+R4 release verification uses `node scripts/release-dry-run.mjs`, which runs check,
+build, pack, package-content inspection, Action bundling, SBOM generation and
+checksum/metadata creation in a temporary directory. `node scripts/test-clean-install.mjs`
+may install the local tarball in a temporary directory with dependency lifecycle
+scripts disabled. The bundle has no offline repository-analysis mode, so a full
+Action success/policy matrix requires the reviewer’s network-backed recorded run.

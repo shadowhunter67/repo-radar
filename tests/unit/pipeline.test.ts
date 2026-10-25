@@ -349,6 +349,15 @@ describe('profiles and policy', () => {
 });
 
 describe('sanity of the minimal spec used by helpers', () => {
+  it('does not request dependency history unless explicitly enabled', async () => {
+    const recorded: Recorded[] = [];
+    await run(goodRepo(), {}, recorded);
+    expect(
+      recorded.filter((x) => x.url.includes('/commits?') && x.url.includes('path=')).length,
+    ).toBe(0);
+    expect(recorded.length).toBeLessThanOrEqual(40);
+  });
+
   it('baseSpec has no files and still analyses', async () => {
     const r = await run(baseSpec({ files: { 'a.txt': 'x' }, commitDaysAgo: [1], commitsTotal: 1 }));
     expect(ReportSchema.safeParse(r).success).toBe(true);

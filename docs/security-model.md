@@ -1,5 +1,12 @@
 # Security model
 
+The 2026-10-25 `npm audit --omit=dev` result is 0 runtime vulnerabilities. The
+full development audit reports three unresolved advisories: `@vitest/mocker`
+(GHSA-82fw-gwwq-j7x9 and a related manual-mock issue) and two critical tinypool
+prototype-pollution/RCE advisories (GHSA-5gmw-xhrv-c9v3 and GHSA-85c8-ppgw-ccpr).
+The suggested fix is the breaking Vitest 5.0.5 upgrade; it remains pending because
+the current peer set conflicts.
+
 Assumption: **the repository being analyzed is malicious input.** repo-radar only reads data; it must stay safe when that data is hostile.
 
 ## Controls

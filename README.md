@@ -2,6 +2,12 @@
 
 **Experimental / Preview**
 
+[![CI](https://img.shields.io/github/actions/workflow/status/shadowhunter67/repo-radar/ci.yml?label=CI)](https://github.com/shadowhunter67/repo-radar/actions)
+[![License](https://img.shields.io/github/license/shadowhunter67/repo-radar)](LICENSE)
+[![Node](https://img.shields.io/node/v/repo-radar)](package.json)
+[![Version](https://img.shields.io/github/package-json/v/shadowhunter67/repo-radar)](package.json)
+[![Security](https://img.shields.io/badge/security-policy-blue)](SECURITY.md)
+
 Evidence-driven repository and software supply-chain intelligence for GitHub
 repositories. repo-radar is static and read-only: it fetches metadata and source
 text, applies bounded rules, and preserves evidence, coverage, confidence, and
@@ -71,3 +77,11 @@ Read [docs/public-contract.md](docs/public-contract.md),
 This preview is intended for maintainers, security engineers, dependency reviewers,
 and researchers who can inspect evidence and review unknowns. Human calibration,
 license review, public-claims review, and Gate 14 remain manual.
+
+## Recorded example
+
+The repository includes a historical recorded example at
+[examples/hello-world.report.json](examples/hello-world.report.json). It uses an
+older schema and is retained as a fixture, not as a current preview result. A
+current 0.16 report excerpt is not included until a recorded 0.16 fixture run is
+available; no values are fabricated here.
