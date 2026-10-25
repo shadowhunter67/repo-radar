@@ -2,5 +2,6 @@
   "allow_experimental_preview_with_unreviewed_calibration": false,
   "approved_by": "",
   "approved_on": "",
-  "disclaimer_in_readme": true
+  "disclaimer_in_readme": true,
+  "legal_review_openpgp_action_bundle": "pending"
 }

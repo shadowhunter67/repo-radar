@@ -24,6 +24,11 @@ describe('preview release workflow governance', () => {
     expect(read('docs/release/preview-policy.json')).toContain(
       '"allow_experimental_preview_with_unreviewed_calibration": false',
     );
+    expect(read('docs/release/preview-policy.json')).toContain(
+      '"legal_review_openpgp_action_bundle": "pending"',
+    );
+    expect(workflow).toContain('gh release create');
+    expect(workflow).not.toMatch(/gh release create[\s\S]*dist\/action/);
   });
 
   it('grants id-token and attestations only to the attest job', () => {

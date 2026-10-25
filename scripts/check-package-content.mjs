@@ -22,6 +22,7 @@ for (const required of [
   'package/README.md',
   'package/LICENSE',
   'package/SECURITY.md',
+  'package/THIRD_PARTY_NOTICES.md',
 ]) {
   if (!entries.some((entry) => entry === required || entry.startsWith(required)))
     throw new Error(`missing package entry: ${required}`);

@@ -83,5 +83,30 @@ license review, public-claims review, and Gate 14 remain manual.
 The repository includes a historical recorded example at
 [examples/hello-world.report.json](examples/hello-world.report.json). It uses an
 older schema and is retained as a fixture, not as a current preview result. A
-current 0.16 report excerpt is not included until a recorded 0.16 fixture run is
-available; no values are fabricated here.
+the excerpt below is generated from the pinned fake-fetch fixture in the test
+suite and is clearly not a real repository.
+
+Recorded fixture excerpt (not a real repository):
+
+```json
+{
+  "label": "recorded fixture, not a real repository",
+  "schema_version": "0.16",
+  "score": 68.9,
+  "confidence": 0.777,
+  "coverage": [
+    { "dimension": "security", "coverage": 0.269 },
+    { "dimension": "maintenance", "coverage": 1 },
+    { "dimension": "code-quality", "coverage": 0.824 },
+    { "dimension": "supply-chain", "coverage": 0.846 },
+    { "dimension": "community", "coverage": 1 },
+    { "dimension": "documentation", "coverage": 1 },
+    { "dimension": "semantic-clarity", "coverage": 1 }
+  ],
+  "unknown": true,
+  "finding": {
+    "title": "Download-and-execute chain observed in package.json#scripts.postinstall",
+    "evidence_ids": ["CHAIN-001"]
+  }
+}
+```
