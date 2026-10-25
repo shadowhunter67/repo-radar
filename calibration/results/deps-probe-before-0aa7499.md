@@ -1,6 +1,6 @@
 # Dependency probe: deps-probe-before-0aa7499
 
-Build: C:\Users\ADMIN\AppData\Local\Temp\rr-old\dist. Real repositories at their calibration-pinned commits; live OSV and deps.dev. A probe, not a calibration metric.
+Build: a local build of the previous revision (path omitted). Real repositories at their calibration-pinned commits; live OSV and deps.dev. A probe, not a calibration metric.
 
 | repo | commit | ms | req | discovered | direct | direct registry | exact | unresolved | direct checked | checked (all) | vulnerable | osv coverage | vuln rule | lockfiles | SBOM | deps.dev | conflicts | warnings |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
