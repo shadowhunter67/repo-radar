@@ -19,6 +19,11 @@ and `rules`. The principal stable options are `--format json`, `--ref`,
 | 4 | service unavailable or rate limited |
 | 64 | usage error |
 
+`batch` uses the same codes: 2 if any repository failed its policy; otherwise 4 if any
+repository failed or was incomplete, or the batch stopped on a budget or rate limit
+(the JSON summary says which repositories and why); otherwise 0. Per-repository
+failures never abort the rest of the batch.
+
 API failures never share the policy-failure code. A report can still be produced
 with unavailable or partial subsystem states; unknown is not clean.
 

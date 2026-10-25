@@ -377,6 +377,15 @@ export async function main(
         token: process.env['GITHUB_TOKEN'],
       });
       stdout(JSON.stringify(result, null, 2) + '\n');
+      // Automation contract: a policy failure is 2 (same meaning as analyze). Repositories that failed or were incomplete, or a
+      // budget/rate-limit stop, mean the batch is NOT a clean run: exit 4 (service unavailable / partial). Otherwise 0.
+      if (result.policy_failures > 0) return EXIT.POLICY;
+      if (
+        result.repositories.failed.length > 0 ||
+        result.repositories.incomplete.length > 0 ||
+        result.stopped_by
+      )
+        return EXIT.UNAVAILABLE;
       return EXIT.OK;
     }
     if (cmd === 'snapshots') {

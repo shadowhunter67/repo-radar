@@ -1,5 +1,5 @@
 /* eslint-disable no-control-regex -- tests deliberately assert on control characters */
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -191,5 +191,40 @@ describe('text report', () => {
     const text = renderText(report, { ascii: true });
     expect(text).toMatch(/insufficient evidence/);
     expect(text).toMatch(/Security\s+\S+\s+N\/A/);
+  });
+});
+
+describe('CLI batch exit codes', () => {
+  let saved: string | undefined;
+  beforeEach(() => {
+    saved = process.env['GITHUB_TOKEN'];
+    delete process.env['GITHUB_TOKEN'];
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    if (saved !== undefined) process.env['GITHUB_TOKEN'] = saved;
+  });
+
+  it('exits 0 for a clean batch and 4 when a repository could not be analyzed', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'rr-batch-cli-'));
+    try {
+      const clean = join(dir, 'clean.txt');
+      writeFileSync(clean, ['acme/widget', ''].join('\n'));
+      const ok = await cli(['batch', '--list', clean]);
+      expect(ok.code).toBe(EXIT.OK);
+      expect(JSON.parse(ok.out).repositories.failed).toEqual([]);
+
+      const mixed = join(dir, 'mixed.txt');
+      writeFileSync(mixed, ['acme/widget', 'acme/does-not-exist', ''].join('\n'));
+      const bad = await cli(['batch', '--list', mixed]);
+      const summary = JSON.parse(bad.out);
+      expect(summary.repositories.failed.length).toBe(1);
+      expect(summary.policy_failures).toBe(0);
+      // an API/availability failure never shares the policy-failure code
+      expect(bad.code).toBe(EXIT.UNAVAILABLE);
+      expect(bad.code).not.toBe(EXIT.POLICY);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
