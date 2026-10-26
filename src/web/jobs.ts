@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import type { Report } from '../report/schema.js';
 import type { WebConfig } from './config.js';
+import { classifyReport } from './classify.js';
 import type { WebRepo } from './validate.js';
 export type JobState = 'queued' | 'running' | 'completed' | 'partial' | 'failed' | 'expired';
 export type RunAnalysis = (repo: WebRepo, onStage: (s: string) => void) => Promise<Report>;
@@ -14,18 +15,20 @@ export type Job = {
   stage?: string;
   report?: Report;
   error?: { code: string; message: string };
+  analyzedSha?: string;
 };
 export class JobStore {
-  private readonly jobs = new Map<string, Job>();
-  private readonly queue: Job[] = [];
+  private jobs = new Map<string, Job>();
+  private queue: Job[] = [];
   private running = 0;
   constructor(
-    private readonly config: WebConfig,
-    private readonly run: RunAnalysis,
-    private readonly clock = () => Date.now(),
+    private config: WebConfig,
+    private run: RunAnalysis,
+    private clock = () => Date.now(),
   ) {}
   enqueue(repo: WebRepo): Job {
-    if (this.queue.length >= this.config.maxQueue) throw new Error('QUEUE_FULL');
+    if (this.queue.length + this.running >= this.config.maxQueue)
+      throw Object.assign(new Error('queue full'), { code: 'QUEUE_FULL' });
     const j: Job = {
       id: randomBytes(16).toString('base64url'),
       state: 'queued',
@@ -39,15 +42,25 @@ export class JobStore {
   }
   get(id: string): Job | undefined {
     const j = this.jobs.get(id);
-    if (j && this.clock() - j.createdAt > this.config.jobTtlSeconds * 1000) {
-      if (j.state !== 'expired') {
-        j.state = 'expired';
-        delete j.report;
-      }
+    if (!j) return;
+    if (j.state !== 'expired' && this.clock() - j.createdAt > this.config.jobTtlSeconds * 1000) {
+      j.state = 'expired';
+      delete j.report;
     }
-    return this.jobs.get(id);
+    if (
+      j.state === 'expired' &&
+      this.clock() - j.createdAt > (this.config.jobTtlSeconds + 300) * 1000
+    ) {
+      this.jobs.delete(id);
+      return;
+    }
+    return j;
   }
-  private pump(): void {
+  queuePosition(id: string): number | undefined {
+    const n = this.queue.findIndex((j) => j.id === id);
+    return n < 0 ? undefined : n + 1;
+  }
+  private pump() {
     while (this.running < this.config.maxConcurrency && this.queue.length) {
       const j = this.queue.shift()!;
       this.running++;
@@ -55,15 +68,30 @@ export class JobStore {
       j.startedAt = this.clock();
       this.run(j.repo, (s) => (j.stage = s))
         .then((r) => {
+          if (Buffer.byteLength(JSON.stringify(r)) > this.config.maxReportBytes) {
+            j.state = 'failed';
+            j.error = { code: 'REPORT_TOO_LARGE', message: 'report exceeds configured size limit' };
+            return;
+          }
           j.report = r;
-          j.state = partialReport(r) ? 'partial' : 'completed';
+          j.analyzedSha = String((r as unknown as Record<string, unknown>).repository_sha ?? '');
+          j.state = classifyReport(r);
         })
-        .catch((e) => {
+        .catch((e: unknown) => {
+          const code = (e as { code?: string })?.code;
           j.state = 'failed';
           j.error = {
-            code: e?.code === 'REPOSITORY_NOT_FOUND' ? 'REPOSITORY_NOT_FOUND' : 'INTERNAL_ERROR',
+            code: ['REPOSITORY_NOT_FOUND', 'ANALYSIS_TIMEOUT', 'UPSTREAM_UNAVAILABLE'].includes(
+              code ?? '',
+            )
+              ? code!
+              : 'INTERNAL_ERROR',
             message:
-              e?.code === 'REPOSITORY_NOT_FOUND' ? 'repository was not found' : 'analysis failed',
+              code === 'REPOSITORY_NOT_FOUND'
+                ? 'repository was not found'
+                : code === 'ANALYSIS_TIMEOUT'
+                  ? 'analysis timed out'
+                  : 'analysis failed',
           };
         })
         .finally(() => {
@@ -75,14 +103,5 @@ export class JobStore {
   }
 }
 export function partialReport(report: Report): boolean {
-  const r = report as unknown as Record<string, unknown>;
-  const retrieval = r.retrieval as Record<string, unknown> | undefined;
-  const coverage = r.coverage_map as Record<string, unknown> | undefined;
-  return (
-    retrieval?.completeness === 'partial' ||
-    retrieval?.completeness === 'incomplete' ||
-    Object.values(coverage ?? {}).some(
-      (v) => v === 'unknown' || v === 'unavailable' || v === 'partial',
-    )
-  );
+  return classifyReport(report) === 'partial';
 }

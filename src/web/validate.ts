@@ -23,10 +23,18 @@ export function validateRepository(value: unknown, suppliedRef?: unknown): WebRe
     );
   let parts: string[];
   if (value.startsWith('https://')) {
+    if (/^https:\/\/github\.com:\d+\//i.test(value))
+      throw new WebInputError(
+        'INVALID_REPOSITORY',
+        'repository must be owner/repo or an exact GitHub URL',
+      );
     try {
       const u = new URL(value);
       if (
         u.hostname !== 'github.com' ||
+        u.port !== '' ||
+        u.search !== '' ||
+        u.hash !== '' ||
         u.username ||
         u.password ||
         u.port ||
