@@ -2,12 +2,57 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>repo-radar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>repo-radar — Experimental Preview</title>
+    <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <main>
-      <h1>repo-radar</h1>
-      <p>Experimental Preview — static evidence analysis. Calibration is unreviewed.</p>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="/">repo-radar</a><span class="badge">Experimental Preview</span>
+    </header>
+    <main id="main" tabindex="-1">
+      <p class="lede">Analyze observable repository and software supply-chain evidence.</p>
+      <form id="analyze-form" novalidate>
+        <label for="repository">Repository</label
+        ><input
+          id="repository"
+          name="repository"
+          autocomplete="url"
+          placeholder="owner/repo"
+          required
+        /><label for="ref">Ref <span>(optional branch, tag or commit SHA)</span></label
+        ><input id="ref" name="ref" placeholder="main or commit SHA" />
+        <p id="normalised" class="normalised" aria-live="polite"></p>
+        <div class="examples" aria-label="Examples">
+          <button type="button" data-example="spf13/cobra">spf13/cobra</button
+          ><button type="button" data-example="expressjs/express">expressjs/express</button
+          ><button type="button" data-example="psf/requests">psf/requests</button>
+        </div>
+        <button id="analyze" type="submit">Analyze</button>
+      </form>
+      <div id="status" role="status" aria-live="polite"></div>
+      <div id="error" class="error" role="alert"></div>
+      <div id="result"></div>
+      <p class="disclaimer">
+        Experimental preview. Scores are evidence-derived heuristics, not probabilities of safety.
+        Calibration labels have not been independently human-reviewed. Public repositories only.
+      </p>
+      <nav class="links">
+        <a href="https://github.com/shadowhunter67/repo-radar#readme" rel="noopener noreferrer"
+          >README</a
+        ><a
+          href="https://github.com/shadowhunter67/repo-radar/blob/main/docs/methodology.md"
+          rel="noopener noreferrer"
+          >Methodology</a
+        ><a
+          href="https://github.com/shadowhunter67/repo-radar/blob/main/docs/limitations.md"
+          rel="noopener noreferrer"
+          >Limitations</a
+        >
+      </nav>
     </main>
+    <noscript><p class="noscript">JavaScript is required to run an analysis.</p></noscript>
+    <script type="module" src="/app.js"></script>
   </body>
 </html>

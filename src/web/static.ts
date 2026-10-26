@@ -27,7 +27,7 @@ export async function serveStatic(
   )
     return false;
   const name = decoded === '/' ? '/index.html' : decoded;
-  if (!/^\/[A-Za-z0-9._-]+$/.test(name)) return false;
+  if (!/^\/(?:[A-Za-z0-9._-]+\/)*[A-Za-z0-9._-]+$/.test(name)) return false;
   const file = join(root, name.slice(1));
   try {
     const data = await readFile(file);
