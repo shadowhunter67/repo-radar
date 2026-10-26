@@ -12,7 +12,13 @@ export const WebConfigSchema = z.object({
   rateLimitHourly: integer(40, 1, 1000),
   analysisTimeoutSeconds: integer(300, 30, 1800),
   maxReportBytes: integer(25 * 1024 * 1024, 1, 100 * 1024 * 1024),
-  trustProxy: z.coerce.boolean().default(false),
+  // `z.coerce.boolean()` would turn the string "false" into true and silently enable proxy trust (spoofable rate limits)
+  trustProxy: z
+    .preprocess(
+      (v) => (typeof v === 'string' ? ['true', '1', 'yes'].includes(v.trim().toLowerCase()) : v),
+      z.boolean(),
+    )
+    .default(false),
   requestBodyLimit: integer(4096, 1, 4096),
   nodeEnv: z.string().default('development'),
   workerMaxOldSpaceMb: integer(512, 64, 4096),

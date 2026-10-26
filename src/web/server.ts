@@ -47,7 +47,12 @@ function client(req: IncomingMessage, config: WebConfig): string {
   return req.socket.remoteAddress ?? `unaddressed-${req.headers['user-agent'] ?? 'unknown'}`;
 }
 export function createWebServer(
-  options: { config?: WebConfig; runAnalysis?: RunAnalysis; clock?: () => number } = {},
+  options: {
+    config?: WebConfig;
+    runAnalysis?: RunAnalysis;
+    clock?: () => number;
+    staticRoot?: string;
+  } = {},
 ) {
   const config = options.config ?? loadWebConfig();
   const run = options.runAnalysis ?? createWorkerRunner(config);
@@ -58,7 +63,7 @@ export function createWebServer(
     10000,
     options.clock ?? (() => Date.now()),
   );
-  const root = join(dirname(fileURLToPath(import.meta.url)), 'public');
+  const root = options.staticRoot ?? join(dirname(fileURLToPath(import.meta.url)), 'public');
   const server = createServer(async (req, res) => {
     const u = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
     try {
@@ -153,14 +158,16 @@ export function createWebServer(
             report: j.report,
           });
         }
-        if (req.method === 'GET') return send(res, 404, errorBody('NOT_FOUND', 'not found'));
+        // a known route used with the wrong method is 405 (with Allow); anything else under /api/ is 404 whatever the method
         const allow =
           u.pathname === '/api/v1/analyze'
             ? 'POST'
-            : u.pathname.startsWith('/api/v1/jobs/')
+            : u.pathname === '/api/v1/health' ||
+                u.pathname === '/api/v1/ready' ||
+                /^\/api\/v1\/jobs\/[^/]+(\/report)?$/.test(u.pathname)
               ? 'GET'
-              : 'GET';
-        if (['GET', 'POST', 'HEAD', 'PUT', 'DELETE', 'PATCH'].includes(req.method ?? ''))
+              : undefined;
+        if (allow)
           return send(res, 405, errorBody('METHOD_NOT_ALLOWED', 'method not allowed'), {
             Allow: allow,
           });
