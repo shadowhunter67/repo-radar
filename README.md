@@ -13,6 +13,14 @@ repositories. repo-radar is static and read-only: it fetches metadata and source
 text, applies bounded rules, and preserves evidence, coverage, confidence, and
 unknown states.
 
+## Download
+
+- **Latest preview release:** [v0.16.0 (Experimental Preview)](https://github.com/shadowhunter67/repo-radar/releases/tag/v0.16.0)
+  — npm tarball, CycloneDX SBOM, `SHA256SUMS` and release metadata; the tarball carries a
+  GitHub build-provenance attestation (`gh attestation verify repo-radar-0.16.0.tgz --repo shadowhunter67/repo-radar`).
+- [All releases](https://github.com/shadowhunter67/repo-radar/releases)
+- Not published yet: the npm registry package and the GitHub Action.
+
 ## What it does
 
 - identifies repository purpose and interfaces;
