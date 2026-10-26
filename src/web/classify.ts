@@ -13,11 +13,21 @@ export function classifyReport(report: Report): 'completed' | 'partial' {
     unknown
   >;
   const limits = scan.limits_hit;
-  const sectionFailed = (value: unknown): boolean => {
-    if (!value || typeof value !== 'object') return false;
-    const text = JSON.stringify(value).toLowerCase();
-    return /rate_limited|failed/.test(text);
-  };
+  const o = (v: unknown): Record<string, unknown> =>
+    v && typeof v === 'object' ? (v as Record<string, unknown>) : {};
+  const BAD_STATES = ['unavailable', 'failed', 'rate_limited', 'partial', 'error', 'timeout'];
+  // Structured checks only: a text search for "failed" would match the key `failed: 0` that every healthy report carries.
+  const depRegistry = o(r.dependency_registry_intel);
+  const depCoverage = o(depRegistry.coverage);
+  const registry = o(r.registry_intel);
+  const vulnerability = o(o(r.dependency_intel).vulnerability_lookup);
+  const sectionPartial =
+    Number(depCoverage.failed ?? 0) > 0 ||
+    Number(depCoverage.skipped ?? 0) > 0 ||
+    BAD_STATES.includes(String(depRegistry.status)) ||
+    BAD_STATES.includes(String(registry.status)) ||
+    (Array.isArray(registry.limits_hit) && registry.limits_hit.length > 0) ||
+    BAD_STATES.includes(String(vulnerability.state));
   const diagPartial = diagnostics.some(
     (d) =>
       d.level === 'warn' || d.level === 'error' || /rate_limited|scan_limit|budget/.test(d.code),
@@ -30,9 +40,7 @@ export function classifyReport(report: Report): 'completed' | 'partial' {
   return retrievalPartial ||
     diagPartial ||
     (Array.isArray(limits) && limits.length > 0) ||
-    sectionFailed(r.dependency_registry_intel) ||
-    sectionFailed(r.dependency_intel) ||
-    sectionFailed(r.registry_intel)
+    sectionPartial
     ? 'partial'
     : 'completed';
 }
