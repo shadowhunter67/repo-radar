@@ -101,6 +101,8 @@ import {
 import { collectDependencyHistory, type DependencyHistoryBudget } from './history/dependency.js';
 
 export interface AnalyzeOptions {
+  /** Called at stable orchestration boundaries; does not affect the report. */
+  onStage?: (stage: string) => void;
   profile?: string;
   /** GitHub token. Only ever sent to api.github.com. */
   token?: string;
@@ -168,6 +170,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   const root = opts.root ?? packageRoot();
   const clock = opts.clock ?? systemClock;
   const ref = parseRepoRef(input);
+  opts.onStage?.('repository_resolved');
 
   const ruleSet = loadRuleSet(root);
   const profile = loadProfile(opts.profile ?? 'default', root);
@@ -209,6 +212,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       ? Promise.resolve({ evidence: [] as Evidence[], diagnostics: [] as Diagnostic[] })
       : collectScorecard(ref, sc, clock),
   ]);
+  opts.onStage?.('evidence_collected');
   // Dependency intelligence: offline resolution first, then optional network enrichment. Network failures only ever
   // reduce coverage; they never turn an unchecked dependency into a safe one.
   // Registry intelligence for the packages THIS repository publishes (npm, PyPI, crates.io). Failures are diagnostics.
@@ -230,6 +234,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     locks: github.depInputs.locks,
     sboms: github.depInputs.sboms,
   });
+  opts.onStage?.('dependencies_parsed');
   const osvRes = await collectVulnerabilities(
     depsStatic.deps,
     opts.osv === false ? undefined : osv,
@@ -634,6 +639,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...buildDomainFindings(externalDomains),
     ...buildGovernanceFindings(governance),
   ];
+  opts.onStage?.('findings_evaluated');
   const blockViolations = [
     ...evaluateTemporalBlocks(profile.temporal_block, timeline),
     ...evaluateBlocks(
@@ -852,6 +858,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     ...(opts.baseReport ? { behavior_delta: behaviorDelta } : {}),
     regulatory,
   };
+  opts.onStage?.('report_built');
   return { ...report, integrity: { report_sha256: sha256(JSON.stringify(report)) } };
 }
 
