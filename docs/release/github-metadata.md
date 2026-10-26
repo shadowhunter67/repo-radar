@@ -1,9 +1,9 @@
 # Conservative public metadata
 
 - Repository description: “Evidence-driven repository and software supply-chain intelligence: static capability, dependency, provenance and historical analysis. Experimental preview.”
-- Suggested topics: `repository-analysis`, `software-supply-chain`, `static-analysis`, `provenance`, `github-action`.
+- Suggested topics: `repository-analysis`, `software-supply-chain`, `static-analysis`, `provenance`.
 - npm description: “Evidence-driven repository and software supply-chain intelligence for GitHub repositories. Experimental preview.”
-- Action description: “Evidence-traceable static repository intelligence report with bounded policy checks. Experimental preview.”
+- Action description (not published yet): “Evidence-traceable static repository intelligence report with bounded policy checks. Experimental preview.”
 
 These descriptions avoid safety, malware, compliance, and validated-accuracy claims.
 

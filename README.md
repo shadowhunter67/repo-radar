@@ -71,7 +71,13 @@ can fail or rate-limit. Registry maintainers and similar data can be current-sta
 not historical truth. Dependency history is opt-in/policy-triggered and may cost
 hundreds to thousands of API requests. Calibration labels are AI-assisted and not
 independently human-reviewed yet. Scores are evidence-derived heuristics, not
-probabilities of safety or accuracy claims.
+probabilities of safety or accuracy claims, and not malware probabilities. "Not observed"
+means not observed within the analyzed coverage; it does not mean absent. Compliance
+output is indicative and is not legal advice.
+
+repo-radar sends no telemetry. It contacts only the services needed for the analysis
+you request: GitHub, OSV, deps.dev, OpenSSF Scorecard, the npm, PyPI and crates.io
+registries, and (with `--verify-crypto`) the Sigstore trust repository.
 
 Read [docs/public-contract.md](docs/public-contract.md),
 [docs/security-model.md](docs/security-model.md),

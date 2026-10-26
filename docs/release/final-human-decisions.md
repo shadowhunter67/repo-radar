@@ -1,9 +1,15 @@
 # Final human decisions for the experimental preview
 
-Everything that can be automated is done. What remains cannot be decided by code. No
-decision below has been made; every approval field in
-`docs/release/preview-policy.json` is still empty or `pending`. Nothing here marks the
-calibration labels as human-reviewed.
+**Status (2026-10-26):** on the maintainer's written instruction, decisions 1 and 2
+are recorded in `docs/release/preview-policy.json` (experimental public source preview
+and GitHub `v0.16.0` prerelease only, with unreviewed calibration disclosed; public
+wording approved). Decisions 3 (npm licence) and 4 (openpgp in the Action bundle) are
+**still pending** and block only the npm and Action channels. Decision 5 is executed
+by the release procedure below. Nothing here marks the calibration labels as
+human-reviewed; gate 14 stays MANUAL and remains required for any validated accuracy
+claim and for 1.0.
+
+Everything that can be automated is done. What remains cannot be decided by code.
 
 Release candidate: `main` at the commit you approve (see `git log -1`), package
 `repo-radar@0.16.0`, schema 0.16, methodology 0.4. Name: **repo-radar Public Preview

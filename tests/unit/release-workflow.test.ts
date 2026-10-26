@@ -21,19 +21,17 @@ describe('preview release workflow governance', () => {
     expect(workflow).toContain('environment: release');
     expect(workflow).toContain('inputs.publish_npm == true');
     expect(workflow).toContain('node scripts/check-release-version.mjs');
-    expect(read('docs/release/preview-policy.json')).toContain(
-      '"allow_experimental_preview_with_unreviewed_calibration": false',
-    );
-    expect(read('docs/release/preview-policy.json')).toContain(
-      '"legal_review_openpgp_action_bundle": "pending"',
-    );
     const policy = JSON.parse(read('docs/release/preview-policy.json')) as Record<string, unknown>;
-    // every human approval defaults to NOT approved and the publish job refuses to run without them
-    expect(policy['approved_by']).toBe('');
-    expect(policy['approved_on']).toBe('');
-    expect(policy['rationale']).toBe('');
-    expect(policy['public_claims_review']).toBe('pending');
+    // preview governance: approved for source + GitHub prerelease ONLY; npm and the Action bundle stay unapproved
+    expect(policy['allow_experimental_preview_with_unreviewed_calibration']).toBe(true);
+    expect(policy['approved_by']).toMatch(/^[A-Za-z0-9-]+$/);
+    expect(policy['approved_on']).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(String(policy['rationale']).length).toBeGreaterThan(40);
+    expect(policy['public_claims_review']).toBe('approved');
+    expect(policy['disclaimer_in_readme']).toBe(true);
+    expect(String(policy['scope'])).toContain('Does NOT authorize');
     expect(policy['npm_license_review']).toBe('pending');
+    expect(policy['legal_review_openpgp_action_bundle']).toBe('pending');
     expect(workflow).toContain("p.public_claims_review !== 'approved'");
     expect(workflow).toContain("p.npm_license_review !== 'approved'");
     expect(workflow).toContain('gh release create');

@@ -3,6 +3,14 @@
   "version": "0.16.0",
   "description": "Evidence-driven repository and software supply-chain intelligence for GitHub repositories. Experimental preview.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shadowhunter67/repo-radar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shadowhunter67/repo-radar/issues"
+  },
+  "homepage": "https://github.com/shadowhunter67/repo-radar#readme",
   "type": "module",
   "bin": {
     "repo-radar": "dist/cli.js"
