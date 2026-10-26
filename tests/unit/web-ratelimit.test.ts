@@ -17,3 +17,33 @@ describe('web rate limits', () => {
     expect(r.size).toBe(3);
   });
 });
+describe('web rate-limit decisions', () => {
+  it('returns retry seconds', () => {
+    const t = 0;
+    const r = new RateLimiter(1, 5, 3, () => t);
+    r.check('x');
+    expect(r.check('x').retryAfter).toBe(60);
+  });
+  it('expires minute entries', () => {
+    let t = 0;
+    const r = new RateLimiter(1, 5, 3, () => t);
+    r.check('x');
+    t = 60000;
+    expect(r.check('x').allowed).toBe(true);
+  });
+  it('expires hour entries', () => {
+    let t = 0;
+    const r = new RateLimiter(5, 1, 3, () => t);
+    r.check('x');
+    t = 3600000;
+    expect(r.check('x').allowed).toBe(true);
+  });
+  it('evicts oldest keys', () => {
+    const t = 0;
+    const r = new RateLimiter(5, 5, 2, () => t);
+    r.check('a');
+    r.check('b');
+    r.check('c');
+    expect(r.size).toBe(2);
+  });
+});

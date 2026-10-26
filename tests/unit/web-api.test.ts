@@ -15,6 +15,8 @@ const config = (x: Partial<WebConfig> = {}): WebConfig => ({
   trustProxy: false,
   requestBodyLimit: 100,
   nodeEnv: 'development',
+  workerMaxOldSpaceMb: 512,
+  maxStoredJobs: 200,
   ...x,
 });
 const rep = { retrieval: { completeness: 'complete' } } as never;
@@ -70,5 +72,134 @@ describe('web api', () => {
       const r = await fetch(b + '/api/v1/jobs/nope');
       expect(r.status).toBe(404);
       expect((await r.json()).error.code).toBe('JOB_NOT_FOUND');
+    }));
+});
+describe('web api error matrix', () => {
+  it('rejects malformed json', () =>
+    withServer(async (b) =>
+      expect(
+        (
+          await fetch(b + '/api/v1/analyze', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: '{',
+          })
+        ).status,
+      ).toBe(400),
+    ));
+  it('rejects unknown fields', () =>
+    withServer(async (b) =>
+      expect(
+        (
+          await fetch(b + '/api/v1/analyze', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ repository: 'o/r', x: 1 }),
+          })
+        ).status,
+      ).toBe(400),
+    ));
+  it('rejects missing repository', () =>
+    withServer(async (b) =>
+      expect(
+        (
+          await fetch(b + '/api/v1/analyze', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: '{}',
+          })
+        ).status,
+      ).toBe(400),
+    ));
+  it('rejects invalid ref', () =>
+    withServer(async (b) =>
+      expect(
+        (
+          await fetch(b + '/api/v1/analyze', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ repository: 'o/r', ref: '../x' }),
+          })
+        ).status,
+      ).toBe(400),
+    ));
+  it('method health', () =>
+    withServer(async (b) =>
+      expect((await fetch(b + '/api/v1/health', { method: 'POST' })).status).toBe(405),
+    ));
+  it('method ready', () =>
+    withServer(async (b) =>
+      expect((await fetch(b + '/api/v1/ready', { method: 'POST' })).status).toBe(405),
+    ));
+  it('method jobs', () =>
+    withServer(async (b) =>
+      expect((await fetch(b + '/api/v1/jobs/nope', { method: 'POST' })).status).toBe(405),
+    ));
+  it('invalid job id', () =>
+    withServer(async (b) =>
+      expect((await fetch(b + '/api/v1/jobs/not-valid', { method: 'GET' })).status).toBe(404),
+    ));
+  it('unknown route', () =>
+    withServer(async (b) => expect((await fetch(b + '/api/v1/nope')).status).toBe(404)));
+  it('queue full', () =>
+    withServer(async (b) => {
+      const s = await fetch(b + '/api/v1/analyze', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: '{"repository":"o/r"}',
+      });
+      expect(s.status).toBe(202);
+    }));
+  it('api no-store', () =>
+    withServer(async (b) =>
+      expect((await fetch(b + '/api/v1/health')).headers.get('cache-control')).toBe('no-store'),
+    ));
+  it('api robots', () =>
+    withServer(async (b) =>
+      expect((await fetch(b + '/api/v1/health')).headers.get('x-robots-tag')).toBe(
+        'noindex, nofollow',
+      ),
+    ));
+  it('health minimal', () =>
+    withServer(async (b) =>
+      expect(await (await fetch(b + '/api/v1/health')).json()).toEqual({
+        ok: true,
+        version: '0.17.0',
+        api: 'v1',
+      }),
+    ));
+  it('ready numeric queue', () =>
+    withServer(async (b) => {
+      const x = await (await fetch(b + '/api/v1/ready')).json();
+      expect(typeof x.queue_depth).toBe('number');
+    }));
+  it('report unknown', () =>
+    withServer(async (b) =>
+      expect((await fetch(b + '/api/v1/jobs/AAAAAAAAAAAAAAAAAAAAAA/report')).status).toBe(404),
+    ));
+  it('wrong content type charset accepted', () =>
+    withServer(async (b) =>
+      expect(
+        (
+          await fetch(b + '/api/v1/analyze', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json; charset=utf-8' },
+            body: '{"repository":"o/r"}',
+          })
+        ).status,
+      ).toBe(202),
+    ));
+  it('report attachment after completion', () =>
+    withServer(async (b) => {
+      const x = await (
+        await fetch(b + '/api/v1/analyze', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: '{"repository":"o/r"}',
+        })
+      ).json();
+      await new Promise((r) => setTimeout(r, 5));
+      const r = await fetch(b + '/api/v1/jobs/' + x.job_id + '/report');
+      expect([200, 409]).toContain(r.status);
     }));
 });

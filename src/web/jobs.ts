@@ -21,12 +21,50 @@ export class JobStore {
   private jobs = new Map<string, Job>();
   private queue: Job[] = [];
   private running = 0;
+  private sweepTimer: ReturnType<typeof setInterval>;
   constructor(
     private config: WebConfig,
     private run: RunAnalysis,
     private clock = () => Date.now(),
-  ) {}
+  ) {
+    this.sweepTimer = setInterval(
+      () => this.sweep(),
+      Math.max(1000, Math.min(60000, (config.jobTtlSeconds * 1000) / 2)),
+    );
+    this.sweepTimer.unref?.();
+  }
+  get size(): number {
+    return this.jobs.size;
+  }
+  get runningCount(): number {
+    return this.running;
+  }
+  get queueDepth(): number {
+    return this.queue.length;
+  }
+  sweep(): void {
+    const now = this.clock();
+    for (const [id, j] of this.jobs) {
+      if (j.state !== 'expired' && now - j.createdAt > this.config.jobTtlSeconds * 1000) {
+        j.state = 'expired';
+        delete j.report;
+      } else if (
+        j.state === 'expired' &&
+        now - j.createdAt > (this.config.jobTtlSeconds + 300) * 1000
+      )
+        this.jobs.delete(id);
+    }
+    while (this.jobs.size > this.config.maxStoredJobs) {
+      const finished = [...this.jobs.values()]
+        .filter((j) => ['completed', 'partial', 'failed', 'expired'].includes(j.state))
+        .sort((a, b) => a.createdAt - b.createdAt)[0];
+      if (!finished) break;
+      this.jobs.delete(finished.id);
+    }
+  }
   enqueue(repo: WebRepo): Job {
+    this.sweep();
+    if (this.jobs.size >= this.config.maxStoredJobs) this.sweep();
     if (this.queue.length + this.running >= this.config.maxQueue)
       throw Object.assign(new Error('queue full'), { code: 'QUEUE_FULL' });
     const j: Job = {
@@ -74,16 +112,25 @@ export class JobStore {
             return;
           }
           j.report = r;
-          j.analyzedSha = String((r as unknown as Record<string, unknown>).repository_sha ?? '');
+          const manifest = (r as unknown as { analysis_manifest?: { commit?: unknown } })
+            .analysis_manifest;
+          j.analyzedSha =
+            typeof manifest?.commit === 'string' && /^[a-f0-9]{40}$/i.test(manifest.commit)
+              ? manifest.commit
+              : undefined;
           j.state = classifyReport(r);
         })
         .catch((e: unknown) => {
           const code = (e as { code?: string })?.code;
           j.state = 'failed';
           j.error = {
-            code: ['REPOSITORY_NOT_FOUND', 'ANALYSIS_TIMEOUT', 'UPSTREAM_UNAVAILABLE'].includes(
-              code ?? '',
-            )
+            code: [
+              'REPOSITORY_NOT_FOUND',
+              'ANALYSIS_TIMEOUT',
+              'UPSTREAM_UNAVAILABLE',
+              'RATE_LIMITED',
+              'INVALID_REF',
+            ].includes(code ?? '')
               ? code!
               : 'INTERNAL_ERROR',
             message:

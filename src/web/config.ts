@@ -3,7 +3,7 @@ const integer = (fallback: number, min: number, max: number) =>
   z.coerce.number().int().min(min).max(max).default(fallback);
 export const WebConfigSchema = z.object({
   token: z.string().optional(),
-  port: integer(8787, 1, 65535),
+  port: integer(8787, 0, 65535),
   host: z.string().default('127.0.0.1'),
   jobTtlSeconds: integer(1800, 60, 86400),
   maxConcurrency: integer(2, 1, 8),
@@ -15,6 +15,8 @@ export const WebConfigSchema = z.object({
   trustProxy: z.coerce.boolean().default(false),
   requestBodyLimit: integer(4096, 1, 4096),
   nodeEnv: z.string().default('development'),
+  workerMaxOldSpaceMb: integer(512, 64, 4096),
+  maxStoredJobs: integer(200, 1, 10000),
 });
 export type WebConfig = z.infer<typeof WebConfigSchema>;
 export function loadWebConfig(env: NodeJS.ProcessEnv = globalThis['process']['env']): WebConfig {
@@ -34,6 +36,8 @@ export function loadWebConfig(env: NodeJS.ProcessEnv = globalThis['process']['en
     trustProxy: env.TRUST_PROXY,
     requestBodyLimit: env.REQUEST_BODY_LIMIT,
     nodeEnv: env.NODE_ENV,
+    workerMaxOldSpaceMb: env.WORKER_MAX_OLD_SPACE_MB,
+    maxStoredJobs: env.MAX_STORED_JOBS,
   });
   if (!production && !c.token) return c;
   return c;

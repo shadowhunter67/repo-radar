@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 import { loadWebConfig, type WebConfig } from './config.js';
 import { responseHeaders } from './headers.js';
 import { errorBody, reportFilename, reportSha } from './api.js';
@@ -24,6 +25,11 @@ function send(
   res.end(JSON.stringify(value));
 }
 async function readBody(req: IncomingMessage, limit: number): Promise<string> {
+  const declared = Number(req.headers['content-length'] ?? 0);
+  if (declared > limit) {
+    req.destroy();
+    throw Object.assign(new Error(), { code: 'TOO_LARGE' });
+  }
   let n = 0,
     s = '';
   for await (const c of req) {
@@ -38,7 +44,7 @@ function client(req: IncomingMessage, config: WebConfig): string {
     const x = req.headers['x-forwarded-for'];
     if (typeof x === 'string') return x.split(',').at(-1)!.trim();
   }
-  return req.socket.remoteAddress ?? 'unknown';
+  return req.socket.remoteAddress ?? `unaddressed-${req.headers['user-agent'] ?? 'unknown'}`;
 }
 export function createWebServer(
   options: { config?: WebConfig; runAnalysis?: RunAnalysis; clock?: () => number } = {},
@@ -62,6 +68,8 @@ export function createWebServer(
         if (req.method === 'GET' && u.pathname === '/api/v1/ready')
           return send(res, config.nodeEnv === 'production' && !config.token ? 503 : 200, {
             ok: true,
+            queue_depth: jobs.queueDepth,
+            running: jobs.runningCount,
           });
         if (u.pathname === '/api/v1/analyze' && req.method === 'POST') {
           const rate = limits.check(client(req, config));
@@ -117,9 +125,15 @@ export function createWebServer(
         }
         const m = u.pathname.match(/^\/api\/v1\/jobs\/([^/]+)(\/report)?$/);
         if (m && req.method === 'GET') {
+          if (!/^[A-Za-z0-9_-]{22}$/.test(m[1]!))
+            return send(res, 404, errorBody('JOB_NOT_FOUND', 'job not found'));
           const j = jobs.get(m[1]!);
           if (!j || j.state === 'expired')
             return send(res, 404, errorBody('JOB_NOT_FOUND', 'job not found'));
+          if (m[2] && !j.report && ['queued', 'running'].includes(j.state))
+            return send(res, 409, {
+              error: { code: 'JOB_NOT_READY', message: 'job is not finished', state: j.state },
+            });
           if (m[2] && j.report) {
             return send(res, 200, j.report, {
               'Content-Disposition': `attachment; filename="${reportFilename(j.repo.owner, j.repo.repo, reportSha(j.report))}"`,
@@ -139,6 +153,7 @@ export function createWebServer(
             report: j.report,
           });
         }
+        if (req.method === 'GET') return send(res, 404, errorBody('NOT_FOUND', 'not found'));
         const allow =
           u.pathname === '/api/v1/analyze'
             ? 'POST'
@@ -149,7 +164,7 @@ export function createWebServer(
           return send(res, 405, errorBody('METHOD_NOT_ALLOWED', 'method not allowed'), {
             Allow: allow,
           });
-        return send(res, 404, errorBody('JOB_NOT_FOUND', 'not found'));
+        return send(res, 404, errorBody('NOT_FOUND', 'not found'));
       }
       if (req.method !== 'GET')
         return send(
@@ -173,9 +188,22 @@ export function createWebServer(
   server.keepAliveTimeout = 5000;
   return server;
 }
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (
+  process.argv[1] &&
+  realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))
+) {
   const c = loadWebConfig();
-  createWebServer({ config: c }).listen(c.port, c.host, () =>
-    console.log(JSON.stringify({ event: 'listening', host: c.host, port: c.port })),
+  const s = createWebServer({ config: c });
+  s.listen(c.port, c.host, () =>
+    console.log(
+      JSON.stringify({
+        event: 'listening',
+        host: c.host,
+        port: (s.address() as { port: number }).port,
+      }),
+    ),
   );
+  const close = () => s.close(() => process.exit(0));
+  process.once('SIGINT', close);
+  process.once('SIGTERM', close);
 }

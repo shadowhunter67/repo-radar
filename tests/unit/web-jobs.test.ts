@@ -15,6 +15,8 @@ const c = (x: Partial<WebConfig> = {}): WebConfig => ({
   trustProxy: false,
   requestBodyLimit: 4096,
   nodeEnv: 'development',
+  workerMaxOldSpaceMb: 512,
+  maxStoredJobs: 200,
   ...x,
 });
 const report = { retrieval: { completeness: 'complete' } } as never;
@@ -32,7 +34,7 @@ describe('web jobs', () => {
     expect(stages).toEqual(['running']);
   });
   it('classifies partial', async () => {
-    const j = new JobStore(c(), async () => ({ retrieval: { completeness: 'partial' } }) as never);
+    const j = new JobStore(c(), async () => ({ retrieval: { complete: false } }) as never);
     const x = j.enqueue({ owner: 'o', repo: 'r' });
     await new Promise((r) => setTimeout(r, 0));
     expect(j.get(x.id)?.state).toBe('partial');
@@ -59,5 +61,62 @@ describe('web jobs', () => {
     expect(j.get(x.id)?.state).toBe('expired');
     t = 361001;
     expect(j.get(x.id)).toBeUndefined();
+  });
+});
+describe('web job failures', () => {
+  it('maps internal failure', async () => {
+    const j = new JobStore(c(), async () => {
+      throw new Error('x');
+    });
+    const x = j.enqueue({ owner: 'o', repo: 'r' });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(j.get(x.id)?.error?.code).toBe('INTERNAL_ERROR');
+  });
+  it('maps rate limit', async () => {
+    const e = Object.assign(new Error(), { code: 'RATE_LIMITED' });
+    const j = new JobStore(c(), async () => {
+      throw e;
+    });
+    const x = j.enqueue({ owner: 'o', repo: 'r' });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(j.get(x.id)?.error?.code).toBe('RATE_LIMITED');
+  });
+  it('maps upstream unavailable', async () => {
+    const e = Object.assign(new Error(), { code: 'UPSTREAM_UNAVAILABLE' });
+    const j = new JobStore(c(), async () => {
+      throw e;
+    });
+    const x = j.enqueue({ owner: 'o', repo: 'r' });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(j.get(x.id)?.error?.code).toBe('UPSTREAM_UNAVAILABLE');
+  });
+  it('maps invalid ref', async () => {
+    const e = Object.assign(new Error(), { code: 'INVALID_REF' });
+    const j = new JobStore(c(), async () => {
+      throw e;
+    });
+    const x = j.enqueue({ owner: 'o', repo: 'r' });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(j.get(x.id)?.error?.code).toBe('INVALID_REF');
+  });
+  it('exposes size', () => expect(new JobStore(c(), async () => report).size).toBe(0));
+  it('exposes queue depth', () => expect(new JobStore(c(), async () => report).queueDepth).toBe(0));
+  it('exposes running count', () =>
+    expect(new JobStore(c(), async () => report).runningCount).toBe(0));
+  it('sweep is callable', () => {
+    const j = new JobStore(c(), async () => report);
+    j.sweep();
+    expect(j.size).toBe(0);
+  });
+  it('ids are base64url length', () => {
+    const j = new JobStore(c({ maxQueue: 2 }), async () => new Promise(() => {}));
+    const x = j.enqueue({ owner: 'o', repo: 'r' });
+    expect(x.id).toMatch(/^[A-Za-z0-9_-]{22}$/);
+  });
+  it('report cap error', async () => {
+    const j = new JobStore(c({ maxReportBytes: 1 }), async () => report);
+    const x = j.enqueue({ owner: 'o', repo: 'r' });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(j.get(x.id)?.error?.code).toBe('REPORT_TOO_LARGE');
   });
 });

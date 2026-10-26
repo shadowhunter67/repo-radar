@@ -30,3 +30,15 @@ describe('web config', () => {
   it('fails production without token', () =>
     expect(() => loadWebConfig({ NODE_ENV: 'production' })).toThrow('GITHUB_TOKEN'));
 });
+describe('web config limits', () => {
+  it('allows port zero for ephemeral startup', () =>
+    expect(loadWebConfig({ PORT: '0' }).port).toBe(0));
+  it('reads proxy flag', () =>
+    expect(loadWebConfig({ TRUST_PROXY: 'true' }).trustProxy).toBe(true));
+  it('reads worker cap', () =>
+    expect(loadWebConfig({ WORKER_MAX_OLD_SPACE_MB: '256' }).workerMaxOldSpaceMb).toBe(256));
+  it('reads stored-job cap', () =>
+    expect(loadWebConfig({ MAX_STORED_JOBS: '7' }).maxStoredJobs).toBe(7));
+  it('rejects bad concurrency', () =>
+    expect(() => loadWebConfig({ MAX_CONCURRENCY: '0' })).toThrow());
+});

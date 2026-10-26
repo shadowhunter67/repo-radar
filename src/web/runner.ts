@@ -7,7 +7,11 @@ type WorkerLike = {
 };
 export type WorkerFactory = (
   url: URL,
-  options: { workerData: unknown; execArgv?: string[] },
+  options: {
+    workerData: unknown;
+    execArgv?: string[];
+    resourceLimits?: { maxOldGenerationSizeMb: number };
+  },
 ) => WorkerLike | Promise<WorkerLike>;
 export function createWorkerRunner(
   config: WebConfig,
@@ -27,9 +31,17 @@ export function createWorkerRunner(
         const w = await f(new URL('./worker.js', import.meta.url), {
           workerData: { owner: repo.owner, repo: repo.repo, ref: repo.ref, token: config.token },
           execArgv: process.execArgv.filter((a) => !a.startsWith('--input-type')),
+          resourceLimits: { maxOldGenerationSizeMb: config.workerMaxOldSpaceMb },
         });
+        let ended = false;
+        const terminate = () => {
+          if (!ended) {
+            ended = true;
+            void w.terminate();
+          }
+        };
         const timer = setTimeout(() => {
-          void w.terminate();
+          terminate();
           const e = new Error('analysis timeout') as Error & { code: string };
           e.code = 'ANALYSIS_TIMEOUT';
           reject(e);
@@ -39,19 +51,33 @@ export function createWorkerRunner(
           if (m.type === 'stage') onStage(m.stage!);
           else if (m.type === 'result') {
             clearTimeout(timer);
-            void w.terminate();
+            terminate();
             resolve(m.report!);
           } else {
             clearTimeout(timer);
-            void w.terminate();
+            terminate();
             const e = new Error('analysis failed') as Error & { code?: string };
             e.code = m.code;
             reject(e);
           }
-        }).on('error', (e) => {
-          clearTimeout(timer);
-          reject(e);
-        });
+        })
+          .on('error', () => {
+            clearTimeout(timer);
+            terminate();
+            reject(Object.assign(new Error('worker failed'), { code: 'INTERNAL_ERROR' }));
+          })
+          .on('messageerror', () => {
+            clearTimeout(timer);
+            terminate();
+            reject(Object.assign(new Error('worker message failed'), { code: 'INTERNAL_ERROR' }));
+          })
+          .on('exit', (code: unknown) => {
+            if (!ended && code !== 0) {
+              clearTimeout(timer);
+              terminate();
+              reject(Object.assign(new Error('worker exited'), { code: 'INTERNAL_ERROR' }));
+            }
+          });
       })().catch(reject);
     });
 }
