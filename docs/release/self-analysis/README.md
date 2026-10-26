@@ -1,18 +1,18 @@
 # Release-candidate self-analysis
 
-repo-radar analyzed its own repository at the exact release-candidate commit
-`436b3c2` (full SHA in `summary-436b3c2.json`) on 2026-10-25, authenticated, on the
+repo-radar analyzed its own repository at the exact release-candidate commit (the code state; the tagged release commit is a documentation-only follow-up)
+`53809fd` (full SHA in `summary-53809fd.json`) on 2026-10-26, authenticated, on the
 private repository, with the default profile, `--name-intelligence` and
 `--verify-crypto`. No history analysis and no artifact inspection were requested
 (both are optional). The full report is 1.05 MB and is not committed;
-`summary-436b3c2.json` is a compact extract that carries the report's
-`integrity.report_sha256`, and `report-436b3c2.txt` is the text report. Neither file
+`summary-53809fd.json` is a compact extract that carries the report's
+`integrity.report_sha256`, and `report-53809fd.txt` is the text report. Neither file
 contains tokens, user names or local paths (scanned).
 
 Result: overall 88.7 (A-), confidence 0.82, weight covered 1.0 (these are
 evidence-derived heuristics, not a safety probability). Source scan coverage was 21%
 (40 of 189 source files; 149 candidates over the file budget), so every "not observed"
-statement holds only within that sample. 115 HTTP requests (about one minute on this machine).
+statement holds only within that sample. 114 HTTP requests (26 seconds on this machine, single run).
 
 ## Findings and how they were classified
 

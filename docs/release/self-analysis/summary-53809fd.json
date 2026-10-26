@@ -1,6 +1,6 @@
 {
   "artifact": "repo-radar self-analysis of the release candidate",
-  "note": "Compact summary of a full report (1.05 MB, not committed). The full report was produced by: repo-radar analyze shadowhunter67/repo-radar --ref <sha> --format json --profile default --name-intelligence --verify-crypto, authenticated, on a PRIVATE repository, 2026-10-25. integrity.report_sha256 identifies the full report.",
+  "note": "Compact summary of a full report (about 1 MB, not committed). Produced by: repo-radar analyze shadowhunter67/repo-radar --ref <sha> --format json --profile default --name-intelligence --verify-crypto, authenticated, on the repository while it was PRIVATE, 2026-10-26. integrity.report_sha256 identifies the full report. The analyzed commit is the code state; release-time documentation commits come after it.",
   "tool": {
     "name": "repo-radar",
     "version": "0.16.0"
@@ -12,9 +12,9 @@
     "version": "0.1",
     "title": "Default"
   },
-  "generated_at": "2026-10-25T16:14:43.649Z",
+  "generated_at": "2026-10-26T00:06:22.978Z",
   "repository": "shadowhunter67/repo-radar",
-  "commit": "436b3c29d3ef761d340490c48c9bc11ec05a5bc4",
+  "commit": "53809fdaec1881bce5b0da1670b279f7c7dfbd30",
   "revision_kind": "immutable",
   "feature_flags": {
     "verify_crypto": true,
@@ -39,12 +39,12 @@
     {
       "source": "github",
       "classification": "revision_bound",
-      "retrieved_at": "2026-10-25T16:14:43.649Z"
+      "retrieved_at": "2026-10-26T00:06:22.977Z"
     },
     {
       "source": "registry",
       "classification": "current_state",
-      "retrieved_at": "2026-10-25T16:14:43.649Z"
+      "retrieved_at": "2026-10-26T00:06:22.977Z"
     }
   ],
   "budgets": {
@@ -108,7 +108,7 @@
   },
   "stats": {
     "evidence_count": 85,
-    "http_requests": 115,
+    "http_requests": 114,
     "authenticated": true
   },
   "findings_by_severity": {
@@ -309,16 +309,16 @@
       "level": "warn",
       "source": "registry",
       "code": "dependency_registry_lookup_failed",
-      "message": "npm:typescript: too_large"
+      "message": "npm:@types/node: too_large"
     },
     {
       "level": "warn",
       "source": "registry",
       "code": "dependency_registry_lookup_failed",
-      "message": "npm:@types/node: too_large"
+      "message": "npm:typescript: too_large"
     }
   ],
   "integrity": {
-    "report_sha256": "f284784ba29d14fef7bf65b9492edb96449a4721b7e90a627cabeefe00792d1f"
+    "report_sha256": "fda338958df864b9e2511f7c5d3d793163ea154450a06050a119cb193f3c41ca"
   }
 }

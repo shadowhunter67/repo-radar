@@ -28,8 +28,8 @@ WARNINGS
 
 DIAGNOSTICS
   [warn] registry: npm:repo-radar: not_found
-  [warn] registry: npm:typescript: too_large
   [warn] registry: npm:@types/node: too_large
+  [warn] registry: npm:typescript: too_large
 
 DEPENDENCY INTELLIGENCE
   Dependencies discovered:       281 (13 direct, 268 transitive)
