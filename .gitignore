@@ -5,3 +5,5 @@ coverage
 report.json
 calibration/runs/
 .tmp/
+playwright-report
+test-results

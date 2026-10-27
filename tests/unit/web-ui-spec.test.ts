@@ -318,8 +318,8 @@ describe('dependencies, release, capabilities, governance, compliance, technical
   it('governance is descriptive and compliance is preceded by the indicative-only banner', () => {
     expect(q(host, '[data-section="governance"]')).not.toBeNull();
     const comp = q(host, '[data-section="compliance"]') as HTMLElement;
-    expect(comp.firstElementChild?.getAttribute('data-banner')).toBe('indicative');
-    expect(comp.firstElementChild?.textContent).toBe(
+    expect(comp.children[1]?.getAttribute('data-banner')).toBe('indicative');
+    expect(comp.children[1]?.textContent).toBe(
       'Indicative only. Not legal advice. Not a compliance certification.',
     );
   });

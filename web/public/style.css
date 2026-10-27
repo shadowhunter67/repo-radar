@@ -172,3 +172,8 @@ button:disabled {
     transition: none !important;
   }
 }
+
+/* Author rules such as display:flex would otherwise override the UA rule for [hidden] (a jsdom test cannot see this) */
+[hidden] {
+  display: none !important;
+}
