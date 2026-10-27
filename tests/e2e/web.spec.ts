@@ -14,7 +14,9 @@ test.describe('web analyzer preview (real server, real UI, fixture report)', () 
     await page.addInitScript(() => {
       (window as unknown as { __csp: string[] }).__csp = [];
       document.addEventListener('securitypolicyviolation', (e) =>
-        (window as unknown as { __csp: string[] }).__csp.push(`${e.violatedDirective} ${e.blockedURI}`),
+        (window as unknown as { __csp: string[] }).__csp.push(
+          `${e.violatedDirective} ${e.blockedURI}`,
+        ),
       );
     });
 
@@ -27,13 +29,19 @@ test.describe('web analyzer preview (real server, real UI, fixture report)', () 
     await expect(page.locator('[data-section="score"]')).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Analyze' }).click();
-    await expect(page.locator('[data-section="score"] [data-field="score"]')).toHaveText('83.5', { timeout: 15_000 });
+    await expect(page.locator('[data-section="score"] [data-field="score"]')).toHaveText('83.5', {
+      timeout: 15_000,
+    });
     expect(requests.filter((r) => r === 'POST /api/v1/analyze')).toHaveLength(1);
 
     await expect(page.locator('[data-field="sha"]')).toHaveText(SHA);
     await expect(page.locator('[data-field="repository"]')).toHaveText('spf13/cobra');
-    await expect(page.locator('[data-section="confidence"] [data-field="confidence"]')).toHaveText('0.877');
-    await expect(page.locator('[data-section="coverage"] [data-field="coverage"]')).toHaveText('100%');
+    await expect(page.locator('[data-section="confidence"] [data-field="confidence"]')).toHaveText(
+      '0.877',
+    );
+    await expect(page.locator('[data-section="coverage"] [data-field="coverage"]')).toHaveText(
+      '100%',
+    );
     await expect(page.locator('tbody tr[data-finding-id]')).toHaveCount(4);
 
     // severity filter then evidence dialog by keyboard
@@ -63,7 +71,9 @@ test.describe('web analyzer preview (real server, real UI, fixture report)', () 
     await page.goto('/');
     await page.getByLabel('Repository').fill('someone/missing');
     await page.getByRole('button', { name: 'Analyze' }).click();
-    await expect(page.locator('#error')).toContainText('The repository was not found or is not accessible.');
+    await expect(page.locator('#error')).toContainText(
+      'The repository was not found or is not accessible.',
+    );
     await expect(page.locator('[data-section="score"]')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Analyze' })).toBeEnabled();
   });
@@ -74,11 +84,15 @@ test.describe('web analyzer preview (real server, real UI, fixture report)', () 
     await page.goto('/');
     await page.getByLabel('Repository').fill('http://127.0.0.1/owner/repo');
     await page.getByRole('button', { name: 'Analyze' }).click();
-    await expect(page.locator('#error')).toContainText('Enter a public GitHub repository as owner/repo.');
+    await expect(page.locator('#error')).toContainText(
+      'Enter a public GitHub repository as owner/repo.',
+    );
     expect(posts).toEqual([]);
   });
 
-  test('response headers carry the CSP and the page has no inline script, style or handler', async ({ page }) => {
+  test('response headers carry the CSP and the page has no inline script, style or handler', async ({
+    page,
+  }) => {
     const res = await page.goto('/');
     const csp = res?.headers()['content-security-policy'] ?? '';
     expect(csp).toContain("script-src 'self'");

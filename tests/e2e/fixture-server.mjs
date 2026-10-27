@@ -4,7 +4,9 @@ import { readFileSync } from 'node:fs';
 import { loadWebConfig } from '../../dist/web/config.js';
 import { createWebServer } from '../../dist/web/server.js';
 
-const report = JSON.parse(readFileSync(new URL('../fixtures/web/report-cobra.json', import.meta.url), 'utf8'));
+const report = JSON.parse(
+  readFileSync(new URL('../fixtures/web/report-cobra.json', import.meta.url), 'utf8'),
+);
 const config = loadWebConfig({ PORT: '4173', HOST: '127.0.0.1', NODE_ENV: 'development' });
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -24,4 +26,7 @@ const server = createWebServer({
     return report;
   },
 });
-server.listen(config.port, config.host, () => console.log('e2e fixture server on http://127.0.0.1:4173'));
+server.listen(config.port, config.host, () =>
+  console.log('e2e fixture server on http://127.0.0.1:4173'),
+);
+/* global URL, setTimeout, console */

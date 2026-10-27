@@ -27,6 +27,12 @@ const card = (doc, name, title) => {
   s.append(el(doc, 'h2', title, { id: `${name}-title` }));
   return s;
 };
+const field = (doc, parent, label, value, name, attrs = {}) => {
+  const dl = el(doc, 'dl', undefined, { class: 'field' });
+  dl.append(el(doc, 'dt', label), el(doc, 'dd', value, { 'data-field': name, ...attrs }));
+  parent.append(dl);
+  return dl;
+};
 function evidencePools(report) {
   const out = new Map((report.evidence ?? []).map((x) => [x.id, x]));
   const ca = report.code_analysis ?? {};
@@ -93,10 +99,12 @@ function dialog(doc, root, report) {
   return (finding, row) => {
     opener = row;
     box.replaceChildren();
-    box.append(
-      el(doc, 'h2', finding.id, { 'data-field': 'finding-id' }),
-      el(doc, 'p', finding.title),
+    const findingDl = el(doc, 'dl', undefined, { class: 'field' });
+    findingDl.append(
+      el(doc, 'dt', 'Finding ID'),
+      el(doc, 'dd', finding.id, { 'data-field': 'finding-id' }),
     );
+    box.append(findingDl, el(doc, 'p', finding.title));
     const list = el(doc, 'div');
     for (const id of finding.evidence_ids ?? []) {
       const item = pools.get(id);
@@ -137,10 +145,12 @@ function dialog(doc, root, report) {
 function findingsSection(doc, root, report) {
   const s = card(doc, 'findings', 'Findings');
   const controls = el(doc, 'div');
-  const countField = el(doc, 'span', String((report.findings ?? []).length), {
+  const countField = el(doc, 'dd', String((report.findings ?? []).length), {
     'data-field': 'finding-count',
   });
-  controls.append(countField);
+  const count = el(doc, 'dl', undefined, { class: 'field compact' });
+  count.append(el(doc, 'dt', 'Findings shown'), countField);
+  controls.append(count);
   const sev = el(doc, 'select', undefined, {
     'data-filter': 'severity',
     'aria-label': 'Filter by severity',
@@ -156,8 +166,14 @@ function findingsSection(doc, root, report) {
   const search = el(doc, 'input', undefined, {
     'data-filter': 'search',
     'aria-label': 'Search findings',
+    id: 'findings-search',
   });
-  controls.append(sev, cat, search);
+  const severityLabel = el(doc, 'label', 'Severity', { for: 'findings-severity' });
+  const categoryLabel = el(doc, 'label', 'Category', { for: 'findings-category' });
+  sev.setAttribute('id', 'findings-severity');
+  cat.setAttribute('id', 'findings-category');
+  const searchLabel = el(doc, 'label', 'Search findings', { for: 'findings-search' });
+  controls.append(severityLabel, sev, categoryLabel, cat, searchLabel, search);
   s.append(controls);
   const table = el(doc, 'table');
   table.append(el(doc, 'caption', 'Observed findings within analyzed coverage'));
@@ -250,61 +266,73 @@ export function renderResult(doc, job) {
   const overview = card(doc, 'overview', 'Overview');
   const owner = job.repository?.owner ?? 'unknown',
     repo = job.repository?.repo ?? 'unknown';
-  overview.append(el(doc, 'p', `${owner}/${repo}`, { 'data-field': 'repository' }));
-  overview.append(
-    el(doc, 'a', 'Open repository', {
-      href: `https://github.com/${owner}/${repo}`,
-      'data-field': 'repo-link',
-      rel: 'noopener noreferrer',
-    }),
-  );
+  field(doc, overview, 'Repository', `${owner}/${repo}`, 'repository');
+  const repoLink = el(doc, 'a', 'Open repository', {
+    href: `https://github.com/${owner}/${repo}`,
+    rel: 'noopener noreferrer',
+  });
+  const repoLinkDl = el(doc, 'dl', undefined, { class: 'field' });
+  repoLink.setAttribute('data-field', 'repo-link');
+  repoLinkDl.append(el(doc, 'dt', 'Repository link'), repoLink);
+  overview.append(repoLinkDl);
   const sha = /^[a-f0-9]{40}$/i.test(job.analyzed_sha ?? '') ? job.analyzed_sha : 'unavailable';
-  overview.append(el(doc, 'p', sha, { 'data-field': 'sha', class: 'muted' }));
-  overview.append(
-    el(doc, 'p', `Generated ${report.generated_at}`, { 'data-field': 'generated-at' }),
-    el(doc, 'p', report.tool?.version ?? report.analysis_manifest?.tool_version ?? '', {
-      'data-field': 'tool-version',
-    }),
-    el(doc, 'p', report.analysis_manifest?.schema_version ?? '', {
-      'data-field': 'schema-version',
-    }),
-    el(
-      doc,
-      'p',
-      report.methodology?.version ?? report.analysis_manifest?.methodology_version ?? '0.4',
-      { 'data-field': 'methodology-version' },
-    ),
+  field(doc, overview, 'Analyzed commit (exact SHA)', sha, 'sha', { class: 'muted' });
+  field(doc, overview, 'Analysis time', report.generated_at ?? 'unavailable', 'generated-at');
+  field(
+    doc,
+    overview,
+    'repo-radar version',
+    report.tool?.version ?? report.analysis_manifest?.tool_version ?? 'unavailable',
+    'tool-version',
+  );
+  field(
+    doc,
+    overview,
+    'Report schema',
+    report.analysis_manifest?.schema_version ?? 'unavailable',
+    'schema-version',
+  );
+  field(
+    doc,
+    overview,
+    'Methodology',
+    report.methodology?.version ?? report.analysis_manifest?.methodology_version ?? '0.4',
+    'methodology-version',
   );
   root.append(overview);
   const sc = card(doc, 'score', 'Score');
-  sc.append(
-    el(doc, 'p', report.overall.score, { 'data-field': 'score', class: 'score neutral' }),
-    el(doc, 'p', report.overall.grade, { 'data-field': 'grade' }),
-    el(doc, 'p', 'A score is an evidence-derived heuristic, not a probability of safety.'),
-  );
+  field(doc, sc, 'Score', report.overall.score, 'score', { class: 'score neutral' });
+  field(doc, sc, 'Grade', report.overall.grade, 'grade');
+  sc.append(el(doc, 'p', 'A score is an evidence-derived heuristic, not a probability of safety.'));
   root.append(sc);
   const conf = card(doc, 'confidence', 'Confidence');
-  conf.append(el(doc, 'p', report.overall.confidence, { 'data-field': 'confidence' }));
+  field(doc, conf, 'Confidence', report.overall.confidence, 'confidence');
   root.append(conf);
   const coverage = card(doc, 'coverage', 'Coverage');
   const pct = Math.round(report.overall.weight_covered * 100);
-  coverage.append(el(doc, 'p', `${pct}%`, { 'data-field': 'coverage' }));
+  field(doc, coverage, 'Overall evidence coverage', `${pct}%`, 'coverage');
   const scan = report.code_analysis?.scan ?? {};
+  field(
+    doc,
+    coverage,
+    'Source files scanned (coverage)',
+    `${scan.source_files_scanned ?? 0}/${scan.source_files_total ?? 0} (${Math.round((scan.source_coverage ?? 0) * 100)}%)`,
+    'source-files',
+  );
+  field(
+    doc,
+    coverage,
+    'Source files scanned (coverage)',
+    `${Math.round((scan.source_coverage ?? 0) * 100)}%`,
+    'source-coverage',
+  );
   coverage.append(
-    el(
-      doc,
-      'p',
-      `${Math.round((scan.source_coverage ?? 0) * 100)}% source coverage; ${scan.source_files_scanned ?? 0}/${scan.source_files_total ?? 0} source files`,
-      { 'data-field': 'source-files' },
-    ),
-    el(doc, 'p', `${Math.round((scan.source_coverage ?? 0) * 100)}%`, {
-      'data-field': 'source-coverage',
-    }),
     el(doc, 'p', "Findings and 'not observed' statements apply only to analyzed evidence."),
   );
   for (const dim of report.dimensions ?? []) {
     const n = el(doc, 'div', undefined, { 'data-dimension': dim.dimension });
     n.append(
+      el(doc, 'span', `${dim.label} `),
       el(doc, 'span', `${Math.round(dim.coverage * 1000) / 10}%`, {
         'data-field': 'dimension-coverage',
       }),
@@ -322,18 +350,33 @@ export function renderResult(doc, job) {
   root.append(findingsSection(doc, findingHost, report));
   const deps = card(doc, 'dependencies', 'Dependencies'),
     sum = report.dependency_intel?.summary ?? {};
-  deps.append(
-    el(doc, 'p', sum.direct ?? 0, { 'data-field': 'direct-count' }),
-    el(doc, 'p', sum.transitive ?? 0, { 'data-field': 'transitive-count' }),
-    el(doc, 'p', sum.direct_resolved_exact ?? 0, { 'data-field': 'resolved-exact' }),
-    el(doc, 'p', Object.keys(sum.by_ecosystem ?? {}).join(', '), { 'data-field': 'ecosystems' }),
-    el(doc, 'p', sum.vulnerable_total ?? 0, { 'data-field': 'vulnerable-count' }),
+  field(doc, deps, 'Direct dependencies', sum.direct ?? 0, 'direct-count');
+  field(doc, deps, 'Transitive dependencies', sum.transitive ?? 0, 'transitive-count');
+  field(doc, deps, 'Resolved to exact versions', sum.direct_resolved_exact ?? 0, 'resolved-exact');
+  field(
+    doc,
+    deps,
+    'Ecosystems',
+    Object.keys(sum.by_ecosystem ?? {}).join(', ') || 'unavailable',
+    'ecosystems',
+  );
+  field(
+    doc,
+    deps,
+    'Dependencies with known advisories',
+    sum.vulnerable_total ?? 0,
+    'vulnerable-count',
   );
   root.append(deps);
   const rel = card(doc, 'release', 'Release & Provenance');
   for (const x of report.release_intel?.releases ?? [])
     rel.append(
-      el(doc, 'p', `${x.tag}: not verified from presence alone`, { 'data-release-tag': x.tag }),
+      el(
+        doc,
+        'p',
+        `${x.tag} — ${x.published_at ?? 'date unavailable'} — ${x.verification_state ?? 'not verified from presence alone'}`,
+        { 'data-release-tag': x.tag },
+      ),
     );
   root.append(rel);
   const caps = card(doc, 'capabilities', 'Capabilities & execution');
@@ -345,21 +388,64 @@ export function renderResult(doc, job) {
     );
   caps.append(el(doc, 'p', 'A capability describes what code can do, not intent.'));
   root.append(caps);
-  root.append(card(doc, 'governance', 'Governance'));
+  const gov = card(doc, 'governance', 'Governance');
+  gov.append(
+    el(
+      doc,
+      'p',
+      report.governance?.takeover_indicators?.statement ??
+        'Takeover indicators were unavailable within analyzed coverage.',
+    ),
+  );
+  field(
+    doc,
+    gov,
+    'Commits in the sampled window',
+    report.governance?.window?.commits ?? 'unavailable',
+    'governance-commits',
+  );
+  field(
+    doc,
+    gov,
+    'Signals observed',
+    report.governance?.signals?.length ?? 0,
+    'governance-signals',
+  );
+  const limitations = el(doc, 'ul');
+  for (const x of report.governance?.limitations ?? []) limitations.append(el(doc, 'li', x));
+  gov.append(el(doc, 'h3', 'Limitations'), limitations);
+  root.append(gov);
   const comp = card(doc, 'compliance', 'Compliance');
-  comp.prepend(
+  comp.append(
     el(doc, 'p', 'Indicative only. Not legal advice. Not a compliance certification.', {
       'data-banner': 'indicative',
     }),
   );
+  comp.append(
+    el(
+      doc,
+      'p',
+      report.regulatory?.disclaimer ??
+        'Regulatory applicability is unavailable within analyzed coverage.',
+    ),
+  );
+  for (const pack of report.regulatory?.packs ?? []) {
+    const p = el(doc, 'p', `${pack.title ?? pack.pack}: ${pack.applicability?.state ?? 'unknown'}`);
+    if (pack.indicators?.length === 0) p.append(el(doc, 'span', ' — indicators not evaluated'));
+    comp.append(p);
+  }
   root.append(comp);
   const tech = el(doc, 'details', undefined, { 'data-section': 'technical' });
   tech.append(el(doc, 'summary', 'Technical details'));
-  tech.append(
-    el(doc, 'p', report.integrity?.report_sha256 ?? '', { 'data-field': 'report-sha256' }),
-    el(doc, 'p', report.stats?.http_requests ?? 0, { 'data-field': 'http-requests' }),
-    el(doc, 'p', report.stats?.evidence_count ?? 0, { 'data-field': 'evidence-count' }),
+  field(
+    doc,
+    tech,
+    'Report integrity (SHA-256)',
+    report.integrity?.report_sha256 ?? 'unavailable',
+    'report-sha256',
   );
+  field(doc, tech, 'HTTP requests', report.stats?.http_requests ?? 0, 'http-requests');
+  field(doc, tech, 'Evidence entries', report.stats?.evidence_count ?? 0, 'evidence-count');
   for (const x of report.analysis_manifest?.external_sources ?? [])
     tech.append(
       el(doc, 'p', `${x.source} ${x.classification} ${x.retrieved_at}`, {
@@ -380,7 +466,13 @@ export function renderResult(doc, job) {
     'data-action': 'copy-cli',
     'data-command': cmd,
   });
-  const command = el(doc, 'code', cmd, { 'data-field': 'cli-command' });
+  const command = el(doc, 'code', cmd);
+  const commandDl = el(doc, 'dl', undefined, { class: 'field' });
+  commandDl.append(
+    el(doc, 'dt', 'CLI command'),
+    el(doc, 'dd', undefined, { 'data-field': 'cli-command' }),
+  );
+  commandDl.lastElementChild?.append(command);
   const notice = el(doc, 'p', 'Results are kept for a limited time and then discarded.', {
     'data-notice': 'ephemeral',
   });
@@ -397,7 +489,7 @@ export function renderResult(doc, job) {
       notice.textContent = 'Select and copy the CLI command.';
     }
   });
-  actions.append(dl, cp, command, notice);
+  actions.append(dl, cp, commandDl, notice);
   root.append(actions);
   if (job.state === 'partial')
     root.prepend(
