@@ -105,7 +105,11 @@ export function init(doc, deps = {}) {
               code: state.error?.code ?? 'JOB_NOT_FOUND',
               retryAfter: state.error?.retry_after,
             });
-          else if (state.report) result.append(renderResult(doc, state));
+          else if (state.report) {
+            result.append(renderResult(doc, state));
+            status.textContent =
+              state.state === 'partial' ? 'Completed with partial evidence.' : 'Completed.';
+          }
           break;
         }
         delay = Math.min(5000, delay + 500);

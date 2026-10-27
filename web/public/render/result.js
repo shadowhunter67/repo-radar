@@ -315,7 +315,7 @@ export function renderResult(doc, job) {
   field(
     doc,
     coverage,
-    'Source files scanned (coverage)',
+    'Source files scanned',
     `${scan.source_files_scanned ?? 0}/${scan.source_files_total ?? 0} (${Math.round((scan.source_coverage ?? 0) * 100)}%)`,
     'source-files',
   );
