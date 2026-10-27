@@ -1,110 +1,136 @@
-import { submit, poll, reportUrl, ApiError } from './api.js';
+/* global document, fetch, setTimeout, location, AbortController, URLSearchParams */
 import { normaliseRepository } from './validate.js';
-import { overview } from './render/overview.js';
-import { score } from './render/score.js';
-import { findings } from './render/findings.js';
-import { details } from './render/details.js';
-const d = document,
-  form = d.getElementById('analyze-form'),
-  repo = d.getElementById('repository'),
-  ref = d.getElementById('ref'),
-  normal = d.getElementById('normalised'),
-  status = d.getElementById('status'),
-  error = d.getElementById('error'),
-  result = d.getElementById('result'),
-  button = d.getElementById('analyze');
-let active = false,
-  aborter;
-function showError(e) {
-  error.textContent =
-    e instanceof ApiError
-      ? ({
-          INVALID_REPOSITORY: 'Enter a public GitHub repository as owner/repo.',
-          INVALID_REF: 'Enter a valid branch, tag or commit SHA.',
-          REPOSITORY_NOT_FOUND: 'The repository was not found or is not accessible.',
-          RATE_LIMITED: `GitHub rate limit reached${e.retryAfter ? ` (retry in ${e.retryAfter} seconds).` : '.'}`,
-          QUEUE_FULL: 'The analysis queue is full. Try again shortly.',
-          ANALYSIS_TIMEOUT: 'The analysis took too long and was stopped.',
-          UPSTREAM_UNAVAILABLE: 'An upstream evidence source was unavailable.',
-          REPORT_TOO_LARGE: 'The report exceeded the configured size limit.',
-          JOB_NOT_FOUND: 'This result expired or was not found.',
-          NETWORK_FAILURE: 'The network request failed.',
-        }[e.code] ?? e.message)
-      : 'The analysis failed.';
-}
-function setNormal() {
-  const n = normaliseRepository(repo.value);
-  normal.textContent = n ? `Normalised: ${n.value}` : '';
-  return n;
-}
-function renderReport(data, job) {
-  result.replaceChildren(overview(d, data), score(d, data));
-  if (job.state === 'partial') {
-    const b = d.createElement('p');
-    b.className = 'banner partial';
-    b.textContent =
-      'Analysis completed with partial evidence: one or more sources were unavailable or budgets were reached';
-    result.prepend(b);
-  }
-  result.append(findings(d, data), details(d, data));
-  const actions = d.createElement('p');
-  const link = d.createElement('a');
-  link.href = reportUrl(job.job_id);
-  link.textContent = 'Download JSON report';
-  actions.append(link);
-  result.append(actions);
-}
-async function run(e) {
-  e.preventDefault();
-  if (active) return;
-  const n = setNormal();
-  if (!n) {
-    showError(new ApiError('INVALID_REPOSITORY', ''));
-    return;
-  }
-  active = true;
-  button.disabled = true;
-  error.textContent = '';
-  result.replaceChildren();
-  status.textContent = 'Submitting analysis…';
-  try {
-    const j = await submit(n.value, ref.value.trim());
-    aborter = new AbortController();
-    let wait = 1500;
-    while (true) {
-      await new Promise((r) => setTimeout(r, wait));
-      const job = await poll(j.job_id);
-      status.textContent = job.stage
-        ? `Running: ${String(job.stage).replaceAll('_', ' ')}`
-        : `${job.state}`;
-      if (['completed', 'partial', 'failed', 'expired'].includes(job.state)) {
-        if (job.state === 'failed') {
-          showError(new ApiError(job.error?.code ?? 'INTERNAL_ERROR', job.error?.message ?? ''));
-        } else if (job.report) renderReport(job.report, job);
-        break;
-      }
-      wait = Math.min(5000, wait + 500);
+import { renderResult } from './render/result.js';
+export function init(doc, deps = {}) {
+  const getFetch = deps.fetch ?? fetch;
+  const wait = deps.setTimeout ?? setTimeout;
+  const loc = deps.location ?? location;
+  const form = doc.getElementById('analyze-form');
+  if (!form) return;
+  const repo = doc.getElementById('repository'),
+    ref = doc.getElementById('ref'),
+    normal = doc.getElementById('normalised'),
+    status = doc.getElementById('status'),
+    error = doc.getElementById('error'),
+    result = doc.getElementById('result'),
+    button = doc.getElementById('analyze');
+  let active = false,
+    controller;
+  const Controller = deps.AbortController ?? AbortController;
+  const messages = {
+    INVALID_REPOSITORY: 'Enter a public GitHub repository as owner/repo.',
+    INVALID_REF: 'Enter a valid branch, tag or commit SHA.',
+    REPOSITORY_NOT_FOUND: 'The repository was not found or is not accessible.',
+    RATE_LIMITED: 'GitHub rate limit reached.',
+    QUEUE_FULL: 'The analysis queue is full. Try again shortly.',
+    ANALYSIS_TIMEOUT: 'The analysis took too long and was stopped.',
+    UPSTREAM_UNAVAILABLE: 'An upstream evidence source was unavailable.',
+    REPORT_TOO_LARGE: 'The report exceeded the configured size limit.',
+    JOB_NOT_FOUND: 'This result expired or was not found.',
+    NETWORK_FAILURE: 'The network request failed.',
+  };
+  const normalise = () => {
+    const n = normaliseRepository(repo.value);
+    normal.textContent = n ? `Normalised: ${n.value}` : '';
+    return n;
+  };
+  const api = async (path, options = {}) => {
+    const r = await getFetch(path, options);
+    let data;
+    try {
+      data = await r.json();
+    } catch {
+      data = { error: { code: 'INTERNAL_ERROR' } };
     }
-  } catch (e) {
-    showError(e);
-  } finally {
-    active = false;
-    button.disabled = false;
+    if (!r.ok) {
+      const e = new Error(data.error?.message ?? 'request failed');
+      e.code = data.error?.code ?? 'INTERNAL_ERROR';
+      e.retryAfter = r.headers.get('retry-after');
+      throw e;
+    }
+    return data;
+  };
+  const showError = (e) => {
+    error.textContent = messages[e.code] ?? 'The analysis failed.';
+    if (e.code === 'RATE_LIMITED') {
+      const b = doc.createElement('p');
+      b.setAttribute('data-banner', 'rate-limited');
+      b.textContent = e.retryAfter
+        ? `GitHub rate limit reached. Retry in ${e.retryAfter} seconds.`
+        : 'GitHub rate limit reached.';
+      result.replaceChildren(b);
+    }
+  };
+  const stageLabel = (s) =>
+    ({
+      repository_resolved: 'repository resolved',
+      evidence_collected: 'evidence collected',
+      dependencies_parsed: 'dependencies parsed',
+      findings_evaluated: 'findings evaluated',
+      report_built: 'report built',
+    })[s] ?? 'Running';
+  async function run(event) {
+    event.preventDefault();
+    if (active) return;
+    const n = normalise();
+    if (!n) {
+      showError({ code: 'INVALID_REPOSITORY' });
+      return;
+    }
+    active = true;
+    button.disabled = true;
+    error.textContent = '';
+    result.replaceChildren();
+    controller = new Controller();
+    try {
+      const body = { repository: n.value, ...(ref.value.trim() ? { ref: ref.value.trim() } : {}) };
+      const job = await api('/api/v1/analyze', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      let delay = 1500;
+      while (true) {
+        await new Promise((resolve) => wait(resolve, delay));
+        const state = await api(`/api/v1/jobs/${encodeURIComponent(job.job_id)}`, {
+          signal: controller.signal,
+        });
+        if (state.state === 'queued')
+          status.textContent = `Queued${state.queue_position ? `: position ${state.queue_position}` : ''}`;
+        else status.textContent = state.stage ? `Running: ${stageLabel(state.stage)}` : 'Running';
+        if (['completed', 'partial', 'failed', 'expired'].includes(state.state)) {
+          if (state.state === 'failed' || state.state === 'expired')
+            showError({
+              code: state.error?.code ?? 'JOB_NOT_FOUND',
+              retryAfter: state.error?.retry_after,
+            });
+          else if (state.report) result.append(renderResult(doc, state));
+          break;
+        }
+        delay = Math.min(5000, delay + 500);
+      }
+    } catch (e) {
+      if (e.name !== 'AbortError') showError(e);
+    } finally {
+      active = false;
+      button.disabled = false;
+    }
   }
+  form.addEventListener('submit', run);
+  repo.addEventListener('input', normalise);
+  for (const b of doc.querySelectorAll('[data-example]'))
+    b.addEventListener('click', () => {
+      repo.value = b.getAttribute('data-example') ?? '';
+      normalise();
+      repo.focus();
+    });
+  const params = new URLSearchParams(loc.search);
+  if (params.get('repo')) {
+    repo.value = params.get('repo');
+    if (params.get('ref')) ref.value = params.get('ref');
+    normalise();
+  }
+  return { abort: () => controller?.abort() };
 }
-form.addEventListener('submit', run);
-repo.addEventListener('input', setNormal);
-for (const b of d.querySelectorAll('[data-example]'))
-  b.addEventListener('click', () => {
-    repo.value = b.getAttribute('data-example') ?? '';
-    setNormal();
-    repo.focus();
-  });
-const params = new URLSearchParams(location.search);
-if (params.get('repo')) {
-  repo.value = params.get('repo');
-  if (params.get('ref')) ref.value = params.get('ref');
-  setNormal();
-}
-addEventListener('beforeunload', () => aborter?.abort());
-/* global document, AbortController, setTimeout, URLSearchParams, location, addEventListener */
+if (typeof document !== 'undefined') init(document);

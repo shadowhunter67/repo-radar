@@ -1,8 +1,15 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { JSDOM } from 'jsdom';
 import { describe, expect, it } from 'vitest';
 import { findings } from '../../web/public/render/findings.js';
 describe('browser safety', () => {
+  function publicFiles(dir: string): string[] {
+    return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+      const path = join(dir, entry.name);
+      return entry.isDirectory() ? publicFiles(path) : [path];
+    });
+  }
   it('renders hostile fixture data as text', () => {
     const r = JSON.parse(readFileSync('tests/fixtures/web/report-cobra.json', 'utf8'));
     r.findings[0].title = '<img src=x onerror=alert(1)>';
@@ -14,16 +21,7 @@ describe('browser safety', () => {
     expect(n.querySelectorAll('[onerror],[onload],[onclick]')).toHaveLength(0);
   });
   it('public source has no unsafe DOM construction APIs', () => {
-    const files = [
-      'web/public/app.js',
-      'web/public/api.js',
-      'web/public/validate.js',
-      'web/public/render/overview.js',
-      'web/public/render/score.js',
-      'web/public/render/findings.js',
-      'web/public/render/details.js',
-    ];
-    for (const f of files) {
+    for (const f of publicFiles('web/public').filter((file) => file.endsWith('.js'))) {
       const s = readFileSync(f, 'utf8');
       expect(s).not.toMatch(
         /innerHTML|outerHTML|insertAdjacentHTML|document\.write|eval\(|new Function/,

@@ -6,4 +6,5 @@ declare module '*.js' {
   export const score: (document: Document, data: unknown) => HTMLElement;
   export const findings: (document: Document, data: unknown) => HTMLElement;
   export const details: (document: Document, data: unknown) => HTMLElement;
+  export const init: (document: Document, deps?: Record<string, unknown>) => unknown;
 }
