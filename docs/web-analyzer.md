@@ -166,8 +166,9 @@ other option takes the engine default; the server stores and serves the report o
 the stage callback does not change the report (`tests/unit/web-stage.test.ts`), the served and downloaded JSON equals the
 stored report, and the exact SHA and filename come from the report (`tests/unit/web-parity.test.ts`,
 `tests/unit/web-api.test.ts`, and the browser test in `tests/e2e/web.spec.ts`). What is **not** proven by a unit test: that the
-CLI's default flags are identical to the engine defaults. That was checked by comparing real runs of the CLI and the web on the
-same commit; the result is recorded in the release notes for the version that includes it.
+CLI's default flags are identical to the engine defaults. That was checked once by comparing real CLI and web runs on the same
+commit (see the release notes); only timestamps and the order of `external_domains` observations differed, and that order
+also varies between two CLI runs.
 
 ## Security
 

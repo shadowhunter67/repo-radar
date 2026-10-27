@@ -31,10 +31,11 @@ unchanged at 0.16 and the methodology at 0.4; the new HTTP API is "v1" of that A
 
 - Jobs are lost on restart and cannot be shared between replicas.
 - All users of an instance share one GitHub token budget; see [docs/deployment.md](../deployment.md).
-- The Docker image is provided but its build was not verified on the release machine unless stated in the final report.
+- The Docker image was built and run once (Docker Desktop, Linux container): it runs as uid 1000 (`node`), `/api/v1/health` answered, one real analysis completed, the healthcheck reported healthy, and the token did not appear in the image history. This is a single local run, not a hardening review.
 - Development-only advisories in `vitest`, `@vitest/mocker` and `tinypool` remain open pending a compatible major upgrade; they
   affect contributors running the test suite, not users of the runtime package.
-- The relationship between CLI default flags and engine defaults is verified by comparing real runs, not by a unit test.
+- CLI parity was checked once by comparing a real web run and a real CLI run of `spf13/cobra` at the same commit: scores, findings, SHA and all sections were equal apart from timestamps and the order of `external_domains` observations. That ordering also differs between two CLI runs (an existing engine nondeterminism that changes `integrity.report_sha256`), so it is not a web difference; it is not fixed in this release. CLI flag defaults versus engine defaults are not covered by a unit test.
+- Single-run timings through the web flow on one developer machine with a token (not benchmarks): is-plain-obj 7.1 s, cobra 8.1 s, flask 15.2 s (partial: scan budget reached), repo-radar 15.1 s (partial: scan budget reached and two registry lookups failed), nonexistent repository 1.0 s to `REPOSITORY_NOT_FOUND`, invalid input rejected with 400 immediately. Report sizes 125 KB to 700 KB.
 
 ## Verification
 
