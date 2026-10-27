@@ -535,7 +535,11 @@ export function extractDomains(input: ExtractInput): ExternalDomains {
 
   const domains: ExternalDomain[] = [...aggs.values()].map((a) => {
     const obs = [...a.obs].sort(
-      (x, y) => contextRank(x.context) - contextRank(y.context) || y.confidence - x.confidence,
+      (x, y) =>
+        contextRank(x.context) - contextRank(y.context) ||
+        y.confidence - x.confidence ||
+        (x.file < y.file ? -1 : x.file > y.file ? 1 : 0) ||
+        x.line - y.line,
     );
     const contexts = [...new Set(obs.map((o) => o.context))].sort(
       (x, y) => contextRank(x) - contextRank(y),

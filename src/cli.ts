@@ -3,6 +3,7 @@ import { existsSync, readFileSync, realpathSync, statSync, writeFileSync } from 
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { analyzeRepository, toolVersion, type AnalyzeOptions } from './analyze.js';
+import { createDefaultAnalysisOptions } from './defaults.js';
 import { RepoNotFoundError } from './collectors/github/collector.js';
 import { buildRepositoryModel, summarizeModel } from './model/index.js';
 import { buildTrustGraph, summarizeGraph } from './graph/trust.js';
@@ -182,6 +183,110 @@ function registryAndTrustOptions(values: {
   };
 }
 
+/** Every CLI flag with its default; exported so tests can resolve a default invocation without spawning a process. */
+export const CLI_PARSE_OPTIONS = {
+  format: { type: 'string', default: 'text' },
+  profile: { type: 'string', default: 'default' },
+  output: { type: 'string' },
+  'text-output': { type: 'string' },
+  min: { type: 'string', multiple: true },
+  'enforce-profile': { type: 'boolean', default: false },
+  'no-scorecard': { type: 'boolean', default: false },
+  'no-osv': { type: 'boolean', default: false },
+  'no-deps-dev': { type: 'boolean', default: false },
+  'no-sbom': { type: 'boolean', default: false },
+  'no-compliance': { type: 'boolean', default: false },
+  'no-targeted-tree': { type: 'boolean', default: false },
+  'no-releases': { type: 'boolean', default: false },
+  'no-registry': { type: 'boolean', default: false },
+  'no-dep-registry': { type: 'boolean', default: false },
+  'no-dep-attestations': { type: 'boolean', default: false },
+  'no-domains': { type: 'boolean', default: false },
+  'inspect-dependency-artifacts': { type: 'boolean', default: false },
+  'name-intelligence': { type: 'boolean', default: false },
+  'dep-registry-max': { type: 'string' },
+  'dep-registry-requests': { type: 'string' },
+  'dep-registry-time': { type: 'string' },
+  'trust-config': { type: 'string' },
+  'trusted-root': { type: 'string' },
+  'trust-gpg-key': { type: 'string', multiple: true },
+  'trust-minisign-key': { type: 'string', multiple: true },
+  'expect-signer': { type: 'string' },
+  'verify-crypto': { type: 'boolean', default: false },
+  'snapshot-dir': { type: 'string' },
+  'snapshot-revision': { type: 'boolean', default: false },
+  repo: { type: 'string' },
+  commit: { type: 'string' },
+  query: { type: 'string' },
+  'export-to': { type: 'string' },
+  'import-from': { type: 'string' },
+  'verify-assets': { type: 'boolean', default: false },
+  'no-scan': { type: 'boolean', default: false },
+  ref: { type: 'string' },
+  from: { type: 'string' },
+  to: { type: 'string' },
+  verbose: { type: 'boolean', default: false },
+  ascii: { type: 'boolean', default: false },
+  help: { type: 'boolean', short: 'h', default: false },
+  version: { type: 'boolean', short: 'v', default: false },
+  list: { type: 'string' },
+  'org-summary': { type: 'boolean', default: false },
+  'max-repos': { type: 'string' },
+  'max-requests': { type: 'string' },
+  'max-minutes': { type: 'string' },
+} as const satisfies NonNullable<Parameters<typeof parseArgs>[0]>['options'];
+
+type AnalyzeFlags = Parameters<typeof registryAndTrustOptions>[0] & {
+  profile: string;
+  'no-scorecard': boolean;
+  'no-osv': boolean;
+  'no-deps-dev': boolean;
+  'no-sbom': boolean;
+  'no-compliance': boolean;
+  'no-targeted-tree': boolean;
+  'no-releases': boolean;
+  'no-registry': boolean;
+  'no-scan': boolean;
+  'no-domains': boolean;
+  'verify-crypto': boolean;
+  'verify-assets': boolean;
+  'inspect-dependency-artifacts': boolean;
+  'name-intelligence': boolean;
+  'enforce-profile': boolean;
+  ref?: string | undefined;
+};
+
+/** Analysis options of `repo-radar analyze`: the shared defaults with the user's flags applied on top. */
+export function buildAnalyzeOptions(
+  values: AnalyzeFlags,
+  token: string | undefined,
+  minimums: Record<string, number> = {},
+): AnalyzeOptions {
+  return {
+    ...createDefaultAnalysisOptions(),
+    profile: values.profile,
+    ...(token ? { token } : {}),
+    minimums,
+    enforcePolicy: values['enforce-profile'],
+    scorecard: !values['no-scorecard'],
+    osv: !values['no-osv'],
+    depsDev: !values['no-deps-dev'],
+    sbom: !values['no-sbom'],
+    compliance: !values['no-compliance'],
+    targetedTree: !values['no-targeted-tree'],
+    releases: !values['no-releases'],
+    registry: !values['no-registry'],
+    verifyCrypto: values['verify-crypto'],
+    verifyAssets: values['verify-assets'],
+    codeScan: !values['no-scan'],
+    domains: !values['no-domains'],
+    inspectDependencyArtifacts: values['inspect-dependency-artifacts'],
+    nameIntelligence: values['name-intelligence'],
+    ...registryAndTrustOptions(values),
+    ...(values.ref ? { ref: values.ref } : {}),
+  };
+}
+
 export async function main(
   argv: string[],
   stdout: (s: string) => void = (s) => process.stdout.write(s),
@@ -192,57 +297,7 @@ export async function main(
     parsed = parseArgs({
       args: argv,
       allowPositionals: true,
-      options: {
-        format: { type: 'string', default: 'text' },
-        profile: { type: 'string', default: 'default' },
-        output: { type: 'string' },
-        'text-output': { type: 'string' },
-        min: { type: 'string', multiple: true },
-        'enforce-profile': { type: 'boolean', default: false },
-        'no-scorecard': { type: 'boolean', default: false },
-        'no-osv': { type: 'boolean', default: false },
-        'no-deps-dev': { type: 'boolean', default: false },
-        'no-sbom': { type: 'boolean', default: false },
-        'no-compliance': { type: 'boolean', default: false },
-        'no-targeted-tree': { type: 'boolean', default: false },
-        'no-releases': { type: 'boolean', default: false },
-        'no-registry': { type: 'boolean', default: false },
-        'no-dep-registry': { type: 'boolean', default: false },
-        'no-dep-attestations': { type: 'boolean', default: false },
-        'no-domains': { type: 'boolean', default: false },
-        'inspect-dependency-artifacts': { type: 'boolean', default: false },
-        'name-intelligence': { type: 'boolean', default: false },
-        'dep-registry-max': { type: 'string' },
-        'dep-registry-requests': { type: 'string' },
-        'dep-registry-time': { type: 'string' },
-        'trust-config': { type: 'string' },
-        'trusted-root': { type: 'string' },
-        'trust-gpg-key': { type: 'string', multiple: true },
-        'trust-minisign-key': { type: 'string', multiple: true },
-        'expect-signer': { type: 'string' },
-        'verify-crypto': { type: 'boolean', default: false },
-        'snapshot-dir': { type: 'string' },
-        'snapshot-revision': { type: 'boolean', default: false },
-        repo: { type: 'string' },
-        commit: { type: 'string' },
-        query: { type: 'string' },
-        'export-to': { type: 'string' },
-        'import-from': { type: 'string' },
-        'verify-assets': { type: 'boolean', default: false },
-        'no-scan': { type: 'boolean', default: false },
-        ref: { type: 'string' },
-        from: { type: 'string' },
-        to: { type: 'string' },
-        verbose: { type: 'boolean', default: false },
-        ascii: { type: 'boolean', default: false },
-        help: { type: 'boolean', short: 'h', default: false },
-        version: { type: 'boolean', short: 'v', default: false },
-        list: { type: 'string' },
-        'org-summary': { type: 'boolean', default: false },
-        'max-repos': { type: 'string' },
-        'max-requests': { type: 'string' },
-        'max-minutes': { type: 'string' },
-      },
+      options: CLI_PARSE_OPTIONS,
     });
   } catch (e) {
     stderr(`error: ${(e as Error).message}\n\n${HELP}`);
@@ -534,28 +589,7 @@ export async function main(
     }
     const minimums = parseMinimums(values.min ?? []);
     const token = process.env['GITHUB_TOKEN'] || undefined;
-    const report = await analyzeRepository(target, {
-      profile: values.profile,
-      ...(token ? { token } : {}),
-      minimums,
-      enforcePolicy: values['enforce-profile'],
-      scorecard: !values['no-scorecard'],
-      osv: !values['no-osv'],
-      depsDev: !values['no-deps-dev'],
-      sbom: !values['no-sbom'],
-      compliance: !values['no-compliance'],
-      targetedTree: !values['no-targeted-tree'],
-      releases: !values['no-releases'],
-      registry: !values['no-registry'],
-      verifyCrypto: values['verify-crypto'],
-      verifyAssets: values['verify-assets'],
-      codeScan: !values['no-scan'],
-      domains: !values['no-domains'],
-      inspectDependencyArtifacts: values['inspect-dependency-artifacts'],
-      nameIntelligence: values['name-intelligence'],
-      ...registryAndTrustOptions(values),
-      ...(values.ref ? { ref: values.ref } : {}),
-    });
+    const report = await analyzeRepository(target, buildAnalyzeOptions(values, token, minimums));
     const snap = values['snapshot-dir']
       ? storeSnapshot(values['snapshot-dir'], report, values['snapshot-revision'])
       : undefined;

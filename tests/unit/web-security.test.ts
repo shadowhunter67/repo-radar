@@ -21,6 +21,10 @@ const cfg: WebConfig = {
   nodeEnv: 'development',
   workerMaxOldSpaceMb: 512,
   maxStoredJobs: 200,
+  cacheTtlSeconds: 600,
+  quotaReserve: 300,
+  estimatedRequestsPerJob: 60,
+  shutdownGraceSeconds: 20,
 };
 
 type Raw = {

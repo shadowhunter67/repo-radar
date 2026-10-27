@@ -23,6 +23,27 @@ export const WebConfigSchema = z.object({
   nodeEnv: z.string().default('development'),
   workerMaxOldSpaceMb: integer(512, 64, 4096),
   maxStoredJobs: integer(200, 1, 10000),
+  /** Exact-SHA report cache lifetime; 0 disables the cache. */
+  cacheTtlSeconds: integer(600, 0, 3600),
+  /** GitHub requests that must stay available after admitting a job (shared-token reserve). */
+  quotaReserve: integer(300, 0, 5000),
+  /** Assumed requests per analysis until real ones are observed. */
+  estimatedRequestsPerJob: integer(60, 1, 5000),
+  shutdownGraceSeconds: integer(20, 0, 300),
+  /** Public https origin of this instance (used for self links only). */
+  publicBaseUrl: z
+    .string()
+    .url()
+    .refine(
+      (u) => /^https?:\/\/[^/?#]+\/?$/.test(u),
+      'must be an origin without path, query or fragment',
+    )
+    .optional(),
+  /** Commit the running image was built from (shown in /ready and the page footer). */
+  buildCommit: z
+    .string()
+    .regex(/^[0-9a-f]{7,40}$/)
+    .optional(),
 });
 export type WebConfig = z.infer<typeof WebConfigSchema>;
 export function loadWebConfig(env: NodeJS.ProcessEnv = globalThis['process']['env']): WebConfig {
@@ -44,7 +65,14 @@ export function loadWebConfig(env: NodeJS.ProcessEnv = globalThis['process']['en
     nodeEnv: env.NODE_ENV,
     workerMaxOldSpaceMb: env.WORKER_MAX_OLD_SPACE_MB,
     maxStoredJobs: env.MAX_STORED_JOBS,
+    cacheTtlSeconds: env.CACHE_TTL_SECONDS,
+    quotaReserve: env.QUOTA_RESERVE,
+    estimatedRequestsPerJob: env.ESTIMATED_REQUESTS_PER_JOB,
+    shutdownGraceSeconds: env.SHUTDOWN_GRACE_SECONDS,
+    publicBaseUrl: env.PUBLIC_BASE_URL || undefined,
+    buildCommit: env.BUILD_COMMIT || undefined,
   });
-  if (!production && !c.token) return c;
+  if (production && c.publicBaseUrl && !c.publicBaseUrl.startsWith('https://'))
+    throw new Error('PUBLIC_BASE_URL must use https in production');
   return c;
 }

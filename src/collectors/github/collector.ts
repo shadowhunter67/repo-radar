@@ -949,6 +949,10 @@ export async function collectGithub(
     });
   }
 
+  /** Concurrent fetches finish in any order; the scanned set is canonicalized by path (code-unit order). */
+  const sortScanned = (list: ScannedFile[]): void => {
+    list.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+  };
   // ---- static scan files (fetched as text, never executed) ----------------------------------
   const files: ScannedFile[] = [];
   const fetchStats = { skippedTooLarge: 0, skippedOverBudget: 0 };
@@ -962,29 +966,33 @@ export async function collectGithub(
       const t = manifestTexts[i];
       if (t) files.push({ path: p, content: t, size: t.length, role: 'manifest' });
     });
-    let totalBytes = files.reduce((a, f) => a + f.size, 0);
+    // Budget accounting reserves a slot when a fetch STARTS (items start in a fixed queue order), not when it finishes:
+    // otherwise which files fit under the caps would depend on network completion order. Sizes come from the tree.
+    const treeSize = new Map(entries.map((e) => [e.path, e.size ?? 0]));
+    let reservedFiles = files.length;
+    let reservedBytes = files.reduce((a, f) => a + f.size, 0);
     let failed = 0;
     const known = new Set(files.map((f) => f.path));
     const quietFetch = async (path: string, role: FileRole): Promise<void> => {
       if (known.has(path)) return;
       known.add(path);
       if (
-        files.length >= LIMITS.maxScanFiles + wfPaths.length + manifestPaths.length ||
-        totalBytes >= LIMITS.maxScanTotalBytes
+        reservedFiles >= LIMITS.maxScanFiles + wfPaths.length + manifestPaths.length ||
+        reservedBytes >= LIMITS.maxScanTotalBytes
       ) {
         fetchStats.skippedOverBudget++;
         return;
       }
+      reservedFiles++;
+      reservedBytes += treeSize.get(path) ?? 0;
       try {
         const hit = options.blobCache?.get(slug, blobShas.get(path));
         if (hit !== undefined && hit.length <= LIMITS.maxScanFileBytes) {
-          totalBytes += hit.length;
           files.push({ path, content: hit, size: hit.length, role });
           return;
         }
         const content = await rawFetchBytes(path, LIMITS.maxScanFileBytes);
         if (content !== undefined) {
-          totalBytes += content.length;
           files.push({ path, content, size: content.length, role });
         } else {
           failed++;
@@ -1001,6 +1009,7 @@ export async function collectGithub(
     fetchStats.skippedOverBudget += Math.max(0, selection.candidates.length - budget);
     await pool(first, 5, (c) => quietFetch(c.path, c.role));
     for (let round = 0; round < LIMITS.maxRefRounds; round++) {
+      sortScanned(files);
       const next = nextRefCandidates(
         files.filter((f) => f.role !== 'workflow' && f.role !== 'manifest'),
         entries,
@@ -1010,6 +1019,7 @@ export async function collectGithub(
       if (next.paths.length === 0) break;
       await pool(next.paths, 5, (p) => quietFetch(p, 'ref'));
     }
+    sortScanned(files);
     if (failed > 0)
       b.diag('warn', 'scan_fetch_failed', `${failed} scan file(s) could not be fetched`);
     if (privateContentsFailed)

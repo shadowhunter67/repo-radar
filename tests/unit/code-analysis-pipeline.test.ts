@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { analyzeRepository } from '../../src/analyze.js';
 import { ReportSchema, type Report } from '../../src/report/schema.js';
+import { canonicalStringify } from '../../src/report/canonical.js';
 import { renderText } from '../../src/report/text.js';
 import { benignHookRepo, FAKE_AWS_TAIL, installerRepo } from '../helpers/code-scenarios.js';
 import { fakeFetch, fixedClock, type FakeSpec, type Recorded } from '../helpers/fake-github.js';
@@ -276,11 +277,12 @@ describe('report versioning and integrity', () => {
     });
     expect(r.methodology.config_digest).toMatch(/^[0-9a-f]{64}$/);
     const { integrity, ...rest } = r;
+    expect(integrity.format).toBe('canonical-json@1');
     expect(integrity.report_sha256).toBe(
-      createHash('sha256').update(JSON.stringify(rest)).digest('hex'),
+      createHash('sha256').update(canonicalStringify(rest)).digest('hex'),
     );
     const tampered = { ...rest, overall: { ...rest.overall, score: 100 } };
-    expect(createHash('sha256').update(JSON.stringify(tampered)).digest('hex')).not.toBe(
+    expect(createHash('sha256').update(canonicalStringify(tampered)).digest('hex')).not.toBe(
       integrity.report_sha256,
     );
   });

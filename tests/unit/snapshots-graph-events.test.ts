@@ -177,7 +177,7 @@ describe('snapshot store', () => {
     const a = await pinned();
     const changed = JSON.parse(JSON.stringify(a)) as Report;
     changed.generated_at = '2030-01-01T00:00:00.000Z';
-    changed.integrity = { report_sha256: canonicalReportHash(changed) };
+    changed.integrity = { ...changed.integrity, report_sha256: canonicalReportHash(changed) };
     const store = new FsSnapshotStore(dir);
     store.putSnapshot(a);
     const res = store.putSnapshot(changed);

@@ -1,4 +1,6 @@
 import { createHash } from 'node:crypto';
+import { compareCodeUnits, INTEGRITY_FORMAT } from './report/canonical.js';
+import { digestNewReport } from './report/integrity.js';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildFindings } from './analysis/findings.js';
@@ -842,7 +844,17 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       block_violations: blockViolations,
       violations,
     },
-    diagnostics: diagnostics.map((d) => ({ ...d, message: redactSecrets(d.message) })),
+    // Diagnostics are a set-like log: collectors finish in any order, so the list is canonicalized for a stable report.
+    diagnostics: diagnostics
+      .map((d) => ({ ...d, message: redactSecrets(d.message) }))
+      .sort(
+        (a, b) =>
+          compareCodeUnits(a.source, b.source) ||
+          compareCodeUnits(a.code, b.code) ||
+          compareCodeUnits(a.message, b.message) ||
+          compareCodeUnits(a.level, b.level) ||
+          compareCodeUnits(JSON.stringify(a.affects ?? []), JSON.stringify(b.affects ?? [])),
+      ),
     stats: {
       evidence_count: store.size,
       http_requests:
@@ -859,7 +871,10 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
     regulatory,
   };
   opts.onStage?.('report_built');
-  return { ...report, integrity: { report_sha256: sha256(JSON.stringify(report)) } };
+  return {
+    ...report,
+    integrity: { report_sha256: digestNewReport(report), format: INTEGRITY_FORMAT },
+  };
 }
 
 export { HttpError, RateLimitError };

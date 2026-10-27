@@ -17,6 +17,10 @@ const c = (x: Partial<WebConfig> = {}): WebConfig => ({
   nodeEnv: 'development',
   workerMaxOldSpaceMb: 512,
   maxStoredJobs: 200,
+  cacheTtlSeconds: 600,
+  quotaReserve: 300,
+  estimatedRequestsPerJob: 60,
+  shutdownGraceSeconds: 20,
   ...x,
 });
 const report = { retrieval: { completeness: 'complete' } } as never;
@@ -49,7 +53,7 @@ describe('web jobs', () => {
     expect(() => j.enqueue({ owner: 'o', repo: 'b' })).toThrow('queue full');
     release();
   });
-  it('expires and tombstones', () => {
+  it('expires and tombstones a finished job (a job that is still running never expires)', async () => {
     let t = 0;
     const j = new JobStore(
       c({ jobTtlSeconds: 60 }),
@@ -58,6 +62,8 @@ describe('web jobs', () => {
     );
     const x = j.enqueue({ owner: 'o', repo: 'r' });
     t = 61000;
+    expect(j.get(x.id)?.state).toBe('running');
+    await new Promise((r) => setTimeout(r, 0));
     expect(j.get(x.id)?.state).toBe('expired');
     t = 361001;
     expect(j.get(x.id)).toBeUndefined();

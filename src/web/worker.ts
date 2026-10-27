@@ -1,4 +1,4 @@
-import { analyzeRepository } from '../analyze.js';
+import { runWebAnalysis } from './analysis.js';
 import { RepoNotFoundError } from '../collectors/github/collector.js';
 import { HttpError, RateLimitError } from '../util/http.js';
 import { RepoRefError } from '../util/repo-ref.js';
@@ -9,11 +9,13 @@ const runtime = (await import('node:' + 'worker_' + 'threads')) as {
 const parentPort = runtime.parentPort;
 const d = runtime.workerData as { owner: string; repo: string; ref?: string; token?: string };
 if (!parentPort) throw new Error('worker requires parentPort');
-analyzeRepository(`${d.owner}/${d.repo}`, {
-  ...(d.token ? { token: d.token } : {}),
-  ...(d.ref ? { ref: d.ref } : {}),
-  onStage: (stage) => parentPort.postMessage({ type: 'stage', stage }),
-})
+runWebAnalysis(
+  { owner: d.owner, repo: d.repo, ...(d.ref ? { ref: d.ref } : {}) },
+  {
+    ...(d.token ? { token: d.token } : {}),
+    onStage: (stage) => parentPort.postMessage({ type: 'stage', stage }),
+  },
+)
   .then((report) => parentPort.postMessage({ type: 'result', report }))
   .catch((error: unknown) => {
     const e = error as Error;

@@ -13,14 +13,45 @@ export type WorkerFactory = (
     resourceLimits?: { maxOldGenerationSizeMb: number };
   },
 ) => WorkerLike | Promise<WorkerLike>;
+type RunnerError = Error & { code: string; resetAt?: string };
+const fail = (code: string, message: string): RunnerError =>
+  Object.assign(new Error(message), { code }) as RunnerError;
+const isReport = (v: unknown): v is Report =>
+  !!v &&
+  typeof v === 'object' &&
+  typeof (v as { schema_version?: unknown }).schema_version === 'string' &&
+  typeof (v as { generated_at?: unknown }).generated_at === 'string' &&
+  !!(v as { integrity?: unknown }).integrity;
+
+/**
+ * Runs one analysis in a worker thread and settles exactly once: with the report, or with an error that carries a stable
+ * code. Whatever the worker does (throws, exits, hangs, runs out of memory, posts nonsense) the promise settles, the timer
+ * is cleared and the worker is terminated, so the queue behind it keeps moving and nothing is left running.
+ */
 export function createWorkerRunner(
   config: WebConfig,
   factory?: WorkerFactory,
-): (repo: WebRepo, onStage: (s: string) => void) => Promise<Report> {
-  return (repo, onStage) =>
+  workerUrl: URL = new URL('./worker.js', import.meta.url),
+): (repo: WebRepo, onStage: (s: string) => void, signal?: AbortSignal) => Promise<Report> {
+  return (repo, onStage, signal) =>
     new Promise((resolve, reject) => {
+      let settled = false;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      let worker: WorkerLike | undefined;
+      const finish = (error: RunnerError | undefined, report?: Report): void => {
+        if (settled) return;
+        settled = true;
+        if (timer) clearTimeout(timer);
+        void worker?.terminate().catch(() => undefined);
+        if (error) reject(error);
+        else resolve(report as Report);
+      };
+      signal?.addEventListener('abort', () => finish(fail('SHUTTING_DOWN', 'aborted')), {
+        once: true,
+      });
+      if (signal?.aborted) return finish(fail('SHUTTING_DOWN', 'aborted'));
       void (async () => {
-        const f =
+        const f: WorkerFactory =
           factory ??
           (async (url, options) => {
             const mod = (await import('node:' + 'worker_' + 'threads')) as {
@@ -28,56 +59,44 @@ export function createWorkerRunner(
             };
             return new mod.Worker(url, options);
           });
-        const w = await f(new URL('./worker.js', import.meta.url), {
+        // the timer starts before the worker so a stuck start-up cannot outlive the limit
+        timer = setTimeout(
+          () => finish(fail('ANALYSIS_TIMEOUT', 'analysis timeout')),
+          config.analysisTimeoutSeconds * 1000,
+        );
+        worker = await f(workerUrl, {
           workerData: { owner: repo.owner, repo: repo.repo, ref: repo.ref, token: config.token },
           execArgv: process.execArgv.filter((a) => !a.startsWith('--input-type')),
           resourceLimits: { maxOldGenerationSizeMb: config.workerMaxOldSpaceMb },
         });
-        let ended = false;
-        const terminate = () => {
-          if (!ended) {
-            ended = true;
-            void w.terminate();
-          }
-        };
-        const timer = setTimeout(() => {
-          terminate();
-          const e = new Error('analysis timeout') as Error & { code: string };
-          e.code = 'ANALYSIS_TIMEOUT';
-          reject(e);
-        }, config.analysisTimeoutSeconds * 1000);
-        w.on('message', (value: unknown) => {
-          const m = value as { type: string; stage?: string; report?: Report; code?: string };
-          if (m.type === 'stage') onStage(m.stage!);
-          else if (m.type === 'result') {
-            clearTimeout(timer);
-            terminate();
-            resolve(m.report!);
-          } else {
-            clearTimeout(timer);
-            terminate();
-            const e = new Error('analysis failed') as Error & { code?: string };
-            e.code = m.code;
-            reject(e);
-          }
-        })
-          .on('error', () => {
-            clearTimeout(timer);
-            terminate();
-            reject(Object.assign(new Error('worker failed'), { code: 'INTERNAL_ERROR' }));
+        if (settled) {
+          void worker.terminate().catch(() => undefined);
+          return;
+        }
+        worker
+          .on('message', (value: unknown) => {
+            const m = (value ?? {}) as {
+              type?: string;
+              stage?: unknown;
+              report?: unknown;
+              code?: unknown;
+              resetAt?: unknown;
+            };
+            if (m.type === 'stage' && typeof m.stage === 'string') onStage(m.stage);
+            else if (m.type === 'result' && isReport(m.report)) finish(undefined, m.report);
+            else if (m.type === 'error') {
+              const e = fail(
+                typeof m.code === 'string' ? m.code : 'INTERNAL_ERROR',
+                'analysis failed',
+              );
+              if (typeof m.resetAt === 'string') e.resetAt = m.resetAt;
+              finish(e);
+            } else finish(fail('INTERNAL_ERROR', 'worker returned an unexpected message'));
           })
-          .on('messageerror', () => {
-            clearTimeout(timer);
-            terminate();
-            reject(Object.assign(new Error('worker message failed'), { code: 'INTERNAL_ERROR' }));
-          })
-          .on('exit', (code: unknown) => {
-            if (!ended && code !== 0) {
-              clearTimeout(timer);
-              terminate();
-              reject(Object.assign(new Error('worker exited'), { code: 'INTERNAL_ERROR' }));
-            }
-          });
-      })().catch(reject);
+          .on('error', () => finish(fail('INTERNAL_ERROR', 'worker failed')))
+          .on('messageerror', () => finish(fail('INTERNAL_ERROR', 'worker message failed')))
+          // an exit before a result is a failure whatever the exit code (a clean exit without a result is still no result)
+          .on('exit', () => finish(fail('INTERNAL_ERROR', 'worker exited without a result')));
+      })().catch(() => finish(fail('INTERNAL_ERROR', 'worker could not start')));
     });
 }
