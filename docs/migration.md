@@ -28,3 +28,9 @@ Dependency-history reports add `history_rate_limited`, per-entry diagnostics, un
 Report schema 0.16 adds `present_at_window_start` to dependency introductions. A
 dependency present at the scanned window base has no claimed introduction commit or
 event. Re-run analyses to produce schema 0.16 reports; methodology remains 0.4.
+
+## 0.17.0
+
+No report schema change (still 0.16) and no methodology change (still 0.4); existing reports and consumers keep working. The
+new Web Analyzer exposes an HTTP API under `/api/v1`; "v1" versions that API only. The version-consistency check now allows
+the package minor to be ahead of the report schema version.

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.17.0] - Web Analyzer MVP (Experimental Preview)
+
+- New `src/web` server and `web/public` static UI: analyze a public GitHub repository from a browser; API v1
+  (`/api/v1/analyze`, `/jobs/{id}`, `/jobs/{id}/report`, `/health`, `/ready`). See `docs/web-analyzer.md`.
+- Rate limiting, bounded queue, worker threads with timeout and memory cap, in-memory job TTL, CSP and security headers,
+  no telemetry. Non-root `Dockerfile`, `.env.example`, `docs/deployment.md`.
+- `analyzeRepository` gained an optional additive `onStage` callback; reports are unchanged. Report schema stays 0.16,
+  methodology 0.4. No new detectors.
+- Release workflow selects `docs/release/RELEASE_NOTES_<version>-preview.md` from the package version and rejects a mismatched
+  tag; `check-version-consistency` no longer requires the package minor to equal the report schema version.
+- No official hosted instance; not published to npm; the GitHub Action is not published.
+
 ## 0.16.0-preview
 
 - Public experimental documentation, conservative contract, support policy, Action

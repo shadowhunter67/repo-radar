@@ -120,3 +120,30 @@ test suite, not users of the published runtime package. This is a status stateme
 not a claim that the development toolchain has no vulnerabilities.
 
 K4 adds two related controls: introduction history is emitted only from fetched revisions, and artifact deltas require verified same-package pairs. Missing history or unsupported metadata is unknown/not available, never negative evidence.
+
+# Web Analyzer threat model (0.17)
+
+The web layer accepts input from anonymous users on the network, so it has its own threat model. The engine's own rows above
+still apply to everything it fetches. Tests named below are in `tests/unit/` unless stated.
+
+| Threat | Mitigation | Covered by |
+| --- | --- | --- |
+| Public API abuse (floods, scripted use) | Per-client limits per minute and per hour, bounded limiter table, `429` with `Retry-After`; request body capped at 4096 bytes; request and header timeouts | `web-ratelimit.test.ts`, `web-api.test.ts` |
+| SSRF and arbitrary fetch | The user supplies only `owner/repo` or an exact `https://github.com/owner/repo` URL; both are reduced to a validated owner, repo and ref (strict character allowlists, no port, query, fragment or credentials). The engine only ever receives the validated owner/repo; the server never fetches a user-supplied URL | `web-validate.test.ts`, `web-security.test.ts` |
+| Cross-site scripting | Every value from a report is inserted with `textContent` or attributes, never `innerHTML`; no inline script, style or handler; CSP `script-src 'self'` and `default-src 'none'` | `web-ui-safety.test.ts`, `web-security.test.ts`, `tests/e2e/web.spec.ts` |
+| Credential leakage | The GitHub token is read from the server environment and passed to the worker as worker data; it is not in responses, logs, the page or the built bundle | `web-security.test.ts`, `web-bundle.test.ts`, `web-docker.test.ts` |
+| Resource exhaustion | Concurrency cap, queue cap, stored-job cap, per-worker V8 memory cap, hard analysis timeout (worker terminated), report size cap, TTL sweeper | `web-jobs.test.ts`, `web-config.test.ts`, `web-api.test.ts` |
+| Queue abuse | A full queue returns `503 QUEUE_FULL` instead of growing; per-client limits apply before enqueue | `web-jobs.test.ts`, `web-api.test.ts` |
+| Report retention and privacy | Jobs and reports are in memory only and expire at the TTL; no database, no permalinks, no telemetry, no accounts; job ids are 128-bit random | `web-jobs.test.ts` |
+| Cache isolation | There is no shared analysis cache between jobs, so one user cannot read or poison another's result | design (no cache exists) |
+| CSRF | The API is stateless and anonymous; there are no cookies or sessions to ride, and it needs `Content-Type: application/json` | `web-api.test.ts` |
+| CORS | No CORS headers are sent; the page and API are same-origin, and `connect-src 'self'` | `web-security.test.ts` |
+| Clickjacking | `frame-ancestors 'none'` and `X-Frame-Options: DENY` | `web-security.test.ts` |
+| Search indexing of results | API responses carry `X-Robots-Tag: noindex, nofollow` and `Cache-Control: no-store` | `web-security.test.ts` |
+| Frontend supply chain | No third-party scripts, styles or fonts and no build-time bundler; the page is plain ES modules served from `self`; the built output is checked for external hosts | `web-bundle.test.ts` |
+| Trusting forwarded headers | `X-Forwarded-For` is ignored unless `TRUST_PROXY=true`, and then only the last entry is used; `TRUST_PROXY=false` is parsed as false | `web-config.test.ts` |
+| Information disclosure in errors | Errors use stable codes with fixed messages; internal errors return `INTERNAL_ERROR` without details | `web-api.test.ts` |
+
+Residual risks: all users share the server's GitHub budget (a deliberate heavy user can degrade results for others within the
+rate limits), jobs are lost on restart, and TLS and HSTS are the operator's responsibility (see [deployment.md](./deployment.md)).
+This is a description of controls in an Experimental Preview, not an assurance that none of them can fail.

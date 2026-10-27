@@ -2,10 +2,12 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { realpathSync } from 'node:fs';
+import { toolVersion } from '../analyze.js';
 import { loadWebConfig, type WebConfig } from './config.js';
 import { responseHeaders } from './headers.js';
 import { errorBody, reportFilename, reportSha } from './api.js';
-import { JobStore, type RunAnalysis } from './jobs.js';
+import { JobStore, type Job, type RunAnalysis } from './jobs.js';
+import { logJob } from './log.js';
 import { RateLimiter } from './ratelimit.js';
 import { createWorkerRunner } from './runner.js';
 import { serveStatic } from './static.js';
@@ -52,11 +54,12 @@ export function createWebServer(
     runAnalysis?: RunAnalysis;
     clock?: () => number;
     staticRoot?: string;
+    onJobFinished?: (job: Job) => void;
   } = {},
 ) {
   const config = options.config ?? loadWebConfig();
   const run = options.runAnalysis ?? createWorkerRunner(config);
-  const jobs = new JobStore(config, run, options.clock);
+  const jobs = new JobStore(config, run, options.clock, options.onJobFinished);
   const limits = new RateLimiter(
     config.rateLimitPerMinute,
     config.rateLimitHourly,
@@ -69,7 +72,7 @@ export function createWebServer(
     try {
       if (u.pathname.startsWith('/api/')) {
         if (req.method === 'GET' && u.pathname === '/api/v1/health')
-          return send(res, 200, { ok: true, version: '0.17.0', api: 'v1' });
+          return send(res, 200, { ok: true, version: toolVersion(), api: 'v1' });
         if (req.method === 'GET' && u.pathname === '/api/v1/ready')
           return send(res, config.nodeEnv === 'production' && !config.token ? 503 : 200, {
             ok: true,
@@ -200,7 +203,13 @@ if (
   realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))
 ) {
   const c = loadWebConfig();
-  const s = createWebServer({ config: c });
+  const s = createWebServer({
+    config: c,
+    onJobFinished: (j) =>
+      logJob('job_finished', j.id, j.state, j.startedAt ?? j.createdAt, {
+        ...(j.error ? { error_code: j.error.code } : {}),
+      }),
+  });
   s.listen(c.port, c.host, () =>
     console.log(
       JSON.stringify({

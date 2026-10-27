@@ -135,3 +135,8 @@ Order decided 2026-10-18. Versions state intent, not dates.
 ## 0.12 - Behavioral delta integration
 
 Artifact metadata and verified two-revision behavior/trust-boundary comparison are implemented; governance and behavior remain separate.
+
+## After the Web Analyzer MVP (0.17)
+
+Later, not scheduled: private-repository access with explicit user authorization, accounts, shareable result permalinks,
+an interactive dependency graph, a hosted instance, and watching repositories over time. None of these exist in 0.17.

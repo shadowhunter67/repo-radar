@@ -9,3 +9,8 @@ These descriptions avoid safety, malware, compliance, and validated-accuracy cla
 
 README badges point at `shadowhunter67/repo-radar`; they become live once the
 repository is public.
+
+## Website field
+
+Leave the repository `website` (homepage) field **empty** until a real hosted Web Analyzer instance exists. 0.17 ships no
+hosted instance, so no URL may be entered there or in the README as if one were running.

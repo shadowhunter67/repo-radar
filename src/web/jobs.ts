@@ -26,6 +26,7 @@ export class JobStore {
     private config: WebConfig,
     private run: RunAnalysis,
     private clock = () => Date.now(),
+    private onFinished: (job: Job) => void = () => undefined,
   ) {
     this.sweepTimer = setInterval(
       () => this.sweep(),
@@ -143,6 +144,11 @@ export class JobStore {
         })
         .finally(() => {
           j.finishedAt = this.clock();
+          try {
+            this.onFinished(j);
+          } catch {
+            /* logging must never affect the queue */
+          }
           this.running--;
           this.pump();
         });

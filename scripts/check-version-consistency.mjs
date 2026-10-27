@@ -16,8 +16,10 @@ if (!schema) problems.push('REPORT_SCHEMA_VERSION not found');
 if (!ci) problems.push('CI schema assertion not found');
 if (!supported) problems.push('SECURITY.md supported version not found');
 if (schema && ci && schema !== ci) problems.push(`schema ${schema} differs from CI ${ci}`);
-if (schema && packageMinor !== schema)
-  problems.push(`package ${packageMinor} differs from schema ${schema}`);
+// The report schema is versioned independently of the product (0.17 reuses schema 0.16 because the report did not change),
+// so only the recorded relationship "package minor >= schema minor" is enforced.
+if (schema && Number(packageMinor?.split('.')[1]) < Number(schema.split('.')[1]))
+  problems.push(`package ${packageMinor} is older than schema ${schema}`);
 if (supported && packageMinor !== supported)
   problems.push(`package ${packageMinor} differs from SECURITY.md ${supported}`);
 if (problems.length) {

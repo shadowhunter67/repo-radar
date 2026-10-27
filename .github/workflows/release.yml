@@ -99,7 +99,11 @@ jobs:
         with:
           name: release-artifacts
           path: release-out
-      - run: set -euo pipefail; gh release create "${GITHUB_REF_NAME}" release-out/* --prerelease --title "repo-radar ${GITHUB_REF_NAME}" --notes-file docs/release/RELEASE_NOTES_0.16.0-preview.md
+      - run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          [ "v${VERSION}" = "${GITHUB_REF_NAME}" ] || { echo "tag ${GITHUB_REF_NAME} does not match package.json version ${VERSION}" >&2; exit 1; }
+          gh release create "${GITHUB_REF_NAME}" release-out/* --prerelease --title "repo-radar ${GITHUB_REF_NAME}" --notes-file "docs/release/RELEASE_NOTES_${VERSION}-preview.md"
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}

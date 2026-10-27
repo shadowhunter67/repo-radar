@@ -153,3 +153,11 @@ Incident evaluator v2 separates evaluability from correctness. Insufficient evid
 ## Dependency-history validation
 
 The history collector remains opt-in/policy-triggered. Full manifest histories can cost hundreds to thousands of API requests, so bounded default scans may be partial. The measured 2026-10-24 validation covered ten repositories and 80 dependencies; see [history-validation.md](history-validation.md). It was not human-reviewed, does not cover lockfile/transitive accuracy, and GitHub path-filtering can omit old commits. Rate-limited or unavailable API observations remain unknown.
+
+## Web Analyzer
+
+- Public repositories only; no private-repository authentication, accounts, permalinks or stored results.
+- Jobs live in memory for a limited time and are lost on restart; one process, no shared state between replicas.
+- Every user of an instance shares the server's GitHub rate-limit budget, so busy instances produce `partial` or failed jobs.
+- `partial` means some evidence was incomplete, not that the repository is worse; `completed` does not mean safe.
+- History analysis is off in the web version.

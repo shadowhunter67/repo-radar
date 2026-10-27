@@ -13,3 +13,7 @@ repository collector, releases, history, Action, and GitHub attestation instance
 
 Dependency history, incident correlation, governance intelligence, graph queries,
 batch, and compliance packs are experimental or indicative. There is no SLA.
+
+The Web Analyzer (0.17) supports public repositories only and is Experimental. It is supported as source and as a container
+recipe that you run yourself; there is no hosted service and no SLA. See [web-analyzer.md](./web-analyzer.md) and
+[deployment.md](./deployment.md).

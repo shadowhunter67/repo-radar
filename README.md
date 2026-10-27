@@ -21,6 +21,21 @@ unknown states.
 - [All releases](https://github.com/shadowhunter67/repo-radar/releases)
 - Not published yet: the npm registry package and the GitHub Action.
 
+## Web Analyzer (Experimental Preview)
+
+Besides the CLI there is a small web page and API that run the same engine on a **public** GitHub repository and show the
+result (score, confidence and coverage separately, the exact analyzed commit, findings with evidence, and a JSON download).
+There is **no official hosted instance**; you run it yourself:
+
+```
+npm ci && npm run build
+GITHUB_TOKEN=... npm run web:dev      # http://127.0.0.1:8787
+```
+
+Public repositories only, no accounts, no telemetry, results kept in memory for a short time. See
+[docs/web-analyzer.md](docs/web-analyzer.md) for the API and limits and [docs/deployment.md](docs/deployment.md) for running it
+(including a non-root `Dockerfile`).
+
 ## What it does
 
 - identifies repository purpose and interfaces;

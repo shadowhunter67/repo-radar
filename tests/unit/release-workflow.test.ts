@@ -38,6 +38,20 @@ describe('preview release workflow governance', () => {
     expect(workflow).not.toMatch(/gh release create[\s\S]*dist\/action/);
   });
 
+  it('takes the release notes from the package version and rejects a mismatched tag', () => {
+    const workflow = read('.github/workflows/release.yml');
+    expect(workflow).not.toMatch(/RELEASE_NOTES_\d+\.\d+\.\d+-preview\.md/);
+    expect(workflow).toContain('docs/release/RELEASE_NOTES_${VERSION}-preview.md');
+    expect(workflow).toContain('does not match package.json version');
+    const version = (JSON.parse(read('package.json')) as { version: string }).version;
+    expect(() => read(`docs/release/RELEASE_NOTES_${version}-preview.md`)).not.toThrow();
+  });
+
+  it('does not attach anything from dist/web to the release', () => {
+    const workflow = read('.github/workflows/release.yml');
+    expect(workflow).not.toMatch(/gh release create[\s\S]*dist\/web/);
+  });
+
   it('grants id-token and attestations only to the attest job', () => {
     const workflow = read('.github/workflows/release.yml');
     const attest = workflow.split('\n  attest:\n')[1]?.split('\n  publish:\n')[0] ?? '';
