@@ -8,6 +8,11 @@
 [![Version](https://img.shields.io/github/package-json/v/shadowhunter67/repo-radar)](package.json)
 [![Security](https://img.shields.io/badge/security-policy-blue)](SECURITY.md)
 
+**Web Analyzer (Experimental Preview): https://repo-radar-kcd0.onrender.com**
+Vietnamese by default (VI / EN switch). Public GitHub repositories only, results are temporary. It runs on Render Free, so the
+first request after a quiet period can take a minute while the server wakes up. No SLA. Prefer to run it yourself or use the
+CLI? See [below](#web-analyzer-experimental-preview) and [Quick start](#quick-start).
+
 Evidence-driven repository and software supply-chain intelligence for GitHub
 repositories. repo-radar is static and read-only: it fetches metadata and source
 text, applies bounded rules, and preserves evidence, coverage, confidence, and
@@ -25,7 +30,7 @@ unknown states.
 
 Besides the CLI there is a small web page and API that run the same engine on a **public** GitHub repository and show the
 result (score, confidence and coverage separately, the exact analyzed commit, findings with evidence, and a JSON download).
-There is **no official hosted instance**; you run it yourself:
+An experimental preview is hosted at https://repo-radar-kcd0.onrender.com (Render Free: 0.1 CPU, 512 MB RAM, sleeps when idle, so a cold start can add about a minute; one shared server-side GitHub token; jobs are kept in memory and lost on restart; no accounts; history analysis off). To run it yourself:
 
 ```
 npm ci && npm run build

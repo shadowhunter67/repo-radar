@@ -9,4 +9,4 @@
 | Batch and snapshots | Experimental | bounded budgets and local storage |
 | Compliance packs | Indicative | technical signals, not legal advice |
 | Dynamic analysis | Not implemented | no sandbox or runtime telemetry |
-| Web Analyzer (server and page) | Experimental | public repositories only; in-memory jobs; no official hosted instance |
+| Web Analyzer (server and page) | Experimental | public repositories only; in-memory jobs; hosted preview on Render Free |

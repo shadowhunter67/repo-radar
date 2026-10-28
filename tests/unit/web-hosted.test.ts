@@ -531,7 +531,7 @@ describe('landing page build identification', () => {
       const html = await (
         await fetch(`http://127.0.0.1:${(s.address() as { port: number }).port}/`)
       ).text();
-      expect(html).toMatch(/repo-radar \d+\.\d+\.\d+ · commit 0123456/);
+      expect(html).toMatch(/repo-radar \d+\.\d+\.\d+ · build 0123456/);
       expect(html).not.toContain('<!--build-info-->');
     } finally {
       await s.shutdown(50);

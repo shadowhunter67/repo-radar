@@ -32,6 +32,9 @@ const dict = {
     'links.methodology': 'Phương pháp luận',
     'links.limitations': 'Hạn chế',
     noscript: 'Cần bật JavaScript để chạy phân tích.',
+    'status.sending': 'Đang gửi yêu cầu…',
+    'status.waking':
+      'Dịch vụ đang khởi động (máy chủ miễn phí có thể mất khoảng một phút sau thời gian không dùng). Vui lòng chờ…',
     'status.queued': 'Đang chờ',
     'status.queuedPosition': 'Đang chờ: vị trí {n}',
     'status.running': 'Đang chạy',
@@ -212,6 +215,9 @@ const dict = {
     'links.methodology': 'Methodology',
     'links.limitations': 'Limitations',
     noscript: 'JavaScript is required to run an analysis.',
+    'status.sending': 'Sending the request…',
+    'status.waking':
+      'The service is starting up (a free server can take about a minute after being idle). Please wait…',
     'status.queued': 'Queued',
     'status.queuedPosition': 'Queued: position {n}',
     'status.running': 'Running',

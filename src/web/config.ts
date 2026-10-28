@@ -49,28 +49,41 @@ export type WebConfig = z.infer<typeof WebConfigSchema>;
 export function loadWebConfig(env: NodeJS.ProcessEnv = globalThis['process']['env']): WebConfig {
   const production = env.NODE_ENV === 'production';
   if (production && !env.GITHUB_TOKEN) throw new Error('GITHUB_TOKEN is required in production');
+  // On Render (RENDER=true) the free instance has 512 MB and a fraction of a CPU: unless a value is set explicitly, start
+  // conservative (one worker, a short queue, a small worker heap) so a busy moment ends in QUEUE_FULL rather than an
+  // out-of-memory restart. Nothing else about the server is Render-specific.
+  const onRender = env.RENDER === 'true';
+  const dflt = (value: string | undefined, onRenderValue: string): string | undefined =>
+    value !== undefined && value !== '' ? value : onRender ? onRenderValue : undefined;
+  // Platform build metadata is used when the explicit variable is absent; an unusable value is ignored, never fatal.
+  const platformCommit = /^[0-9a-f]{7,40}$/.test(env.RENDER_GIT_COMMIT ?? '')
+    ? env.RENDER_GIT_COMMIT
+    : undefined;
+  const platformUrl = /^https?:\/\/[^/?#]+\/?$/.test(env.RENDER_EXTERNAL_URL ?? '')
+    ? env.RENDER_EXTERNAL_URL
+    : undefined;
   const c = WebConfigSchema.parse({
     token: env.GITHUB_TOKEN,
     port: env.PORT,
     host: env.HOST,
     jobTtlSeconds: env.JOB_TTL_SECONDS,
-    maxConcurrency: env.MAX_CONCURRENCY,
-    maxQueue: env.MAX_QUEUE,
+    maxConcurrency: dflt(env.MAX_CONCURRENCY, '1'),
+    maxQueue: dflt(env.MAX_QUEUE, '4'),
     rateLimitPerMinute: env.RATE_LIMIT_PER_MINUTE,
     rateLimitHourly: env.RATE_LIMIT_HOURLY,
     analysisTimeoutSeconds: env.ANALYSIS_TIMEOUT_SECONDS,
-    maxReportBytes: env.MAX_REPORT_BYTES,
+    maxReportBytes: dflt(env.MAX_REPORT_BYTES, '8388608'),
     trustProxy: env.TRUST_PROXY,
     requestBodyLimit: env.REQUEST_BODY_LIMIT,
     nodeEnv: env.NODE_ENV,
-    workerMaxOldSpaceMb: env.WORKER_MAX_OLD_SPACE_MB,
-    maxStoredJobs: env.MAX_STORED_JOBS,
+    workerMaxOldSpaceMb: dflt(env.WORKER_MAX_OLD_SPACE_MB, '192'),
+    maxStoredJobs: dflt(env.MAX_STORED_JOBS, '40'),
     cacheTtlSeconds: env.CACHE_TTL_SECONDS,
     quotaReserve: env.QUOTA_RESERVE,
     estimatedRequestsPerJob: env.ESTIMATED_REQUESTS_PER_JOB,
     shutdownGraceSeconds: env.SHUTDOWN_GRACE_SECONDS,
-    publicBaseUrl: env.PUBLIC_BASE_URL || undefined,
-    buildCommit: env.BUILD_COMMIT || undefined,
+    publicBaseUrl: env.PUBLIC_BASE_URL || platformUrl,
+    buildCommit: env.BUILD_COMMIT || platformCommit,
   });
   if (production && c.publicBaseUrl && !c.publicBaseUrl.startsWith('https://'))
     throw new Error('PUBLIC_BASE_URL must use https in production');

@@ -1,7 +1,6 @@
 # Deploying the Web Analyzer
 
-**No official hosted instance is deployed yet.** This page is for people who want to run their own. Nothing here is a
-promise that a public instance exists or will exist.
+An experimental preview runs on Render Free at https://repo-radar-kcd0.onrender.com. This page is for people who want to run their own instance; nothing here promises that a public instance will keep existing or stay free, and the server is not tied to Render.
 
 ## Runtime
 
@@ -83,10 +82,22 @@ the port to loopback (as above) or to a proxy, not directly to the internet.
 
 ## Operating notes (0.18)
 
-- **Still no official hosted instance.** No platform was chosen; do not publish a URL for this project until one is deployed and smoke-tested.
+- The official preview runs on Render Free at https://repo-radar-kcd0.onrender.com; do not publish any other URL as official for this project.
 - Set `BUILD_COMMIT` (short or full hex SHA) and `PUBLIC_BASE_URL` (https origin) through the platform; both are validated at startup.
 - **Quota:** keep `QUOTA_RESERVE` above what other jobs on the same token may need; admission uses GitHub's own remaining-quota figure. `/api/v1/ready` reports only `unknown`, `ok` or `low`.
 - **Shutdown:** give the platform a termination grace period longer than `SHUTDOWN_GRACE_SECONDS` (default 20 s); running jobs that do not finish in time fail with `SHUTTING_DOWN`.
 - **Rollback:** deploy the previous image by its immutable tag or digest and check `/api/v1/ready` for the expected version and `build_commit`. Jobs are not durable, so a rollback or restart discards them by design.
 - **Token rotation:** replace the `GITHUB_TOKEN` secret on the platform and restart; no rebuild is needed.
 - **Cost guard:** `MAX_CONCURRENCY`, `WORKER_MAX_OLD_SPACE_MB`, `MAX_STORED_JOBS` and `MAX_REPORT_BYTES` bound memory; there is no uptime or response-time promise.
+
+## Render Free example deployment
+
+One way to host a preview (the server is plain Node and Docker; Render is not required and no Render SDK is used):
+
+1. New **Web Service** from this repository, runtime **Docker** (uses the repository `Dockerfile`), branch `main`.
+2. **Health check path:** `/api/v1/health` (cheap, does not call GitHub). `/api/v1/ready` is a separate readiness view; it does not probe GitHub either.
+3. **Environment:** `NODE_ENV=production` and `GITHUB_TOKEN` (a read-only token for public repositories only; keep it as a secret, never in the image). Optionally `TRUST_PROXY=true` when exactly one trusted proxy appends the client address (see Reverse proxy above).
+4. **Automatic metadata:** the server reads `RENDER_GIT_COMMIT` as `BUILD_COMMIT` and `RENDER_EXTERNAL_URL` as `PUBLIC_BASE_URL` when those are not set explicitly, so nothing needs updating on each deploy. The footer shows `repo-radar <version> · build <short commit>`.
+5. **Conservative defaults on Render:** when `RENDER=true` (set by Render) and a value is not given, `MAX_CONCURRENCY=1`, `MAX_QUEUE=4`, `WORKER_MAX_OLD_SPACE_MB=192`, `MAX_STORED_JOBS=40` and `MAX_REPORT_BYTES=8388608` apply, which suits 512 MB. Do not raise concurrency just because small repositories are fast.
+6. **Auto-deploy:** prefer "After CI checks pass" so a deploy only follows a green `check (20)`, `check (22)` and `web-e2e`.
+7. **Free-tier behaviour:** the instance sleeps when idle (cold start about a minute), has 0.1 CPU, and loses in-memory jobs on every restart. Do not add a database for this.

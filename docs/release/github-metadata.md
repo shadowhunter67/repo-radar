@@ -12,5 +12,4 @@ repository is public.
 
 ## Website field
 
-Leave the repository `website` (homepage) field **empty** until a real hosted Web Analyzer instance exists. 0.17 ships no
-hosted instance, so no URL may be entered there or in the README as if one were running.
+The repository `website` (homepage) field is the hosted Experimental Preview, https://repo-radar-kcd0.onrender.com, set after a production smoke test passed. It is a Render Free instance without any availability promise.

@@ -25,22 +25,45 @@ export function init(doc, deps = {}) {
     normal.textContent = n ? t('form.normalised', { value: n.value }) : '';
     return n;
   };
+  // A free host that has been idle answers the first requests with a gateway page (502/503/504 that is not our JSON error)
+  // or refuses the connection while it wakes up. That is waiting, not failure: show a neutral message and try again.
+  const WAKE_TRIES = 15;
+  const WAKE_DELAY_MS = 4000;
   const api = async (path, options = {}) => {
-    const r = await getFetch(path, options);
-    let data;
-    try {
-      data = await r.json();
-    } catch {
-      data = { error: { code: 'INTERNAL_ERROR' } };
+    for (let attempt = 0; ; attempt++) {
+      let r, data;
+      try {
+        r = await getFetch(path, options);
+        try {
+          data = await r.json();
+        } catch {
+          data = undefined;
+        }
+      } catch (e) {
+        if (e?.name === 'AbortError') throw e;
+        r = undefined; // the connection itself failed (host still starting)
+      }
+      const waking = !r || ([502, 503, 504].includes(r.status) && !data?.error?.code);
+      if (waking && attempt < WAKE_TRIES) {
+        view.status = { kind: 'waking' };
+        paint();
+        await new Promise((resolve) => wait(resolve, WAKE_DELAY_MS));
+        continue;
+      }
+      if (!r) {
+        const e = new Error('network');
+        e.code = 'NETWORK_FAILURE';
+        throw e;
+      }
+      if (!r.ok) {
+        const e = new Error(data?.error?.message ?? 'request failed');
+        e.code = data?.error?.code ?? 'INTERNAL_ERROR';
+        e.retryAfter = r.headers.get('retry-after');
+        e.resetAt = data?.error?.reset_at;
+        throw e;
+      }
+      return data ?? {};
     }
-    if (!r.ok) {
-      const e = new Error(data.error?.message ?? 'request failed');
-      e.code = data.error?.code ?? 'INTERNAL_ERROR';
-      e.retryAfter = r.headers.get('retry-after');
-      e.resetAt = data.error?.reset_at;
-      throw e;
-    }
-    return data;
   };
   // YYYY-MM-DD HH:MM UTC, or '' when the server gave no usable time (a time is never invented)
   const utc = (iso) => {
@@ -61,6 +84,8 @@ export function init(doc, deps = {}) {
   };
   const statusText = (s) => {
     if (!s) return '';
+    if (s.kind === 'waking') return t('status.waking');
+    if (s.kind === 'sending') return t('status.sending');
     if (s.kind === 'queued')
       return s.position ? t('status.queuedPosition', { n: s.position }) : t('status.queued');
     if (s.kind === 'running')
@@ -117,6 +142,7 @@ export function init(doc, deps = {}) {
     button.disabled = true;
     view.error = null;
     view.job = null;
+    view.status = { kind: 'sending' };
     result.replaceChildren();
     paint();
     controller = new Controller();

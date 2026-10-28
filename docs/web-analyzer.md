@@ -6,8 +6,17 @@ produces. There is **no second analyzer**: the server calls the same analysis fu
 you download is that report, unchanged.
 
 It is an Experimental Preview. Calibration labels have not been independently human-reviewed (Gate 14 remains manual), and
-the output is a set of observed indicators, not a safety verdict. There is **no official hosted instance** at this time; see
-[deployment.md](./deployment.md) to run your own.
+the output is a set of observed indicators, not a safety verdict. An experimental preview is hosted at **https://repo-radar-kcd0.onrender.com** on Render Free; see [Hosted preview](#hosted-preview) for what that implies. To run your own, see [deployment.md](./deployment.md).
+
+## Hosted preview
+
+- URL: https://repo-radar-kcd0.onrender.com (Experimental Preview, public repositories only, no accounts, no telemetry).
+- The page opens in Vietnamese; the VI / EN buttons switch the interface in place (see [Language](#language)).
+- **Render Free constraints:** 0.1 CPU and 512 MB RAM, one instance. The instance sleeps after a period without traffic, so the first request can wait about a minute; the page shows a neutral "the service is starting up" message while it waits and then continues, instead of an error. The server starts conservatively on Render (one worker, a queue of four, a 192 MB worker heap, 40 stored jobs, 8 MB report cap) so a busy moment ends in `QUEUE_FULL` rather than an out-of-memory restart; every value can be overridden with the environment variables below.
+- **Results are temporary.** Jobs and the cache live in the server's memory and disappear when the service restarts or sleeps; there is no database and no history.
+- **Shared quota.** All users share one server-side, read-only GitHub token; when it runs low the service answers `SERVICE_RATE_LIMITED` with the reset time.
+- Large repositories are not expected to finish fully on this tier; a `partial` result with its reasons is normal there.
+- No uptime or response-time promise.
 
 ## Architecture
 
