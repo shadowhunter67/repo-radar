@@ -367,6 +367,9 @@ export const ReportSchema = z.object({
    * Tamper evidence: sha256 of the canonical JSON (`format`) of this report without this field. Not a signature, and it says
    * nothing about whether the content is trustworthy. `format` is absent on reports written before canonical-json@1.
    */
-  integrity: z.object({ report_sha256: z.string(), format: z.literal('canonical-json@1').optional() }),
+  integrity: z.object({
+    report_sha256: z.string(),
+    format: z.literal('canonical-json@1').optional(),
+  }),
 });
 export type Report = z.infer<typeof ReportSchema>;

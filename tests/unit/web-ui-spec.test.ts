@@ -328,8 +328,8 @@ describe('dependencies, release, capabilities, governance, compliance, technical
     expect(text(sec, '[data-field="report-sha256"]')).toBe(fixture.integrity.report_sha256);
     expect(text(sec, '[data-field="http-requests"]')).toBe('40');
     expect(text(sec, '[data-field="evidence-count"]')).toBe('103');
-    expect(q(sec, '[data-external-source="github"]')?.textContent).toContain('revision_bound');
-    expect(q(sec, '[data-external-source="registry"]')?.textContent).toContain('current_state');
+    expect(q(sec, '[data-external-source="github"]')?.textContent).toContain('tied to this commit');
+    expect(q(sec, '[data-external-source="registry"]')?.textContent).toContain('current state');
     expect(sec.querySelectorAll('[data-diagnostic]')).toHaveLength(fixture.diagnostics.length);
   });
   it('the technical section is collapsed and sections appear in the documented order', () => {
@@ -361,9 +361,11 @@ describe('actions and state banners', () => {
       '/api/v1/jobs/AAAAAAAAAAAAAAAAAAAAAA/report',
     );
     const copy = q(host, 'button[data-action="copy-cli"]') as HTMLElement;
-    expect(copy.getAttribute('data-command')).toBe(`repo-radar analyze spf13/cobra --ref ${SHA}`);
+    expect(copy.getAttribute('data-command')).toBe(
+      `node dist/cli.js analyze spf13/cobra --ref ${SHA} --format json`,
+    );
     expect(text(host, '[data-field="cli-command"]')).toBe(
-      `repo-radar analyze spf13/cobra --ref ${SHA}`,
+      `node dist/cli.js analyze spf13/cobra --ref ${SHA} --format json`,
     );
     expect(text(host, '[data-notice="ephemeral"]')).toBe(
       'Results are kept for a limited time and then discarded.',
@@ -385,7 +387,7 @@ describe('actions and state banners', () => {
     const host = mount(job);
     expect(text(host, '[data-field="sha"]')).toBe('unavailable');
     expect(q(host, '[data-action="copy-cli"]')?.getAttribute('data-command')).toBe(
-      'repo-radar analyze spf13/cobra',
+      'node dist/cli.js analyze spf13/cobra --format json',
     );
   });
 });

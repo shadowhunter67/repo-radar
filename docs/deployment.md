@@ -80,3 +80,13 @@ the port to loopback (as above) or to a proxy, not directly to the internet.
 2. Put it behind TLS and decide on `TRUST_PROXY` as described above.
 3. Choose `RATE_LIMIT_*`, `MAX_CONCURRENCY` and `MAX_QUEUE` for your GitHub budget.
 4. State publicly that results are indicators from an Experimental Preview, not a safety verdict.
+
+## Operating notes (0.18)
+
+- **Still no official hosted instance.** No platform was chosen; do not publish a URL for this project until one is deployed and smoke-tested.
+- Set `BUILD_COMMIT` (short or full hex SHA) and `PUBLIC_BASE_URL` (https origin) through the platform; both are validated at startup.
+- **Quota:** keep `QUOTA_RESERVE` above what other jobs on the same token may need; admission uses GitHub's own remaining-quota figure. `/api/v1/ready` reports only `unknown`, `ok` or `low`.
+- **Shutdown:** give the platform a termination grace period longer than `SHUTDOWN_GRACE_SECONDS` (default 20 s); running jobs that do not finish in time fail with `SHUTTING_DOWN`.
+- **Rollback:** deploy the previous image by its immutable tag or digest and check `/api/v1/ready` for the expected version and `build_commit`. Jobs are not durable, so a rollback or restart discards them by design.
+- **Token rotation:** replace the `GITHUB_TOKEN` secret on the platform and restart; no rebuild is needed.
+- **Cost guard:** `MAX_CONCURRENCY`, `WORKER_MAX_OLD_SPACE_MB`, `MAX_STORED_JOBS` and `MAX_REPORT_BYTES` bound memory; there is no uptime or response-time promise.

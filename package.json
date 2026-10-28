@@ -1,6 +1,6 @@
 {
   "name": "repo-radar",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Evidence-driven repository and software supply-chain intelligence for GitHub repositories. Experimental preview.",
   "license": "Apache-2.0",
   "repository": {

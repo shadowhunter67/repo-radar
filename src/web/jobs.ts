@@ -113,7 +113,9 @@ export class JobStore {
   }
   /** Jobs that hold or wait for a worker slot (what the queue bound counts). */
   get inFlight(): number {
-    return this.queue.length + this.running + this.preparing;
+    let waiting = 0; // jobs sharing another job's analysis still count against the bound
+    for (const group of this.followers.values()) waiting += group.length;
+    return this.queue.length + this.running + this.preparing + waiting;
   }
   sweep(): void {
     const now = this.clock();

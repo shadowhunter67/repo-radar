@@ -1,6 +1,8 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { createWebServer } from '../../src/web/server.js';
 import type { WebConfig } from '../../src/web/config.js';
+const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
 const config = (x: Partial<WebConfig> = {}): WebConfig => ({
   token: undefined,
   port: 0,
@@ -39,7 +41,7 @@ describe('web api', () => {
     withServer(async (b) => {
       let r = await fetch(b + '/api/v1/health');
       expect(r.status).toBe(200);
-      expect(await r.json()).toEqual({ ok: true, version: '0.17.0', api: 'v1' });
+      expect(await r.json()).toEqual({ ok: true, version: pkg.version, api: 'v1' });
       r = await fetch(b + '/api/v1/ready');
       expect(r.status).toBe(200);
       r = await fetch(b + '/api/v1/analyze', {
@@ -168,7 +170,7 @@ describe('web api error matrix', () => {
     withServer(async (b) =>
       expect(await (await fetch(b + '/api/v1/health')).json()).toEqual({
         ok: true,
-        version: '0.17.0',
+        version: pkg.version,
         api: 'v1',
       }),
     ));

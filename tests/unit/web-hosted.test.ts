@@ -3,6 +3,7 @@
  * coalescing of identical requests, graceful shutdown, readiness/metrics and the GitHub helper's redirect/token rules.
  * Everything upstream is a mock.
  */
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { clientAddress, clientKey } from '../../src/web/client.js';
 import { loadWebConfig } from '../../src/web/config.js';
@@ -209,6 +210,16 @@ describe('exact-SHA resolution, cache and coalescing in the job store', () => {
     ]);
     expect([b, c].every((j) => h.store.get(j.id)?.coalesced)).toBe(true);
     expect(h.store.get(c.id)?.report).toBe(h.store.get(a.id)?.report);
+  });
+  it('jobs that share an analysis still count against the queue bound', async () => {
+    const h = harness({ MAX_QUEUE: '3' });
+    h.hold.on = true;
+    h.store.enqueue({ owner: 'o', repo: 'r' });
+    h.store.enqueue({ owner: 'o', repo: 'r' });
+    h.store.enqueue({ owner: 'o', repo: 'r' });
+    await sleep(40);
+    expect(() => h.store.enqueue({ owner: 'o', repo: 'r' })).toThrow('queue full');
+    h.release();
   });
   it('a failed analysis fails its followers with the same code and is never cached', async () => {
     const h = harness();
@@ -505,6 +516,26 @@ describe('HTTP: quota refusal, readiness and metrics', () => {
     expect(all).toContain('"event":"server_shutdown"');
     expect(all).not.toContain('private-owner');
     expect(all).not.toContain('127.0.0.1');
+  });
+});
+
+describe('landing page build identification', () => {
+  it('serves the deployed version and short commit in the page, escaped, with no request needed', async () => {
+    const s = createWebServer({
+      config: config({ BUILD_COMMIT: '0123456789abcdef0123456789abcdef01234567' }),
+      runAnalysis: async () => report(SHA_A),
+      staticRoot: join(process.cwd(), 'web', 'public'),
+    });
+    await new Promise<void>((r) => s.listen(0, '127.0.0.1', r));
+    try {
+      const html = await (
+        await fetch(`http://127.0.0.1:${(s.address() as { port: number }).port}/`)
+      ).text();
+      expect(html).toMatch(/repo-radar \d+\.\d+\.\d+ · commit 0123456 · Experimental Preview/);
+      expect(html).not.toContain('<!--build-info-->');
+    } finally {
+      await s.shutdown(50);
+    }
   });
 });
 

@@ -147,3 +147,15 @@ still apply to everything it fetches. Tests named below are in `tests/unit/` unl
 Residual risks: all users share the server's GitHub budget (a deliberate heavy user can degrade results for others within the
 rate limits), jobs are lost on restart, and TLS and HSTS are the operator's responsibility (see [deployment.md](./deployment.md)).
 This is a description of controls in an Experimental Preview, not an assurance that none of them can fail.
+
+## Web Analyzer additions (0.18)
+
+| Threat | Mitigation | Covered by |
+| --- | --- | --- |
+| Shared-token exhaustion | Admission checks the real remaining quota minus in-flight cost and a reserve before queueing and before a worker starts; `SERVICE_RATE_LIMITED` with reset time | `web-hosted.test.ts` |
+| Cache poisoning / cross-user leakage | Cache key is repository + exact SHA + tool version + configuration digest; only `completed` reports are cached; entries are shared read-only objects; no user input enters the key unvalidated | `web-hosted.test.ts` |
+| Redirect abuse by the server's own GitHub calls | The only server-side GitHub calls go to api.github.com; redirects are followed by hand and refused off that host or off https, so the token never follows one | `web-hosted.test.ts` |
+| IPv6 rate-limit bypass | Clients are keyed per /64; IPv4-mapped addresses are unwrapped; forwarded headers only with TRUST_PROXY, last entry only | `web-hosted.test.ts` |
+| Worker crash, hang, memory exhaustion | The runner settles exactly once, terminates the worker, clears its timer; verified against real worker threads | `web-worker.test.ts` |
+| Resource leaks | Every path (success, failure, quota refusal, coalesced, cached, shutdown) returns the job bookkeeping to empty | `web-hosted.test.ts` |
+| Operational data exposure | Logs and metrics contain job ids, states, durations, error codes and counts only; clients appear only as a per-process salted hash | `web-hosted.test.ts` |

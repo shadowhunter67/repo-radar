@@ -88,6 +88,8 @@ describe('public preview documentation', () => {
       'README.md',
       'docs/release/RELEASE_NOTES_0.16.0-preview.md',
       'docs/release/RELEASE_NOTES_0.17.0-preview.md',
+      'docs/release/RELEASE_NOTES_0.18.0-preview.md',
+      'docs/reproducibility.md',
       'docs/web-analyzer.md',
       'docs/deployment.md',
     ]) {

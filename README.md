@@ -32,7 +32,7 @@ npm ci && npm run build
 GITHUB_TOKEN=... npm run web:dev      # http://127.0.0.1:8787
 ```
 
-Public repositories only, no accounts, no telemetry, results kept in memory for a short time. See
+Public repositories only, no accounts, no telemetry, results kept in memory for a short time. Reports are reproducible for frozen evidence ([docs/reproducibility.md](docs/reproducibility.md)). See
 [docs/web-analyzer.md](docs/web-analyzer.md) for the API and limits and [docs/deployment.md](docs/deployment.md) for running it
 (including a non-root `Dockerfile`).
 

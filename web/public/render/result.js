@@ -184,8 +184,9 @@ function findingsSection(doc, root, report) {
   thead.append(head);
   table.append(thead);
   const body = el(doc, 'tbody');
-  const rows = [];
-  for (const f of report.findings ?? []) {
+  let open;
+  // Rows are built when their page is first shown, not for every finding: a report with thousands of findings stays cheap.
+  const makeRow = (f) => {
     const tr = el(doc, 'tr', undefined, { 'data-finding-id': f.id, tabindex: '0' });
     for (const [k, v] of [
       ['severity', f.severity],
@@ -196,9 +197,17 @@ function findingsSection(doc, root, report) {
       ['evidence-count', String((f.evidence_ids ?? []).length)],
     ])
       tr.append(el(doc, 'td', v, { 'data-col': k }));
-    body.append(tr);
-    rows.push({ tr, f });
-  }
+    const run = () => open(f, tr);
+    tr.addEventListener('click', run);
+    tr.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        run();
+      }
+    });
+    return tr;
+  };
+  const rows = (report.findings ?? []).map((f) => ({ f, tr: undefined }));
   table.append(body);
   s.append(table);
   const pag = el(doc, 'div', undefined, { 'data-pagination': 'controls' });
@@ -221,8 +230,9 @@ function findingsSection(doc, root, report) {
     );
     const pages = Math.max(1, Math.ceil(filtered.length / 50));
     page = Math.min(page, pages - 1);
-    rows.forEach((x) => x.tr.setAttribute('hidden', 'true'));
-    filtered.slice(page * 50, page * 50 + 50).forEach((x) => x.tr.removeAttribute('hidden'));
+    body.replaceChildren(
+      ...filtered.slice(page * 50, page * 50 + 50).map((x) => (x.tr ??= makeRow(x.f))),
+    );
     stat.textContent = `${page + 1} of ${pages}`;
     prev.disabled = page === 0;
     next.disabled = page >= pages - 1;
@@ -246,19 +256,29 @@ function findingsSection(doc, root, report) {
     page++;
     update();
   });
-  const open = dialog(doc, s, report);
-  for (const { tr, f } of rows) {
-    const run = () => open(f, tr);
-    tr.addEventListener('click', run);
-    tr.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        run();
-      }
-    });
-  }
+  open = dialog(doc, s, report);
   update();
   return s;
+}
+const onOff = (v) => (v ? 'on' : 'off');
+function configList(doc, report) {
+  const f = report.analysis_manifest?.feature_flags ?? {};
+  const ul = el(doc, 'ul', undefined, { 'data-list': 'analysis-config' });
+  for (const [label, key] of [
+    ['History analysis', 'dependency_history'],
+    ['Dependency artifact inspection', 'dependency_artifacts'],
+    ['Cryptographic attestation verification', 'verify_crypto'],
+    ['Release asset verification', 'verify_assets'],
+    ['Source scan', 'code_scan'],
+    ['Dependency registry lookups', 'dependency_registry'],
+    ['Vulnerability database (OSV)', 'osv'],
+    ['Compliance indicators', 'compliance'],
+  ])
+    ul.append(el(doc, 'li', `${label}: ${onOff(f[key] === true)}`));
+  const b = report.analysis_manifest?.budgets ?? {};
+  if (b.max_scan_bytes !== undefined)
+    ul.append(el(doc, 'li', `Source scan byte budget: ${b.max_scan_bytes}`));
+  return ul;
 }
 export function renderResult(doc, job) {
   const report = job.report ?? job;
@@ -300,6 +320,20 @@ export function renderResult(doc, job) {
     'methodology-version',
   );
   root.append(overview);
+  if (job.state === 'partial' && Array.isArray(job.partial_reasons) && job.partial_reasons.length) {
+    const part = card(doc, 'partial', 'Why this result is partial');
+    const ul = el(doc, 'ul');
+    for (const r of job.partial_reasons) ul.append(el(doc, 'li', r.message));
+    part.append(
+      ul,
+      el(
+        doc,
+        'p',
+        'Sections that depend on these sources may be incomplete. Partial describes how much evidence could be gathered; it does not mean the repository is worse.',
+      ),
+    );
+    root.append(part);
+  }
   const sc = card(doc, 'score', 'Score');
   field(doc, sc, 'Score', report.overall.score, 'score', { class: 'score neutral' });
   field(doc, sc, 'Grade', report.overall.grade, 'grade');
@@ -444,14 +478,58 @@ export function renderResult(doc, job) {
     report.integrity?.report_sha256 ?? 'unavailable',
     'report-sha256',
   );
+  tech.append(
+    el(
+      doc,
+      'p',
+      'The integrity hash identifies the canonical content of this report. It is a fingerprint, not a signature, and it shows only that content, not whether the repository or the report is trustworthy.',
+      { 'data-note': 'integrity' },
+    ),
+  );
+  const copyHash = el(doc, 'button', 'Copy integrity hash', {
+    type: 'button',
+    'data-action': 'copy-integrity',
+  });
+  copyHash.addEventListener('click', async () => {
+    try {
+      await doc.defaultView?.navigator.clipboard?.writeText(report.integrity?.report_sha256 ?? '');
+      copyHash.textContent = 'Copied';
+    } catch {
+      copyHash.textContent = 'Select the hash above to copy it';
+    }
+  });
+  tech.append(copyHash);
+  field(
+    doc,
+    tech,
+    'Configuration digest',
+    report.methodology?.config_digest ?? 'unavailable',
+    'config-digest',
+  );
+  tech.append(el(doc, 'h3', 'Analysis configuration'));
+  tech.append(configList(doc, report));
   field(doc, tech, 'HTTP requests', report.stats?.http_requests ?? 0, 'http-requests');
   field(doc, tech, 'Evidence entries', report.stats?.evidence_count ?? 0, 'evidence-count');
+  tech.append(el(doc, 'h3', 'When the external sources were read'));
+  const fresh = el(doc, 'ul', undefined, { 'data-list': 'data-freshness' });
   for (const x of report.analysis_manifest?.external_sources ?? [])
-    tech.append(
-      el(doc, 'p', `${x.source} ${x.classification} ${x.retrieved_at}`, {
-        'data-external-source': x.source,
-      }),
+    fresh.append(
+      el(
+        doc,
+        'li',
+        `${x.source}: ${x.classification === 'revision_bound' ? 'tied to this commit' : 'current state when retrieved'}, retrieved ${x.retrieved_at}`,
+        { 'data-external-source': x.source },
+      ),
     );
+  tech.append(
+    fresh,
+    el(
+      doc,
+      'p',
+      'Registry, vulnerability and similar sources describe current state and can change without any change to the repository, so a later run of the same commit may differ.',
+      { 'data-note': 'freshness' },
+    ),
+  );
   for (const x of report.diagnostics ?? [])
     tech.append(el(doc, 'p', `${x.level} ${x.code}: ${x.message}`, { 'data-diagnostic': x.code }));
   root.append(tech);
@@ -460,7 +538,7 @@ export function renderResult(doc, job) {
     href: `/api/v1/jobs/${job.job_id}/report`,
     'data-action': 'download',
   });
-  const cmd = `repo-radar analyze ${owner}/${repo}${sha === 'unavailable' ? '' : ` --ref ${sha}`}`;
+  const cmd = `node dist/cli.js analyze ${owner}/${repo}${sha === 'unavailable' ? '' : ` --ref ${sha}`} --format json`;
   const cp = el(doc, 'button', 'Copy CLI command', {
     type: 'button',
     'data-action': 'copy-cli',
@@ -491,6 +569,15 @@ export function renderResult(doc, job) {
   });
   actions.append(dl, cp, commandDl, notice);
   root.append(actions);
+  if (job.cached)
+    root.prepend(
+      el(
+        doc,
+        'p',
+        'This result was served from a short-lived cache: an identical analysis of the same commit ran recently and was not repeated. Data from registries and similar sources is as of that earlier run.',
+        { 'data-banner': 'cached', class: 'banner' },
+      ),
+    );
   if (job.state === 'partial')
     root.prepend(
       el(

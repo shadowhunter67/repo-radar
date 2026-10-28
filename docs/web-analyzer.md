@@ -38,7 +38,8 @@ anything. The report schema (0.16) and methodology (0.4) are unchanged by the we
 | `GET /api/v1/jobs/{id}` | Job status and, when finished, the report | `200` | `id` is 22 characters of `[A-Za-z0-9_-]` |
 | `GET /api/v1/jobs/{id}/report` | The report as a download | `200` JSON with `Content-Disposition: attachment` | `409 JOB_NOT_READY` while queued or running |
 | `GET /api/v1/health` | Liveness | `200 {ok, version, api}` | `version` is read from `package.json` at runtime |
-| `GET /api/v1/ready` | Readiness | `200 {ok, queue_depth, running}` | `503` in production when no token is configured |
+| `GET /api/v1/ready` | Readiness | `200 {ok, version, schema, methodology, build_commit?, queue_depth, running, quota}` | `503` in production when no token is configured; `quota` is `unknown`, `ok` or `low` (never a number) |
+| `GET /api/v1/metrics` | Aggregate counters and gauges | `200` | No repository names or addresses |
 
 The job object has `job_id, state, created_at, started_at, finished_at, queue_position, stage, repository, analyzed_sha,
 error, report`. The exact analyzed commit is `report.analysis_manifest.commit`; the download filename is
@@ -91,7 +92,9 @@ Every error is `{"error": {"code": "...", "message": "..."}}` with a stable `cod
 | `JOB_NOT_READY` | 409 | Report requested before the job finished |
 | `METHOD_NOT_ALLOWED` | 405 | Known route, wrong method; `Allow` is set |
 | `NOT_FOUND` | 404 | Unknown route under `/api/` |
-| `INTERNAL_ERROR` | 500 | Unexpected server error (no details leaked) |
+| `SERVICE_RATE_LIMITED` | 503, or job `failed` | The server's shared GitHub quota is too low to start another analysis; `error.reset_at` (ISO time) and `Retry-After` are given when GitHub reported the reset |
+| `SHUTTING_DOWN` | 503, or job `failed` | The server is stopping |
+| `INTERNAL_ERROR` | 500, or job `failed` | Unexpected server error (no details leaked) |
 
 ### Headers
 
@@ -134,6 +137,23 @@ Read by `src/web/config.ts`. Out-of-range values fail at startup.
 | `NODE_ENV` | development | any | `production` enforces the token |
 | `WORKER_MAX_OLD_SPACE_MB` | 512 | 64-4096 | V8 old-space cap per worker |
 | `MAX_STORED_JOBS` | 200 | 1-10000 | Upper bound on jobs held in memory |
+| `CACHE_TTL_SECONDS` | 600 | 0-3600 | Exact-commit report cache lifetime; 0 disables it |
+| `QUOTA_RESERVE` | 300 | 0-5000 | GitHub requests never handed out (shared-token reserve) |
+| `ESTIMATED_REQUESTS_PER_JOB` | 60 | 1-5000 | Assumed cost of one analysis until real ones are observed |
+| `SHUTDOWN_GRACE_SECONDS` | 20 | 0-300 | Time running jobs get on SIGTERM/SIGINT before workers are terminated |
+| `PUBLIC_BASE_URL` | none | https origin | Validated; https is required in production |
+| `BUILD_COMMIT` | none | 7-40 hex | Commit the image was built from; shown in `/ready` and the page footer |
+
+## Exact commit, cache and shared quota
+
+The server resolves the requested repository (and optional ref) to an **exact commit SHA** with one GitHub request before it queues the analysis, and analyzes that SHA (`--ref <sha>`). A moving ref such as `main` is therefore never analyzed halfway through a push, and the CLI command shown on the result page reproduces the same commit. A repository that does not exist fails here, cheaply, without using a worker.
+
+- **Cache:** a `completed` report is kept for `CACHE_TTL_SECONDS` under the key repository + exact SHA + tool version + analysis-configuration digest. Registry, vulnerability and similar sources describe _current_ state, so a cached result is as fresh as its original run; the page says so (`cached: true`). Partial and failed results are never cached. There is no persistent store.
+- **Coalescing:** identical requests (same key) that arrive while one is queued or running share that one analysis and its outcome. They count against `MAX_QUEUE` but not against worker slots.
+- **Shared quota:** all users spend one server-side GitHub token. Before queueing, and again before a worker starts, the server compares the token's real remaining quota (GitHub's free rate-limit endpoint) minus the expected cost of the jobs already in flight and the reserve. If there is no room the job is not started: `SERVICE_RATE_LIMITED` with the reset time. The expected cost is the larger of `ESTIMATED_REQUESTS_PER_JOB` and the largest recent real cost. If the quota cannot be read at all, admission proceeds (the analysis would then fail on its own limits).
+- **Per-job budget:** one analysis is bounded by the engine's own request and byte budgets, so a single repository cannot consume the whole token.
+- **Client disconnect:** a job is not tied to the HTTP request that created it. If the browser goes away, the job still runs to completion and then expires at the TTL; there is no cancellation in this version.
+- **Shutdown:** on SIGTERM/SIGINT the server stops accepting connections and jobs, waits up to `SHUTDOWN_GRACE_SECONDS` for running jobs, then terminates the remaining workers; those jobs fail with `SHUTTING_DOWN`. Jobs do not survive a restart.
 
 ## Privacy
 
@@ -154,12 +174,18 @@ Sections: overview (repository, exact analyzed SHA, analysis time, versions), sc
 dimension), findings with an evidence drawer, dependencies, releases and provenance, capabilities, governance, compliance,
 technical details, and a JSON download.
 
+## Reproducibility
+
+See [reproducibility.md](./reproducibility.md): what is deterministic, what `report_sha256` means, and what stays mutable because of live sources.
+
 ## What the web version does not do
 
 Private repositories, history analysis by default (off), permalinks or stored results, accounts, monitoring or scheduled
 re-analysis, crawling, new detectors, or any scoring change.
 
 ## CLI parity
+
+Since 0.18 the CLI and the web worker start from one shared default configuration (`src/defaults.ts`). `tests/unit/defaults-parity.test.ts` proves that the CLI with no flags, the web options and the engine's implicit defaults resolve to the same configuration and the same report digest, and compares a full CLI-path analysis with a full web-job-path analysis over the same mocked upstreams (identical report, identical `report_sha256`). The one documented difference is that the web pins the analysis to the resolved commit (`--ref <sha>`), which is also what the shown CLI command does. The remainder of this section describes the 0.17 state.
 
 The worker (`src/web/worker.ts`) calls `analyzeRepository` with only the token, the optional ref and a stage callback, so every
 other option takes the engine default; the server stores and serves the report object unmodified. What is enforced by tests:

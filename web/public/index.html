@@ -13,6 +13,12 @@
     </header>
     <main id="main" tabindex="-1">
       <p class="lede">Analyze observable repository and software supply-chain evidence.</p>
+      <ul class="hosted-notes" data-banner="hosted" aria-label="Service limits">
+        <li>Public repositories only</li>
+        <li>History analysis is off</li>
+        <li>Results are temporary</li>
+        <li>Experimental preview</li>
+      </ul>
       <form id="analyze-form" novalidate>
         <label for="repository">Repository</label
         ><input
@@ -38,9 +44,15 @@
         Experimental preview. Scores are evidence-derived heuristics, not probabilities of safety.
         Calibration labels have not been independently human-reviewed. Public repositories only.
       </p>
+      <p class="build" data-field="build"><!--build-info--></p>
       <nav class="links">
         <a href="https://github.com/shadowhunter67/repo-radar#readme" rel="noopener noreferrer"
           >README</a
+        ><a href="https://github.com/shadowhunter67/repo-radar" rel="noopener noreferrer">Source</a
+        ><a
+          href="https://github.com/shadowhunter67/repo-radar/blob/main/docs/web-analyzer.md"
+          rel="noopener noreferrer"
+          >About this service and the CLI</a
         ><a
           href="https://github.com/shadowhunter67/repo-radar/blob/main/docs/methodology.md"
           rel="noopener noreferrer"

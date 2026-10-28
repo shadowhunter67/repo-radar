@@ -232,7 +232,7 @@ describe('reproducibility and integrity details', () => {
     expect(value('cli-command')).toBe(
       `node dist/cli.js analyze spf13/cobra --ref ${SHA} --format json`,
     );
-    expect(label('cli-command')).toBe('Reproduce with the CLI');
+    expect(label('cli-command')).toBe('CLI command');
   });
   it('shows the configuration digest and the actual analysis configuration of the report', () => {
     expect(value('config-digest')).toBe(fixture.methodology.config_digest);
@@ -329,4 +329,20 @@ describe('large reports', () => {
     },
     30_000,
   );
+});
+
+describe('search indexing', () => {
+  afterEach(() => vi.useRealTimers());
+  it('adds noindex once an analysis starts or a repository is pre-filled, never on the bare landing page', async () => {
+    const bare = page();
+    init(bare.window.document, { fetch: vi.fn(), location: bare.window.location });
+    expect(bare.window.document.querySelector('meta[name="robots"]')).toBeNull();
+    const prefilled = page('http://localhost/?repo=spf13/cobra');
+    init(prefilled.window.document, { fetch: vi.fn(), location: prefilled.window.location });
+    expect(
+      prefilled.window.document.querySelector('meta[name="robots"]')?.getAttribute('content'),
+    ).toBe('noindex');
+    const doc = await submit(async () => json(400, { error: { code: 'INVALID_REPOSITORY' } }));
+    expect(doc.querySelectorAll('meta[name="robots"]')).toHaveLength(1);
+  });
 });

@@ -161,3 +161,6 @@ The history collector remains opt-in/policy-triggered. Full manifest histories c
 - Every user of an instance shares the server's GitHub rate-limit budget, so busy instances produce `partial` or failed jobs.
 - `partial` means some evidence was incomplete, not that the repository is worse; `completed` does not mean safe.
 - History analysis is off in the web version.
+
+- Live runs of one commit are not byte-identical (time stamps and current-state sources); determinism is guaranteed only for frozen evidence. See [reproducibility.md](./reproducibility.md).
+- The web cache and coalescing are per process and in memory; a running web job cannot be cancelled.

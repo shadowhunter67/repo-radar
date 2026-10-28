@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.18.0] - Deterministic reports, hosting-ready Web Analyzer (Experimental Preview)
+
+- Report determinism: scanned files are budgeted in a fixed order and sorted by path, diagnostics are sorted; `integrity.report_sha256`
+  covers canonical JSON and the report records `integrity.format = "canonical-json@1"` (additive; schema stays 0.16, methodology 0.4).
+  Older reports verify with the legacy rule. New `docs/reproducibility.md`.
+- One shared default analysis configuration (`src/defaults.ts`) for CLI, web and library, with parity tests.
+- Web: exact-commit resolution, short-lived exact-SHA cache, request coalescing, shared GitHub quota admission
+  (`SERVICE_RATE_LIMITED`), graceful shutdown (`SHUTTING_DOWN`), worker runner that settles exactly once, `/api/v1/metrics`, richer
+  `/api/v1/ready`, per-/64 IPv6 rate limiting, structured logs, config validation, hosted UI banners and reproducibility details.
+- No new detector, no scoring change. No hosted instance; not published to npm; the GitHub Action is not published.
+
 ## [0.17.0] - Web Analyzer MVP (Experimental Preview)
 
 - New `src/web` server and `web/public` static UI: analyze a public GitHub repository from a browser; API v1

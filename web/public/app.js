@@ -22,6 +22,9 @@ export function init(doc, deps = {}) {
     INVALID_REF: 'Enter a valid branch, tag or commit SHA.',
     REPOSITORY_NOT_FOUND: 'The repository was not found or is not accessible.',
     RATE_LIMITED: 'GitHub rate limit reached.',
+    SERVICE_RATE_LIMITED: 'The hosted analyzer is temporarily rate-limited.',
+    SHUTTING_DOWN: 'The service is restarting. Try again in a minute.',
+    INTERNAL_ERROR: 'The analysis failed because of an internal error.',
     QUEUE_FULL: 'The analysis queue is full. Try again shortly.',
     ANALYSIS_TIMEOUT: 'The analysis took too long and was stopped.',
     UPSTREAM_UNAVAILABLE: 'An upstream evidence source was unavailable.',
@@ -46,12 +49,35 @@ export function init(doc, deps = {}) {
       const e = new Error(data.error?.message ?? 'request failed');
       e.code = data.error?.code ?? 'INTERNAL_ERROR';
       e.retryAfter = r.headers.get('retry-after');
+      e.resetAt = data.error?.reset_at;
       throw e;
     }
     return data;
   };
+  let lastCommand = '';
+  // YYYY-MM-DD HH:MM UTC, or '' when the server gave no usable time (a time is never invented)
+  const utc = (iso) => {
+    const t = Date.parse(iso ?? '');
+    return Number.isFinite(t)
+      ? new Date(t).toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
+      : '';
+  };
   const showError = (e) => {
     error.textContent = messages[e.code] ?? 'The analysis failed.';
+    if (e.code === 'SERVICE_RATE_LIMITED') {
+      const b = doc.createElement('div');
+      b.setAttribute('data-banner', 'service-rate-limited');
+      const t = doc.createElement('p');
+      const when = utc(e.resetAt);
+      t.textContent = `The hosted analyzer is temporarily rate-limited. ${when ? `Try again after ${when} or run the CLI locally.` : 'Try again later or run the CLI locally.'}`;
+      const c = doc.createElement('code');
+      c.setAttribute('data-field', 'cli-fallback');
+      c.textContent = lastCommand;
+      const note = doc.createElement('p');
+      note.textContent = 'From a clone of the repository, after npm ci and npm run build:';
+      b.append(t, note, c);
+      result.replaceChildren(b);
+    }
     if (e.code === 'RATE_LIMITED') {
       const b = doc.createElement('p');
       b.setAttribute('data-banner', 'rate-limited');
@@ -82,6 +108,7 @@ export function init(doc, deps = {}) {
     error.textContent = '';
     result.replaceChildren();
     controller = new Controller();
+    lastCommand = `node dist/cli.js analyze ${n.value} --format json`;
     try {
       const body = { repository: n.value, ...(ref.value.trim() ? { ref: ref.value.trim() } : {}) };
       const job = await api('/api/v1/analyze', {
@@ -104,6 +131,7 @@ export function init(doc, deps = {}) {
             showError({
               code: state.error?.code ?? 'JOB_NOT_FOUND',
               retryAfter: state.error?.retry_after,
+              resetAt: state.error?.reset_at,
             });
           else if (state.report) {
             result.append(renderResult(doc, state));
@@ -121,6 +149,15 @@ export function init(doc, deps = {}) {
       button.disabled = false;
     }
   }
+  // Results are temporary and not meant to be found through a search engine; the empty landing page stays indexable.
+  const noindex = () => {
+    if (doc.querySelector('meta[name="robots"]')) return;
+    const m = doc.createElement('meta');
+    m.setAttribute('name', 'robots');
+    m.setAttribute('content', 'noindex');
+    doc.head?.append(m);
+  };
+  form.addEventListener('submit', noindex);
   form.addEventListener('submit', run);
   repo.addEventListener('input', normalise);
   for (const b of doc.querySelectorAll('[data-example]'))
@@ -131,6 +168,7 @@ export function init(doc, deps = {}) {
     });
   const params = new URLSearchParams(loc.search);
   if (params.get('repo')) {
+    noindex();
     repo.value = params.get('repo');
     if (params.get('ref')) ref.value = params.get('ref');
     normalise();

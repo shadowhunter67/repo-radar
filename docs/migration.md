@@ -34,3 +34,13 @@ event. Re-run analyses to produce schema 0.16 reports; methodology remains 0.4.
 No report schema change (still 0.16) and no methodology change (still 0.4); existing reports and consumers keep working. The
 new Web Analyzer exposes an HTTP API under `/api/v1`; "v1" versions that API only. The version-consistency check now allows
 the package minor to be ahead of the report schema version.
+
+## 0.18.0
+
+No report schema change (still 0.16) and no methodology change (still 0.4). `integrity` gains an optional `format` field
+(`canonical-json@1`); consumers that only read `report_sha256` are unaffected, but the digest is now computed over canonical
+(key-sorted) JSON, so a digest of a 0.18 report cannot be recomputed with plain `JSON.stringify`. Reports without `format` keep the
+legacy rule and still verify. Analysis results for the same input may differ in the order of `diagnostics`, scanned files and
+`external_domains` observations compared with 0.17 (they are now sorted). Web API: new routes `/api/v1/metrics` and extra fields on
+`/api/v1/ready`; new error codes `SERVICE_RATE_LIMITED` and `SHUTTING_DOWN`; job objects may carry `resolved_sha`, `cached`,
+`coalesced` and `partial_reasons`.

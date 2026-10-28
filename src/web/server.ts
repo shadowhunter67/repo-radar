@@ -113,6 +113,7 @@ export function createWebServer(options: WebServerOptions = {}) {
     10000,
     options.clock ?? (() => Date.now()),
   );
+  const buildInfo = `repo-radar ${toolVersion()}${config.buildCommit ? ` · commit ${config.buildCommit.slice(0, 7)}` : ''} · Experimental Preview`;
   const root = options.staticRoot ?? join(dirname(fileURLToPath(import.meta.url)), 'public');
   const gauges = () => ({
     queue_depth: jobs.queueDepth,
@@ -287,7 +288,7 @@ export function createWebServer(options: WebServerOptions = {}) {
           { Allow: 'GET' },
           false,
         );
-      if (await serveStatic(root, u.pathname, res)) return;
+      if (await serveStatic(root, u.pathname, res, buildInfo)) return;
       return send(res, 404, errorBody('JOB_NOT_FOUND', 'not found'), {}, false);
     } catch (e) {
       if ((e as { code?: string }).code === 'TOO_LARGE')

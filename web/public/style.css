@@ -253,3 +253,19 @@ button:disabled {
   flex-wrap: wrap;
   gap: 0.5rem 1.25rem;
 }
+.hosted-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+.hosted-notes li::before {
+  content: '• ';
+}
+.build {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
