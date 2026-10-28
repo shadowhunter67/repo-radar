@@ -28,7 +28,7 @@ test.describe('web analyzer preview (real server, real UI, fixture report)', () 
     expect(requests.filter((r) => r.includes('/api/'))).toEqual([]);
     await expect(page.locator('[data-section="score"]')).toHaveCount(0);
 
-    await page.getByRole('button', { name: 'Analyze' }).click();
+    await page.getByRole('button', { name: 'Phân tích' }).click();
     await expect(page.locator('[data-section="score"] [data-field="score"]')).toHaveText('83.5', {
       timeout: 15_000,
     });
@@ -69,23 +69,23 @@ test.describe('web analyzer preview (real server, real UI, fixture report)', () 
 
   test('a missing repository shows the not-found message and no result view', async ({ page }) => {
     await page.goto('/');
-    await page.getByLabel('Repository').fill('someone/missing');
-    await page.getByRole('button', { name: 'Analyze' }).click();
+    await page.getByLabel('Kho mã').fill('someone/missing');
+    await page.getByRole('button', { name: 'Phân tích' }).click();
     await expect(page.locator('#error')).toContainText(
-      'The repository was not found or is not accessible.',
+      'Không tìm thấy kho mã hoặc kho mã không thể truy cập.',
     );
     await expect(page.locator('[data-section="score"]')).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Analyze' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Phân tích' })).toBeEnabled();
   });
 
   test('invalid input is rejected before any API request', async ({ page }) => {
     const posts: string[] = [];
     page.on('request', (r) => r.method() === 'POST' && posts.push(r.url()));
     await page.goto('/');
-    await page.getByLabel('Repository').fill('http://127.0.0.1/owner/repo');
-    await page.getByRole('button', { name: 'Analyze' }).click();
+    await page.getByLabel('Kho mã').fill('http://127.0.0.1/owner/repo');
+    await page.getByRole('button', { name: 'Phân tích' }).click();
     await expect(page.locator('#error')).toContainText(
-      'Enter a public GitHub repository as owner/repo.',
+      'Hãy nhập kho mã GitHub công khai theo dạng owner/repo.',
     );
     expect(posts).toEqual([]);
   });

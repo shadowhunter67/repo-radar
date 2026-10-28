@@ -7,7 +7,13 @@ import { createWebServer } from '../../dist/web/server.js';
 const report = JSON.parse(
   readFileSync(new URL('../fixtures/web/report-cobra.json', import.meta.url), 'utf8'),
 );
-const config = loadWebConfig({ PORT: '4173', HOST: '127.0.0.1', NODE_ENV: 'development' });
+const config = loadWebConfig({
+  PORT: '4173',
+  HOST: '127.0.0.1',
+  NODE_ENV: 'development',
+  RATE_LIMIT_PER_MINUTE: '120',
+  RATE_LIMIT_HOURLY: '1000',
+});
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const server = createWebServer({

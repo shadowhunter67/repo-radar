@@ -1,6 +1,7 @@
 /* global document, fetch, setTimeout, location, AbortController, URLSearchParams */
 import { normaliseRepository } from './validate.js';
 import { renderResult } from './render/result.js';
+import { applyStatic, getLanguage, onLanguageChange, setLanguage, t } from './i18n.js';
 export function init(doc, deps = {}) {
   const getFetch = deps.fetch ?? fetch;
   const wait = deps.setTimeout ?? setTimeout;
@@ -17,24 +18,11 @@ export function init(doc, deps = {}) {
   let active = false,
     controller;
   const Controller = deps.AbortController ?? AbortController;
-  const messages = {
-    INVALID_REPOSITORY: 'Enter a public GitHub repository as owner/repo.',
-    INVALID_REF: 'Enter a valid branch, tag or commit SHA.',
-    REPOSITORY_NOT_FOUND: 'The repository was not found or is not accessible.',
-    RATE_LIMITED: 'GitHub rate limit reached.',
-    SERVICE_RATE_LIMITED: 'The hosted analyzer is temporarily rate-limited.',
-    SHUTTING_DOWN: 'The service is restarting. Try again in a minute.',
-    INTERNAL_ERROR: 'The analysis failed because of an internal error.',
-    QUEUE_FULL: 'The analysis queue is full. Try again shortly.',
-    ANALYSIS_TIMEOUT: 'The analysis took too long and was stopped.',
-    UPSTREAM_UNAVAILABLE: 'An upstream evidence source was unavailable.',
-    REPORT_TOO_LARGE: 'The report exceeded the configured size limit.',
-    JOB_NOT_FOUND: 'This result expired or was not found.',
-    NETWORK_FAILURE: 'The network request failed.',
-  };
+  // What is on screen is kept as data (message keys, the job), so a language change repaints it without any request.
+  const view = { status: null, error: null, job: null, command: '' };
   const normalise = () => {
     const n = normaliseRepository(repo.value);
-    normal.textContent = n ? `Normalised: ${n.value}` : '';
+    normal.textContent = n ? t('form.normalised', { value: n.value }) : '';
     return n;
   };
   const api = async (path, options = {}) => {
@@ -54,47 +42,69 @@ export function init(doc, deps = {}) {
     }
     return data;
   };
-  let lastCommand = '';
   // YYYY-MM-DD HH:MM UTC, or '' when the server gave no usable time (a time is never invented)
   const utc = (iso) => {
-    const t = Date.parse(iso ?? '');
-    return Number.isFinite(t)
-      ? new Date(t).toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
+    const time = Date.parse(iso ?? '');
+    return Number.isFinite(time)
+      ? new Date(time).toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
       : '';
   };
-  const showError = (e) => {
-    error.textContent = messages[e.code] ?? 'The analysis failed.';
-    if (e.code === 'SERVICE_RATE_LIMITED') {
-      const b = doc.createElement('div');
-      b.setAttribute('data-banner', 'service-rate-limited');
-      const t = doc.createElement('p');
-      const when = utc(e.resetAt);
-      t.textContent = `The hosted analyzer is temporarily rate-limited. ${when ? `Try again after ${when} or run the CLI locally.` : 'Try again later or run the CLI locally.'}`;
-      const c = doc.createElement('code');
-      c.setAttribute('data-field', 'cli-fallback');
-      c.textContent = lastCommand;
-      const note = doc.createElement('p');
-      note.textContent = 'From a clone of the repository, after npm ci and npm run build:';
-      b.append(t, note, c);
-      result.replaceChildren(b);
-    }
-    if (e.code === 'RATE_LIMITED') {
-      const b = doc.createElement('p');
-      b.setAttribute('data-banner', 'rate-limited');
-      b.textContent = e.retryAfter
-        ? `GitHub rate limit reached. Retry in ${e.retryAfter} seconds.`
-        : 'GitHub rate limit reached.';
-      result.replaceChildren(b);
-    }
+  const message = (code) => {
+    const key = `error.${code}`;
+    const text = t(key);
+    return text === key ? t('error.default') : text;
   };
-  const stageLabel = (s) =>
-    ({
-      repository_resolved: 'repository resolved',
-      evidence_collected: 'evidence collected',
-      dependencies_parsed: 'dependencies parsed',
-      findings_evaluated: 'findings evaluated',
-      report_built: 'report built',
-    })[s] ?? 'Running';
+  const stageText = (stage) => {
+    const key = `stage.${stage}`;
+    const text = t(key);
+    return text === key ? t('status.running') : text;
+  };
+  const statusText = (s) => {
+    if (!s) return '';
+    if (s.kind === 'queued')
+      return s.position ? t('status.queuedPosition', { n: s.position }) : t('status.queued');
+    if (s.kind === 'running')
+      return s.stage
+        ? t('status.runningStage', { stage: stageText(s.stage) })
+        : t('status.running');
+    return t(s.kind === 'partial' ? 'status.partial' : 'status.completed');
+  };
+  function serviceBanner(e) {
+    const b = doc.createElement('div');
+    b.setAttribute('data-banner', 'service-rate-limited');
+    const line = doc.createElement('p');
+    const when = utc(e.resetAt);
+    line.textContent = `${t('banner.serviceLimited')} ${when ? t('banner.tryAfter', { time: when }) : t('banner.tryLater')}`;
+    const code = doc.createElement('code');
+    code.setAttribute('data-field', 'cli-fallback');
+    code.textContent = view.command;
+    const note = doc.createElement('p');
+    note.textContent = t('banner.cliFromClone');
+    b.append(line, note, code);
+    return b;
+  }
+  function paint() {
+    status.textContent = statusText(view.status);
+    if (view.error) {
+      error.textContent = message(view.error.code);
+      if (view.error.code === 'SERVICE_RATE_LIMITED')
+        result.replaceChildren(serviceBanner(view.error));
+      else if (view.error.code === 'RATE_LIMITED') {
+        const b = doc.createElement('p');
+        b.setAttribute('data-banner', 'rate-limited');
+        b.textContent = view.error.retryAfter
+          ? t('banner.rateLimitedRetry', { n: view.error.retryAfter })
+          : t('banner.rateLimited');
+        result.replaceChildren(b);
+      }
+    } else error.textContent = '';
+    if (view.job) result.replaceChildren(renderResult(doc, view.job));
+  }
+  const showError = (e) => {
+    view.error = { code: e.code, retryAfter: e.retryAfter, resetAt: e.resetAt };
+    view.job = null;
+    paint();
+  };
   async function run(event) {
     event.preventDefault();
     if (active) return;
@@ -105,10 +115,12 @@ export function init(doc, deps = {}) {
     }
     active = true;
     button.disabled = true;
-    error.textContent = '';
+    view.error = null;
+    view.job = null;
     result.replaceChildren();
+    paint();
     controller = new Controller();
-    lastCommand = `node dist/cli.js analyze ${n.value} --format json`;
+    view.command = `node dist/cli.js analyze ${n.value} --format json`;
     try {
       const body = { repository: n.value, ...(ref.value.trim() ? { ref: ref.value.trim() } : {}) };
       const job = await api('/api/v1/analyze', {
@@ -124,8 +136,9 @@ export function init(doc, deps = {}) {
           signal: controller.signal,
         });
         if (state.state === 'queued')
-          status.textContent = `Queued${state.queue_position ? `: position ${state.queue_position}` : ''}`;
-        else status.textContent = state.stage ? `Running: ${stageLabel(state.stage)}` : 'Running';
+          view.status = { kind: 'queued', position: state.queue_position };
+        else view.status = { kind: 'running', stage: state.stage };
+        paint();
         if (['completed', 'partial', 'failed', 'expired'].includes(state.state)) {
           if (state.state === 'failed' || state.state === 'expired')
             showError({
@@ -134,9 +147,9 @@ export function init(doc, deps = {}) {
               resetAt: state.error?.reset_at,
             });
           else if (state.report) {
-            result.append(renderResult(doc, state));
-            status.textContent =
-              state.state === 'partial' ? 'Completed with partial evidence.' : 'Completed.';
+            view.job = state;
+            view.status = { kind: state.state === 'partial' ? 'partial' : 'completed' };
+            paint();
           }
           break;
         }
@@ -166,6 +179,16 @@ export function init(doc, deps = {}) {
       normalise();
       repo.focus();
     });
+  // Language switch: no reload, no request, nothing stored. The static page and what is on screen are repainted.
+  const repaintLanguage = () => {
+    applyStatic(doc);
+    normalise();
+    paint();
+  };
+  const stopListening = onLanguageChange(repaintLanguage);
+  for (const b of doc.querySelectorAll('[data-lang]'))
+    b.addEventListener('click', () => setLanguage(b.getAttribute('data-lang')));
+  applyStatic(doc);
   const params = new URLSearchParams(loc.search);
   if (params.get('repo')) {
     noindex();
@@ -173,6 +196,10 @@ export function init(doc, deps = {}) {
     if (params.get('ref')) ref.value = params.get('ref');
     normalise();
   }
-  return { abort: () => controller?.abort() };
+  return {
+    abort: () => controller?.abort(),
+    destroy: () => stopListening(),
+    language: getLanguage,
+  };
 }
 if (typeof document !== 'undefined') init(document);

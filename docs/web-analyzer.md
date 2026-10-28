@@ -155,6 +155,12 @@ The server resolves the requested repository (and optional ref) to an **exact co
 - **Client disconnect:** a job is not tied to the HTTP request that created it. If the browser goes away, the job still runs to completion and then expires at the TTL; there is no cancellation in this version.
 - **Shutdown:** on SIGTERM/SIGINT the server stops accepting connections and jobs, waits up to `SHUTDOWN_GRACE_SECONDS` for running jobs, then terminates the remaining workers; those jobs fail with `SHUTTING_DOWN`. Jobs do not survive a restart.
 
+## Language
+
+The page opens in Vietnamese. The VI / EN buttons in the header switch the whole interface in place: nothing is reloaded, re-requested or stored (no cookie, no localStorage; a reload returns to Vietnamese), and no telemetry is sent. The implementation is one small module, `web/public/i18n.js`, with a Vietnamese and an English dictionary and no dependency.
+
+Only text owned by the interface is translated (labels, headings, status and error messages, disclaimers, explanations). Evidence is never translated: finding ids, finding titles and summaries, package and repository names, file paths, SHAs, versions, registry text, diagnostics, URLs and the CLI command appear exactly as the engine produced them, and so do all report values. The explanations of why a result is partial are produced by the server and stay in English for now. The CLI and the JSON report are not localized.
+
 ## Privacy
 
 - No telemetry, analytics, cookies, accounts or third-party requests from the page.

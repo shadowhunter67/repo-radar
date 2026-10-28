@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     include: ['tests/**/*.test.ts'],
     exclude: ['tests/e2e/**'],
+    setupFiles: ['tests/setup-i18n.ts'],
     environment: 'node',
     // Several end-to-end tests exercise retry back-off; a loaded machine must not turn that into a spurious failure.
     testTimeout: 20_000,

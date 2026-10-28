@@ -113,7 +113,7 @@ export function createWebServer(options: WebServerOptions = {}) {
     10000,
     options.clock ?? (() => Date.now()),
   );
-  const buildInfo = `repo-radar ${toolVersion()}${config.buildCommit ? ` · commit ${config.buildCommit.slice(0, 7)}` : ''} · Experimental Preview`;
+  const buildInfo = `repo-radar ${toolVersion()}${config.buildCommit ? ` · commit ${config.buildCommit.slice(0, 7)}` : ''}`;
   const root = options.staticRoot ?? join(dirname(fileURLToPath(import.meta.url)), 'public');
   const gauges = () => ({
     queue_depth: jobs.queueDepth,

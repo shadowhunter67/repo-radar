@@ -8,6 +8,8 @@ import { JSDOM } from 'jsdom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { init } from '../../web/public/app.js';
 // @ts-expect-error plain browser ES module without type declarations
+import { applyStatic } from '../../web/public/i18n.js';
+// @ts-expect-error plain browser ES module without type declarations
 import { renderResult } from '../../web/public/render/result.js';
 
 type Loose = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any -- tests mutate arbitrary report fields
@@ -19,6 +21,7 @@ const text = (n: Element | null | undefined) => (n?.textContent ?? '').replace(/
 describe('landing page', () => {
   const dom = new JSDOM(html);
   const doc = dom.window.document;
+  applyStatic(doc); // the suite runs in English (see tests/setup-i18n.ts); the raw page is Vietnamese
   it('states the hosted limits next to the input, before the form', () => {
     const banner = doc.querySelector('[data-banner="hosted"]');
     expect(banner).not.toBeNull();

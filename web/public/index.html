@@ -1,70 +1,109 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>repo-radar — Experimental Preview</title>
+    <title>repo-radar — Bản xem trước thử nghiệm</title>
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main" data-i18n="skip.main">Chuyển đến nội dung chính</a>
     <header class="site-header">
-      <a class="brand" href="/">repo-radar</a><span class="badge">Experimental Preview</span>
+      <a class="brand" href="/">repo-radar</a
+      ><span class="badge" data-i18n="header.badge">Bản xem trước thử nghiệm</span>
+      <div class="lang-switch" role="group" aria-label="Ngôn ngữ" data-i18n-aria="header.langGroup">
+        <button type="button" data-lang="vi" lang="vi" aria-label="Tiếng Việt" aria-pressed="true">
+          VI</button
+        ><button type="button" data-lang="en" lang="en" aria-label="English" aria-pressed="false">
+          EN
+        </button>
+      </div>
     </header>
     <main id="main" tabindex="-1">
-      <p class="lede">Analyze observable repository and software supply-chain evidence.</p>
-      <ul class="hosted-notes" data-banner="hosted" aria-label="Service limits">
-        <li>Public repositories only</li>
-        <li>History analysis is off</li>
-        <li>Results are temporary</li>
-        <li>Experimental preview</li>
+      <p class="lede" data-i18n="lede">
+        Phân tích bằng chứng có thể quan sát được của kho mã và chuỗi cung ứng phần mềm.
+      </p>
+      <ul
+        class="hosted-notes"
+        data-banner="hosted"
+        aria-label="Giới hạn của dịch vụ"
+        data-i18n-aria="hosted.label"
+      >
+        <li data-i18n="hosted.public">Chỉ kho mã công khai</li>
+        <li data-i18n="hosted.history">Phân tích lịch sử đang tắt</li>
+        <li data-i18n="hosted.temporary">Kết quả chỉ được lưu tạm thời</li>
+        <li data-i18n="hosted.preview">Bản xem trước thử nghiệm</li>
       </ul>
       <form id="analyze-form" novalidate>
-        <label for="repository">Repository</label
+        <label for="repository" data-i18n="form.repository">Kho mã</label
         ><input
           id="repository"
           name="repository"
           autocomplete="url"
           placeholder="owner/repo"
+          data-i18n-placeholder="form.repositoryPlaceholder"
           required
-        /><label for="ref">Ref <span>(optional branch, tag or commit SHA)</span></label
-        ><input id="ref" name="ref" placeholder="main or commit SHA" />
+        /><label for="ref"
+          ><span data-i18n="form.ref">Tham chiếu</span>
+          <span class="hint" data-i18n="form.refHint"
+            >(không bắt buộc: nhánh, tag hoặc SHA của commit)</span
+          ></label
+        ><input
+          id="ref"
+          name="ref"
+          placeholder="main hoặc SHA của commit"
+          data-i18n-placeholder="form.refPlaceholder"
+        />
         <p id="normalised" class="normalised" aria-live="polite"></p>
-        <div class="examples" aria-label="Examples">
+        <div class="examples" role="group" aria-label="Ví dụ" data-i18n-aria="form.examples">
           <button type="button" data-example="spf13/cobra">spf13/cobra</button
           ><button type="button" data-example="expressjs/express">expressjs/express</button
           ><button type="button" data-example="psf/requests">psf/requests</button>
         </div>
-        <button id="analyze" type="submit">Analyze</button>
+        <button id="analyze" type="submit" class="primary" data-i18n="form.analyze">
+          Phân tích
+        </button>
       </form>
       <div id="status" role="status" aria-live="polite"></div>
       <div id="error" class="error" role="alert"></div>
       <div id="result"></div>
-      <p class="disclaimer">
-        Experimental preview. Scores are evidence-derived heuristics, not probabilities of safety.
-        Calibration labels have not been independently human-reviewed. Public repositories only.
+      <p class="disclaimer" data-i18n="disclaimer">
+        Bản xem trước thử nghiệm. Điểm số là chỉ số kinh nghiệm suy ra từ bằng chứng, không phải xác
+        suất an toàn. Các nhãn hiệu chuẩn chưa được người độc lập rà soát. Chỉ kho mã công khai.
       </p>
       <p class="build" data-field="build"><!--build-info--></p>
       <nav class="links">
-        <a href="https://github.com/shadowhunter67/repo-radar#readme" rel="noopener noreferrer"
+        <a
+          href="https://github.com/shadowhunter67/repo-radar#readme"
+          rel="noopener noreferrer"
+          data-i18n="links.readme"
           >README</a
-        ><a href="https://github.com/shadowhunter67/repo-radar" rel="noopener noreferrer">Source</a
+        ><a
+          href="https://github.com/shadowhunter67/repo-radar"
+          rel="noopener noreferrer"
+          data-i18n="links.source"
+          >Mã nguồn</a
         ><a
           href="https://github.com/shadowhunter67/repo-radar/blob/main/docs/web-analyzer.md"
           rel="noopener noreferrer"
-          >About this service and the CLI</a
+          data-i18n="links.about"
+          >Về dịch vụ này và CLI</a
         ><a
           href="https://github.com/shadowhunter67/repo-radar/blob/main/docs/methodology.md"
           rel="noopener noreferrer"
-          >Methodology</a
+          data-i18n="links.methodology"
+          >Phương pháp luận</a
         ><a
           href="https://github.com/shadowhunter67/repo-radar/blob/main/docs/limitations.md"
           rel="noopener noreferrer"
-          >Limitations</a
+          data-i18n="links.limitations"
+          >Hạn chế</a
         >
       </nav>
     </main>
-    <noscript><p class="noscript">JavaScript is required to run an analysis.</p></noscript>
+    <noscript
+      ><p class="noscript" data-i18n="noscript">Cần bật JavaScript để chạy phân tích.</p></noscript
+    >
     <script type="module" src="/app.js"></script>
   </body>
 </html>

@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 export function score(document, data) {
   const wrap = document.createElement('section');
   wrap.className = 'grid';
@@ -17,20 +18,12 @@ export function score(document, data) {
     return s;
   };
   wrap.append(
+    card(t('section.score'), `${data.overall.score} (${data.overall.grade})`, t('score.note')),
+    card(t('section.confidence'), String(data.overall.confidence), t('confidence.note')),
     card(
-      'Score',
-      `${data.overall.score} (${data.overall.grade})`,
-      'A score is an evidence-derived heuristic, not a probability of safety.',
-    ),
-    card(
-      'Confidence',
-      String(data.overall.confidence),
-      'Confidence describes evidence coverage and agreement.',
-    ),
-    card(
-      'Coverage',
+      t('section.coverage'),
       `${Math.round(data.overall.weight_covered * 100)}%`,
-      'Findings and “not observed” statements apply only to analyzed evidence.',
+      t('coverage.note'),
     ),
   );
   return wrap;

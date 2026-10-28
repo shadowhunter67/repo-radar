@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Web Analyzer UI: Vietnamese by default with an in-place VI / EN switch (`web/public/i18n.js`; evidence and report values are never translated), explicit light and dark colours for buttons, inputs and selects (the unreadable white-on-white buttons in dark mode are fixed), header and spacing polish. No analyzer, scoring, schema or API change.
+
 ## [0.18.0] - Deterministic reports, hosting-ready Web Analyzer (Experimental Preview)
 
 - Report determinism: scanned files are budgeted in a fixed order and sorted by path, diagnostics are sorted; `integrity.report_sha256`

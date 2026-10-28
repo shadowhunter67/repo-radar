@@ -1,4 +1,5 @@
 /* global URL */
+import { getLanguage, t } from '../i18n.js';
 const hosts = new Set([
   'github.com',
   'api.github.com',
@@ -47,12 +48,12 @@ function evidencePools(report) {
   return out;
 }
 function addSafeProvenance(doc, parent, url) {
-  const p = el(doc, 'p', `Provenance: ${url}`);
+  const p = el(doc, 'p', `${t('evidence.provenance')}: ${url}`);
   try {
     const u = new URL(url);
     if (u.protocol === 'https:' && hosts.has(u.hostname)) {
       const a = el(doc, 'a', url, { href: url, rel: 'noopener noreferrer nofollow' });
-      p.replaceChildren('Provenance: ', a);
+      p.replaceChildren(`${t('evidence.provenance')}: `, a);
     }
   } catch {
     // Invalid provenance remains visible as plain text.
@@ -101,7 +102,7 @@ function dialog(doc, root, report) {
     box.replaceChildren();
     const findingDl = el(doc, 'dl', undefined, { class: 'field' });
     findingDl.append(
-      el(doc, 'dt', 'Finding ID'),
+      el(doc, 'dt', t('field.findingId')),
       el(doc, 'dd', finding.id, { 'data-field': 'finding-id' }),
     );
     box.append(findingDl, el(doc, 'p', finding.title));
@@ -109,7 +110,7 @@ function dialog(doc, root, report) {
     for (const id of finding.evidence_ids ?? []) {
       const item = pools.get(id);
       const n = el(doc, 'article', undefined, { 'data-evidence-id': id, class: 'card' });
-      if (!item) n.append(el(doc, 'p', `${id}: unresolved`));
+      if (!item) n.append(el(doc, 'p', t('evidence.unresolved', { id })));
       else {
         n.append(
           el(
@@ -118,11 +119,12 @@ function dialog(doc, root, report) {
             `${id}: ${item.name ?? item.file ?? item.source ?? item.kind ?? 'observed'}${item.files ? ` (${item.files.join(', ')})` : ''}`,
           ),
         );
-        if (item.lines) n.append(el(doc, 'p', `lines ${item.lines.join(', ')}`));
-        if (item.line) n.append(el(doc, 'p', `line ${item.line}`));
+        if (item.lines)
+          n.append(el(doc, 'p', t('evidence.lines', { lines: item.lines.join(', ') })));
+        if (item.line) n.append(el(doc, 'p', t('evidence.line', { line: item.line })));
         if (item.steps) n.append(el(doc, 'p', item.steps.join('; ')));
         if (item.value !== undefined)
-          n.append(el(doc, 'p', `value: ${JSON.stringify(item.value)}`));
+          n.append(el(doc, 'p', t('evidence.value', { value: JSON.stringify(item.value) })));
         if (item.provenance?.url) addSafeProvenance(doc, n, item.provenance.url);
       }
       list.append(n);
@@ -134,8 +136,8 @@ function dialog(doc, root, report) {
         .includes('cap') ||
       finding.id.startsWith('RR-PERS')
     )
-      box.append(el(doc, 'p', 'A capability describes what code can do, not intent.'));
-    const closeButton = el(doc, 'button', 'Close', { type: 'button' });
+      box.append(el(doc, 'p', t('capabilities.note')));
+    const closeButton = el(doc, 'button', t('evidence.close'), { type: 'button' });
     closeButton.addEventListener('click', close);
     box.append(closeButton);
     d.removeAttribute('hidden');
@@ -143,43 +145,51 @@ function dialog(doc, root, report) {
   };
 }
 function findingsSection(doc, root, report) {
-  const s = card(doc, 'findings', 'Findings');
+  const s = card(doc, 'findings', t('section.findings'));
   const controls = el(doc, 'div');
   const countField = el(doc, 'dd', String((report.findings ?? []).length), {
     'data-field': 'finding-count',
   });
   const count = el(doc, 'dl', undefined, { class: 'field compact' });
-  count.append(el(doc, 'dt', 'Findings shown'), countField);
+  count.append(el(doc, 'dt', t('field.findingsShown')), countField);
   controls.append(count);
   const sev = el(doc, 'select', undefined, {
     'data-filter': 'severity',
-    'aria-label': 'Filter by severity',
+    'aria-label': t('findings.filterSeverity'),
   });
   for (const x of ['all', 'critical', 'high', 'medium', 'low', 'info'])
-    sev.append(el(doc, 'option', x, { value: x }));
+    sev.append(el(doc, 'option', x === 'all' ? t('findings.all') : x, { value: x }));
   const cat = el(doc, 'select', undefined, {
     'data-filter': 'category',
-    'aria-label': 'Filter by category',
+    'aria-label': t('findings.filterCategory'),
   });
   const cats = ['all', ...new Set((report.findings ?? []).map((x) => x.category ?? 'unknown'))];
-  for (const x of cats) cat.append(el(doc, 'option', x, { value: x }));
+  for (const x of cats)
+    cat.append(el(doc, 'option', x === 'all' ? t('findings.all') : x, { value: x }));
   const search = el(doc, 'input', undefined, {
     'data-filter': 'search',
-    'aria-label': 'Search findings',
+    'aria-label': t('findings.search'),
     id: 'findings-search',
   });
-  const severityLabel = el(doc, 'label', 'Severity', { for: 'findings-severity' });
-  const categoryLabel = el(doc, 'label', 'Category', { for: 'findings-category' });
+  const severityLabel = el(doc, 'label', t('findings.severity'), { for: 'findings-severity' });
+  const categoryLabel = el(doc, 'label', t('findings.category'), { for: 'findings-category' });
   sev.setAttribute('id', 'findings-severity');
   cat.setAttribute('id', 'findings-category');
-  const searchLabel = el(doc, 'label', 'Search findings', { for: 'findings-search' });
+  const searchLabel = el(doc, 'label', t('findings.search'), { for: 'findings-search' });
   controls.append(severityLabel, sev, categoryLabel, cat, searchLabel, search);
   s.append(controls);
   const table = el(doc, 'table');
-  table.append(el(doc, 'caption', 'Observed findings within analyzed coverage'));
+  table.append(el(doc, 'caption', t('findings.caption')));
   const thead = el(doc, 'thead'),
     head = el(doc, 'tr');
-  for (const x of ['Severity', 'Category', 'ID', 'Title', 'Summary', 'Evidence count'])
+  for (const x of [
+    t('findings.severity'),
+    t('findings.category'),
+    t('findings.id'),
+    t('findings.title'),
+    t('findings.summary'),
+    t('findings.evidenceCount'),
+  ])
     head.append(el(doc, 'th', x, { scope: 'col' }));
   thead.append(head);
   table.append(thead);
@@ -211,12 +221,15 @@ function findingsSection(doc, root, report) {
   table.append(body);
   s.append(table);
   const pag = el(doc, 'div', undefined, { 'data-pagination': 'controls' });
-  const prev = el(doc, 'button', 'Previous', { type: 'button', 'data-pagination': 'prev' }),
-    next = el(doc, 'button', 'Next', { type: 'button', 'data-pagination': 'next' }),
+  const prev = el(doc, 'button', t('findings.previous'), {
+      type: 'button',
+      'data-pagination': 'prev',
+    }),
+    next = el(doc, 'button', t('findings.next'), { type: 'button', 'data-pagination': 'next' }),
     stat = el(doc, 'span', '1', { 'data-pagination': 'status' });
   pag.append(prev, stat, next);
   s.append(pag);
-  const empty = el(doc, 'p', 'No findings observed within analyzed coverage.', {
+  const empty = el(doc, 'p', t('findings.empty'), {
     'data-empty-findings': 'true',
   });
   s.append(empty);
@@ -233,7 +246,7 @@ function findingsSection(doc, root, report) {
     body.replaceChildren(
       ...filtered.slice(page * 50, page * 50 + 50).map((x) => (x.tr ??= makeRow(x.f))),
     );
-    stat.textContent = `${page + 1} of ${pages}`;
+    stat.textContent = t('findings.page', { page: page + 1, pages });
     prev.disabled = page === 0;
     next.disabled = page >= pages - 1;
     empty.toggleAttribute('hidden', filtered.length !== 0);
@@ -260,113 +273,117 @@ function findingsSection(doc, root, report) {
   update();
   return s;
 }
-const onOff = (v) => (v ? 'on' : 'off');
+const onOff = (v) => (v ? t('tech.on') : t('tech.off'));
 function configList(doc, report) {
   const f = report.analysis_manifest?.feature_flags ?? {};
   const ul = el(doc, 'ul', undefined, { 'data-list': 'analysis-config' });
-  for (const [label, key] of [
-    ['History analysis', 'dependency_history'],
-    ['Dependency artifact inspection', 'dependency_artifacts'],
-    ['Cryptographic attestation verification', 'verify_crypto'],
-    ['Release asset verification', 'verify_assets'],
-    ['Source scan', 'code_scan'],
-    ['Dependency registry lookups', 'dependency_registry'],
-    ['Vulnerability database (OSV)', 'osv'],
-    ['Compliance indicators', 'compliance'],
+  for (const [key] of [
+    ['dependency_history'],
+    ['dependency_artifacts'],
+    ['verify_crypto'],
+    ['verify_assets'],
+    ['code_scan'],
+    ['dependency_registry'],
+    ['osv'],
+    ['compliance'],
   ])
-    ul.append(el(doc, 'li', `${label}: ${onOff(f[key] === true)}`));
+    ul.append(el(doc, 'li', `${t(`tech.cfg.${key}`)}: ${onOff(f[key] === true)}`));
   const b = report.analysis_manifest?.budgets ?? {};
   if (b.max_scan_bytes !== undefined)
-    ul.append(el(doc, 'li', `Source scan byte budget: ${b.max_scan_bytes}`));
+    ul.append(el(doc, 'li', `${t('tech.scanBudget')}: ${b.max_scan_bytes}`));
   return ul;
 }
 export function renderResult(doc, job) {
   const report = job.report ?? job;
   const root = doc.createDocumentFragment();
-  const overview = card(doc, 'overview', 'Overview');
+  const overview = card(doc, 'overview', t('section.overview'));
   const owner = job.repository?.owner ?? 'unknown',
     repo = job.repository?.repo ?? 'unknown';
-  field(doc, overview, 'Repository', `${owner}/${repo}`, 'repository');
-  const repoLink = el(doc, 'a', 'Open repository', {
+  field(doc, overview, t('field.repository'), `${owner}/${repo}`, 'repository');
+  const repoLink = el(doc, 'a', t('field.openRepository'), {
     href: `https://github.com/${owner}/${repo}`,
     rel: 'noopener noreferrer',
   });
   const repoLinkDl = el(doc, 'dl', undefined, { class: 'field' });
   repoLink.setAttribute('data-field', 'repo-link');
-  repoLinkDl.append(el(doc, 'dt', 'Repository link'), repoLink);
+  repoLinkDl.append(el(doc, 'dt', t('field.repositoryLink')), repoLink);
   overview.append(repoLinkDl);
   const sha = /^[a-f0-9]{40}$/i.test(job.analyzed_sha ?? '') ? job.analyzed_sha : 'unavailable';
-  field(doc, overview, 'Analyzed commit (exact SHA)', sha, 'sha', { class: 'muted' });
-  field(doc, overview, 'Analysis time', report.generated_at ?? 'unavailable', 'generated-at');
+  field(doc, overview, t('field.sha'), sha === 'unavailable' ? t('unavailable') : sha, 'sha', {
+    class: 'muted',
+  });
   field(
     doc,
     overview,
-    'repo-radar version',
-    report.tool?.version ?? report.analysis_manifest?.tool_version ?? 'unavailable',
+    t('field.analysisTime'),
+    report.generated_at ?? t('unavailable'),
+    'generated-at',
+  );
+  field(
+    doc,
+    overview,
+    t('field.toolVersion'),
+    report.tool?.version ?? report.analysis_manifest?.tool_version ?? t('unavailable'),
     'tool-version',
   );
   field(
     doc,
     overview,
-    'Report schema',
-    report.analysis_manifest?.schema_version ?? 'unavailable',
+    t('field.schema'),
+    report.analysis_manifest?.schema_version ?? t('unavailable'),
     'schema-version',
   );
   field(
     doc,
     overview,
-    'Methodology',
+    t('field.methodology'),
     report.methodology?.version ?? report.analysis_manifest?.methodology_version ?? '0.4',
     'methodology-version',
   );
   root.append(overview);
   if (job.state === 'partial' && Array.isArray(job.partial_reasons) && job.partial_reasons.length) {
-    const part = card(doc, 'partial', 'Why this result is partial');
+    const part = card(doc, 'partial', t('section.partial'));
     const ul = el(doc, 'ul');
     for (const r of job.partial_reasons) ul.append(el(doc, 'li', r.message));
-    part.append(
-      ul,
-      el(
-        doc,
-        'p',
-        'Sections that depend on these sources may be incomplete. Partial describes how much evidence could be gathered; it does not mean the repository is worse.',
-      ),
-    );
+    part.append(ul, el(doc, 'p', t('section.partialNote')));
     root.append(part);
   }
-  const sc = card(doc, 'score', 'Score');
-  field(doc, sc, 'Score', report.overall.score, 'score', { class: 'score neutral' });
-  field(doc, sc, 'Grade', report.overall.grade, 'grade');
-  sc.append(el(doc, 'p', 'A score is an evidence-derived heuristic, not a probability of safety.'));
+  const sc = card(doc, 'score', t('section.score'));
+  field(doc, sc, t('field.score'), report.overall.score, 'score', { class: 'score neutral' });
+  field(doc, sc, t('field.grade'), report.overall.grade, 'grade');
+  sc.append(el(doc, 'p', t('score.note')));
   root.append(sc);
-  const conf = card(doc, 'confidence', 'Confidence');
-  field(doc, conf, 'Confidence', report.overall.confidence, 'confidence');
+  const conf = card(doc, 'confidence', t('section.confidence'));
+  field(doc, conf, t('field.confidence'), report.overall.confidence, 'confidence');
+  conf.append(el(doc, 'p', t('confidence.note')));
   root.append(conf);
-  const coverage = card(doc, 'coverage', 'Coverage');
+  const coverage = card(doc, 'coverage', t('section.coverage'));
   const pct = Math.round(report.overall.weight_covered * 100);
-  field(doc, coverage, 'Overall evidence coverage', `${pct}%`, 'coverage');
+  field(doc, coverage, t('field.coverageOverall'), `${pct}%`, 'coverage');
   const scan = report.code_analysis?.scan ?? {};
   field(
     doc,
     coverage,
-    'Source files scanned',
+    t('field.sourceFiles'),
     `${scan.source_files_scanned ?? 0}/${scan.source_files_total ?? 0} (${Math.round((scan.source_coverage ?? 0) * 100)}%)`,
     'source-files',
   );
   field(
     doc,
     coverage,
-    'Source files scanned (coverage)',
+    t('field.sourceFilesCoverage'),
     `${Math.round((scan.source_coverage ?? 0) * 100)}%`,
     'source-coverage',
   );
-  coverage.append(
-    el(doc, 'p', "Findings and 'not observed' statements apply only to analyzed evidence."),
-  );
+  coverage.append(el(doc, 'p', t('coverage.note')));
   for (const dim of report.dimensions ?? []) {
     const n = el(doc, 'div', undefined, { 'data-dimension': dim.dimension });
     n.append(
-      el(doc, 'span', `${dim.label} `),
+      el(
+        doc,
+        'span',
+        `${getLanguage() === 'vi' && t(`dim.${dim.dimension}`) !== `dim.${dim.dimension}` ? t(`dim.${dim.dimension}`) : dim.label} `,
+      ),
       el(doc, 'span', `${Math.round(dim.coverage * 1000) / 10}%`, {
         'data-field': 'dimension-coverage',
       }),
@@ -375,171 +392,142 @@ export function renderResult(doc, job) {
   }
   if ((scan.source_coverage ?? 1) < 0.5)
     coverage.append(
-      el(doc, 'p', 'Low source coverage within analyzed evidence.', {
+      el(doc, 'p', t('coverage.lowSource'), {
         'data-notice': 'low-source-coverage',
       }),
     );
   root.append(coverage);
   const findingHost = doc.createElement('div');
   root.append(findingsSection(doc, findingHost, report));
-  const deps = card(doc, 'dependencies', 'Dependencies'),
+  const deps = card(doc, 'dependencies', t('section.dependencies')),
     sum = report.dependency_intel?.summary ?? {};
-  field(doc, deps, 'Direct dependencies', sum.direct ?? 0, 'direct-count');
-  field(doc, deps, 'Transitive dependencies', sum.transitive ?? 0, 'transitive-count');
-  field(doc, deps, 'Resolved to exact versions', sum.direct_resolved_exact ?? 0, 'resolved-exact');
+  field(doc, deps, t('field.directDeps'), sum.direct ?? 0, 'direct-count');
+  field(doc, deps, t('field.transitiveDeps'), sum.transitive ?? 0, 'transitive-count');
+  field(doc, deps, t('field.resolvedExact'), sum.direct_resolved_exact ?? 0, 'resolved-exact');
   field(
     doc,
     deps,
-    'Ecosystems',
-    Object.keys(sum.by_ecosystem ?? {}).join(', ') || 'unavailable',
+    t('field.ecosystems'),
+    Object.keys(sum.by_ecosystem ?? {}).join(', ') || t('unavailable'),
     'ecosystems',
   );
-  field(
-    doc,
-    deps,
-    'Dependencies with known advisories',
-    sum.vulnerable_total ?? 0,
-    'vulnerable-count',
-  );
+  field(doc, deps, t('field.vulnerable'), sum.vulnerable_total ?? 0, 'vulnerable-count');
   root.append(deps);
-  const rel = card(doc, 'release', 'Release & Provenance');
+  const rel = card(doc, 'release', t('section.release'));
   for (const x of report.release_intel?.releases ?? [])
     rel.append(
       el(
         doc,
         'p',
-        `${x.tag} — ${x.published_at ?? 'date unavailable'} — ${x.verification_state ?? 'not verified from presence alone'}`,
+        `${x.tag} — ${x.published_at ?? t('release.noDate')} — ${x.verification_state ?? t('release.notVerified')}`,
         { 'data-release-tag': x.tag },
       ),
     );
   root.append(rel);
-  const caps = card(doc, 'capabilities', 'Capabilities & execution');
+  const caps = card(doc, 'capabilities', t('section.capabilities'));
   for (const x of report.code_analysis?.execution?.hooks ?? [])
     caps.append(el(doc, 'p', `${x.id} ${x.name}`, { 'data-hook-id': x.id }));
   for (const x of report.code_analysis?.execution?.chains ?? [])
     caps.append(
       el(doc, 'p', `${x.id} ${x.kind} ${x.file} ${x.steps?.join('; ')}`, { 'data-chain-id': x.id }),
     );
-  caps.append(el(doc, 'p', 'A capability describes what code can do, not intent.'));
+  caps.append(el(doc, 'p', t('capabilities.note')));
   root.append(caps);
-  const gov = card(doc, 'governance', 'Governance');
+  const gov = card(doc, 'governance', t('section.governance'));
   gov.append(
-    el(
-      doc,
-      'p',
-      report.governance?.takeover_indicators?.statement ??
-        'Takeover indicators were unavailable within analyzed coverage.',
-    ),
+    el(doc, 'p', report.governance?.takeover_indicators?.statement ?? t('governance.noTakeover')),
   );
   field(
     doc,
     gov,
-    'Commits in the sampled window',
-    report.governance?.window?.commits ?? 'unavailable',
+    t('field.commitsWindow'),
+    report.governance?.window?.commits ?? t('unavailable'),
     'governance-commits',
   );
   field(
     doc,
     gov,
-    'Signals observed',
+    t('field.signals'),
     report.governance?.signals?.length ?? 0,
     'governance-signals',
   );
   const limitations = el(doc, 'ul');
   for (const x of report.governance?.limitations ?? []) limitations.append(el(doc, 'li', x));
-  gov.append(el(doc, 'h3', 'Limitations'), limitations);
+  gov.append(el(doc, 'h3', t('governance.limitations')), limitations);
   root.append(gov);
-  const comp = card(doc, 'compliance', 'Compliance');
+  const comp = card(doc, 'compliance', t('section.compliance'));
   comp.append(
-    el(doc, 'p', 'Indicative only. Not legal advice. Not a compliance certification.', {
+    el(doc, 'p', t('compliance.banner'), {
       'data-banner': 'indicative',
     }),
   );
-  comp.append(
-    el(
+  comp.append(el(doc, 'p', report.regulatory?.disclaimer ?? t('compliance.noDisclaimer')));
+  for (const pack of report.regulatory?.packs ?? []) {
+    const p = el(
       doc,
       'p',
-      report.regulatory?.disclaimer ??
-        'Regulatory applicability is unavailable within analyzed coverage.',
-    ),
-  );
-  for (const pack of report.regulatory?.packs ?? []) {
-    const p = el(doc, 'p', `${pack.title ?? pack.pack}: ${pack.applicability?.state ?? 'unknown'}`);
-    if (pack.indicators?.length === 0) p.append(el(doc, 'span', ' — indicators not evaluated'));
+      `${pack.title ?? pack.pack}: ${pack.applicability?.state ?? t('compliance.unknown')}`,
+    );
+    if (pack.indicators?.length === 0) p.append(el(doc, 'span', t('compliance.notEvaluated')));
     comp.append(p);
   }
   root.append(comp);
   const tech = el(doc, 'details', undefined, { 'data-section': 'technical' });
-  tech.append(el(doc, 'summary', 'Technical details'));
+  tech.append(el(doc, 'summary', t('section.technical')));
   field(
     doc,
     tech,
-    'Report integrity (SHA-256)',
-    report.integrity?.report_sha256 ?? 'unavailable',
+    t('field.integrity'),
+    report.integrity?.report_sha256 ?? t('unavailable'),
     'report-sha256',
   );
-  tech.append(
-    el(
-      doc,
-      'p',
-      'The integrity hash identifies the canonical content of this report. It is a fingerprint, not a signature, and it shows only that content, not whether the repository or the report is trustworthy.',
-      { 'data-note': 'integrity' },
-    ),
-  );
-  const copyHash = el(doc, 'button', 'Copy integrity hash', {
+  tech.append(el(doc, 'p', t('tech.integrityNote'), { 'data-note': 'integrity' }));
+  const copyHash = el(doc, 'button', t('tech.copyIntegrity'), {
     type: 'button',
     'data-action': 'copy-integrity',
   });
   copyHash.addEventListener('click', async () => {
     try {
       await doc.defaultView?.navigator.clipboard?.writeText(report.integrity?.report_sha256 ?? '');
-      copyHash.textContent = 'Copied';
+      copyHash.textContent = t('tech.copied');
     } catch {
-      copyHash.textContent = 'Select the hash above to copy it';
+      copyHash.textContent = t('tech.copyFailed');
     }
   });
   tech.append(copyHash);
   field(
     doc,
     tech,
-    'Configuration digest',
-    report.methodology?.config_digest ?? 'unavailable',
+    t('field.configDigest'),
+    report.methodology?.config_digest ?? t('unavailable'),
     'config-digest',
   );
-  tech.append(el(doc, 'h3', 'Analysis configuration'));
+  tech.append(el(doc, 'h3', t('tech.config')));
   tech.append(configList(doc, report));
-  field(doc, tech, 'HTTP requests', report.stats?.http_requests ?? 0, 'http-requests');
-  field(doc, tech, 'Evidence entries', report.stats?.evidence_count ?? 0, 'evidence-count');
-  tech.append(el(doc, 'h3', 'When the external sources were read'));
+  field(doc, tech, t('field.httpRequests'), report.stats?.http_requests ?? 0, 'http-requests');
+  field(doc, tech, t('field.evidenceEntries'), report.stats?.evidence_count ?? 0, 'evidence-count');
+  tech.append(el(doc, 'h3', t('tech.freshness')));
   const fresh = el(doc, 'ul', undefined, { 'data-list': 'data-freshness' });
   for (const x of report.analysis_manifest?.external_sources ?? [])
     fresh.append(
       el(
         doc,
         'li',
-        `${x.source}: ${x.classification === 'revision_bound' ? 'tied to this commit' : 'current state when retrieved'}, retrieved ${x.retrieved_at}`,
+        `${x.source}: ${x.classification === 'revision_bound' ? t('tech.freshnessBound') : t('tech.freshnessCurrent')}, ${t('tech.freshnessRetrieved')} ${x.retrieved_at}`,
         { 'data-external-source': x.source },
       ),
     );
-  tech.append(
-    fresh,
-    el(
-      doc,
-      'p',
-      'Registry, vulnerability and similar sources describe current state and can change without any change to the repository, so a later run of the same commit may differ.',
-      { 'data-note': 'freshness' },
-    ),
-  );
+  tech.append(fresh, el(doc, 'p', t('tech.freshnessNote'), { 'data-note': 'freshness' }));
   for (const x of report.diagnostics ?? [])
     tech.append(el(doc, 'p', `${x.level} ${x.code}: ${x.message}`, { 'data-diagnostic': x.code }));
   root.append(tech);
   const actions = el(doc, 'div');
-  const dl = el(doc, 'a', 'Download JSON report', {
+  const dl = el(doc, 'a', t('actions.download'), {
     href: `/api/v1/jobs/${job.job_id}/report`,
     'data-action': 'download',
   });
   const cmd = `node dist/cli.js analyze ${owner}/${repo}${sha === 'unavailable' ? '' : ` --ref ${sha}`} --format json`;
-  const cp = el(doc, 'button', 'Copy CLI command', {
+  const cp = el(doc, 'button', t('actions.copyCli'), {
     type: 'button',
     'data-action': 'copy-cli',
     'data-command': cmd,
@@ -547,45 +535,33 @@ export function renderResult(doc, job) {
   const command = el(doc, 'code', cmd);
   const commandDl = el(doc, 'dl', undefined, { class: 'field' });
   commandDl.append(
-    el(doc, 'dt', 'CLI command'),
+    el(doc, 'dt', t('field.cliCommand')),
     el(doc, 'dd', undefined, { 'data-field': 'cli-command' }),
   );
   commandDl.lastElementChild?.append(command);
-  const notice = el(doc, 'p', 'Results are kept for a limited time and then discarded.', {
+  const notice = el(doc, 'p', t('actions.ephemeral'), {
     'data-notice': 'ephemeral',
   });
   cp.addEventListener('click', async () => {
     try {
       await doc.defaultView?.navigator.clipboard?.writeText(cmd);
-      notice.textContent = 'CLI command copied.';
+      notice.textContent = t('actions.cliCopied');
     } catch {
       const range = doc.createRange();
       range.selectNodeContents(command);
       const sel = doc.defaultView?.getSelection();
       sel?.removeAllRanges();
       sel?.addRange(range);
-      notice.textContent = 'Select and copy the CLI command.';
+      notice.textContent = t('actions.cliSelect');
     }
   });
   actions.append(dl, cp, commandDl, notice);
   root.append(actions);
   if (job.cached)
-    root.prepend(
-      el(
-        doc,
-        'p',
-        'This result was served from a short-lived cache: an identical analysis of the same commit ran recently and was not repeated. Data from registries and similar sources is as of that earlier run.',
-        { 'data-banner': 'cached', class: 'banner' },
-      ),
-    );
+    root.prepend(el(doc, 'p', t('banner.cached'), { 'data-banner': 'cached', class: 'banner' }));
   if (job.state === 'partial')
     root.prepend(
-      el(
-        doc,
-        'p',
-        'Analysis completed with partial evidence: one or more sources were unavailable or budgets were reached.',
-        { 'data-banner': 'partial', class: 'banner partial' },
-      ),
+      el(doc, 'p', t('banner.partial'), { 'data-banner': 'partial', class: 'banner partial' }),
     );
   return root;
 }

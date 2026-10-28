@@ -1,15 +1,22 @@
+import { t } from '../i18n.js';
 export function findings(document, data) {
   const s = document.createElement('section');
   s.className = 'card';
   const h = document.createElement('h2');
-  h.textContent = 'Findings';
+  h.textContent = t('section.findings');
   s.append(h);
   const table = document.createElement('table');
   const cap = document.createElement('caption');
-  cap.textContent = 'Observed findings within analyzed coverage';
+  cap.textContent = t('findings.caption');
   table.append(cap);
   const head = document.createElement('tr');
-  for (const x of ['Severity', 'Category', 'ID', 'Title', 'Summary']) {
+  for (const x of [
+    t('findings.severity'),
+    t('findings.category'),
+    t('findings.id'),
+    t('findings.title'),
+    t('findings.summary'),
+  ]) {
     const th = document.createElement('th');
     th.scope = 'col';
     th.textContent = x;
@@ -29,7 +36,7 @@ export function findings(document, data) {
   }
   if (!data.findings.length) {
     const p = document.createElement('p');
-    p.textContent = 'No findings observed within analyzed coverage.';
+    p.textContent = t('findings.empty');
     s.append(p);
   }
   s.append(table);
