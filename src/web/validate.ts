@@ -23,6 +23,12 @@ export function validateRepository(value: unknown, suppliedRef?: unknown): WebRe
     );
   let parts: string[];
   if (value.startsWith('https://')) {
+    // a percent-encoded host (https://%67ithub.com) is decoded by URL parsing; never accept an encoded spelling of a host
+    if (value.includes('%'))
+      throw new WebInputError(
+        'INVALID_REPOSITORY',
+        'repository must be owner/repo or an exact GitHub URL',
+      );
     if (/^https:\/\/github\.com:\d+\//i.test(value))
       throw new WebInputError(
         'INVALID_REPOSITORY',

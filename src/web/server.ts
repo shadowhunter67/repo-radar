@@ -37,10 +37,9 @@ function send(
 }
 async function readBody(req: IncomingMessage, limit: number): Promise<string> {
   const declared = Number(req.headers['content-length'] ?? 0);
-  if (declared > limit) {
-    req.destroy();
-    throw Object.assign(new Error(), { code: 'TOO_LARGE' });
-  }
+  // Answer 413 properly (the caller closes the connection after the reply); destroying the socket here made a proxy in front
+  // report a bare 502 instead.
+  if (declared > limit) throw Object.assign(new Error(), { code: 'TOO_LARGE' });
   let n = 0,
     s = '';
   for await (const c of req) {
@@ -173,6 +172,7 @@ export function createWebServer(options: WebServerOptions = {}) {
               res,
               (e as { code?: string }).code === 'TOO_LARGE' ? 413 : 400,
               errorBody('INVALID_BODY', 'invalid request body'),
+              (e as { code?: string }).code === 'TOO_LARGE' ? { Connection: 'close' } : {},
             );
           }
           if (

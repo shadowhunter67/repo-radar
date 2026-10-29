@@ -539,6 +539,25 @@ describe('landing page build identification', () => {
   });
 });
 
+describe('oversized request bodies', () => {
+  it('oversized declared body gets a real 413 reply (not a dropped connection)', async () => {
+    const s = createWebServer({ config: config(), runAnalysis: async () => report(SHA_A) });
+    await new Promise<void>((r) => s.listen(0, '127.0.0.1', r));
+    try {
+      const port = (s.address() as { port: number }).port;
+      const res = await fetch(`http://127.0.0.1:${port}/api/v1/analyze`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ repository: 'a/b', pad: 'x'.repeat(10_000) }),
+      });
+      expect(res.status).toBe(413);
+      expect(((await res.json()) as { error: { code: string } }).error.code).toBe('INVALID_BODY');
+    } finally {
+      await s.shutdown(50);
+    }
+  });
+});
+
 describe('GitHub helper: exact commit, rate limit, redirects and token scope', () => {
   const res = (status: number, body = '', headers: Record<string, string> = {}) =>
     new Response(body, { status, headers });

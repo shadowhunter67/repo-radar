@@ -36,6 +36,8 @@ const invalid = [
   'а/r',
   'ｏ/r',
   'https://github.com/%2e%2e/r',
+  'https://%67ithub.com/o/r',
+  'https://github.com%2eevil.example/o/r',
   'file:o/r',
   'ssh:o/r',
   'https://[::1]/o/r',
