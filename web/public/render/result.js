@@ -450,9 +450,14 @@ export function renderResult(doc, job) {
       el(doc, 'div', undefined, { class: 'cta-actions' }),
       ctaNote,
     );
+    const how = el(doc, 'a', t('cta.install'), {
+      href: 'https://github.com/shadowhunter67/repo-radar/blob/main/docs/getting-started.md',
+      rel: 'noopener noreferrer',
+      'data-action': 'install-guide',
+    });
     cta
       .querySelector('.cta-actions')
-      ?.append(copyButton(doc, t('cta.copy'), deepCommand, 'copy-deep', ctaNote));
+      ?.append(copyButton(doc, t('cta.copy'), deepCommand, 'copy-deep', ctaNote), how);
     root.append(cta);
   }
   const findingHost = doc.createElement('div');

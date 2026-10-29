@@ -18,6 +18,7 @@ const dict = {
     'cta.title': 'Cần phân tích sâu hơn?',
     'cta.body': 'Chạy Deep Scan bằng CLI để tăng độ phủ và ngân sách phân tích.',
     'cta.hint': 'Cần phân tích sâu hơn? Chạy Deep Scan bằng CLI:',
+    'cta.install': 'Hướng dẫn cài đặt repo-radar',
     'cta.copy': 'Sao chép lệnh Deep Scan',
     'cta.note':
       'Chạy từ bản sao của kho mã repo-radar sau npm ci và npm run build. Cùng commit, cùng cách phân tích; chỉ khác ngân sách.',
@@ -236,6 +237,7 @@ const dict = {
     'cta.title': 'Need deeper analysis?',
     'cta.body': 'Run a Deep Scan with the CLI to raise coverage and the analysis budgets.',
     'cta.hint': 'Need deeper analysis? Run a Deep Scan with the CLI:',
+    'cta.install': 'How to install repo-radar',
     'cta.copy': 'Copy Deep Scan command',
     'cta.note':
       'Run from a clone of repo-radar after npm ci and npm run build. Same commit, same analysis; only the budgets differ.',

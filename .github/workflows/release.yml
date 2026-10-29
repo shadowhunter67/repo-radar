@@ -107,11 +107,30 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-      - if: ${{ inputs.publish_npm == true }}
-        run: node -e "const p=require('./docs/release/preview-policy.json'); if (p.npm_license_review !== 'approved') throw new Error('npm licence/distribution review is not approved')"
+
+  # npm publication uses npm TRUSTED PUBLISHING (OIDC): no long-lived npm token exists anywhere. It runs only when the release
+  # was dispatched with publish_npm=true AND the preview policy records an approved npm licence review. The trusted publisher
+  # (this repository, workflow release.yml, environment release) must first be configured by the package owner on npmjs.com.
+  npm-publish:
+    needs: publish
+    if: ${{ startsWith(github.ref, 'refs/tags/v') && inputs.publish_npm == true }}
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - run: |
+          set -euo pipefail
+          node -e "const p=require('./docs/release/preview-policy.json'); if (p.npm_license_review !== 'approved') throw new Error('npm licence/distribution review is not approved')"
         shell: bash
-      - if: ${{ inputs.publish_npm == true }}
-        run: set -euo pipefail; npm publish --provenance --access public
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+      # trusted publishing needs npm 11.5.1 or newer
+      - run: set -euo pipefail; npm install -g npm@11; npm --version
         shell: bash
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: set -euo pipefail; npm ci; npm run build; npm publish --provenance --access public
+        shell: bash

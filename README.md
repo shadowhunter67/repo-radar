@@ -8,18 +8,31 @@
 [![Version](https://img.shields.io/github/package-json/v/shadowhunter67/repo-radar)](package.json)
 [![Security](https://img.shields.io/badge/security-policy-blue)](SECURITY.md)
 
-**Try Quick Scan: https://repo-radar-kcd0.onrender.com**
-For deeper analysis, run repo-radar locally with `--mode deep`.
+repo-radar is an evidence-driven analyzer for trust signals, software supply-chain behavior, repository capabilities,
+dependencies, provenance and governance of GitHub repositories. It is static and read-only: it fetches metadata and source text,
+applies bounded rules, and keeps evidence, coverage, confidence and unknown states visible. It never executes the code it
+analyzes.
 
-The hosted Web Analyzer is a Quick Scan preview: Vietnamese by default (VI / EN switch), public GitHub repositories only, bounded
-resources, temporary results. It runs on Render Free, so the first request after a quiet period can take a minute while the
-server wakes up. No SLA. Large repositories can return a partial result; that is expected, and the page shows why and the exact
-command for a Deep Scan.
+### [Try the Web Quick Scan](https://repo-radar-kcd0.onrender.com)
 
-Evidence-driven repository and software supply-chain intelligence for GitHub
-repositories. repo-radar is static and read-only: it fetches metadata and source
-text, applies bounded rules, and preserves evidence, coverage, confidence, and
-unknown states.
+```text
+https://repo-radar-kcd0.onrender.com
+```
+
+Paste a public GitHub repository and get a bounded, temporary report (Vietnamese by default, VI / EN switch). It runs on Render Free,
+so the first request after a quiet period can take a minute. Large repositories can return a partial result; the page says why and
+shows the exact command for a Deep Scan.
+
+### Run it locally
+
+```bash
+repo-radar analyze sindresorhus/is-plain-obj                          # Quick Scan: fast, bounded screening
+repo-radar analyze owner/repo --ref <sha> --mode deep                 # Deep Scan: higher coverage, larger budgets
+```
+
+repo-radar is **not on the npm registry yet**; install it from a release tarball or a source checkout in two commands
+([Getting started](docs/getting-started.md)). **Experimental Preview:** scores are evidence-derived heuristics, not probabilities
+of safety, and calibration labels have not been independently human-reviewed.
 
 ## Download
 
@@ -102,7 +115,7 @@ evidence; it never interprets it differently. Details and the exact budgets: [do
 | | Quick Scan | Deep Scan |
 |---|---|---|
 | Primary use | preview, screening | detailed local analysis |
-| Web (hosted) | yes (only mode) | no |
+| Web | yes (only mode) | no |
 | CLI | `--mode quick` (default) | `--mode deep` |
 | Source files fetched | up to 40 | up to 200 |
 | Per-file size cap | 64 KiB | 128 KiB |
@@ -113,6 +126,10 @@ evidence; it never interprets it differently. Details and the exact budgets: [do
 
 Deep does not guarantee full coverage: it is still bounded, large repositories can still be partial, and external evidence
 (registries, advisories) can change over time. Neither mode is a safety verdict.
+
+## Documentation
+
+[Getting started](docs/getting-started.md) · [CLI reference](docs/cli.md) · [Quick and Deep modes](docs/modes.md) · [Deep Scan guide](docs/deep-scan.md) · [Web Analyzer](docs/web-analyzer.md) · [Reproducibility](docs/reproducibility.md) · [Methodology](docs/methodology.md) · [Limitations](docs/limitations.md)
 
 ## Feature maturity
 

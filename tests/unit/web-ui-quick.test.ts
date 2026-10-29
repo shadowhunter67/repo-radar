@@ -248,6 +248,16 @@ describe('Deep Scan next step', () => {
       'node dist/cli.js analyze spf13/cobra --mode deep',
     );
   });
+  it('the call to action links to the real install instructions (no unpublished npm command is shown)', () => {
+    const doc = mount(job(thin, 'partial'), 'vi');
+    const a = doc.querySelector('[data-banner="deep-cta"] a[data-action="install-guide"]');
+    expect(a?.getAttribute('href')).toBe(
+      'https://github.com/shadowhunter67/repo-radar/blob/main/docs/getting-started.md',
+    );
+    expect(a?.getAttribute('rel')).toContain('noopener');
+    expect(text(a)).toBe('Hướng dẫn cài đặt repo-radar');
+    expect(text(doc.body)).not.toMatch(/npx repo-radar|npm install -g repo-radar/);
+  });
   it('the call to action never says the repository is unsafe', () => {
     expect(text(mount(job(thin, 'partial')).querySelector('[data-banner="deep-cta"]'))).not.toMatch(
       /unsafe|malicious|dangerous|nguy hiểm|độc hại/i,

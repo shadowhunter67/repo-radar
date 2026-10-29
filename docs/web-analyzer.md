@@ -186,12 +186,22 @@ Only text owned by the interface is translated (labels, headings, status and err
 
 ## Privacy
 
-- No telemetry, analytics, cookies, accounts or third-party requests from the page.
-- Jobs and reports live in server memory only and disappear at the TTL or on restart. There is no database and no permalink.
-- Operational logs are JSON lines on stdout: one `listening` line at startup and one `job_finished` line per job with the job
-  id, final state, duration in milliseconds and, for failures, the error code. They contain no tokens, repository names,
-  client addresses or report contents, and there is no access log.
+What the hosted preview receives, sends and keeps, precisely:
+
+- **You send** the repository identifier (and optional ref) you typed. Nothing else is collected from the page: no cookies, no
+  localStorage, no accounts, no analytics or telemetry, no third-party scripts, fonts or requests.
+- **The server sends**, on your behalf, requests to GitHub, package registries, OSV, deps.dev and OpenSSF Scorecard (the sources the
+  analysis uses). It uses one server-side, read-only GitHub token that is never sent to the browser.
+- **Kept in memory only:** the job state and the finished report, until the job's time-to-live or a restart (the free host also
+  restarts and sleeps). A short-lived cache keeps a completed report for a few minutes. There is no database and no permalink.
+- **Operational logs** are JSON lines on stdout (events such as `job_queued`, `job_started`, `job_finished`, `rate_limited`,
+  `quota_low`, `server_start`, `server_shutdown`). A job line has the job id, state, duration, error code, request count and
+  `analysis_mode`; a `rate_limited` line carries a salted, per-process hash of the client, not the address. They contain no tokens,
+  repository names or report contents. This is not "zero logging": the hosting platform keeps its own request logs under its own
+  policy, and those can include client addresses.
 - Only public repositories are analyzed. There is no private-repository authentication in the web version.
+
+repo-radar never executes the code of the repository it analyzes (no install, no scripts, no binaries, no tests), in Quick or in Deep.
 
 ## What the page shows
 

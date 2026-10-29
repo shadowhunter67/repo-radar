@@ -52,6 +52,23 @@ describe('preview release workflow governance', () => {
     expect(workflow).not.toMatch(/gh release create[\s\S]*dist\/web/);
   });
 
+  it('publishes to npm only through trusted publishing (OIDC), never with a stored token', () => {
+    const workflow = read('.github/workflows/release.yml');
+    expect(workflow).not.toContain('NPM_TOKEN');
+    expect(workflow).not.toContain('NODE_AUTH_TOKEN');
+    const job = workflow.split('\n  npm-publish:\n')[1] ?? '';
+    expect(job).toContain('id-token: write');
+    expect(job).toContain('npm publish --provenance --access public');
+    expect(job).toContain("p.npm_license_review !== 'approved'");
+    expect(job).toContain('inputs.publish_npm == true');
+    // the licence gate runs BEFORE anything is built or published
+    expect(job.indexOf('npm_license_review')).toBeLessThan(job.indexOf('npm publish'));
+    // id-token stays out of every job before it, including publish
+    expect(workflow.split('\n  npm-publish:\n')[0]!.split('\n  publish:\n')[1]).not.toContain(
+      'id-token',
+    );
+  });
+
   it('grants id-token and attestations only to the attest job', () => {
     const workflow = read('.github/workflows/release.yml');
     const attest = workflow.split('\n  attest:\n')[1]?.split('\n  publish:\n')[0] ?? '';

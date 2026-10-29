@@ -1,11 +1,26 @@
 # Changelog
 
-## Unreleased
+## [0.19.0] - Quick Scan and Deep Scan (Experimental Preview)
+
+### Added
 
 - Quick and Deep retrieval profiles (`src/modes.ts`, CLI `--mode quick|deep`, `--history`): same analysis, scoring and schema, different budgets; the default stays Quick (the long-standing budgets). The hosted Web Analyzer is Quick only and refuses a `mode` field (`UNSUPPORTED_ANALYSIS_MODE`). Text reports print the mode; JSON reports are unchanged.
-- Web UI: "Quick Scan Preview" positioning, separate overall / source / dependency-lookup coverage, structured and localized partial reasons (codes with counts), Deep Scan call to action with the exact-SHA command.
+- Web UI: Vietnamese by default with an in-place VI / EN switch (`web/public/i18n.js`), "Quick Scan Preview" positioning, separate overall / source / dependency-lookup coverage, structured and localized partial reasons (codes with counts), Deep Scan call to action with the exact-SHA command and a link to the install guide.
+- Docs: getting started, CLI reference, Deep Scan guide, modes; tests that every documented command uses real options and no unpublished npm command.
+- CI job that installs the packed tarball into an empty directory and runs the CLI; release workflow job for npm trusted publishing (OIDC, no token, gated by the licence review).
 
-- Web Analyzer UI: Vietnamese by default with an in-place VI / EN switch (`web/public/i18n.js`; evidence and report values are never translated), explicit light and dark colours for buttons, inputs and selects (the unreadable white-on-white buttons in dark mode are fixed), header and spacing polish. No analyzer, scoring, schema or API change.
+### Changed
+
+- `repo-radar --help` is a short first screen; `repo-radar analyze --help` lists every option; usage errors are one line plus a pointer.
+- Render builds read `RENDER_GIT_COMMIT` and `RENDER_EXTERNAL_URL` as build metadata and start with conservative resource defaults.
+
+### Fixed
+
+- Percent-encoded hosts in repository URLs are rejected; oversized request bodies get a 413; cold start of a free host no longer shows an error; unreadable dark-mode buttons.
+
+### Known limitations
+
+- Hosted preview is Quick only on Render Free; Deep is bounded and can still be partial; npm and the GitHub Action are not published; Gate 14 is manual.
 
 ## [0.18.0] - Deterministic reports, hosting-ready Web Analyzer (Experimental Preview)
 

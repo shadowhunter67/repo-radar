@@ -54,7 +54,7 @@ export const EXIT = {
   USAGE: 64,
 } as const;
 
-const HELP = `repo-radar - transparent, evidence-traceable repository intelligence
+const HELP_ALL = `repo-radar - transparent, evidence-traceable repository intelligence
 
 Usage:
   repo-radar analyze <owner/repo | https://github.com/owner/repo> [options]
@@ -117,6 +117,43 @@ Environment:
 Exit codes:
   0 ok | 1 internal error | 2 policy failed | 3 repository not found | 4 service unavailable / rate limited | 64 usage error
 `;
+
+// The first screen a new user sees: the one command, its common options and two copy-paste examples. Every analyze option
+// (budgets, trust, snapshots, optional collectors) is one step away in `repo-radar analyze --help` and in docs/cli.md.
+const HELP = `repo-radar - transparent, evidence-traceable repository intelligence (Experimental Preview)
+
+Usage:
+  repo-radar analyze <owner/repo | https://github.com/owner/repo> [options]
+  repo-radar diff <owner/repo> --from <ref> [--to <ref>]    Compare two exact revisions
+  repo-radar --version | --help
+
+Common options for analyze:
+  --mode <quick|deep>   Retrieval profile (default quick). Same analysis and scoring either way; only the budgets differ.
+                          quick  fast bounded scan, suitable for screening and hosted environments
+                          deep   higher-coverage local scan with larger retrieval budgets (more source files, larger files,
+                                 more dependency lookups); still bounded, and a large repository can still be partial
+  --ref <sha|tag|branch>  Read repository files at this revision; pin an exact commit SHA for a reproducible report
+  --format <text|json>  Output format (default: text). JSON is for automation, archival and downstream tools
+  --output <file>       Write the report to a file instead of stdout
+  --history             Also collect bounded dependency-introduction history (explicit and expensive; not implied by --mode deep)
+  --profile <id>        default | startup | enterprise (default: default)
+
+Examples:
+  repo-radar analyze sindresorhus/is-plain-obj
+  repo-radar analyze owner/repo --ref <sha> --mode deep --format json --output report.json
+
+More:
+  repo-radar analyze --help   every analyze option (budgets, trust, snapshots, optional collectors)
+  Other commands: model, graph, snapshots, batch, profiles, rules (see docs/cli.md)
+
+Environment:
+  GITHUB_TOKEN          Optional. Raises the GitHub API rate limit. Never logged or stored.
+
+Exit codes:
+  0 ok | 1 internal error | 2 policy failed | 3 repository not found | 4 service unavailable / rate limited | 64 usage error
+`;
+
+const USAGE_HINT = "Run 'repo-radar --help' for usage.";
 
 function storeSnapshot(
   dir: string,
@@ -312,7 +349,7 @@ export async function main(
       options: CLI_PARSE_OPTIONS,
     });
   } catch (e) {
-    stderr(`error: ${(e as Error).message}\n\n${HELP}`);
+    stderr(`error: ${(e as Error).message}\n${USAGE_HINT}\n`);
     return EXIT.USAGE;
   }
   const { values, positionals } = parsed;
@@ -322,7 +359,7 @@ export async function main(
   }
   const [cmd, ...rest] = positionals;
   if (values.help || !cmd) {
-    stdout(HELP);
+    stdout(values.help && cmd === 'analyze' ? HELP_ALL : HELP);
     return cmd || values.help ? EXIT.OK : EXIT.USAGE;
   }
 
@@ -586,12 +623,14 @@ export async function main(
       return EXIT.OK;
     }
     if (cmd !== 'analyze') {
-      stderr(`error: unknown command "${sanitizeForTerminal(cmd, 40)}"\n\n${HELP}`);
+      stderr(`error: unknown command "${sanitizeForTerminal(cmd, 40)}"\n${USAGE_HINT}\n`);
       return EXIT.USAGE;
     }
     const target = rest[0];
     if (!target || rest.length > 1) {
-      stderr('error: analyze needs exactly one repository (owner/repo or github.com URL)\n');
+      stderr(
+        `error: analyze needs exactly one repository (owner/repo or github.com URL)\n${USAGE_HINT}\n`,
+      );
       return EXIT.USAGE;
     }
     if (!isAnalysisMode(values.mode)) {
