@@ -26,8 +26,8 @@ import {
 } from './retrieval.js';
 import { analyzeWorkflow, type WorkflowFacts } from './workflows.js';
 import { nextRefCandidates, selectScanCandidates } from './scanfiles.js';
+import { getAnalysisProfile, type ScanBudget } from '../../modes.js';
 import type { FileRole, ScannedFile } from '../../analysis/types.js';
-import { LIMITS } from '../../limits.js';
 
 // github.com and the two asset hosts are only used for small release checksum files, via repository-scoped URLs.
 export const GITHUB_HOSTS = [
@@ -88,6 +88,8 @@ export async function collectGithub(
   clock: Clock,
   options: {
     scan?: boolean;
+    /** Retrieval budget of the static scan (Quick by default; see src/modes.ts). */
+    scanBudget?: ScanBudget;
     ref?: string;
     sbom?: boolean;
     /** false disables the targeted walk used when the recursive tree is truncated or too large. */
@@ -955,7 +957,12 @@ export async function collectGithub(
   };
   // ---- static scan files (fetched as text, never executed) ----------------------------------
   const files: ScannedFile[] = [];
-  const fetchStats = { skippedTooLarge: 0, skippedOverBudget: 0 };
+  const scanBudget: ScanBudget = options.scanBudget ?? getAnalysisProfile('quick').scan;
+  const fetchStats = {
+    skippedTooLarge: 0,
+    skippedOverBudget: 0,
+    maxFileBytes: scanBudget.maxFileBytes,
+  };
   const doScan = options.scan !== false;
   if (doScan) {
     wfPaths.forEach((p, i) => {
@@ -977,8 +984,8 @@ export async function collectGithub(
       if (known.has(path)) return;
       known.add(path);
       if (
-        reservedFiles >= LIMITS.maxScanFiles + wfPaths.length + manifestPaths.length ||
-        reservedBytes >= LIMITS.maxScanTotalBytes
+        reservedFiles >= scanBudget.maxFiles + wfPaths.length + manifestPaths.length ||
+        reservedBytes >= scanBudget.maxTotalBytes
       ) {
         fetchStats.skippedOverBudget++;
         return;
@@ -987,11 +994,11 @@ export async function collectGithub(
       reservedBytes += treeSize.get(path) ?? 0;
       try {
         const hit = options.blobCache?.get(slug, blobShas.get(path));
-        if (hit !== undefined && hit.length <= LIMITS.maxScanFileBytes) {
+        if (hit !== undefined && hit.length <= scanBudget.maxFileBytes) {
           files.push({ path, content: hit, size: hit.length, role });
           return;
         }
-        const content = await rawFetchBytes(path, LIMITS.maxScanFileBytes);
+        const content = await rawFetchBytes(path, scanBudget.maxFileBytes);
         if (content !== undefined) {
           files.push({ path, content, size: content.length, role });
         } else {
@@ -1002,18 +1009,19 @@ export async function collectGithub(
         else failed++;
       }
     };
-    const selection = selectScanCandidates(entries, manifests);
+    const selection = selectScanCandidates(entries, manifests, scanBudget.maxFileBytes);
     fetchStats.skippedTooLarge += selection.skippedTooLarge;
-    const budget = LIMITS.maxScanFiles;
+    const budget = scanBudget.maxFiles;
     const first = selection.candidates.slice(0, budget);
     fetchStats.skippedOverBudget += Math.max(0, selection.candidates.length - budget);
     await pool(first, 5, (c) => quietFetch(c.path, c.role));
-    for (let round = 0; round < LIMITS.maxRefRounds; round++) {
+    for (let round = 0; round < scanBudget.maxRefRounds; round++) {
       sortScanned(files);
       const next = nextRefCandidates(
         files.filter((f) => f.role !== 'workflow' && f.role !== 'manifest'),
         entries,
         known,
+        scanBudget.maxFileBytes,
       );
       fetchStats.skippedTooLarge += next.skippedTooLarge;
       if (next.paths.length === 0) break;

@@ -18,6 +18,8 @@ export function webAnalysisOptions(
   return {
     ...createDefaultAnalysisOptions(),
     ...WEB_ANALYSIS_OVERRIDES,
+    // The hosted analyzer is always the Quick profile; shared resources are not available for Deep (see src/modes.ts).
+    mode: 'quick' as const,
     ...(repo.ref ? { ref: repo.ref } : {}),
     ...(extra.token ? { token: extra.token } : {}),
     ...(extra.onStage ? { onStage: extra.onStage } : {}),

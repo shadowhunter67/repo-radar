@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { analyzeRepository, toolVersion, type AnalyzeOptions } from './analyze.js';
 import { createDefaultAnalysisOptions } from './defaults.js';
+import { isAnalysisMode, type AnalysisMode } from './modes.js';
 import { RepoNotFoundError } from './collectors/github/collector.js';
 import { buildRepositoryModel, summarizeModel } from './model/index.js';
 import { buildTrustGraph, summarizeGraph } from './graph/trust.js';
@@ -101,6 +102,11 @@ Options for analyze:
   --no-targeted-tree         Do not walk priority directories when the recursive git tree is truncated or too large
   --no-sbom                  Do not discover or ingest SBOM files in the repository
   --ref <sha|tag|branch>     Read repository files at this revision (reproducible runs; API metadata stays current)
+  --mode <quick|deep>        Retrieval profile (default quick). Same analysis and scoring either way; only the budgets differ.
+                               quick  fast bounded scan, suitable for screening and hosted environments
+                               deep   higher-coverage local scan with larger retrieval budgets (more source files, larger files,
+                                      more dependency lookups); still bounded, and a large repository can still be partial
+  --history                  Also collect bounded dependency-introduction history (explicit and expensive; not implied by --mode deep)
   --no-scan                  Skip the static capability / execution / secret scan of repository files
   --verbose                  Show per-rule detail and all diagnostics
   --ascii                    ASCII-only output
@@ -222,6 +228,8 @@ export const CLI_PARSE_OPTIONS = {
   'import-from': { type: 'string' },
   'verify-assets': { type: 'boolean', default: false },
   'no-scan': { type: 'boolean', default: false },
+  mode: { type: 'string', default: 'quick' },
+  history: { type: 'boolean', default: false },
   ref: { type: 'string' },
   from: { type: 'string' },
   to: { type: 'string' },
@@ -247,6 +255,8 @@ type AnalyzeFlags = Parameters<typeof registryAndTrustOptions>[0] & {
   'no-releases': boolean;
   'no-registry': boolean;
   'no-scan': boolean;
+  mode: string;
+  history: boolean;
   'no-domains': boolean;
   'verify-crypto': boolean;
   'verify-assets': boolean;
@@ -278,6 +288,8 @@ export function buildAnalyzeOptions(
     registry: !values['no-registry'],
     verifyCrypto: values['verify-crypto'],
     verifyAssets: values['verify-assets'],
+    mode: values.mode as AnalysisMode,
+    ...(values.history ? { dependencyHistory: { enabled: true } } : {}),
     codeScan: !values['no-scan'],
     domains: !values['no-domains'],
     inspectDependencyArtifacts: values['inspect-dependency-artifacts'],
@@ -582,6 +594,10 @@ export async function main(
       stderr('error: analyze needs exactly one repository (owner/repo or github.com URL)\n');
       return EXIT.USAGE;
     }
+    if (!isAnalysisMode(values.mode)) {
+      stderr('error: --mode must be "quick" or "deep"\n');
+      return EXIT.USAGE;
+    }
     const format = values.format;
     if (format !== 'text' && format !== 'json') {
       stderr('error: --format must be "text" or "json"\n');
@@ -597,17 +613,31 @@ export async function main(
     const body =
       format === 'json'
         ? JSON.stringify(report, null, 2) + '\n'
-        : renderText(report, { ascii: useAscii(values.ascii), verbose: values.verbose });
+        : renderText(report, {
+            ascii: useAscii(values.ascii),
+            verbose: values.verbose,
+            mode: values.mode as AnalysisMode,
+          });
     if (values['text-output']) {
       writeFileSync(
         values['text-output'],
-        renderText(report, { ascii: true, verbose: values.verbose }),
+        renderText(report, {
+          ascii: true,
+          verbose: values.verbose,
+          mode: values.mode as AnalysisMode,
+        }),
       );
     }
     if (values.output) {
       writeFileSync(
         values.output,
-        format === 'json' ? body : renderText(report, { ascii: true, verbose: values.verbose }),
+        format === 'json'
+          ? body
+          : renderText(report, {
+              ascii: true,
+              verbose: values.verbose,
+              mode: values.mode as AnalysisMode,
+            }),
       );
       stderr(`report written to ${values.output}\n`);
     } else {

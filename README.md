@@ -8,10 +8,13 @@
 [![Version](https://img.shields.io/github/package-json/v/shadowhunter67/repo-radar)](package.json)
 [![Security](https://img.shields.io/badge/security-policy-blue)](SECURITY.md)
 
-**Web Analyzer (Experimental Preview): https://repo-radar-kcd0.onrender.com**
-Vietnamese by default (VI / EN switch). Public GitHub repositories only, results are temporary. It runs on Render Free, so the
-first request after a quiet period can take a minute while the server wakes up. No SLA. Prefer to run it yourself or use the
-CLI? See [below](#web-analyzer-experimental-preview) and [Quick start](#quick-start).
+**Try Quick Scan: https://repo-radar-kcd0.onrender.com**
+For deeper analysis, run repo-radar locally with `--mode deep`.
+
+The hosted Web Analyzer is a Quick Scan preview: Vietnamese by default (VI / EN switch), public GitHub repositories only, bounded
+resources, temporary results. It runs on Render Free, so the first request after a quiet period can take a minute while the
+server wakes up. No SLA. Large repositories can return a partial result; that is expected, and the page shows why and the exact
+command for a Deep Scan.
 
 Evidence-driven repository and software supply-chain intelligence for GitHub
 repositories. repo-radar is static and read-only: it fetches metadata and source
@@ -65,6 +68,14 @@ Node.js `>=20.17.0` is required.
 npm ci
 npm run build
 export GITHUB_TOKEN=...                 # optional; never pass it on the command line
+
+# Fast screening (the default; same budgets as the hosted Quick Scan)
+node dist/cli.js analyze owner/repo --mode quick
+# Higher coverage: larger retrieval budgets, still bounded
+node dist/cli.js analyze owner/repo --ref <exact-sha> --mode deep
+# Optional expensive collectors are separate switches, not implied by --mode deep
+node dist/cli.js analyze owner/repo --mode deep --history
+
 node dist/cli.js analyze owner/repo --format json --output report.json
 node dist/cli.js analyze owner/repo --profile enterprise --enforce-profile
 node dist/cli.js diff old.json new.json
@@ -82,6 +93,26 @@ remain unknown and are reported as partial coverage.
 
 Exit codes are `0` success, `1` internal error, `2` policy failure, `3` repository
 not found, `4` service unavailable/rate limited, and `64` usage error.
+
+## Quick Scan and Deep Scan
+
+Two retrieval profiles over the **same** analyzer: same facts, rules, scoring, findings, schema and methodology. Deep reads more
+evidence; it never interprets it differently. Details and the exact budgets: [docs/modes.md](docs/modes.md).
+
+| | Quick Scan | Deep Scan |
+|---|---|---|
+| Primary use | preview, screening | detailed local analysis |
+| Web (hosted) | yes (only mode) | no |
+| CLI | `--mode quick` (default) | `--mode deep` |
+| Source files fetched | up to 40 | up to 200 |
+| Per-file size cap | 64 KiB | 128 KiB |
+| Dependency lookups | 25 packages | 150 packages |
+| History | off | optional (`--history`) |
+| Runtime | shorter | longer |
+| Partial possible | yes | yes |
+
+Deep does not guarantee full coverage: it is still bounded, large repositories can still be partial, and external evidence
+(registries, advisories) can change over time. Neither mode is a safety verdict.
 
 ## Feature maturity
 

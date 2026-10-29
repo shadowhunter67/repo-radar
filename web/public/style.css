@@ -385,3 +385,37 @@ label .hint {
     overflow-wrap: anywhere;
   }
 }
+
+.headline {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  margin: 0.25rem 0 0.5rem;
+}
+.quick-intro {
+  margin: 0.25rem 0;
+  max-width: 60rem;
+}
+.steps {
+  margin: 0.25rem 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.cta {
+  border-left: 4px solid var(--accent);
+}
+.cta h3 {
+  margin: 0 0 0.35rem;
+}
+.cta code,
+[data-note='deep-hint'] + code {
+  display: block;
+  overflow-wrap: anywhere;
+  padding: 0.5rem 0.6rem;
+  margin: 0.5rem 0;
+  border: 1px solid var(--line);
+  border-radius: 0.35rem;
+  background: var(--bg);
+}
+.cta-actions {
+  margin: 0.25rem 0 0.5rem;
+}

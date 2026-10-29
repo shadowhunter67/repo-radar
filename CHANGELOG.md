@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Quick and Deep retrieval profiles (`src/modes.ts`, CLI `--mode quick|deep`, `--history`): same analysis, scoring and schema, different budgets; the default stays Quick (the long-standing budgets). The hosted Web Analyzer is Quick only and refuses a `mode` field (`UNSUPPORTED_ANALYSIS_MODE`). Text reports print the mode; JSON reports are unchanged.
+- Web UI: "Quick Scan Preview" positioning, separate overall / source / dependency-lookup coverage, structured and localized partial reasons (codes with counts), Deep Scan call to action with the exact-SHA command.
+
 - Web Analyzer UI: Vietnamese by default with an in-place VI / EN switch (`web/public/i18n.js`; evidence and report values are never translated), explicit light and dark colours for buttons, inputs and selects (the unreadable white-on-white buttons in dark mode are fixed), header and spacing polish. No analyzer, scoring, schema or API change.
 
 ## [0.18.0] - Deterministic reports, hosting-ready Web Analyzer (Experimental Preview)

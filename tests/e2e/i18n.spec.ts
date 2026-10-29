@@ -30,7 +30,7 @@ test.describe('Vietnamese by default, English on request', () => {
     page.on('request', (r) => r.method() === 'POST' && posts.push(r.url()));
     await page.goto('/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'vi');
-    await expect(page).toHaveTitle('repo-radar — Bản xem trước thử nghiệm');
+    await expect(page).toHaveTitle('repo-radar — Web Analyzer: Bản xem trước Quét nhanh');
     await expect(page.getByLabel('Kho mã')).toBeVisible();
 
     await page.getByLabel('Kho mã').fill('sindresorhus/is-plain-obj');
@@ -50,7 +50,7 @@ test.describe('Vietnamese by default, English on request', () => {
 
     await page.getByRole('button', { name: 'English' }).click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await expect(page).toHaveTitle('repo-radar — Experimental Preview');
+    await expect(page).toHaveTitle('repo-radar — Web Analyzer: Quick Scan Preview');
     expect(await heads()).toEqual(
       expect.arrayContaining(['Overview', 'Score', 'Confidence', 'Coverage', 'Findings']),
     );

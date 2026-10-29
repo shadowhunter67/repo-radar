@@ -89,6 +89,8 @@ export type CodeAnalysis = z.infer<typeof CodeAnalysisSchema>;
 export interface FetchStats {
   skippedTooLarge: number;
   skippedOverBudget: number;
+  /** Per-file byte cap that applied (differs between Quick and Deep). */
+  maxFileBytes?: number;
 }
 
 export interface CodeAnalysisInput {
@@ -281,7 +283,7 @@ export function analyzeCode(input: CodeAnalysisInput): CodeAnalysis {
   ).length;
   if (input.fetch.skippedTooLarge > 0)
     limitsHit.push(
-      `${input.fetch.skippedTooLarge} file(s) skipped: larger than ${LIMITS.maxScanFileBytes} bytes`,
+      `${input.fetch.skippedTooLarge} file(s) skipped: larger than ${input.fetch.maxFileBytes ?? LIMITS.maxScanFileBytes} bytes`,
     );
   if (input.fetch.skippedOverBudget > 0)
     limitsHit.push(

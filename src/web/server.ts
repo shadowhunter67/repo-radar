@@ -93,6 +93,7 @@ export function createWebServer(options: WebServerOptions = {}) {
         ...base,
         state: job.state,
         duration_ms: duration,
+        analysis_mode: 'quick',
         ...(job.error ? { error_code: job.error.code } : {}),
         ...(typeof requests === 'number' ? { github_requests: requests } : {}),
         ...(job.cached ? { cached: true } : {}),
@@ -175,6 +176,13 @@ export function createWebServer(options: WebServerOptions = {}) {
               (e as { code?: string }).code === 'TOO_LARGE' ? { Connection: 'close' } : {},
             );
           }
+          // The hosted service only ever runs Quick scans; a request for another mode is refused, never silently honoured.
+          if (p && typeof p === 'object' && 'mode' in p)
+            return send(
+              res,
+              400,
+              errorBody('UNSUPPORTED_ANALYSIS_MODE', 'the hosted analyzer only runs Quick scans'),
+            );
           if (
             !p ||
             typeof p !== 'object' ||

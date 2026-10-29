@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>repo-radar — Bản xem trước thử nghiệm</title>
+    <title>repo-radar — Web Analyzer: Bản xem trước Quét nhanh</title>
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
@@ -20,8 +20,16 @@
       </div>
     </header>
     <main id="main" tabindex="-1">
+      <h1 class="headline" data-i18n="headline">Web Analyzer — Bản xem trước Quét nhanh</h1>
       <p class="lede" data-i18n="lede">
         Phân tích bằng chứng có thể quan sát được của kho mã và chuỗi cung ứng phần mềm.
+      </p>
+      <p class="quick-intro" data-i18n="quick.intro">
+        Quét nhanh phân tích kho mã GitHub công khai bằng tài nguyên có giới hạn, dùng để khám phá,
+        sàng lọc ban đầu và xem các kho mã nhỏ hoặc vừa. Kho mã lớn có thể cho kết quả chưa đầy đủ.
+      </p>
+      <p class="steps" data-i18n="quick.steps">
+        Dán kho mã → Quét nhanh → xem báo cáo → cần sâu hơn thì chạy Deep Scan bằng CLI.
       </p>
       <ul
         class="hosted-notes"
@@ -56,9 +64,12 @@
         />
         <p id="normalised" class="normalised" aria-live="polite"></p>
         <div class="examples" role="group" aria-label="Ví dụ" data-i18n-aria="form.examples">
-          <button type="button" data-example="spf13/cobra">spf13/cobra</button
-          ><button type="button" data-example="expressjs/express">expressjs/express</button
-          ><button type="button" data-example="psf/requests">psf/requests</button>
+          <button type="button" data-example="sindresorhus/is-plain-obj">
+            sindresorhus/is-plain-obj</button
+          ><button type="button" data-example="sindresorhus/yocto-queue">
+            sindresorhus/yocto-queue</button
+          ><button type="button" data-example="pallets/itsdangerous">pallets/itsdangerous</button
+          ><button type="button" data-example="spf13/cobra">spf13/cobra</button>
         </div>
         <button id="analyze" type="submit" class="primary" data-i18n="form.analyze">
           Phân tích

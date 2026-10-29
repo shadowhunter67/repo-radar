@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { compareCodeUnits, INTEGRITY_FORMAT } from './report/canonical.js';
+import { getAnalysisProfile, type AnalysisMode } from './modes.js';
 import { digestNewReport } from './report/integrity.js';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -103,6 +104,11 @@ import {
 import { collectDependencyHistory, type DependencyHistoryBudget } from './history/dependency.js';
 
 export interface AnalyzeOptions {
+  /**
+   * Retrieval profile: `quick` (default, the long-standing bounded budgets) or `deep` (larger budgets for local use). The
+   * analysis itself is identical; see src/modes.ts.
+   */
+  mode?: AnalysisMode;
   /** Called at stable orchestration boundaries; does not affect the report. */
   onStage?: (stage: string) => void;
   profile?: string;
@@ -193,10 +199,16 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
   const osv = new HttpClient({ ...common, allowedHosts: OSV_HOSTS });
   const depsDevHttp = new HttpClient({ ...common, allowedHosts: DEPSDEV_HOSTS });
   const scanEnabled = opts.codeScan !== false;
+  const analysisProfile = getAnalysisProfile(opts.mode);
+  const depRegistryBudget = {
+    ...analysisProfile.dependencyRegistry,
+    ...opts.dependencyRegistryBudget,
+  };
 
   const [github, scorecard] = await Promise.all([
     collectGithub(ref, gh, clock, {
       scan: scanEnabled,
+      scanBudget: analysisProfile.scan,
       sbom: opts.sbom !== false,
       ...(opts.blobCache ? { blobCache: opts.blobCache } : {}),
       ...(opts.targetedTree === false ? { targetedTree: false } : {}),
@@ -280,7 +292,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
           hints: priorityHints,
           trust: opts.trust,
           verifyCrypto: opts.verifyCrypto,
-          ...(opts.dependencyRegistryBudget ? { budget: opts.dependencyRegistryBudget } : {}),
+          ...(Object.keys(depRegistryBudget).length > 0 ? { budget: depRegistryBudget } : {}),
           note: (code, message) =>
             depRegistryDiag.push({ source: 'registry', level: 'warn', code, message }),
         });
@@ -726,7 +738,7 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
       ],
       trust_roots: opts.trust?.trustedRoots?.map((r) => r.label) ?? [],
       budgets: {
-        max_scan_bytes: LIMITS.maxScanTotalBytes,
+        max_scan_bytes: analysisProfile.scan.maxTotalBytes,
         max_artifacts: LIMITS.maxArtifactsPerRun,
         ...(opts.dependencyHistory?.enabled
           ? {
@@ -782,12 +794,14 @@ export async function analyzeRepository(input: string, opts: AnalyzeOptions = {}
             min_vuln_coverage: MIN_VULN_COVERAGE,
           },
           scan: scanEnabled,
+          // Deep changes what is retrieved, so it changes the digest; Quick keeps the digest it always had.
+          ...(analysisProfile.mode === 'deep' ? { scan_budget: analysisProfile.scan } : {}),
           targeted_tree: opts.targetedTree !== false,
           releases: opts.releases !== false,
           registry: opts.registry !== false,
           dependency_registry:
             opts.registry !== false && opts.dependencyRegistry !== false
-              ? { ...DEP_REGISTRY_BUDGET_DEFAULTS, ...opts.dependencyRegistryBudget }
+              ? { ...DEP_REGISTRY_BUDGET_DEFAULTS, ...depRegistryBudget }
               : false,
           verify_crypto: opts.verifyCrypto === true,
           verify_assets: opts.verifyAssets === true,

@@ -4,6 +4,8 @@ import { sanitizeForTerminal } from '../util/text.js';
 export interface TextOptions {
   ascii?: boolean;
   verbose?: boolean;
+  /** Retrieval profile the analysis ran with (not part of the report; shown for the reader). */
+  mode?: 'quick' | 'deep';
 }
 
 const pct = (n: number): string => `${Math.round(n * 100)}%`;
@@ -22,6 +24,12 @@ export function renderText(r: Report, o: TextOptions = {}): string {
   out.push(
     `repo-radar v${r.tool.version}  (methodology ${r.methodology.version}, profile: ${r.profile.id})`,
   );
+  if (o.mode)
+    out.push(
+      o.mode === 'deep'
+        ? 'Mode: Deep (higher-coverage retrieval budgets; same analysis and scoring)'
+        : 'Mode: Quick (bounded screening budgets; same analysis and scoring)',
+    );
   out.push('');
   out.push(`${s(r.subject.owner)}/${s(r.subject.repo)}`);
   out.push('');

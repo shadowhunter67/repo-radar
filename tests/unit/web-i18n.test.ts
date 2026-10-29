@@ -36,7 +36,7 @@ describe('default language and dictionaries', () => {
   it('the page as served is Vietnamese: html lang, title, static labels', () => {
     const doc = new JSDOM(html).window.document;
     expect(doc.documentElement.getAttribute('lang')).toBe('vi');
-    expect(doc.title).toBe('repo-radar — Bản xem trước thử nghiệm');
+    expect(doc.title).toBe('repo-radar — Web Analyzer: Bản xem trước Quét nhanh');
     expect(text(doc.querySelector('label[for="repository"]'))).toBe('Kho mã');
     expect(text(doc.getElementById('analyze'))).toBe('Phân tích');
   });
@@ -111,7 +111,7 @@ describe('language toggle', () => {
     expect(doc.querySelector('[data-lang="en"]')?.getAttribute('aria-pressed')).toBe('false');
     click(doc, 'en');
     expect(doc.documentElement.getAttribute('lang')).toBe('en');
-    expect(doc.title).toBe('repo-radar — Experimental Preview');
+    expect(doc.title).toBe('repo-radar — Web Analyzer: Quick Scan Preview');
     expect(text(doc.querySelector('label[for="repository"]'))).toBe('Repository');
     expect(text(doc.getElementById('analyze'))).toBe('Analyze');
     expect(text(doc.querySelector('.lede'))).toBe(
@@ -120,7 +120,7 @@ describe('language toggle', () => {
     expect(doc.querySelector('[data-lang="en"]')?.getAttribute('aria-pressed')).toBe('true');
     click(doc, 'vi');
     expect(doc.documentElement.getAttribute('lang')).toBe('vi');
-    expect(doc.title).toBe('repo-radar — Bản xem trước thử nghiệm');
+    expect(doc.title).toBe('repo-radar — Web Analyzer: Bản xem trước Quét nhanh');
     expect(text(doc.getElementById('analyze'))).toBe('Phân tích');
     expect(text(doc.querySelector('.lede'))).toBe(
       'Phân tích bằng chứng có thể quan sát được của kho mã và chuỗi cung ứng phần mềm.',

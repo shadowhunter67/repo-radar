@@ -39,6 +39,7 @@ export interface SelectionResult {
 export function selectScanCandidates(
   entries: TreeEntry[],
   manifests: ParsedManifest[],
+  maxFileBytes: number = LIMITS.maxScanFileBytes,
 ): SelectionResult {
   const blobs = entries
     .filter((e) => e.type === 'blob' && isSafeTreePath(e.path))
@@ -50,7 +51,7 @@ export function selectScanCandidates(
 
   const add = (path: string, role: FileRole, priority: number): void => {
     if (picked.has(path) || !treeSet.has(path)) return;
-    if ((sizeOf.get(path) ?? 0) > LIMITS.maxScanFileBytes) {
+    if ((sizeOf.get(path) ?? 0) > maxFileBytes) {
       skippedTooLarge++;
       return;
     }
@@ -181,6 +182,7 @@ export function nextRefCandidates(
   fetched: { path: string; content: string; role: FileRole }[],
   entries: TreeEntry[],
   alreadyKnown: ReadonlySet<string>,
+  maxFileBytes: number = LIMITS.maxScanFileBytes,
 ): { paths: string[]; skippedTooLarge: number } {
   const treeSet = new Set(
     entries.filter((e) => e.type === 'blob' && isSafeTreePath(e.path)).map((e) => e.path),
@@ -192,7 +194,7 @@ export function nextRefCandidates(
     if (f.role === 'source' || f.role === 'workflow' || f.role === 'manifest') continue;
     for (const r of extractLocalRefs(f.content, f.path, treeSet)) {
       if (alreadyKnown.has(r) || out.includes(r)) continue;
-      if ((sizeOf.get(r) ?? 0) > LIMITS.maxScanFileBytes) {
+      if ((sizeOf.get(r) ?? 0) > maxFileBytes) {
         skippedTooLarge++;
         continue;
       }

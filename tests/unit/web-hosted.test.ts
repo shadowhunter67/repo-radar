@@ -512,6 +512,7 @@ describe('HTTP: quota refusal, readiness and metrics', () => {
     expect(all).toContain('"event":"job_started"');
     expect(all).toContain('"event":"job_finished"');
     expect(all).toContain('"github_requests":7');
+    expect(all).toContain('"analysis_mode":"quick"');
     expect(all).toContain('"event":"rate_limited"');
     expect(all).toContain('"event":"server_shutdown"');
     expect(all).not.toContain('private-owner');

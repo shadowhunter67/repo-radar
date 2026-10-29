@@ -8,6 +8,20 @@ you download is that report, unchanged.
 It is an Experimental Preview. Calibration labels have not been independently human-reviewed (Gate 14 remains manual), and
 the output is a set of observed indicators, not a safety verdict. An experimental preview is hosted at **https://repo-radar-kcd0.onrender.com** on Render Free; see [Hosted preview](#hosted-preview) for what that implies. To run your own, see [deployment.md](./deployment.md).
 
+## Quick Scan, not Deep Scan
+
+The Web Analyzer always runs the **Quick** profile. It is a discovery and screening tool: public repositories only, bounded
+resources, partial results are expected on large repositories. A request body that names a `mode` is refused with
+`400 UNSUPPORTED_ANALYSIS_MODE` (the hosted service will not run Deep on shared resources, and does not silently ignore the
+field). For more coverage run the CLI locally with `--mode deep`; the result page shows the exact command for the analyzed
+commit. See [modes.md](./modes.md).
+
+The page separates three coverage figures so that they cannot be confused: overall evidence coverage, source code coverage
+(for example 40 / 401 files, 10%) and dependency lookup coverage (for example 33 / 383). Overall evidence coverage does not mean
+every source file was scanned. Partial reasons are stable codes with counts (`SOURCE_SCAN_BUDGET_EXHAUSTED`, `FILE_TOO_LARGE`,
+`DEPENDENCY_LOOKUP_BUDGET_EXHAUSTED`, `REGISTRY_LOOKUP_FAILED`, `UPSTREAM_RESPONSE_TOO_LARGE`, `RATE_LIMITED`, `TIMEOUT`, ...) that
+the page localizes; older or unknown reasons fall back to their plain text.
+
 ## Hosted preview
 
 - URL: https://repo-radar-kcd0.onrender.com (Experimental Preview, public repositories only, no accounts, no telemetry).

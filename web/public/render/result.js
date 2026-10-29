@@ -273,6 +273,30 @@ function findingsSection(doc, root, report) {
   update();
   return s;
 }
+// A partial reason is a stable code plus numbers; the sentence is ours and localized. A code this page does not know (or a
+// job that only carries prose) falls back to the plain text it came with. The English text is never parsed.
+function reasonText(r) {
+  if (typeof r === 'string') return r; // jobs from an older server carried plain sentences
+  const key = `partial.${r?.code}`;
+  const text = t(key, { count: r?.count ?? '', detail: r?.detail ?? '' });
+  return text === key ? String(r?.message ?? r?.code ?? '') : text;
+}
+function copyButton(doc, label, command, action, note) {
+  const b = el(doc, 'button', label, {
+    type: 'button',
+    'data-action': action,
+    'data-command': command,
+  });
+  b.addEventListener('click', async () => {
+    try {
+      await doc.defaultView?.navigator.clipboard?.writeText(command);
+      note.textContent = t('actions.cliCopied');
+    } catch {
+      note.textContent = t('actions.cliSelect');
+    }
+  });
+  return b;
+}
 const onOff = (v) => (v ? t('tech.on') : t('tech.off'));
 function configList(doc, report) {
   const f = report.analysis_manifest?.feature_flags ?? {};
@@ -344,7 +368,7 @@ export function renderResult(doc, job) {
   if (job.state === 'partial' && Array.isArray(job.partial_reasons) && job.partial_reasons.length) {
     const part = card(doc, 'partial', t('section.partial'));
     const ul = el(doc, 'ul');
-    for (const r of job.partial_reasons) ul.append(el(doc, 'li', r.message));
+    for (const r of job.partial_reasons) ul.append(el(doc, 'li', reasonText(r)));
     part.append(ul, el(doc, 'p', t('section.partialNote')));
     root.append(part);
   }
@@ -365,7 +389,10 @@ export function renderResult(doc, job) {
     doc,
     coverage,
     t('field.sourceFiles'),
-    `${scan.source_files_scanned ?? 0}/${scan.source_files_total ?? 0} (${Math.round((scan.source_coverage ?? 0) * 100)}%)`,
+    t('coverage.sourceFiles', {
+      scanned: scan.source_files_scanned ?? 0,
+      total: scan.source_files_total ?? 0,
+    }),
     'source-files',
   );
   field(
@@ -375,7 +402,19 @@ export function renderResult(doc, job) {
     `${Math.round((scan.source_coverage ?? 0) * 100)}%`,
     'source-coverage',
   );
-  coverage.append(el(doc, 'p', t('coverage.note')));
+  const lookup = report.dependency_registry_intel?.coverage;
+  if (lookup && Number(lookup.eligible) > 0)
+    field(
+      doc,
+      coverage,
+      t('field.dependencyLookup'),
+      t('coverage.lookup', { queried: lookup.queried ?? 0, eligible: lookup.eligible }),
+      'dependency-lookup',
+    );
+  coverage.append(
+    el(doc, 'p', t('coverage.meaning'), { 'data-note': 'coverage-meaning' }),
+    el(doc, 'p', t('coverage.note')),
+  );
   for (const dim of report.dimensions ?? []) {
     const n = el(doc, 'div', undefined, { 'data-dimension': dim.dimension });
     n.append(
@@ -397,6 +436,25 @@ export function renderResult(doc, job) {
       }),
     );
   root.append(coverage);
+  const deepCommand = `node dist/cli.js analyze ${owner}/${repo}${sha === 'unavailable' ? '' : ` --ref ${sha}`} --mode deep`;
+  // Partial or thinly scanned: the next step is made prominent. A complete Quick result only gets a small hint further down.
+  const needsDeep = job.state === 'partial' || (scan.source_coverage ?? 1) < 0.5;
+  if (needsDeep) {
+    const cta = el(doc, 'div', undefined, { 'data-banner': 'deep-cta', class: 'card banner cta' });
+    const ctaNote = el(doc, 'p', t('cta.note'), { class: 'muted' });
+    const ctaCode = el(doc, 'code', deepCommand, { 'data-field': 'deep-command' });
+    cta.append(
+      el(doc, 'h3', t('cta.title')),
+      el(doc, 'p', t('cta.body')),
+      ctaCode,
+      el(doc, 'div', undefined, { class: 'cta-actions' }),
+      ctaNote,
+    );
+    cta
+      .querySelector('.cta-actions')
+      ?.append(copyButton(doc, t('cta.copy'), deepCommand, 'copy-deep', ctaNote));
+    root.append(cta);
+  }
   const findingHost = doc.createElement('div');
   root.append(findingsSection(doc, findingHost, report));
   const deps = card(doc, 'dependencies', t('section.dependencies')),
@@ -555,7 +613,13 @@ export function renderResult(doc, job) {
       notice.textContent = t('actions.cliSelect');
     }
   });
-  actions.append(dl, cp, commandDl, notice);
+  actions.append(dl, cp, commandDl);
+  if (!needsDeep)
+    actions.append(
+      el(doc, 'p', t('cta.hint'), { 'data-note': 'deep-hint' }),
+      el(doc, 'code', deepCommand, { 'data-field': 'deep-command' }),
+    );
+  actions.append(notice);
   root.append(actions);
   if (job.cached)
     root.prepend(el(doc, 'p', t('banner.cached'), { 'data-banner': 'cached', class: 'banner' }));

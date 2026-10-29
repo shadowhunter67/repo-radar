@@ -8,6 +8,7 @@ import type { AnalyzeOptions } from './analyze.js';
  */
 export function createDefaultAnalysisOptions(): AnalyzeOptions {
   return {
+    mode: 'quick',
     profile: 'default',
     scorecard: true,
     osv: true,

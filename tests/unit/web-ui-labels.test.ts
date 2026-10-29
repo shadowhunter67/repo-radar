@@ -34,7 +34,7 @@ describe('every displayed value has its label immediately before it', () => {
     ['schema-version', 'Report schema'],
     ['methodology-version', 'Methodology'],
     ['coverage', 'Overall evidence coverage'],
-    ['source-coverage', 'Source files scanned (coverage)'],
+    ['source-coverage', 'Source code coverage'],
     ['direct-count', 'Direct dependencies'],
     ['transitive-count', 'Transitive dependencies'],
     ['resolved-exact', 'Resolved to exact versions'],

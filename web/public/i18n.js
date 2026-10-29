@@ -6,7 +6,42 @@
  */
 const dict = {
   vi: {
-    'page.title': 'repo-radar — Bản xem trước thử nghiệm',
+    headline: 'Web Analyzer — Bản xem trước Quét nhanh',
+    'quick.intro':
+      'Quét nhanh phân tích kho mã GitHub công khai bằng tài nguyên có giới hạn, dùng để khám phá, sàng lọc ban đầu và xem các kho mã nhỏ hoặc vừa. Kho mã lớn có thể cho kết quả chưa đầy đủ.',
+    'quick.steps':
+      'Dán kho mã → Quét nhanh → xem báo cáo → cần sâu hơn thì chạy Deep Scan bằng CLI.',
+    'field.dependencyLookup': 'Độ phủ tra cứu dependency',
+    'coverage.sourceFiles': '{scanned} / {total} tệp',
+    'coverage.lookup': '{queried} / {eligible} dependency',
+    'coverage.meaning': 'Độ phủ bằng chứng tổng thể không có nghĩa toàn bộ mã nguồn đã được đọc.',
+    'cta.title': 'Cần phân tích sâu hơn?',
+    'cta.body': 'Chạy Deep Scan bằng CLI để tăng độ phủ và ngân sách phân tích.',
+    'cta.hint': 'Cần phân tích sâu hơn? Chạy Deep Scan bằng CLI:',
+    'cta.copy': 'Sao chép lệnh Deep Scan',
+    'cta.note':
+      'Chạy từ bản sao của kho mã repo-radar sau npm ci và npm run build. Cùng commit, cùng cách phân tích; chỉ khác ngân sách.',
+    'partial.TREE_INCOMPLETE': 'Cây tệp của kho mã không đọc được đầy đủ.',
+    'partial.RETRIEVAL_STOPPED': 'Việc lấy tệp dừng sớm ({detail}).',
+    'partial.UPSTREAM_REQUESTS_FAILED': '{count} yêu cầu tới GitHub thất bại.',
+    'partial.SOURCE_SCAN_BUDGET_EXHAUSTED':
+      '{count} tệp chưa được lấy do đã đạt ngân sách quét mã nguồn.',
+    'partial.FILE_TOO_LARGE': '{count} tệp vượt giới hạn kích thước.',
+    'partial.SCAN_LIMIT_REACHED': 'Đã chạm thêm giới hạn quét mã nguồn ({count}).',
+    'partial.REGISTRY_LOOKUP_FAILED': '{count} lượt tra cứu registry thất bại.',
+    'partial.DEPENDENCY_LOOKUP_BUDGET_EXHAUSTED':
+      '{count} dependency chưa được tra cứu do đã đạt ngân sách request.',
+    'partial.DEPENDENCY_REGISTRY_UNAVAILABLE':
+      'Tra cứu registry của dependency không hoàn tất ({detail}).',
+    'partial.REGISTRY_UNAVAILABLE': 'Tra cứu registry không hoàn tất ({detail}).',
+    'partial.REGISTRY_LIMIT_REACHED': 'Đã chạm giới hạn tra cứu registry.',
+    'partial.VULNERABILITY_LOOKUP_UNAVAILABLE':
+      'Tra cứu cơ sở dữ liệu lỗ hổng không hoàn tất ({detail}).',
+    'partial.RATE_LIMITED': 'Một nguồn bên ngoài đã chạm giới hạn lưu lượng.',
+    'partial.TIMEOUT': 'Một yêu cầu tới nguồn bên ngoài đã hết thời gian chờ.',
+    'partial.UPSTREAM_RESPONSE_TOO_LARGE': 'Một phản hồi từ nguồn bên ngoài quá lớn nên bị bỏ qua.',
+    'partial.SOURCE_DIAGNOSTIC': 'Một nguồn dữ liệu báo vấn đề ({detail}).',
+    'page.title': 'repo-radar — Web Analyzer: Bản xem trước Quét nhanh',
     'header.badge': 'Bản xem trước thử nghiệm',
     'header.langGroup': 'Ngôn ngữ',
     'skip.main': 'Chuyển đến nội dung chính',
@@ -97,7 +132,7 @@ const dict = {
     'field.confidence': 'Độ tin cậy',
     'field.coverageOverall': 'Độ phủ bằng chứng tổng thể',
     'field.sourceFiles': 'Tệp nguồn đã quét',
-    'field.sourceFilesCoverage': 'Tệp nguồn đã quét (độ phủ)',
+    'field.sourceFilesCoverage': 'Độ phủ mã nguồn',
     'field.directDeps': 'Phụ thuộc trực tiếp',
     'field.transitiveDeps': 'Phụ thuộc bắc cầu',
     'field.resolvedExact': 'Đã xác định phiên bản chính xác',
@@ -189,7 +224,43 @@ const dict = {
     'actions.cliSelect': 'Hãy chọn và sao chép lệnh CLI.',
   },
   en: {
-    'page.title': 'repo-radar — Experimental Preview',
+    headline: 'Web Analyzer — Quick Scan Preview',
+    'quick.intro':
+      'Quick Scan analyzes public GitHub repositories using bounded resources. It is meant for exploring the product, preliminary screening and small or medium repositories. Large repositories may return partial results.',
+    'quick.steps':
+      'Paste a repository → Quick Scan → read the report → need more depth? Run a Deep Scan with the CLI.',
+    'field.dependencyLookup': 'Dependency lookup coverage',
+    'coverage.sourceFiles': '{scanned} / {total} files',
+    'coverage.lookup': '{queried} / {eligible} dependencies',
+    'coverage.meaning': 'Overall evidence coverage does not mean every source file was scanned.',
+    'cta.title': 'Need deeper analysis?',
+    'cta.body': 'Run a Deep Scan with the CLI to raise coverage and the analysis budgets.',
+    'cta.hint': 'Need deeper analysis? Run a Deep Scan with the CLI:',
+    'cta.copy': 'Copy Deep Scan command',
+    'cta.note':
+      'Run from a clone of repo-radar after npm ci and npm run build. Same commit, same analysis; only the budgets differ.',
+    'partial.TREE_INCOMPLETE': 'The repository file tree could not be read completely.',
+    'partial.RETRIEVAL_STOPPED': 'File retrieval stopped early ({detail}).',
+    'partial.UPSTREAM_REQUESTS_FAILED': '{count} requests to GitHub failed.',
+    'partial.SOURCE_SCAN_BUDGET_EXHAUSTED':
+      '{count} files were not fetched because the source scan budget was reached.',
+    'partial.FILE_TOO_LARGE': '{count} files exceeded the size limit.',
+    'partial.SCAN_LIMIT_REACHED': 'Another source scan limit was reached ({count}).',
+    'partial.REGISTRY_LOOKUP_FAILED': '{count} registry lookups failed.',
+    'partial.DEPENDENCY_LOOKUP_BUDGET_EXHAUSTED':
+      '{count} dependencies were not looked up because the request budget was reached.',
+    'partial.DEPENDENCY_REGISTRY_UNAVAILABLE':
+      'Dependency registry lookups did not complete ({detail}).',
+    'partial.REGISTRY_UNAVAILABLE': 'Registry lookups did not complete ({detail}).',
+    'partial.REGISTRY_LIMIT_REACHED': 'Registry lookup limits were reached.',
+    'partial.VULNERABILITY_LOOKUP_UNAVAILABLE':
+      'The vulnerability database lookup did not complete ({detail}).',
+    'partial.RATE_LIMITED': 'An external source reached its rate limit.',
+    'partial.TIMEOUT': 'A request to an external source timed out.',
+    'partial.UPSTREAM_RESPONSE_TOO_LARGE':
+      'A response from an external source was too large and was skipped.',
+    'partial.SOURCE_DIAGNOSTIC': 'A data source reported a problem ({detail}).',
+    'page.title': 'repo-radar — Web Analyzer: Quick Scan Preview',
     'header.badge': 'Experimental Preview',
     'header.langGroup': 'Language',
     'skip.main': 'Skip to content',
@@ -280,7 +351,7 @@ const dict = {
     'field.confidence': 'Confidence',
     'field.coverageOverall': 'Overall evidence coverage',
     'field.sourceFiles': 'Source files scanned',
-    'field.sourceFilesCoverage': 'Source files scanned (coverage)',
+    'field.sourceFilesCoverage': 'Source code coverage',
     'field.directDeps': 'Direct dependencies',
     'field.transitiveDeps': 'Transitive dependencies',
     'field.resolvedExact': 'Resolved to exact versions',
