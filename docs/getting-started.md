@@ -22,13 +22,13 @@ of the two methods below. Both need Node.js 20.17 or newer.
 Every GitHub release attaches the package tarball. Install it directly from the release URL:
 
 ```bash
-npm install -g https://github.com/shadowhunter67/repo-radar/releases/download/v0.18.0/repo-radar-0.18.0.tgz
+npm install -g https://github.com/shadowhunter67/repo-radar/releases/download/v0.19.0/repo-radar-0.19.0.tgz
 repo-radar --version
 ```
 
 Newer versions are listed on the [releases page](https://github.com/shadowhunter67/repo-radar/releases); replace the version in
 the URL. The tarball carries a GitHub build-provenance attestation. To verify it before installing, download the tarball and run
-`gh attestation verify repo-radar-0.18.0.tgz --repo shadowhunter67/repo-radar` (and compare it with `SHA256SUMS` from the
+`gh attestation verify repo-radar-0.19.0.tgz --repo shadowhunter67/repo-radar` (and compare it with `SHA256SUMS` from the
 same release). Installing into a project instead of globally works the same way without `-g`; the command is then
 `npx repo-radar` inside that project.
 

@@ -36,9 +36,9 @@ of safety, and calibration labels have not been independently human-reviewed.
 
 ## Download
 
-- **Latest preview release:** [v0.18.0 (Experimental Preview)](https://github.com/shadowhunter67/repo-radar/releases/tag/v0.18.0)
+- **Latest preview release:** [v0.19.0 (Experimental Preview)](https://github.com/shadowhunter67/repo-radar/releases/tag/v0.19.0)
   — npm tarball, CycloneDX SBOM, `SHA256SUMS` and release metadata; the tarball carries a
-  GitHub build-provenance attestation (`gh attestation verify repo-radar-0.18.0.tgz --repo shadowhunter67/repo-radar`).
+  GitHub build-provenance attestation (`gh attestation verify repo-radar-0.19.0.tgz --repo shadowhunter67/repo-radar`).
 - [All releases](https://github.com/shadowhunter67/repo-radar/releases)
 - Not published yet: the npm registry package and the GitHub Action.
 
