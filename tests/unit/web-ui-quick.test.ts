@@ -54,7 +54,7 @@ const thin = report((r) => {
 describe('Quick Scan positioning on the landing page', () => {
   it('Vietnamese by default: headline, intro and the four-step funnel', () => {
     const doc = new JSDOM(html).window.document;
-    expect(text(doc.querySelector('h1'))).toBe('Web Analyzer — Bản xem trước Quét nhanh');
+    expect(text(doc.querySelector('h1'))).toBe('Web Analyzer Quick Scan Preview');
     expect(text(doc.querySelector('.quick-intro'))).toContain('tài nguyên có giới hạn');
     expect(text(doc.querySelector('.quick-intro'))).toContain('chưa đầy đủ');
     expect(text(doc.querySelector('.steps'))).toContain('Deep Scan bằng CLI');
@@ -63,7 +63,7 @@ describe('Quick Scan positioning on the landing page', () => {
     const doc = new JSDOM(html).window.document;
     setLanguage('en');
     applyStatic(doc);
-    expect(text(doc.querySelector('h1'))).toBe('Web Analyzer — Quick Scan Preview');
+    expect(text(doc.querySelector('h1'))).toBe('Web Analyzer Quick Scan Preview');
     expect(text(doc.querySelector('.quick-intro'))).toContain('bounded resources');
     expect(text(doc.querySelector('.quick-intro'))).toContain(
       'Large repositories may return partial results',

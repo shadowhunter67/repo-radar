@@ -6,7 +6,25 @@
  */
 const dict = {
   vi: {
-    headline: 'Web Analyzer — Bản xem trước Quét nhanh',
+    headline: 'Web Analyzer',
+    'headline.pill': 'Quick Scan Preview',
+    'brand.docs': 'Tài liệu',
+    'deepmenu.title': 'Deep Scan bằng CLI',
+    'deepmenu.sub': 'Phân tích đầy đủ, chạy cục bộ trên máy của bạn',
+    'deepmenu.body':
+      'Deep Scan đọc nhiều tệp và dependency hơn, vẫn có giới hạn. Chạy bằng CLI trên máy của bạn:',
+    'deepmenu.link': 'Hướng dẫn cài đặt',
+    'form.title': 'Phân tích kho mã (Quick Scan)',
+    'form.note': 'Để có phân tích đầy đủ, hãy chạy Deep Scan bằng CLI trên máy của bạn.',
+    'form.examplesLabel': 'Ví dụ kho mã:',
+    'kpi.label': 'Tóm tắt kết quả',
+    'kpi.scoreOf': '/ 100',
+    'kpi.gradeNote': 'Dựa trên bằng chứng',
+    'kpi.confNote': 'Mức phủ và đồng thuận',
+    'kpi.coverageNote': 'Tệp và phụ thuộc',
+    'kpi.findingsNote': 'Vấn đề quan sát được',
+    'kpi.depsNote': 'Phụ thuộc trực tiếp',
+    'gauge.label': 'Điểm trên thang 100',
     'quick.intro':
       'Quét nhanh phân tích kho mã GitHub công khai bằng tài nguyên có giới hạn, dùng để khám phá, sàng lọc ban đầu và xem các kho mã nhỏ hoặc vừa. Kho mã lớn có thể cho kết quả chưa đầy đủ.',
     'quick.steps':
@@ -225,7 +243,25 @@ const dict = {
     'actions.cliSelect': 'Hãy chọn và sao chép lệnh CLI.',
   },
   en: {
-    headline: 'Web Analyzer — Quick Scan Preview',
+    headline: 'Web Analyzer',
+    'headline.pill': 'Quick Scan Preview',
+    'brand.docs': 'Docs',
+    'deepmenu.title': 'Deep Scan via CLI',
+    'deepmenu.sub': 'Fuller analysis, run locally on your machine',
+    'deepmenu.body':
+      'Deep Scan reads more files and dependencies, still bounded. Run it with the CLI on your machine:',
+    'deepmenu.link': 'Install guide',
+    'form.title': 'Analyze a repository (Quick Scan)',
+    'form.note': 'For a fuller analysis, run a Deep Scan with the CLI on your machine.',
+    'form.examplesLabel': 'Example repositories:',
+    'kpi.label': 'Result summary',
+    'kpi.scoreOf': '/ 100',
+    'kpi.gradeNote': 'Based on evidence',
+    'kpi.confNote': 'Coverage and agreement',
+    'kpi.coverageNote': 'Files and dependencies',
+    'kpi.findingsNote': 'Observed issues',
+    'kpi.depsNote': 'Declared dependencies',
+    'gauge.label': 'Score on a scale of 100',
     'quick.intro':
       'Quick Scan analyzes public GitHub repositories using bounded resources. It is meant for exploring the product, preliminary screening and small or medium repositories. Large repositories may return partial results.',
     'quick.steps':

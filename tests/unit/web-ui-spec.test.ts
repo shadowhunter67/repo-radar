@@ -410,7 +410,10 @@ describe('untrusted data stays text', () => {
     const job = jobOf(r);
     job.repository = { owner: 'spf13', repo: 'cobra' };
     const host = mount(job);
-    expect(host.querySelectorAll('img, script, svg, iframe, object, embed')).toHaveLength(0);
+    expect(
+      host.querySelectorAll('img, script, svg:not(.gauge), iframe, object, embed'),
+    ).toHaveLength(0);
+    expect(host.querySelectorAll('svg.gauge')).toHaveLength(1); // only the decorative gauge the page draws itself
     expect(host.querySelectorAll('[onerror], [onload], [onclick], [onmouseover]')).toHaveLength(0);
     expect(host.textContent).toContain('<img src=x onerror=alert(1)>');
     for (const a of host.querySelectorAll('a')) {

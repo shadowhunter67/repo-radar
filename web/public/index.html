@@ -9,72 +9,134 @@
   <body>
     <a class="skip-link" href="#main" data-i18n="skip.main">Chuyển đến nội dung chính</a>
     <header class="site-header">
-      <a class="brand" href="/">repo-radar</a
-      ><span class="badge" data-i18n="header.badge">Bản xem trước thử nghiệm</span>
-      <div class="lang-switch" role="group" aria-label="Ngôn ngữ" data-i18n-aria="header.langGroup">
-        <button type="button" data-lang="vi" lang="vi" aria-label="Tiếng Việt" aria-pressed="true">
-          VI</button
-        ><button type="button" data-lang="en" lang="en" aria-label="English" aria-pressed="false">
-          EN
-        </button>
+      <a class="brand" href="/"
+        ><img class="logo" src="/img/logo.svg" alt="" width="36" height="36" />repo-radar</a
+      >
+      <span class="badge" data-i18n="header.badge">Bản xem trước thử nghiệm</span>
+      <div class="header-actions">
+        <div
+          class="lang-switch"
+          role="group"
+          aria-label="Ngôn ngữ"
+          data-i18n-aria="header.langGroup"
+        >
+          <button
+            type="button"
+            data-lang="vi"
+            lang="vi"
+            aria-label="Tiếng Việt"
+            aria-pressed="true"
+          >
+            VI</button
+          ><button type="button" data-lang="en" lang="en" aria-label="English" aria-pressed="false">
+            EN
+          </button>
+        </div>
+        <a
+          class="btn-link docs-link"
+          href="https://github.com/shadowhunter67/repo-radar/blob/main/docs/getting-started.md"
+          rel="noopener noreferrer"
+          data-i18n="brand.docs"
+          >Tài liệu</a
+        >
+        <details class="deep-menu">
+          <summary>
+            <span class="deep-title" data-i18n="deepmenu.title">Deep Scan bằng CLI</span>
+            <span class="deep-sub" data-i18n="deepmenu.sub"
+              >Phân tích đầy đủ, chạy cục bộ trên máy của bạn</span
+            >
+          </summary>
+          <div class="deep-panel">
+            <p data-i18n="deepmenu.body">
+              Deep Scan đọc nhiều tệp và dependency hơn, vẫn có giới hạn. Chạy bằng CLI trên máy của
+              bạn:
+            </p>
+            <code>repo-radar analyze owner/repo --ref &lt;sha&gt; --mode deep</code>
+            <a
+              href="https://github.com/shadowhunter67/repo-radar/blob/main/docs/getting-started.md"
+              rel="noopener noreferrer"
+              data-i18n="deepmenu.link"
+              >Hướng dẫn cài đặt</a
+            >
+          </div>
+        </details>
       </div>
     </header>
     <main id="main" tabindex="-1">
-      <h1 class="headline" data-i18n="headline">Web Analyzer — Bản xem trước Quét nhanh</h1>
-      <p class="lede" data-i18n="lede">
-        Phân tích bằng chứng có thể quan sát được của kho mã và chuỗi cung ứng phần mềm.
-      </p>
-      <p class="quick-intro" data-i18n="quick.intro">
-        Quét nhanh phân tích kho mã GitHub công khai bằng tài nguyên có giới hạn, dùng để khám phá,
-        sàng lọc ban đầu và xem các kho mã nhỏ hoặc vừa. Kho mã lớn có thể cho kết quả chưa đầy đủ.
-      </p>
-      <p class="steps" data-i18n="quick.steps">
-        Dán kho mã → Quét nhanh → xem báo cáo → cần sâu hơn thì chạy Deep Scan bằng CLI.
-      </p>
-      <ul
-        class="hosted-notes"
-        data-banner="hosted"
-        aria-label="Giới hạn của dịch vụ"
-        data-i18n-aria="hosted.label"
-      >
-        <li data-i18n="hosted.public">Chỉ kho mã công khai</li>
-        <li data-i18n="hosted.history">Phân tích lịch sử đang tắt</li>
-        <li data-i18n="hosted.temporary">Kết quả chỉ được lưu tạm thời</li>
-        <li data-i18n="hosted.preview">Bản xem trước thử nghiệm</li>
-      </ul>
-      <form id="analyze-form" novalidate>
-        <label for="repository" data-i18n="form.repository">Kho mã</label
-        ><input
-          id="repository"
-          name="repository"
-          autocomplete="url"
-          placeholder="owner/repo"
-          data-i18n-placeholder="form.repositoryPlaceholder"
-          required
-        /><label for="ref"
-          ><span data-i18n="form.ref">Tham chiếu</span>
-          <span class="hint" data-i18n="form.refHint"
-            >(không bắt buộc: nhánh, tag hoặc SHA của commit)</span
-          ></label
-        ><input
-          id="ref"
-          name="ref"
-          placeholder="main hoặc SHA của commit"
-          data-i18n-placeholder="form.refPlaceholder"
-        />
-        <p id="normalised" class="normalised" aria-live="polite"></p>
-        <div class="examples" role="group" aria-label="Ví dụ" data-i18n-aria="form.examples">
-          <button type="button" data-example="sindresorhus/is-plain-obj">
-            sindresorhus/is-plain-obj</button
-          ><button type="button" data-example="sindresorhus/yocto-queue">
-            sindresorhus/yocto-queue</button
-          ><button type="button" data-example="pallets/itsdangerous">pallets/itsdangerous</button
-          ><button type="button" data-example="spf13/cobra">spf13/cobra</button>
+      <section class="hero">
+        <div class="hero-copy">
+          <h1 class="headline">
+            <span data-i18n="headline">Web Analyzer</span>
+            <span class="pill" data-i18n="headline.pill">Quick Scan Preview</span>
+          </h1>
+          <p class="lede" data-i18n="lede">
+            Phân tích bằng chứng có thể quan sát được của kho mã và chuỗi cung ứng phần mềm.
+          </p>
+          <p class="quick-intro" data-i18n="quick.intro">
+            Quét nhanh phân tích kho mã GitHub công khai bằng tài nguyên có giới hạn, dùng để khám
+            phá, sàng lọc ban đầu và xem các kho mã nhỏ hoặc vừa. Kho mã lớn có thể cho kết quả chưa
+            đầy đủ.
+          </p>
+          <p class="steps" data-i18n="quick.steps">
+            Dán kho mã → Quét nhanh → xem báo cáo → cần sâu hơn thì chạy Deep Scan bằng CLI.
+          </p>
+          <ul
+            class="hosted-notes"
+            data-banner="hosted"
+            aria-label="Giới hạn của dịch vụ"
+            data-i18n-aria="hosted.label"
+          >
+            <li data-i18n="hosted.public">Chỉ kho mã công khai</li>
+            <li data-i18n="hosted.history">Phân tích lịch sử đang tắt</li>
+            <li data-i18n="hosted.temporary">Kết quả chỉ được lưu tạm thời</li>
+            <li data-i18n="hosted.preview">Bản xem trước thử nghiệm</li>
+          </ul>
+          <img class="hero-art" src="/img/hero.svg" alt="" width="360" height="220" />
         </div>
-        <button id="analyze" type="submit" class="primary" data-i18n="form.analyze">
-          Phân tích
-        </button>
-      </form>
+        <form id="analyze-form" class="hero-form" novalidate>
+          <div class="form-head">
+            <h2 class="form-title" data-i18n="form.title">Phân tích kho mã (Quick Scan)</h2>
+            <p class="form-note" data-i18n="form.note">
+              Để có phân tích đầy đủ, hãy chạy Deep Scan bằng CLI trên máy của bạn.
+            </p>
+          </div>
+          <label for="repository" data-i18n="form.repository">Kho mã</label
+          ><input
+            id="repository"
+            name="repository"
+            autocomplete="url"
+            placeholder="owner/repo"
+            data-i18n-placeholder="form.repositoryPlaceholder"
+            required
+          /><label for="ref"
+            ><span data-i18n="form.ref">Tham chiếu</span>
+            <span class="hint" data-i18n="form.refHint"
+              >(không bắt buộc: nhánh, tag hoặc SHA của commit)</span
+            ></label
+          ><input
+            id="ref"
+            name="ref"
+            placeholder="main hoặc SHA của commit"
+            data-i18n-placeholder="form.refPlaceholder"
+          />
+          <p id="normalised" class="normalised" aria-live="polite"></p>
+          <button id="analyze" type="submit" class="primary" data-i18n="form.analyze">
+            Phân tích
+          </button>
+          <div class="examples-row">
+            <span class="examples-label" data-i18n="form.examplesLabel">Ví dụ kho mã:</span>
+            <div class="examples" role="group" aria-label="Ví dụ" data-i18n-aria="form.examples">
+              <button type="button" data-example="sindresorhus/is-plain-obj">
+                sindresorhus/is-plain-obj</button
+              ><button type="button" data-example="sindresorhus/yocto-queue">
+                sindresorhus/yocto-queue</button
+              ><button type="button" data-example="pallets/itsdangerous">
+                pallets/itsdangerous</button
+              ><button type="button" data-example="spf13/cobra">spf13/cobra</button>
+            </div>
+          </div>
+        </form>
+      </section>
       <div id="status" role="status" aria-live="polite"></div>
       <div id="error" class="error" role="alert"></div>
       <div id="result"></div>

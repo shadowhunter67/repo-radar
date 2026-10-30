@@ -205,8 +205,14 @@ function findingsSection(doc, root, report) {
       ['title', f.title],
       ['summary', f.summary ?? ''],
       ['evidence-count', String((f.evidence_ids ?? []).length)],
-    ])
-      tr.append(el(doc, 'td', v, { 'data-col': k }));
+    ]) {
+      const td = el(doc, 'td', k === 'severity' ? undefined : v, {
+        'data-col': k,
+        ...(k === 'severity' ? { class: `sev-${String(v).toLowerCase()}` } : {}),
+      });
+      if (k === 'severity') td.append(el(doc, 'span', v, { class: 'sev-badge' }));
+      tr.append(td);
+    }
     const run = () => open(f, tr);
     tr.addEventListener('click', run);
     tr.addEventListener('keydown', (e) => {
@@ -297,6 +303,86 @@ function copyButton(doc, label, command, action, note) {
   });
   return b;
 }
+const SVG = 'http://www.w3.org/2000/svg';
+const svg = (doc, tag, attrs = {}) => {
+  const n = doc.createElementNS(SVG, tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v));
+  return n;
+};
+/** Half-circle gauge; decorative (the value is also in the text beside it). */
+function gauge(doc, score) {
+  const pct = Math.max(0, Math.min(100, Number(score) || 0)) / 100;
+  const len = Math.PI * 52;
+  const root = svg(doc, 'svg', {
+    viewBox: '0 0 128 74',
+    class: 'gauge',
+    'aria-hidden': 'true',
+    focusable: 'false',
+  });
+  root.append(
+    svg(doc, 'path', {
+      d: 'M12 64a52 52 0 0 1 104 0',
+      class: 'gauge-track',
+      fill: 'none',
+      'stroke-width': 10,
+      'stroke-linecap': 'round',
+    }),
+    svg(doc, 'path', {
+      d: 'M12 64a52 52 0 0 1 104 0',
+      class: 'gauge-fill',
+      fill: 'none',
+      'stroke-width': 10,
+      'stroke-linecap': 'round',
+      'stroke-dasharray': `${(len * pct).toFixed(1)} ${len.toFixed(1)}`,
+    }),
+  );
+  return root;
+}
+const bar = (doc, value, cls = '') =>
+  el(doc, 'progress', undefined, {
+    max: 100,
+    value: Math.round(Math.max(0, Math.min(100, value))),
+    class: `bar ${cls}`.trim(),
+    'aria-hidden': 'true',
+  });
+function kpiStrip(doc, report, sum) {
+  const strip = el(doc, 'div', undefined, {
+    class: 'kpis',
+    role: 'group',
+    'aria-label': t('kpi.label'),
+    'data-kpis': 'true',
+  });
+  const tile = (icon, label, value, note, extra) => {
+    const d = el(doc, 'div', undefined, { class: 'kpi' });
+    d.append(
+      el(doc, 'span', undefined, { class: `kpi-icon kpi-icon-${icon}`, 'aria-hidden': 'true' }),
+    );
+    const body = el(doc, 'div', undefined, { class: 'kpi-body' });
+    const v = el(doc, 'p', undefined, { class: 'kpi-value' });
+    v.append(el(doc, 'strong', value));
+    if (extra) v.append(el(doc, 'small', extra));
+    body.append(
+      el(doc, 'p', label, { class: 'kpi-label' }),
+      v,
+      el(doc, 'p', note, { class: 'kpi-note' }),
+    );
+    d.append(body);
+    strip.append(d);
+  };
+  const pct = Math.round((report.overall?.weight_covered ?? 0) * 100);
+  tile('score', t('field.score'), report.overall?.score ?? '—', '', t('kpi.scoreOf'));
+  tile('grade', t('field.grade'), report.overall?.grade ?? '—', t('kpi.gradeNote'));
+  tile('confidence', t('field.confidence'), report.overall?.confidence ?? '—', t('kpi.confNote'));
+  tile('coverage', t('section.coverage'), `${pct}%`, t('kpi.coverageNote'));
+  tile(
+    'findings',
+    t('section.findings'),
+    String((report.findings ?? []).length),
+    t('kpi.findingsNote'),
+  );
+  tile('deps', t('field.directDeps'), String(sum.direct ?? 0), t('kpi.depsNote'));
+  return strip;
+}
 const onOff = (v) => (v ? t('tech.on') : t('tech.off'));
 function configList(doc, report) {
   const f = report.analysis_manifest?.feature_flags ?? {};
@@ -320,6 +406,9 @@ function configList(doc, report) {
 export function renderResult(doc, job) {
   const report = job.report ?? job;
   const root = doc.createDocumentFragment();
+  // The six main cards sit in a two-column dashboard grid (the DOM order stays overview, score, confidence, coverage, findings, dependencies).
+  const dash = el(doc, 'div', undefined, { class: 'dash' });
+  root.append(kpiStrip(doc, report, report.dependency_intel?.summary ?? {}));
   const overview = card(doc, 'overview', t('section.overview'));
   const owner = job.repository?.owner ?? 'unknown',
     repo = job.repository?.repo ?? 'unknown';
@@ -364,7 +453,7 @@ export function renderResult(doc, job) {
     report.methodology?.version ?? report.analysis_manifest?.methodology_version ?? '0.4',
     'methodology-version',
   );
-  root.append(overview);
+  dash.append(overview);
   if (job.state === 'partial' && Array.isArray(job.partial_reasons) && job.partial_reasons.length) {
     const part = card(doc, 'partial', t('section.partial'));
     const ul = el(doc, 'ul');
@@ -376,11 +465,13 @@ export function renderResult(doc, job) {
   field(doc, sc, t('field.score'), report.overall.score, 'score', { class: 'score neutral' });
   field(doc, sc, t('field.grade'), report.overall.grade, 'grade');
   sc.append(el(doc, 'p', t('score.note')));
-  root.append(sc);
+  sc.querySelector('h2')?.after(gauge(doc, report.overall.score));
+  dash.append(sc);
   const conf = card(doc, 'confidence', t('section.confidence'));
   field(doc, conf, t('field.confidence'), report.overall.confidence, 'confidence');
   conf.append(el(doc, 'p', t('confidence.note')));
-  root.append(conf);
+  conf.append(bar(doc, Number(report.overall.confidence) * 100, 'bar-conf'));
+  dash.append(conf);
   const coverage = card(doc, 'coverage', t('section.coverage'));
   const pct = Math.round(report.overall.weight_covered * 100);
   field(doc, coverage, t('field.coverageOverall'), `${pct}%`, 'coverage');
@@ -427,6 +518,7 @@ export function renderResult(doc, job) {
         'data-field': 'dimension-coverage',
       }),
     );
+    n.append(bar(doc, dim.coverage * 100, dim.coverage >= 0.95 ? 'bar-good' : 'bar-mid'));
     coverage.append(n);
   }
   if ((scan.source_coverage ?? 1) < 0.5)
@@ -435,7 +527,7 @@ export function renderResult(doc, job) {
         'data-notice': 'low-source-coverage',
       }),
     );
-  root.append(coverage);
+  dash.append(coverage);
   const deepCommand = `node dist/cli.js analyze ${owner}/${repo}${sha === 'unavailable' ? '' : ` --ref ${sha}`} --mode deep`;
   // Partial or thinly scanned: the next step is made prominent. A complete Quick result only gets a small hint further down.
   const needsDeep = job.state === 'partial' || (scan.source_coverage ?? 1) < 0.5;
@@ -461,7 +553,7 @@ export function renderResult(doc, job) {
     root.append(cta);
   }
   const findingHost = doc.createElement('div');
-  root.append(findingsSection(doc, findingHost, report));
+  dash.append(findingsSection(doc, findingHost, report));
   const deps = card(doc, 'dependencies', t('section.dependencies')),
     sum = report.dependency_intel?.summary ?? {};
   field(doc, deps, t('field.directDeps'), sum.direct ?? 0, 'direct-count');
@@ -475,7 +567,8 @@ export function renderResult(doc, job) {
     'ecosystems',
   );
   field(doc, deps, t('field.vulnerable'), sum.vulnerable_total ?? 0, 'vulnerable-count');
-  root.append(deps);
+  dash.append(deps);
+  root.append(dash);
   const rel = card(doc, 'release', t('section.release'));
   for (const x of report.release_intel?.releases ?? [])
     rel.append(
